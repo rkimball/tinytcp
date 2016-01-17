@@ -157,7 +157,7 @@ void HTTPD::ProcessRequest( HTTPPage* page )
 
             argLength = strlen(argv[i])+1;
 
-            // Translate any escapted characters in the argument
+            // Translate any escaped characters in the argument
             p = argv[i];
             result = p;
             for( j=0; j<argLength; j++ )
