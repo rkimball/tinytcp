@@ -144,10 +144,12 @@
     <ClCompile Include="NetworkInterface.cpp" />
     <ClCompile Include="ProtocolARP.cpp" />
     <ClCompile Include="ProtocolConfig.cpp" />
+    <ClCompile Include="ProtocolDHCP.cpp" />
     <ClCompile Include="ProtocolICMP.cpp" />
     <ClCompile Include="ProtocolIP.cpp" />
     <ClCompile Include="ProtocolMACEthernet.cpp" />
     <ClCompile Include="ProtocolTCP.cpp" />
+    <ClCompile Include="ProtocolUDP.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,10 +159,12 @@
     <ClInclude Include="NetworkInterface.h" />
     <ClInclude Include="ProtocolARP.h" />
     <ClInclude Include="ProtocolConfig.h" />
+    <ClInclude Include="ProtocolDHCP.h" />
     <ClInclude Include="ProtocolICMP.h" />
     <ClInclude Include="ProtocolIP.h" />
     <ClInclude Include="ProtocolMACEthernet.h" />
     <ClInclude Include="ProtocolTCP.h" />
+    <ClInclude Include="ProtocolUDP.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>

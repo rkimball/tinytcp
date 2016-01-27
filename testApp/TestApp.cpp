@@ -56,7 +56,7 @@ extern DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
 
 struct NetworkConfig
 {
-   int interfaceNumber;
+   int interfaceNumber = 1;
 };
 
 //============================================================================
@@ -95,9 +95,9 @@ void NetworkEntry( void* param )
    Config.SubnetMask[ 2 ] = 254;
    Config.SubnetMask[ 3 ] = 0;
 
-   Config.Gateway[ 0 ] = 129;
-   Config.Gateway[ 1 ] = 46;
-   Config.Gateway[ 2 ] = 72;
+   Config.Gateway[ 0 ] = 192;
+   Config.Gateway[ 1 ] = 168;
+   Config.Gateway[ 2 ] = 1;
    Config.Gateway[ 3 ] = 1;
 
    PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
@@ -133,7 +133,7 @@ void ProcessPageRequest
    const char* url,
    int argc,
    char** argv
-   )
+)
 {
    printf( "url %s\n", url );
 
@@ -202,8 +202,7 @@ int main( int argc, char* argv[] )
          config.interfaceNumber = atoi( argv[ ++i ] );
       }
    }
-   //crc_test();
-   //MainThread.Create( MainEntry, "Main", 1024, 20, 0 );
+
    HTTPD::RegisterPageHandler( ProcessPageRequest );
    MainEntry( &config );
 

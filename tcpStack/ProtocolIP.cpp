@@ -36,6 +36,7 @@
 #include "ProtocolIP.h"
 #include "ProtocolICMP.h"
 #include "ProtocolTCP.h"
+#include "ProtocolUDP.h"
 #include "Address.h"
 #include "FCS.h"
 #include "DataBuffer.h"
@@ -106,6 +107,7 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, uint8_t* hardwareAddress )
       ProtocolTCP::ProcessRx( buffer, sourceIP, targetIP );
       break;
    case 0x11:  // UDP
+      ProtocolUDP::ProcessRx( buffer, sourceIP, targetIP );
       break;
    default:
       printf( "Unsupported IP Protocol 0x%02X\n", protocol );
@@ -137,6 +139,11 @@ DataBuffer* ProtocolIP::GetTxBuffer()
 
 void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP )
 {
+   Transmit( buffer, protocol, targetIP, Config.Address.Protocol );
+}
+
+void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP, uint8_t* sourceIP )
+{
    uint16_t checksum;
    uint8_t* targetMAC;
    uint8_t* packet;
@@ -161,10 +168,10 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* target
    packet[ 10 ] = 0;       // Seed Checksum
    packet[ 11 ] = 0;
 
-   packet[ 12 ] = Config.Address.Protocol[ 0 ];
-   packet[ 13 ] = Config.Address.Protocol[ 1 ];
-   packet[ 14 ] = Config.Address.Protocol[ 2 ];
-   packet[ 15 ] = Config.Address.Protocol[ 3 ];
+   packet[ 12 ] = sourceIP[ 0 ];
+   packet[ 13 ] = sourceIP[ 1 ];
+   packet[ 14 ] = sourceIP[ 2 ];
+   packet[ 15 ] = sourceIP[ 3 ];
    
    packet[ 16 ] = targetIP[ 0 ];
    packet[ 17 ] = targetIP[ 1 ];

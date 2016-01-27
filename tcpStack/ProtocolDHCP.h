@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,38 +29,51 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLIP_H
-#define PROTOCOLIP_H
+#ifndef PROTOCOLDHCP_H
+#define PROTOCOLDHCP_H
 
-#include <cinttypes>
-#include "osQueue.h"
+#include <inttypes.h>
+
 #include "DataBuffer.h"
 
-#define IP_HEADER_SIZE (20)
+// UDP Src = 0.0.0.0 sPort = 68
+// Dest = 255.255.255.255 dPort = 67
+struct DHCPDISCOVER
+{
+   uint8_t op = 0x01;
+   uint8_t htype = 0x01;
+   uint8_t hlen = 0x06;
+   uint8_t hops = 0x00;
+   uint32_t xid = 0x3903F326;
+   uint16_t secs = 0x0000;
+   uint16_t flags = 0x8000;
+   uint32_t ciaddr = 0x00000000; // (Client IP address)
+   uint32_t yiaddr = 0x00000000; // (Your IP address)
+   uint32_t siaddr = 0x00000000; // (Server IP address)
+   uint32_t giaddr = 0x00000000; // (Gateway IP address)
+   uint8_t chaddr[ 16 ]; // (Client hardware address)
+   //0x00053C04
+   //0x8D590000
+   //0x00000000
+   //0x00000000
+   uint8_t sname[ 64 ];
+   uint8_t file[ 128 ];
+   //192 octets of 0s, or overflow space for additional options.BOOTP legacy
+   //Magic cookie
+   //0x63825363
+   //DHCP Options
+   //DHCP option 53: DHCP Discover
+   //DHCP option 50 : 192.168.1.100 requested
+   //DHCP option 55 : Parameter Request List :
+   //Request Subnet Mask( 1 ), Router( 3 ), Domain Name( 15 ), Domain Name Server( 6 )
+};
 
-class ProtocolIP
+class ProtocolDHCP
 {
 public:
-   static void Initialize();
-
-   static void ProcessRx( DataBuffer*, uint8_t* hardwareAddress );
-
-   static void Transmit( DataBuffer*, uint8_t protocol, uint8_t* targetIP );
-   static void Transmit( DataBuffer*, uint8_t protocol, uint8_t* targetIP, uint8_t* sourceIP );
-   static void Retransmit( DataBuffer* );
-
-   static void Retry();
-   
-   static DataBuffer* GetTxBuffer();
-
+   static void Discover();
 private:
-
-   static uint16_t PacketID;
-
-   static osQueue UnresolvedQueue;
-
-   ProtocolIP();
-   ProtocolIP( ProtocolIP& );
+   static DataBuffer Buffer;
 };
 
 #endif

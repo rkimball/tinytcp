@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,38 +29,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLIP_H
-#define PROTOCOLIP_H
+#include "ProtocolDHCP.h"
+#include "ProtocolUDP.h"
 
-#include <cinttypes>
-#include "osQueue.h"
-#include "DataBuffer.h"
-
-#define IP_HEADER_SIZE (20)
-
-class ProtocolIP
+void ProtocolDHCP::Discover()
 {
-public:
-   static void Initialize();
+   uint8_t* packet;
+   DataBuffer* buffer = ProtocolUDP::GetTxBuffer();
 
-   static void ProcessRx( DataBuffer*, uint8_t* hardwareAddress );
-
-   static void Transmit( DataBuffer*, uint8_t protocol, uint8_t* targetIP );
-   static void Transmit( DataBuffer*, uint8_t protocol, uint8_t* targetIP, uint8_t* sourceIP );
-   static void Retransmit( DataBuffer* );
-
-   static void Retry();
-   
-   static DataBuffer* GetTxBuffer();
-
-private:
-
-   static uint16_t PacketID;
-
-   static osQueue UnresolvedQueue;
-
-   ProtocolIP();
-   ProtocolIP( ProtocolIP& );
-};
-
-#endif
+   packet = buffer->Packet;
+}
