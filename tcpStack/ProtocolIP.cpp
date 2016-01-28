@@ -182,7 +182,7 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* target
    packet[ 10 ] = checksum >> 8;
    packet[ 11 ] = checksum & 0xFF;
 
-   //printf( "Tx to %3d.%3d.%3d.%3d\n",
+   //printf( "Tx to %d.%d.%d.%d\n",
    //   targetIP[ 0 ],
    //   targetIP[ 1 ],
    //   targetIP[ 2 ],
@@ -194,7 +194,11 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* target
    }
    else
    {
-      printf( "Could not find MAC for IP\n" );
+      printf( "Could not find MAC for IP %d.%d.%d.%d\n",
+         targetIP[ 0 ],
+         targetIP[ 1 ],
+         targetIP[ 2 ],
+         targetIP[ 3 ]);
       UnresolvedQueue.Put( buffer );
    }
 }
@@ -223,7 +227,7 @@ void ProtocolIP::Retry()
    {
       buffer = (DataBuffer*)UnresolvedQueue.Get();
 
-      printf( "Retry Tx to %3d.%3d.%3d.%3d\n",
+      printf( "Retry Tx to %d.%d.%d.%d\n",
          buffer->Packet[ 16 ],
          buffer->Packet[ 17 ],
          buffer->Packet[ 18 ],

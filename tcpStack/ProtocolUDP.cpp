@@ -59,10 +59,10 @@ DataBuffer* ProtocolUDP::GetTxBuffer()
 
 void ProtocolUDP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP, uint8_t* targetIP )
 {
-   printf( "got udp, source %d.%d.%d.%d, target %d.%d.%d.%d\n",
-      sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-      targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ]
-      );
+   //printf( "got udp, source %d.%d.%d.%d, target %d.%d.%d.%d\n",
+   //   sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
+   //   targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ]
+   //   );
 }
 
 //============================================================================

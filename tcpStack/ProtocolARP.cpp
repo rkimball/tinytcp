@@ -179,7 +179,7 @@ void ProtocolARP::Show()
    printf( "ARP Cache:\n" );
    for( i = 0; i < CacheSize; i++ )
    {
-      printf( "%3d.%3d.%3d.%3d ",
+      printf( "%d.%d.%d.%d ",
          Cache[ i ].Protocol[ 0 ],
          Cache[ i ].Protocol[ 1 ],
          Cache[ i ].Protocol[ 2 ],
@@ -245,11 +245,11 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
 
 void ProtocolARP::SendRequest( uint8_t* targetIP )
 {
-   //printf( "Send ARP Request for %3d.%3d.%3d.%3d\n",
-   //      targetIP[ 0 ],
-   //      targetIP[ 1 ],
-   //      targetIP[ 2 ],
-   //      targetIP[ 3 ] );
+   printf( "Send ARP Request for %d.%d.%d.%d\n",
+         targetIP[ 0 ],
+         targetIP[ 1 ],
+         targetIP[ 2 ],
+         targetIP[ 3 ] );
 
    ARPRequest.Initialize();
    ARPRequest.Packet += ProtocolMACEthernet::HeaderSize();
@@ -377,7 +377,7 @@ int ProtocolARP::LocateProtocolAddress( uint8_t* protocolAddress )
    int i;
    int j;
 
-   //printf( "Check ARP cache for %3d.%3d.%3d.%3d\n",
+   //printf( "Check ARP cache for %d.%d.%d.%d\n",
    //   protocolAddress[ 0 ],
    //   protocolAddress[ 1 ],
    //   protocolAddress[ 2 ],

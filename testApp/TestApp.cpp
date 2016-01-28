@@ -86,9 +86,9 @@ void NetworkEntry( void* param )
    //Config.Address.Hardware[ 3 ] = 0x00;
    //Config.Address.Hardware[ 4 ] = 0x0B;
    //Config.Address.Hardware[ 5 ] = 0x0B;
-   Config.Address.Hardware[ 0 ] = 0x11;
-   Config.Address.Hardware[ 1 ] = 0x22;
-   Config.Address.Hardware[ 2 ] = 0x33;
+   Config.Address.Hardware[ 0 ] = 0x10;
+   Config.Address.Hardware[ 1 ] = 0xBF;
+   Config.Address.Hardware[ 2 ] = 0x48;
    Config.Address.Hardware[ 3 ] = 0x44;
    Config.Address.Hardware[ 4 ] = 0x55;
    Config.Address.Hardware[ 5 ] = 0x66;
@@ -214,6 +214,11 @@ int main( int argc, char* argv[] )
       else if( !strcmp( argv[ i ], "-use" ) )
       {
          config.interfaceNumber = atoi( argv[ ++i ] );
+      }
+      else
+      {
+         printf( "unknown option '%s'\n", argv[ i ] );
+         return -1;
       }
    }
 
