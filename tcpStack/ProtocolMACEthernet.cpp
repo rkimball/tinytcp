@@ -82,11 +82,9 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
    {
       TxBufferQueue.Put( &TxBuffer[ i ] );
    }
-   printf( "Buffer init\n" );
    RxBufferQueue.Initialize( RX_BUFFER_COUNT, "Rx" );
    for( i=0; i<RX_BUFFER_COUNT; i++ )
    {
-      printf( "rx buffer\n" );
       RxBufferQueue.Put( &RxBuffer[ i ] );
    }
 
@@ -253,11 +251,6 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, uint8_t* targetMAC, uint
 
    *p++ = type >> 8;
    *p++ = type & 0xFF;
-
-   //for( i=0; i<length; i++ )
-   //{
-   //   *p++ = buffer[ i ];
-   //}
 
    p += buffer->Length;
 

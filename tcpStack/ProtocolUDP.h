@@ -39,9 +39,17 @@
 
 class ProtocolUDP
 {
+   struct Datagram
+   {
+      uint16_t sourcePort;
+      uint16_t targetPort;
+      uint16_t length;
+      uint16_t checksum;
+   };
+
 public:
    static void ProcessRx( DataBuffer*, uint8_t* sourceIP, uint8_t* targetIP );
-   static void Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP );
+   static void Transmit( DataBuffer* buffer, uint8_t* targetIP, uint16_t targetPort, uint8_t* sourceIP, uint16_t sourcePort );
 
    static DataBuffer* GetTxBuffer();
 private:

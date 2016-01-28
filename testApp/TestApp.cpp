@@ -37,6 +37,7 @@
 #include "ProtocolMACEthernet.h"
 #include "Address.h"
 #include "ProtocolTCP.h"
+#include "ProtocolDHCP.h"
 #include "osThread.h"
 #include "osMutex.h"
 #include "HTTPD.h"
@@ -53,6 +54,8 @@ HTTPD WebServer;
 
 extern DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
 extern DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
+
+static osEvent StartEvent( "StartEvent" );
 
 struct NetworkConfig
 {
@@ -77,12 +80,18 @@ void NetworkEntry( void* param )
    NetworkConfig& config = *(NetworkConfig*)param;
    char device[ 256 ];
 
-   Config.Address.Hardware[ 0 ] = 0x00;
-   Config.Address.Hardware[ 1 ] = 0xA0;
-   Config.Address.Hardware[ 2 ] = 0xC6;
-   Config.Address.Hardware[ 3 ] = 0x00;
-   Config.Address.Hardware[ 4 ] = 0x0B;
-   Config.Address.Hardware[ 5 ] = 0x0B;
+   //Config.Address.Hardware[ 0 ] = 0x00;
+   //Config.Address.Hardware[ 1 ] = 0xA0;
+   //Config.Address.Hardware[ 2 ] = 0xC6;
+   //Config.Address.Hardware[ 3 ] = 0x00;
+   //Config.Address.Hardware[ 4 ] = 0x0B;
+   //Config.Address.Hardware[ 5 ] = 0x0B;
+   Config.Address.Hardware[ 0 ] = 0x11;
+   Config.Address.Hardware[ 1 ] = 0x22;
+   Config.Address.Hardware[ 2 ] = 0x33;
+   Config.Address.Hardware[ 3 ] = 0x44;
+   Config.Address.Hardware[ 4 ] = 0x55;
+   Config.Address.Hardware[ 5 ] = 0x66;
 
    // 192.168.1.3
    Config.Address.Protocol[ 0 ] = 192;
@@ -108,6 +117,8 @@ void NetworkEntry( void* param )
 
    ProtocolMACEthernet::Initialize( PIO );
 
+   StartEvent.Notify();
+
    // This method does not return...ever
    PIO->Start( packet_handler );
 }
@@ -119,6 +130,9 @@ void NetworkEntry( void* param )
 void MainEntry( void* config )
 {
    NetworkThread.Create( NetworkEntry, "Network", 1024, 10, config );
+
+   Sleep( 1000 );
+   StartEvent.Wait( __FILE__, __LINE__ );
 
    WebServer.Initialize( 80 );
 }
@@ -205,6 +219,8 @@ int main( int argc, char* argv[] )
 
    HTTPD::RegisterPageHandler( ProcessPageRequest );
    MainEntry( &config );
+
+   //ProtocolDHCP::test();
 
    while( 1 )
    {

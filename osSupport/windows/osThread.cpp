@@ -43,6 +43,7 @@ static osThread*  Threads[ MAX_THREADS ];
 static osMutex    Mutex( "Thread List" );
 static DWORD      dwTlsIndex;
 static osThread   MainThread;
+static bool       IsInitialized = false;
 
 typedef struct WinThreadParam 
 {
@@ -120,6 +121,7 @@ void osThread::Initialize()
          break;
       }
    }
+   IsInitialized = true;
 }
 
 int osThread::Create
@@ -131,6 +133,10 @@ int osThread::Create
    void*          param 
 )
 {
+   if( !IsInitialized )
+   {
+      Initialize();
+   }
    printf( "osThread::Create( \"%s\" )\n", name );
    int               i;
    int               j;

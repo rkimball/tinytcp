@@ -51,13 +51,12 @@ struct DHCPDISCOVER
    uint32_t yiaddr = 0x00000000; // (Your IP address)
    uint32_t siaddr = 0x00000000; // (Server IP address)
    uint32_t giaddr = 0x00000000; // (Gateway IP address)
+
    uint8_t chaddr[ 16 ]; // (Client hardware address)
-   //0x00053C04
-   //0x8D590000
-   //0x00000000
-   //0x00000000
    uint8_t sname[ 64 ];
    uint8_t file[ 128 ];
+
+   uint32_t magic;
    //192 octets of 0s, or overflow space for additional options.BOOTP legacy
    //Magic cookie
    //0x63825363
@@ -72,6 +71,7 @@ class ProtocolDHCP
 {
 public:
    static void Discover();
+   static void test();
 private:
    static DataBuffer Buffer;
 };

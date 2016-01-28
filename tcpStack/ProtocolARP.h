@@ -63,6 +63,7 @@ public:
 
    static uint8_t* Protocol2Hardware( uint8_t* protocolAddress );
    static bool IsLocal( uint8_t* protocolAddress );
+   static bool IsBroadcast( uint8_t* protocolAddress );
 
    static void Show();
 

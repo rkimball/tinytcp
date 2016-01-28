@@ -295,8 +295,8 @@ void PacketIO::Stop( void )
 
 void PacketIO::TxData( void* packet, size_t length )
 {
-   //printf( "Ethernet Tx:\n" );
-   //DumpData( packet, length, printf );
+   printf( "Ethernet Tx:\n" );
+   DumpData( packet, length, printf );
 
    if( pcap_sendpacket( adhandle, (u_char*)packet, length ) != 0 )
    {

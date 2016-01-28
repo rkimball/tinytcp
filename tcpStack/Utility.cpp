@@ -131,3 +131,39 @@ void DumpBits( void* buf, int size, PrintfFunctionPtr pfunc )
    }
 }
 
+uint16_t ntoh16( uint16_t value )
+{
+   uint8_t rc[ 2 ];
+   rc[ 0 ] = value >> 8;
+   rc[ 1 ] = value & 0xFF;
+   return *(uint16_t*)rc;
+}
+
+uint16_t hton16( uint16_t value )
+{
+   uint8_t rc[ 2 ];
+   rc[ 0 ] = value >> 8;
+   rc[ 1 ] = value & 0xFF;
+   return *(uint16_t*)rc;
+}
+
+uint32_t ntoh32( uint32_t value )
+{
+   uint8_t rc[ 4 ];
+   rc[ 0 ] = (value >> 24) & 0xFF;
+   rc[ 1 ] = (value >> 16) & 0xFF;
+   rc[ 2 ] = (value >> 8) & 0xFF;
+   rc[ 3 ] = (value >> 0) & 0xFF;
+   return *(uint32_t*)rc;
+}
+
+uint32_t hton32( uint32_t value )
+{
+   uint8_t rc[ 4 ];
+   rc[ 0 ] = (value >> 24) & 0xFF;
+   rc[ 1 ] = (value >> 16) & 0xFF;
+   rc[ 2 ] = (value >> 8) & 0xFF;
+   rc[ 3 ] = (value >> 0) & 0xFF;
+   return *(uint32_t*)rc;
+}
+

@@ -45,6 +45,11 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr );
 
 void DumpBits( void* buffer, int size, PrintfFunctionPtr );
 
+uint16_t ntoh16( uint16_t value );
+uint16_t hton16( uint16_t value );
+uint32_t ntoh32( uint32_t value );
+uint32_t hton32( uint32_t value );
+
 #ifdef __cplusplus
 }
 #endif
