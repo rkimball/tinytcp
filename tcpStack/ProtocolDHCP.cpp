@@ -43,6 +43,7 @@
 
 extern AddressConfiguration Config;
 int32_t ProtocolDHCP::PendingXID = -1;
+static const uint32_t DHCP_MAGIC = 0x63825363;
 
 const char* inet_ntoa( uint32_t addr )
 {
@@ -109,11 +110,11 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    uint32_t siaddr = Unpack32( &buffer->Packet[ 20 ], 4 ); // (Server IP address)
    uint32_t giaddr = Unpack32( &buffer->Packet[ 24 ], 4 ); // (Gateway IP address)
 
-   uint8_t chaddr[ 16 ]; // (Client hardware address)
-   uint8_t sname[ 64 ];
-   uint8_t file[ 128 ];
+   //uint8_t chaddr[ 16 ]; // (Client hardware address)
+   //uint8_t sname[ 64 ];
+   //uint8_t file[ 128 ];
 
-   uint32_t magic;
+   uint32_t magic = Unpack32( &buffer->Packet[ 236 ], 4 );
 
    printf( "op = %d\n", op );
    printf( "htype = %d\n", htype );
@@ -122,22 +123,15 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    printf( "xid = 0x%0X\n", xid );
    printf( "secs = %d\n", secs );
    printf( "flags = %d\n", flags );
-   printf( "ciaddr = %s\n", inet_ntoa(ciaddr) ); // (Client IP address)
-   printf( "yiaddr = %s\n", inet_ntoa( yiaddr) ); // (Your IP address)
-   printf( "siaddr = %s\n", inet_ntoa( siaddr) ); // (Server IP address)
-   printf( "giaddr = %s\n", inet_ntoa( giaddr) ); // (Gateway IP address)
+   printf( "ciaddr = %s\n", inet_ntoa( ciaddr ) ); // (Client IP address)
+   printf( "yiaddr = %s\n", inet_ntoa( yiaddr ) ); // (Your IP address)
+   printf( "siaddr = %s\n", inet_ntoa( siaddr ) ); // (Server IP address)
+   printf( "giaddr = %s\n", inet_ntoa( giaddr ) ); // (Gateway IP address)
    if( xid == PendingXID )
    {
       printf( "*********** this is for me ************\n" );
    }
-
-   //uint8_t chaddr[ 16 ]; // (Client hardware address)
-   //uint8_t sname[ 64 ];
-   //uint8_t file[ 128 ];
-
-   //uint32_t magic;
-
-
+   printf( "magic = 0x%0X\n", magic );
 }
 
 //9.4.DHCP Message Type
@@ -175,83 +169,76 @@ void ProtocolDHCP::Discover()
       packet->hlen = 0x06;
       packet->hops = 0x00;
       packet->xid = hton32( PendingXID );
-      packet->secs = hton16(0x0000);
-      packet->flags = hton16(0x8000);
-      packet->ciaddr = hton32(0x00000000); // (Client IP address)
+      packet->secs = hton16( 0x0000 );
+      packet->flags = hton16( 0x8000 );
+      packet->ciaddr = hton32( 0x00000000 ); // (Client IP address)
       packet->yiaddr = hton32( 0x00000000 ); // (Your IP address)
       packet->siaddr = hton32( 0x00000000 ); // (Server IP address)
       packet->giaddr = hton32( 0x00000000 ); // (Gateway IP address)
-   
-      for( int i = 0; i<6; i++ )
+
+      for( int i = 0; i < 6; i++ )
       {
          packet->chaddr[ i ] = Config.Address.Hardware[ i ];
       }
-      packet->magic = hton32(0x63825363);
+      packet->magic = hton32( DHCP_MAGIC );
 
       buffer->Length = sizeof( DHCPDISCOVER );
 
       // Add options
-      buffer->Packet[ buffer->Length + 0 ] = 53;
-      buffer->Packet[ buffer->Length + 1 ] = 1;
-      buffer->Packet[ buffer->Length + 2 ] = 1; // DHCP Discover
-      buffer->Length += 3;
+      buffer->Packet[ buffer->Length++ ] = 53;
+      buffer->Packet[ buffer->Length++ ] = 1;
+      buffer->Packet[ buffer->Length++ ] = 1; // DHCP Discover
 
       // client id
-      buffer->Packet[ buffer->Length + 0 ] = 61;
-      buffer->Packet[ buffer->Length + 1 ] = 7; // length
-      buffer->Packet[ buffer->Length + 2 ] = 1; // type is hardware address
-      for( int i = 0; i<6; i++ ) buffer->Packet[ buffer->Length + 3 + i ] = Config.Address.Hardware[ i ];
-      buffer->Length += 9;
+      buffer->Packet[ buffer->Length++ ] = 61;
+      buffer->Packet[ buffer->Length++ ] = 7; // length
+      buffer->Packet[ buffer->Length++ ] = 1; // type is hardware address
+      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
 
       // requested address
-      buffer->Packet[ buffer->Length + 0 ] = 0x32;
-      buffer->Packet[ buffer->Length + 1 ] = 0x04;
-      buffer->Packet[ buffer->Length + 2 ] = 0xC0;
-      buffer->Packet[ buffer->Length + 3 ] = 0xA8;
-      buffer->Packet[ buffer->Length + 4 ] = 0x01;
-      buffer->Packet[ buffer->Length + 5 ] = 0x03;
-      buffer->Length += 6;
+      buffer->Packet[ buffer->Length++ ] = 0x32;
+      buffer->Packet[ buffer->Length++ ] = 0x04;
+      buffer->Packet[ buffer->Length++ ] = 0xC0;
+      buffer->Packet[ buffer->Length++ ] = 0xA8;
+      buffer->Packet[ buffer->Length++ ] = 0x01;
+      buffer->Packet[ buffer->Length++ ] = 0x03;
 
       // host name
       const char* name = "tinytcp";
-      buffer->Packet[ buffer->Length + 0 ] = 12;
-      buffer->Packet[ buffer->Length + 1 ] = strlen( name );
-      for( int i = 0; i < strlen( name ); i++ ) buffer->Packet[ buffer->Length + 2 + i ] = name[ i ];
-      buffer->Length += strlen(name)+2;
+      buffer->Packet[ buffer->Length++ ] = 12;
+      buffer->Packet[ buffer->Length++ ] = strlen( name );
+      for( int i = 0; i < strlen( name ); i++ ) buffer->Packet[ buffer->Length++ ] = name[ i ];
 
       // vendor class ident
-      buffer->Packet[ buffer->Length + 0 ] = 0x3C;
-      buffer->Packet[ buffer->Length + 1 ] = 0x08;
-      buffer->Packet[ buffer->Length + 2 ] = 0x4D;
-      buffer->Packet[ buffer->Length + 3 ] = 0x53;
-      buffer->Packet[ buffer->Length + 4 ] = 0x46;
-      buffer->Packet[ buffer->Length + 5 ] = 0x54;
-      buffer->Packet[ buffer->Length + 6 ] = 0x20;
-      buffer->Packet[ buffer->Length + 7 ] = 0x35;
-      buffer->Packet[ buffer->Length + 8 ] = 0x2E;
-      buffer->Packet[ buffer->Length + 9 ] = 0x30;
-      buffer->Length += 10;
+      buffer->Packet[ buffer->Length++ ] = 0x3C;
+      buffer->Packet[ buffer->Length++ ] = 0x08;
+      buffer->Packet[ buffer->Length++ ] = 0x4D;
+      buffer->Packet[ buffer->Length++ ] = 0x53;
+      buffer->Packet[ buffer->Length++ ] = 0x46;
+      buffer->Packet[ buffer->Length++ ] = 0x54;
+      buffer->Packet[ buffer->Length++ ] = 0x20;
+      buffer->Packet[ buffer->Length++ ] = 0x35;
+      buffer->Packet[ buffer->Length++ ] = 0x2E;
+      buffer->Packet[ buffer->Length++ ] = 0x30;
 
       // parameter request list
-      buffer->Packet[ buffer->Length + 0 ] = 55;
-      buffer->Packet[ buffer->Length + 1 ] = 13; // length
-      buffer->Packet[ buffer->Length + 2 ] = 1; // subnet mask
-      buffer->Packet[ buffer->Length + 3 ] = 3; // router
-      buffer->Packet[ buffer->Length + 4 ] = 6; // dns
-      buffer->Packet[ buffer->Length + 5 ] = 15; // domain name
-      buffer->Packet[ buffer->Length + 6 ] = 31; // domain name
-      buffer->Packet[ buffer->Length + 7 ] = 33; // domain name
-      buffer->Packet[ buffer->Length + 8 ] = 43; // domain name
-      buffer->Packet[ buffer->Length + 9 ] = 44; // domain name
-      buffer->Packet[ buffer->Length + 10 ] = 46; // domain name
-      buffer->Packet[ buffer->Length + 11 ] = 47; // domain name
-      buffer->Packet[ buffer->Length + 12 ] = 121; // domain name
-      buffer->Packet[ buffer->Length + 13 ] = 249; // domain name
-      buffer->Packet[ buffer->Length + 14 ] = 252; // domain name
-      buffer->Length += 15;
+      buffer->Packet[ buffer->Length++ ] = 55;
+      buffer->Packet[ buffer->Length++ ] = 13; // length
+      buffer->Packet[ buffer->Length++ ] = 1; // subnet mask
+      buffer->Packet[ buffer->Length++ ] = 3; // router
+      buffer->Packet[ buffer->Length++ ] = 6; // dns
+      buffer->Packet[ buffer->Length++ ] = 15; // domain name
+      buffer->Packet[ buffer->Length++ ] = 31; // domain name
+      buffer->Packet[ buffer->Length++ ] = 33; // domain name
+      buffer->Packet[ buffer->Length++ ] = 43; // domain name
+      buffer->Packet[ buffer->Length++ ] = 44; // domain name
+      buffer->Packet[ buffer->Length++ ] = 46; // domain name
+      buffer->Packet[ buffer->Length++ ] = 47; // domain name
+      buffer->Packet[ buffer->Length++ ] = 121; // domain name
+      buffer->Packet[ buffer->Length++ ] = 249; // domain name
+      buffer->Packet[ buffer->Length++ ] = 252; // domain name
 
-      buffer->Packet[ buffer->Length + 0 ] = 255;  // End options
-      buffer->Length += 1;
+      buffer->Packet[ buffer->Length++ ] = 255;  // End options
 
       int pad = 8;
       for( int i = 0; i < pad; i++ ) buffer->Packet[ buffer->Length++ ] = 0;
