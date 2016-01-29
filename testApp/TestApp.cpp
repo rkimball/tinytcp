@@ -94,10 +94,10 @@ void NetworkEntry( void* param )
    Config.Address.Hardware[ 5 ] = 0x66;
 
    // 192.168.1.3
-   Config.Address.Protocol[ 0 ] = 192;
-   Config.Address.Protocol[ 1 ] = 168;
-   Config.Address.Protocol[ 2 ] = 1;
-   Config.Address.Protocol[ 3 ] = 3;
+   Config.Address.Protocol[ 0 ] = 0;
+   Config.Address.Protocol[ 1 ] = 0;
+   Config.Address.Protocol[ 2 ] = 0;
+   Config.Address.Protocol[ 3 ] = 0;
 
    Config.SubnetMask[ 0 ] = 255;
    Config.SubnetMask[ 1 ] = 255;
@@ -111,7 +111,7 @@ void NetworkEntry( void* param )
 
    PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
    printf( "using device %s\n", device );
-   PacketIO::GetMACAddress( device, Config.Address.Hardware );
+   //PacketIO::GetMACAddress( device, Config.Address.Hardware );
 
    PIO = new PacketIO( device );
 
@@ -225,7 +225,7 @@ int main( int argc, char* argv[] )
    HTTPD::RegisterPageHandler( ProcessPageRequest );
    MainEntry( &config );
 
-   //ProtocolDHCP::test();
+   ProtocolDHCP::test();
 
    while( 1 )
    {

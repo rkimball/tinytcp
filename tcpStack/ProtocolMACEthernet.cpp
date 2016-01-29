@@ -96,6 +96,19 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
 //
 //============================================================================
 
+bool ProtocolMACEthernet::IsLocalAddress( uint8_t* addr )
+{
+   static uint8_t broadcast[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+   if( Address::Compare( broadcast, addr, 6 ) )
+   {
+      printf( "RX Broadcast address\n" );
+   }
+
+   return Address::Compare( Config.Address.Hardware, addr, 6 ) ||
+      Address::Compare( broadcast, addr, 6 );
+}
+
 void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
 {
    uint16_t   type;
@@ -127,8 +140,11 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    type = packet->Packet[ 12 ] << 8 | packet->Packet[ 13 ];
 
    // Check if the MAC Address is destined for me
-   if( Address::Compare( Config.Address.Hardware, packet->Packet, 6 ) )
+   if( IsLocalAddress( packet->Packet ) )
    {
+      //printf( "RX:\n" );
+      //DumpData( packet->Packet, packet->Length, printf );
+
       if( actualLength > length )
       {
          //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
@@ -259,6 +275,9 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, uint8_t* targetMAC, uint
       *p++ = 0;
       buffer->Length++;
    }
+
+   //printf( "TX:\n" );
+   //DumpData( buffer->Packet, buffer->Length, printf );
 
    DataInterface->TxData( buffer->Packet, buffer->Length );
 

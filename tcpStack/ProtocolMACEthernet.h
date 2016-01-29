@@ -52,6 +52,7 @@ public:
    static DataBuffer* GetTxBuffer();
    static void FreeTxBuffer( DataBuffer* );
    static void FreeRxBuffer( DataBuffer* );
+   static bool IsLocalAddress( uint8_t* addr );
 
    static int HeaderSize()
    {

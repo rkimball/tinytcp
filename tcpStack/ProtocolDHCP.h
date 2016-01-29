@@ -70,10 +70,12 @@ struct DHCPDISCOVER
 class ProtocolDHCP
 {
 public:
+   static void ProcessRx( DataBuffer* buffer );
    static void Discover();
    static void test();
 private:
    static DataBuffer Buffer;
+   static int PendingXID;
 };
 
 #endif

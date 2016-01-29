@@ -42,12 +42,102 @@
 #include "osTime.h"
 
 extern AddressConfiguration Config;
+int32_t ProtocolDHCP::PendingXID = -1;
+
+const char* inet_ntoa( uint32_t addr )
+{
+   static char rc[ 20 ];
+   sprintf( rc, "%d.%d.%d.%d",
+      (addr >> 24) & 0xFF,
+      (addr >> 16) & 0xFF,
+      (addr >> 8) & 0xFF,
+      (addr >> 0) & 0xFF
+      );
+   return rc;
+}
+
+uint8_t Unpack8( const uint8_t* p, size_t size )
+{
+   return *p;
+}
+
+uint16_t Unpack16( const uint8_t* p, size_t size )
+{
+   uint16_t rc = 0;
+   for( int i = 0; i < size; i++ )
+   {
+      rc <<= 8;
+      rc |= *p;
+      p++;
+   }
+   return rc;
+}
+
+uint32_t Unpack32( const uint8_t* p, size_t size )
+{
+   uint32_t rc = 0;
+   for( int i = 0; i < size; i++ )
+   {
+      rc <<= 8;
+      rc |= *p;
+      p++;
+   }
+   return rc;
+}
 
 void ProtocolDHCP::test()
 {
    printf( "sending discover\n" );
    Discover();
    printf( "discover sent\n" );
+}
+
+void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
+{
+   printf( "ProtocolDHCP::ProcessRx\n" );
+
+
+   uint8_t op = Unpack8( &buffer->Packet[ 0 ], 1 );
+   uint8_t htype = Unpack8( &buffer->Packet[ 1 ], 1 );
+   uint8_t hlen = Unpack8( &buffer->Packet[ 2 ], 1 );
+   uint8_t hops = Unpack8( &buffer->Packet[ 3 ], 1 );
+   uint32_t xid = Unpack32( &buffer->Packet[ 4 ], 4 );
+   uint16_t secs = Unpack16( &buffer->Packet[ 8 ], 2 );
+   uint16_t flags = Unpack16( &buffer->Packet[ 10 ], 2 );
+   uint32_t ciaddr = Unpack32( &buffer->Packet[ 12 ], 4 ); // (Client IP address)
+   uint32_t yiaddr = Unpack32( &buffer->Packet[ 16 ], 4 ); // (Your IP address)
+   uint32_t siaddr = Unpack32( &buffer->Packet[ 20 ], 4 ); // (Server IP address)
+   uint32_t giaddr = Unpack32( &buffer->Packet[ 24 ], 4 ); // (Gateway IP address)
+
+   uint8_t chaddr[ 16 ]; // (Client hardware address)
+   uint8_t sname[ 64 ];
+   uint8_t file[ 128 ];
+
+   uint32_t magic;
+
+   printf( "op = %d\n", op );
+   printf( "htype = %d\n", htype );
+   printf( "hlen = %d\n", hlen );
+   printf( "hops = %d\n", hops );
+   printf( "xid = 0x%0X\n", xid );
+   printf( "secs = %d\n", secs );
+   printf( "flags = %d\n", flags );
+   printf( "ciaddr = %s\n", inet_ntoa(ciaddr) ); // (Client IP address)
+   printf( "yiaddr = %s\n", inet_ntoa( yiaddr) ); // (Your IP address)
+   printf( "siaddr = %s\n", inet_ntoa( siaddr) ); // (Server IP address)
+   printf( "giaddr = %s\n", inet_ntoa( giaddr) ); // (Gateway IP address)
+   if( xid == PendingXID )
+   {
+      printf( "*********** this is for me ************\n" );
+   }
+
+   //uint8_t chaddr[ 16 ]; // (Client hardware address)
+   //uint8_t sname[ 64 ];
+   //uint8_t file[ 128 ];
+
+   //uint32_t magic;
+
+
 }
 
 //9.4.DHCP Message Type
@@ -78,13 +168,13 @@ void ProtocolDHCP::Discover()
    {
       DHCPDISCOVER* packet = (DHCPDISCOVER*)(buffer->Packet);
       for( int i = 0; i < sizeof( DHCPDISCOVER ); i++ ) buffer->Packet[ i ] = 0;
-      uint32_t xid = (uint32_t)osTime::GetProcessorTime();
+      PendingXID = (uint32_t)osTime::GetProcessorTime();
 
       packet->op = 0x01;
       packet->htype = 0x01;
       packet->hlen = 0x06;
       packet->hops = 0x00;
-      packet->xid = hton32(xid);
+      packet->xid = hton32( PendingXID );
       packet->secs = hton16(0x0000);
       packet->flags = hton16(0x8000);
       packet->ciaddr = hton32(0x00000000); // (Client IP address)
@@ -103,15 +193,8 @@ void ProtocolDHCP::Discover()
       // Add options
       buffer->Packet[ buffer->Length + 0 ] = 53;
       buffer->Packet[ buffer->Length + 1 ] = 1;
-      buffer->Packet[ buffer->Length + 2 ] = 3; // DHCP Discover
+      buffer->Packet[ buffer->Length + 2 ] = 1; // DHCP Discover
       buffer->Length += 3;
-
-      // host name
-      const char* name = "tinytcp";
-      buffer->Packet[ buffer->Length + 0 ] = 12;
-      buffer->Packet[ buffer->Length + 1 ] = strlen( name );
-      for( int i = 0; i < strlen( name ); i++ ) buffer->Packet[ buffer->Length + 2 + i ] = name[ i ];
-      buffer->Length += strlen(name)+2;
 
       // client id
       buffer->Packet[ buffer->Length + 0 ] = 61;
@@ -120,17 +203,58 @@ void ProtocolDHCP::Discover()
       for( int i = 0; i<6; i++ ) buffer->Packet[ buffer->Length + 3 + i ] = Config.Address.Hardware[ i ];
       buffer->Length += 9;
 
+      // requested address
+      buffer->Packet[ buffer->Length + 0 ] = 0x32;
+      buffer->Packet[ buffer->Length + 1 ] = 0x04;
+      buffer->Packet[ buffer->Length + 2 ] = 0xC0;
+      buffer->Packet[ buffer->Length + 3 ] = 0xA8;
+      buffer->Packet[ buffer->Length + 4 ] = 0x01;
+      buffer->Packet[ buffer->Length + 5 ] = 0x03;
+      buffer->Length += 6;
+
+      // host name
+      const char* name = "tinytcp";
+      buffer->Packet[ buffer->Length + 0 ] = 12;
+      buffer->Packet[ buffer->Length + 1 ] = strlen( name );
+      for( int i = 0; i < strlen( name ); i++ ) buffer->Packet[ buffer->Length + 2 + i ] = name[ i ];
+      buffer->Length += strlen(name)+2;
+
+      // vendor class ident
+      buffer->Packet[ buffer->Length + 0 ] = 0x3C;
+      buffer->Packet[ buffer->Length + 1 ] = 0x08;
+      buffer->Packet[ buffer->Length + 2 ] = 0x4D;
+      buffer->Packet[ buffer->Length + 3 ] = 0x53;
+      buffer->Packet[ buffer->Length + 4 ] = 0x46;
+      buffer->Packet[ buffer->Length + 5 ] = 0x54;
+      buffer->Packet[ buffer->Length + 6 ] = 0x20;
+      buffer->Packet[ buffer->Length + 7 ] = 0x35;
+      buffer->Packet[ buffer->Length + 8 ] = 0x2E;
+      buffer->Packet[ buffer->Length + 9 ] = 0x30;
+      buffer->Length += 10;
+
       // parameter request list
       buffer->Packet[ buffer->Length + 0 ] = 55;
-      buffer->Packet[ buffer->Length + 1 ] = 4; // length
+      buffer->Packet[ buffer->Length + 1 ] = 13; // length
       buffer->Packet[ buffer->Length + 2 ] = 1; // subnet mask
       buffer->Packet[ buffer->Length + 3 ] = 3; // router
       buffer->Packet[ buffer->Length + 4 ] = 6; // dns
       buffer->Packet[ buffer->Length + 5 ] = 15; // domain name
-      buffer->Length += 6;
+      buffer->Packet[ buffer->Length + 6 ] = 31; // domain name
+      buffer->Packet[ buffer->Length + 7 ] = 33; // domain name
+      buffer->Packet[ buffer->Length + 8 ] = 43; // domain name
+      buffer->Packet[ buffer->Length + 9 ] = 44; // domain name
+      buffer->Packet[ buffer->Length + 10 ] = 46; // domain name
+      buffer->Packet[ buffer->Length + 11 ] = 47; // domain name
+      buffer->Packet[ buffer->Length + 12 ] = 121; // domain name
+      buffer->Packet[ buffer->Length + 13 ] = 249; // domain name
+      buffer->Packet[ buffer->Length + 14 ] = 252; // domain name
+      buffer->Length += 15;
 
       buffer->Packet[ buffer->Length + 0 ] = 255;  // End options
       buffer->Length += 1;
+
+      int pad = 8;
+      for( int i = 0; i < pad; i++ ) buffer->Packet[ buffer->Length++ ] = 0;
 
       uint8_t sourceIP[] = { 0, 0, 0, 0 };
       uint8_t targetIP[] = { 255, 255, 255, 255 };

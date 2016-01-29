@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include "ProtocolIP.h"
 #include "ProtocolUDP.h"
+#include "ProtocolDHCP.h"
 #include "Utility.h"
 #include "FCS.h"
 
@@ -59,6 +60,21 @@ DataBuffer* ProtocolUDP::GetTxBuffer()
 
 void ProtocolUDP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP, uint8_t* targetIP )
 {
+   uint16_t sourcePort = (buffer->Packet[ 0 ] << 8) | buffer->Packet[ 1 ];
+   uint16_t targetPort = (buffer->Packet[ 2 ] << 8) | buffer->Packet[ 3 ];
+
+   buffer->Packet += UDP_HEADER_SIZE;
+   buffer->Remainder -= UDP_HEADER_SIZE;
+
+   switch( targetPort )
+   {
+   case 68: // DHCP
+      ProtocolDHCP::ProcessRx( buffer );
+      break;
+   default:
+      printf( "Rx UDP target port %d\n", targetPort );
+      break;
+   }
    //printf( "got udp, source %d.%d.%d.%d, target %d.%d.%d.%d\n",
    //   sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
    //   targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ]
@@ -92,9 +108,6 @@ void ProtocolUDP::Transmit( DataBuffer* buffer, uint8_t* targetIP, uint16_t targ
    acc = FCS::ChecksumAdd( pheader_tmp, 4, acc );
    acc = FCS::ChecksumAdd( buffer->Packet, buffer->Length, acc );
    datagram->checksum = hton16( FCS::ChecksumComplete(acc) );
-
-   printf( "buffer length %d\n", buffer->Length );
-   printf( "checksum 0x%04X\n", datagram->checksum );
 
    ProtocolIP::Transmit( buffer, 0x11, targetIP, sourceIP );
 }

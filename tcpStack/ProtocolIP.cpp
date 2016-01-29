@@ -41,6 +41,7 @@
 #include "FCS.h"
 #include "DataBuffer.h"
 #include "NetworkInterface.h"
+#include "Utility.h"
 
 uint16_t ProtocolIP::PacketID;
 
