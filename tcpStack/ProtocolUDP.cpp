@@ -60,25 +60,21 @@ DataBuffer* ProtocolUDP::GetTxBuffer()
 
 void ProtocolUDP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP, uint8_t* targetIP )
 {
-   uint16_t sourcePort = (buffer->Packet[ 0 ] << 8) | buffer->Packet[ 1 ];
-   uint16_t targetPort = (buffer->Packet[ 2 ] << 8) | buffer->Packet[ 3 ];
+   uint16_t sourcePort = Unpack16( buffer->Packet, 0 );
+   uint16_t targetPort = Unpack16( buffer->Packet, 2 );
 
    buffer->Packet += UDP_HEADER_SIZE;
    buffer->Remainder -= UDP_HEADER_SIZE;
 
    switch( targetPort )
    {
-   case 68: // DHCP
+   case 68: // DHCP Client Port
       ProtocolDHCP::ProcessRx( buffer );
       break;
    default:
-      printf( "Rx UDP target port %d\n", targetPort );
+      //printf( "Rx UDP target port %d\n", targetPort );
       break;
    }
-   //printf( "got udp, source %d.%d.%d.%d, target %d.%d.%d.%d\n",
-   //   sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-   //   targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ]
-   //   );
 }
 
 //============================================================================
@@ -87,27 +83,24 @@ void ProtocolUDP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP, uint8_t* tar
 
 void ProtocolUDP::Transmit( DataBuffer* buffer, uint8_t* targetIP, uint16_t targetPort, uint8_t* sourceIP, uint16_t sourcePort )
 {
-   uint8_t* packet;
-
    buffer->Packet -= UDP_HEADER_SIZE;
-   buffer->Length += UDP_HEADER_SIZE;
-   Datagram* datagram = (Datagram*)(buffer->Packet);
-   datagram->sourcePort = hton16( sourcePort );
-   datagram->targetPort = hton16( targetPort );
-   datagram->length = hton16( buffer->Length );
+   buffer->Remainder += UDP_HEADER_SIZE;
+
+   Pack16( buffer->Packet, 0, sourcePort );
+   Pack16( buffer->Packet, 2, targetPort );
+   Pack16( buffer->Packet, 4, buffer->Length );
 
    // Calculate checksum
    uint8_t pheader_tmp[ 4 ];
    pheader_tmp[ 0 ] = 0;
    pheader_tmp[ 1 ] = 0x11;
-   pheader_tmp[ 2 ] = buffer->Length >> 8;
-   pheader_tmp[ 3 ] = buffer->Length & 0xFF;
+   Pack16( pheader_tmp, 2, buffer->Length );
    uint32_t acc = 0;
    FCS::ChecksumAdd( sourceIP, 4, acc );
    acc = FCS::ChecksumAdd( targetIP, 4, acc );
    acc = FCS::ChecksumAdd( pheader_tmp, 4, acc );
    acc = FCS::ChecksumAdd( buffer->Packet, buffer->Length, acc );
-   datagram->checksum = hton16( FCS::ChecksumComplete(acc) );
+   Pack16( buffer->Packet, 6, FCS::ChecksumComplete( acc ) );
 
    ProtocolIP::Transmit( buffer, 0x11, targetIP, sourceIP );
 }

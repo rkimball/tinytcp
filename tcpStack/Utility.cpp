@@ -131,39 +131,100 @@ void DumpBits( void* buf, int size, PrintfFunctionPtr pfunc )
    }
 }
 
-uint16_t ntoh16( uint16_t value )
+//uint16_t ntoh16( uint16_t value )
+//{
+//   uint8_t rc[ 2 ];
+//   rc[ 0 ] = value >> 8;
+//   rc[ 1 ] = value & 0xFF;
+//   return *(uint16_t*)rc;
+//}
+//
+//uint16_t hton16( uint16_t value )
+//{
+//   uint8_t rc[ 2 ];
+//   rc[ 0 ] = value >> 8;
+//   rc[ 1 ] = value & 0xFF;
+//   return *(uint16_t*)rc;
+//}
+//
+//uint32_t ntoh32( uint32_t value )
+//{
+//   uint8_t rc[ 4 ];
+//   rc[ 0 ] = (value >> 24) & 0xFF;
+//   rc[ 1 ] = (value >> 16) & 0xFF;
+//   rc[ 2 ] = (value >> 8) & 0xFF;
+//   rc[ 3 ] = (value >> 0) & 0xFF;
+//   return *(uint32_t*)rc;
+//}
+//
+//uint32_t hton32( uint32_t value )
+//{
+//   uint8_t rc[ 4 ];
+//   rc[ 0 ] = (value >> 24) & 0xFF;
+//   rc[ 1 ] = (value >> 16) & 0xFF;
+//   rc[ 2 ] = (value >> 8) & 0xFF;
+//   rc[ 3 ] = (value >> 0) & 0xFF;
+//   return *(uint32_t*)rc;
+//}
+
+const char* inet_ntoa( uint32_t addr )
 {
-   uint8_t rc[ 2 ];
-   rc[ 0 ] = value >> 8;
-   rc[ 1 ] = value & 0xFF;
-   return *(uint16_t*)rc;
+   static char rc[ 20 ];
+   sprintf( rc, "%d.%d.%d.%d",
+      (addr >> 24) & 0xFF,
+      (addr >> 16) & 0xFF,
+      (addr >> 8) & 0xFF,
+      (addr >> 0) & 0xFF
+      );
+   return rc;
 }
 
-uint16_t hton16( uint16_t value )
+uint8_t Unpack8( const uint8_t* p, size_t offset, size_t size )
 {
-   uint8_t rc[ 2 ];
-   rc[ 0 ] = value >> 8;
-   rc[ 1 ] = value & 0xFF;
-   return *(uint16_t*)rc;
+   return p[ offset ];
 }
 
-uint32_t ntoh32( uint32_t value )
+uint16_t Unpack16( const uint8_t* p, size_t offset, size_t size )
 {
-   uint8_t rc[ 4 ];
-   rc[ 0 ] = (value >> 24) & 0xFF;
-   rc[ 1 ] = (value >> 16) & 0xFF;
-   rc[ 2 ] = (value >> 8) & 0xFF;
-   rc[ 3 ] = (value >> 0) & 0xFF;
-   return *(uint32_t*)rc;
+   uint16_t rc = 0;
+   for( int i = 0; i < size; i++ )
+   {
+      rc <<= 8;
+      rc |= p[ offset++ ];
+   }
+   return rc;
 }
 
-uint32_t hton32( uint32_t value )
+uint32_t Unpack32( const uint8_t* p, size_t offset, size_t size )
 {
-   uint8_t rc[ 4 ];
-   rc[ 0 ] = (value >> 24) & 0xFF;
-   rc[ 1 ] = (value >> 16) & 0xFF;
-   rc[ 2 ] = (value >> 8) & 0xFF;
-   rc[ 3 ] = (value >> 0) & 0xFF;
-   return *(uint32_t*)rc;
+   uint32_t rc = 0;
+   for( int i = 0; i < size; i++ )
+   {
+      rc <<= 8;
+      rc |= p[ offset++ ];
+   }
+   return rc;
+}
+
+size_t Pack8( uint8_t* p, size_t offset, uint8_t value )
+{
+   p[ offset++ ] = value;
+   return offset;
+}
+
+size_t Pack16( uint8_t* p, size_t offset, uint16_t value )
+{
+   p[ offset++ ] = (value >> 8)&0xFF;
+   p[ offset++ ] = value & 0xFF;
+   return offset;
+}
+
+size_t Pack32( uint8_t* p, size_t offset, uint32_t value )
+{
+   p[ offset++ ] = (value >> 24) & 0xFF;
+   p[ offset++ ] = (value >> 16) & 0xFF;
+   p[ offset++ ] = (value >> 8) & 0xFF;
+   p[ offset++ ] = value & 0xFF;
+   return offset;
 }
 

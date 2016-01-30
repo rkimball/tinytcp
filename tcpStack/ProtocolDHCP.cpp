@@ -45,47 +45,6 @@ extern AddressConfiguration Config;
 int32_t ProtocolDHCP::PendingXID = -1;
 static const uint32_t DHCP_MAGIC = 0x63825363;
 
-const char* inet_ntoa( uint32_t addr )
-{
-   static char rc[ 20 ];
-   sprintf( rc, "%d.%d.%d.%d",
-      (addr >> 24) & 0xFF,
-      (addr >> 16) & 0xFF,
-      (addr >> 8) & 0xFF,
-      (addr >> 0) & 0xFF
-      );
-   return rc;
-}
-
-uint8_t Unpack8( const uint8_t* p, size_t size )
-{
-   return *p;
-}
-
-uint16_t Unpack16( const uint8_t* p, size_t size )
-{
-   uint16_t rc = 0;
-   for( int i = 0; i < size; i++ )
-   {
-      rc <<= 8;
-      rc |= *p;
-      p++;
-   }
-   return rc;
-}
-
-uint32_t Unpack32( const uint8_t* p, size_t size )
-{
-   uint32_t rc = 0;
-   for( int i = 0; i < size; i++ )
-   {
-      rc <<= 8;
-      rc |= *p;
-      p++;
-   }
-   return rc;
-}
-
 void ProtocolDHCP::test()
 {
    printf( "sending discover\n" );
@@ -95,26 +54,18 @@ void ProtocolDHCP::test()
 
 void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
 {
-   printf( "ProtocolDHCP::ProcessRx\n" );
-
-
-   uint8_t op = Unpack8( &buffer->Packet[ 0 ], 1 );
-   uint8_t htype = Unpack8( &buffer->Packet[ 1 ], 1 );
-   uint8_t hlen = Unpack8( &buffer->Packet[ 2 ], 1 );
-   uint8_t hops = Unpack8( &buffer->Packet[ 3 ], 1 );
-   uint32_t xid = Unpack32( &buffer->Packet[ 4 ], 4 );
-   uint16_t secs = Unpack16( &buffer->Packet[ 8 ], 2 );
-   uint16_t flags = Unpack16( &buffer->Packet[ 10 ], 2 );
-   uint32_t ciaddr = Unpack32( &buffer->Packet[ 12 ], 4 ); // (Client IP address)
-   uint32_t yiaddr = Unpack32( &buffer->Packet[ 16 ], 4 ); // (Your IP address)
-   uint32_t siaddr = Unpack32( &buffer->Packet[ 20 ], 4 ); // (Server IP address)
-   uint32_t giaddr = Unpack32( &buffer->Packet[ 24 ], 4 ); // (Gateway IP address)
-
-   //uint8_t chaddr[ 16 ]; // (Client hardware address)
-   //uint8_t sname[ 64 ];
-   //uint8_t file[ 128 ];
-
-   uint32_t magic = Unpack32( &buffer->Packet[ 236 ], 4 );
+   uint8_t op = Unpack8( buffer->Packet, 0 );
+   uint8_t htype = Unpack8( buffer->Packet, 1 );
+   uint8_t hlen = Unpack8( buffer->Packet, 2 );
+   uint8_t hops = Unpack8( buffer->Packet, 3 );
+   uint32_t xid = Unpack32( buffer->Packet, 4 );
+   uint16_t secs = Unpack16( buffer->Packet, 8 );
+   uint16_t flags = Unpack16( buffer->Packet, 10 );
+   uint32_t ciaddr = Unpack32( buffer->Packet, 12 ); // (Client IP address)
+   uint32_t yiaddr = Unpack32( buffer->Packet, 16 ); // (Your IP address)
+   uint32_t siaddr = Unpack32( buffer->Packet, 20 ); // (Server IP address)
+   uint32_t giaddr = Unpack32( buffer->Packet, 24 ); // (Gateway IP address)
+   uint32_t magic = Unpack32( buffer->Packet, 236 );
 
    printf( "op = %d\n", op );
    printf( "htype = %d\n", htype );
@@ -158,31 +109,28 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
 void ProtocolDHCP::Discover()
 {
    DataBuffer* buffer = ProtocolUDP::GetTxBuffer();
+   int i;
+
    if( buffer )
    {
-      DHCPDISCOVER* packet = (DHCPDISCOVER*)(buffer->Packet);
-      for( int i = 0; i < sizeof( DHCPDISCOVER ); i++ ) buffer->Packet[ i ] = 0;
       PendingXID = (uint32_t)osTime::GetProcessorTime();
 
-      packet->op = 0x01;
-      packet->htype = 0x01;
-      packet->hlen = 0x06;
-      packet->hops = 0x00;
-      packet->xid = hton32( PendingXID );
-      packet->secs = hton16( 0x0000 );
-      packet->flags = hton16( 0x8000 );
-      packet->ciaddr = hton32( 0x00000000 ); // (Client IP address)
-      packet->yiaddr = hton32( 0x00000000 ); // (Your IP address)
-      packet->siaddr = hton32( 0x00000000 ); // (Server IP address)
-      packet->giaddr = hton32( 0x00000000 ); // (Gateway IP address)
-
-      for( int i = 0; i < 6; i++ )
-      {
-         packet->chaddr[ i ] = Config.Address.Hardware[ i ];
-      }
-      packet->magic = hton32( DHCP_MAGIC );
-
-      buffer->Length = sizeof( DHCPDISCOVER );
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // op
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // htype
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 6 );   // hlen
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 0 );   // hops
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, PendingXID );     // xid
+      buffer->Length = Pack16( buffer->Packet, buffer->Length, 0 );     // secs
+      buffer->Length = Pack16( buffer->Packet, buffer->Length, 0x8000 );  // flags
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Client IP address)
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Server IP address)
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
+      for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
+      for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
+      for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, DHCP_MAGIC );
 
       // Add options
       buffer->Packet[ buffer->Length++ ] = 53;
@@ -203,7 +151,7 @@ void ProtocolDHCP::Discover()
 
       // parameter request list
       buffer->Packet[ buffer->Length++ ] = 55;
-      buffer->Packet[ buffer->Length++ ] = 13; // length
+      buffer->Packet[ buffer->Length++ ] = 4; // length
       buffer->Packet[ buffer->Length++ ] = 1; // subnet mask
       buffer->Packet[ buffer->Length++ ] = 3; // router
       buffer->Packet[ buffer->Length++ ] = 6; // dns

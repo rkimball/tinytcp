@@ -39,13 +39,13 @@
 
 class ProtocolUDP
 {
-   struct Datagram
-   {
-      uint16_t sourcePort;
-      uint16_t targetPort;
-      uint16_t length;
-      uint16_t checksum;
-   };
+   //struct Datagram
+   //{
+   //   uint16_t sourcePort;
+   //   uint16_t targetPort;
+   //   uint16_t length;
+   //   uint16_t checksum;
+   //};
 
 public:
    static void ProcessRx( DataBuffer*, uint8_t* sourceIP, uint8_t* targetIP );

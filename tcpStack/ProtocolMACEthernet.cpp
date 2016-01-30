@@ -98,12 +98,7 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
 
 bool ProtocolMACEthernet::IsLocalAddress( uint8_t* addr )
 {
-   static uint8_t broadcast[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-
-   if( Address::Compare( broadcast, addr, 6 ) )
-   {
-      printf( "RX Broadcast address\n" );
-   }
+   uint8_t broadcast[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
    return Address::Compare( Config.Address.Hardware, addr, 6 ) ||
       Address::Compare( broadcast, addr, 6 );
@@ -167,25 +162,6 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
          break;
       default:
          //printf( "Unsupported Unicast type 0x%04X\n", type );
-         break;
-      }
-   }
-   else if( Address::Compare( Config.BroadcastMACAddress, packet->Packet, 6 ) )
-   {
-      // Broadcast
-      //printf( "Broadcast 0x%04X\n", type );
-      packet->Packet += MAC_HEADER_SIZE;
-      packet->Length -= MAC_HEADER_SIZE;
-      
-      switch( type )
-      {
-      case 0x0806:   // ARP
-         //printf( "Ethernet Rx:\n" );
-         //DumpData( buffer, length, printf );
-         ProtocolARP::ProcessRx( packet );
-         break;
-      default:
-         //printf( "Unsupported Broadcast type 0x%04X\n", type );
          break;
       }
    }
