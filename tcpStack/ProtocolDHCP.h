@@ -72,6 +72,7 @@ class ProtocolDHCP
 public:
    static void ProcessRx( DataBuffer* buffer );
    static void Discover();
+   static void SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress );
    static void test();
 private:
    static DataBuffer Buffer;

@@ -61,10 +61,10 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    uint32_t xid = Unpack32( buffer->Packet, 4 );
    uint16_t secs = Unpack16( buffer->Packet, 8 );
    uint16_t flags = Unpack16( buffer->Packet, 10 );
-   uint32_t ciaddr = Unpack32( buffer->Packet, 12 ); // (Client IP address)
-   uint32_t yiaddr = Unpack32( buffer->Packet, 16 ); // (Your IP address)
-   uint32_t siaddr = Unpack32( buffer->Packet, 20 ); // (Server IP address)
-   uint32_t giaddr = Unpack32( buffer->Packet, 24 ); // (Gateway IP address)
+   uint8_t* ciaddr = &buffer->Packet[ 12 ]; // (Client IP address)
+   uint8_t* yiaddr = &buffer->Packet[ 16 ]; // (Your IP address)
+   uint8_t* siaddr = &buffer->Packet[ 20 ]; // (Server IP address)
+   uint8_t* giaddr = &buffer->Packet[ 24 ]; // (Gateway IP address)
    uint32_t magic = Unpack32( buffer->Packet, 236 );
 
    printf( "op = %d\n", op );
@@ -74,15 +74,77 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    printf( "xid = 0x%0X\n", xid );
    printf( "secs = %d\n", secs );
    printf( "flags = %d\n", flags );
-   printf( "ciaddr = %s\n", inet_ntoa( ciaddr ) ); // (Client IP address)
-   printf( "yiaddr = %s\n", inet_ntoa( yiaddr ) ); // (Your IP address)
-   printf( "siaddr = %s\n", inet_ntoa( siaddr ) ); // (Server IP address)
-   printf( "giaddr = %s\n", inet_ntoa( giaddr ) ); // (Gateway IP address)
+   printf( "ciaddr = %d.%d.%d.%d\n", ciaddr[0], ciaddr[1], ciaddr[2], ciaddr[3] ); // (Client IP address)
+   printf( "yiaddr = %d.%d.%d.%d\n", yiaddr[ 0 ], yiaddr[ 1 ], yiaddr[ 2 ], yiaddr[ 3 ] ); // (Your IP address)
+   printf( "siaddr = %d.%d.%d.%d\n", siaddr[ 0 ], siaddr[ 1 ], siaddr[ 2 ], siaddr[ 3 ] ); // (Server IP address)
+   printf( "giaddr = %d.%d.%d.%d\n", giaddr[ 0 ], giaddr[ 1 ], giaddr[ 2 ], giaddr[ 3 ] ); // (Gateway IP address)
+   printf( "magic = 0x%0X\n", magic );
+
+   // Parse Options
+   size_t offset = 240;
+   uint8_t optionData[ 255 ];
+   AddressConfiguration::IPv4_t ipv4Data;
+   uint8_t dhcpType = 0xFF;
+   while( offset < buffer->Remainder )
+   {
+      uint8_t option = Unpack8( buffer->Packet, offset++ );
+      uint8_t length = Unpack8( buffer->Packet, offset++ );
+      printf( "option %d, length %d\n", option, length );
+      for( int i = 0; i < length; i++ ) optionData[ i ] = Unpack8( buffer->Packet, offset++ );
+      switch( option )
+      {
+      case 53: // DHCP Message Type
+         dhcpType = optionData[ 0 ];
+         break;
+      case 51: // IP Address Lease Time
+         ipv4Data.IpAddressLeaseTime = Unpack32( optionData, 0 );
+         break;
+      case 58: // Renew Time
+         ipv4Data.RenewTime = Unpack32( optionData, 0 );
+         break;
+      case 59: // Rebinding Time
+         ipv4Data.RebindTime = Unpack32( optionData, 0 );
+         break;
+      case 1: // Subnet Mask
+         for( int i = 0; i < 4; i++ ) ipv4Data.SubnetMask[ i ] = optionData[ i ];
+         break;
+      case 3: // Router
+         for( int i = 0; i < 4; i++ ) ipv4Data.Router[ i ] = optionData[ i ];
+         break;
+      case 6: // DNS
+         for( int i = 0; i < 4; i++ ) ipv4Data.DomainNameServer[ i ] = optionData[ i ];
+         // There could be more, but just take one for now
+         break;
+      case 28: // Broadcast Address
+         for( int i = 0; i < 4; i++ ) ipv4Data.BroadcastAddress[ i ] = optionData[ i ];
+         break;
+      case 255:
+         offset = buffer->Remainder;
+         break;
+      }
+   }
+
+
    if( xid == PendingXID )
    {
-      printf( "*********** this is for me ************\n" );
+      switch( dhcpType )
+      {
+      case 2:  // offer
+      {
+         PendingXID = (uint32_t)osTime::GetProcessorTime();
+         SendRequest( 3, siaddr, yiaddr );
+         break;
+      }
+      case 5:  // ack
+         printf( "DHCP got address %d.%d.%d.%d\n", ipv4Data.DomainNameServer );
+         memcpy( &(Config.IPv4), &ipv4Data, sizeof( AddressConfiguration::IPv4_t ) );
+         break;
+      case 6:  // nak
+         break;
+      default:
+         break;
+      }
    }
-   printf( "magic = 0x%0X\n", magic );
 }
 
 //9.4.DHCP Message Type
@@ -156,6 +218,78 @@ void ProtocolDHCP::Discover()
       buffer->Packet[ buffer->Length++ ] = 3; // router
       buffer->Packet[ buffer->Length++ ] = 6; // dns
       buffer->Packet[ buffer->Length++ ] = 15; // domain name
+
+      buffer->Packet[ buffer->Length++ ] = 255;  // End options
+
+      int pad = 8;
+      for( int i = 0; i < pad; i++ ) buffer->Packet[ buffer->Length++ ] = 0;
+
+      uint8_t sourceIP[] = { 0, 0, 0, 0 };
+      uint8_t targetIP[] = { 255, 255, 255, 255 };
+      ProtocolUDP::Transmit( buffer, targetIP, 67, sourceIP, 68 );
+   }
+}
+
+void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress )
+{
+   printf( "DHCP Send type %d\n", messageType );
+   DataBuffer* buffer = ProtocolUDP::GetTxBuffer();
+   int i;
+
+   if( buffer )
+   {
+      PendingXID = (uint32_t)osTime::GetProcessorTime();
+
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // op
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // htype
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 6 );   // hlen
+      buffer->Length = Pack8( buffer->Packet, buffer->Length, 0 );   // hops
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, PendingXID );     // xid
+      buffer->Length = Pack16( buffer->Packet, buffer->Length, 0 );     // secs
+      buffer->Length = Pack16( buffer->Packet, buffer->Length, 0x8000 );  // flags
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Client IP address)
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
+      if( serverAddress != nullptr )
+      {
+         for( int i = 0; i < 4; i++ ) buffer->Packet[ buffer->Length++ ] = serverAddress[ i ]; // (Server IP address)
+      }
+      else
+      {
+         buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
+      }
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
+      for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
+      for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
+      for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
+      buffer->Length = Pack32( buffer->Packet, buffer->Length, DHCP_MAGIC );
+
+      // Add options
+      // 1     DHCPDISCOVER
+      // 2     DHCPOFFER
+      // 3     DHCPREQUEST
+      // 4     DHCPDECLINE
+      // 5     DHCPACK
+      // 6     DHCPNAK
+      // 7     DHCPRELEASE
+      buffer->Packet[ buffer->Length++ ] = 53;
+      buffer->Packet[ buffer->Length++ ] = 1;
+      buffer->Packet[ buffer->Length++ ] = messageType;
+
+      if( requestAddress != nullptr )
+      {
+         buffer->Packet[ buffer->Length++ ] = 50;
+         buffer->Packet[ buffer->Length++ ] = 4; // length
+         for( int i = 0; i < 4; i++ ) buffer->Packet[ buffer->Length++ ] = requestAddress[ i ];
+      }
+
+      if( serverAddress != nullptr )
+      {
+         // server address
+         buffer->Packet[ buffer->Length++ ] = 54;
+         buffer->Packet[ buffer->Length++ ] = 5; // length
+         for( int i = 0; i < 4; i++ ) buffer->Packet[ buffer->Length++ ] = serverAddress[ i ]; // (Server IP address)
+      }
 
       buffer->Packet[ buffer->Length++ ] = 255;  // End options
 
