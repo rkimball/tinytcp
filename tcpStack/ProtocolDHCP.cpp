@@ -67,18 +67,18 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    uint8_t* giaddr = &buffer->Packet[ 24 ]; // (Gateway IP address)
    uint32_t magic = Unpack32( buffer->Packet, 236 );
 
-   printf( "op = %d\n", op );
-   printf( "htype = %d\n", htype );
-   printf( "hlen = %d\n", hlen );
-   printf( "hops = %d\n", hops );
-   printf( "xid = 0x%0X\n", xid );
-   printf( "secs = %d\n", secs );
-   printf( "flags = %d\n", flags );
-   printf( "ciaddr = %d.%d.%d.%d\n", ciaddr[0], ciaddr[1], ciaddr[2], ciaddr[3] ); // (Client IP address)
-   printf( "yiaddr = %d.%d.%d.%d\n", yiaddr[ 0 ], yiaddr[ 1 ], yiaddr[ 2 ], yiaddr[ 3 ] ); // (Your IP address)
-   printf( "siaddr = %d.%d.%d.%d\n", siaddr[ 0 ], siaddr[ 1 ], siaddr[ 2 ], siaddr[ 3 ] ); // (Server IP address)
-   printf( "giaddr = %d.%d.%d.%d\n", giaddr[ 0 ], giaddr[ 1 ], giaddr[ 2 ], giaddr[ 3 ] ); // (Gateway IP address)
-   printf( "magic = 0x%0X\n", magic );
+   //printf( "op = %d\n", op );
+   //printf( "htype = %d\n", htype );
+   //printf( "hlen = %d\n", hlen );
+   //printf( "hops = %d\n", hops );
+   //printf( "xid = 0x%0X\n", xid );
+   //printf( "secs = %d\n", secs );
+   //printf( "flags = %d\n", flags );
+   //printf( "ciaddr = %d.%d.%d.%d\n", ciaddr[0], ciaddr[1], ciaddr[2], ciaddr[3] ); // (Client IP address)
+   //printf( "yiaddr = %d.%d.%d.%d\n", yiaddr[ 0 ], yiaddr[ 1 ], yiaddr[ 2 ], yiaddr[ 3 ] ); // (Your IP address)
+   //printf( "siaddr = %d.%d.%d.%d\n", siaddr[ 0 ], siaddr[ 1 ], siaddr[ 2 ], siaddr[ 3 ] ); // (Server IP address)
+   //printf( "giaddr = %d.%d.%d.%d\n", giaddr[ 0 ], giaddr[ 1 ], giaddr[ 2 ], giaddr[ 3 ] ); // (Gateway IP address)
+   //printf( "magic = 0x%0X\n", magic );
 
    // Parse Options
    size_t offset = 240;
@@ -89,7 +89,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    {
       uint8_t option = Unpack8( buffer->Packet, offset++ );
       uint8_t length = Unpack8( buffer->Packet, offset++ );
-      printf( "option %d, length %d\n", option, length );
+      //printf( "option %d, length %d\n", option, length );
       for( int i = 0; i < length; i++ ) optionData[ i ] = Unpack8( buffer->Packet, offset++ );
       switch( option )
       {
@@ -109,7 +109,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
          for( int i = 0; i < 4; i++ ) ipv4Data.SubnetMask[ i ] = optionData[ i ];
          break;
       case 3: // Router
-         for( int i = 0; i < 4; i++ ) ipv4Data.Router[ i ] = optionData[ i ];
+         for( int i = 0; i < 4; i++ ) ipv4Data.Gateway[ i ] = optionData[ i ];
          break;
       case 6: // DNS
          for( int i = 0; i < 4; i++ ) ipv4Data.DomainNameServer[ i ] = optionData[ i ];
@@ -136,8 +136,9 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
          break;
       }
       case 5:  // ack
-         printf( "DHCP got address %d.%d.%d.%d\n", ipv4Data.DomainNameServer );
+         for( int i = 0; i < 4; i++ ) ipv4Data.Address[ i ] = yiaddr[ i ];
          memcpy( &(Config.IPv4), &ipv4Data, sizeof( AddressConfiguration::IPv4_t ) );
+         printf( "DHCP got address %d.%d.%d.%d\n", Config.IPv4.Address[ 0 ], Config.IPv4.Address[ 1 ], Config.IPv4.Address[ 2 ], Config.IPv4.Address[ 3 ] );
          break;
       case 6:  // nak
          break;
@@ -188,7 +189,7 @@ void ProtocolDHCP::Discover()
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Server IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
-      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.MACAddress[ i ];
       for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
       for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
       for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
@@ -203,7 +204,7 @@ void ProtocolDHCP::Discover()
       buffer->Packet[ buffer->Length++ ] = 61;
       buffer->Packet[ buffer->Length++ ] = 7; // length
       buffer->Packet[ buffer->Length++ ] = 1; // type is hardware address
-      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
+      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.MACAddress[ i ];
 
       // host name
       const char* name = "tinytcp";
@@ -258,7 +259,7 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
          buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
       }
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
-      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.MACAddress[ i ];
       for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
       for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
       for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file

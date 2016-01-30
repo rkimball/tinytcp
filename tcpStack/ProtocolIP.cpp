@@ -76,6 +76,18 @@ void ProtocolIP::Initialize()
 //
 //============================================================================
 
+bool ProtocolIP::IsLocal( const uint8_t* addr )
+{
+   uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF};
+   return Address::Compare( addr, Config.IPv4.Address, Config.IPv4AddressSize ) ||
+      Address::Compare( addr, broadcastAddress, Config.IPv4AddressSize )
+      ;
+}
+
+//============================================================================
+//
+//============================================================================
+
 void ProtocolIP::ProcessRx( DataBuffer* buffer, uint8_t* hardwareAddress )
 {
    uint8_t headerLength;
@@ -93,26 +105,37 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, uint8_t* hardwareAddress )
    targetIP = &packet[ 16 ];
 
    //printf( "IP %d, dataLength %d, header %d\n", buffer->Length, dataLength, headerLength );
-   buffer->Packet += headerLength;
-   dataLength -= headerLength;
-   buffer->Length = dataLength;
 
-   switch( protocol )
+   if( IsLocal( targetIP ) )
    {
-   case 0x01:  // ICMP
-      ProtocolICMP::ProcessRx( buffer, sourceIP );
-      break;
-   case 0x02:  // IGMP
-      break;
-   case 0x06:  // TCP
-      ProtocolTCP::ProcessRx( buffer, sourceIP, targetIP );
-      break;
-   case 0x11:  // UDP
-      ProtocolUDP::ProcessRx( buffer, sourceIP, targetIP );
-      break;
-   default:
-      printf( "Unsupported IP Protocol 0x%02X\n", protocol );
-      break;
+      if( targetIP[ 3 ] != 0xFF )  // not broadcast
+      {
+         printf( "RX IP: %d.%d.%d.%d -> %d.%d.%d.%d, protocol 0x%02X\n",
+            sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
+            targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ],
+            protocol );
+      }
+      buffer->Packet += headerLength;
+      dataLength -= headerLength;
+      buffer->Length = dataLength;
+
+      switch( protocol )
+      {
+      case 0x01:  // ICMP
+         ProtocolICMP::ProcessRx( buffer, sourceIP );
+         break;
+      case 0x02:  // IGMP
+         break;
+      case 0x06:  // TCP
+         ProtocolTCP::ProcessRx( buffer, sourceIP, targetIP );
+         break;
+      case 0x11:  // UDP
+         ProtocolUDP::ProcessRx( buffer, sourceIP, targetIP );
+         break;
+      default:
+         printf( "Unsupported IP Protocol 0x%02X\n", protocol );
+         break;
+      }
    }
 }
 
@@ -140,7 +163,7 @@ DataBuffer* ProtocolIP::GetTxBuffer()
 
 void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP )
 {
-   Transmit( buffer, protocol, targetIP, Config.Address.Protocol );
+   Transmit( buffer, protocol, targetIP, Config.IPv4.Address );
 }
 
 void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP, uint8_t* sourceIP )

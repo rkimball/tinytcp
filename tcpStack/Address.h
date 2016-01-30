@@ -37,13 +37,8 @@
 class Address
 {
 public:
-   static const uint8_t HardwareSize = 6;
-   static const uint8_t ProtocolSize = 4;
 
-   uint8_t Hardware[ HardwareSize ];
-   uint8_t Protocol[ ProtocolSize ];
-
-   static bool Compare( uint8_t* a1, uint8_t* a2, int length );
+   static bool Compare( const uint8_t* a1, const uint8_t* a2, int length );
 };
 
 #endif

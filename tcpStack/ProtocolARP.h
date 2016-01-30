@@ -37,20 +37,22 @@
 #include "DataBuffer.h"
 #include "osMutex.h"
 
-class ARPCacheEntry : public Address
+class ARPCacheEntry
 {
 public:
    uint8_t Age;
+   uint8_t IPv4Address[ 4 ];
+   uint8_t MACAddress[ 6 ];
 };
 
 // HardwareType - 2 bytes
 // ProtocolType - 2 bytes
 // HardwareSize - 1 byte, size int bytes of HardwareAddress fields
-// ProtocolSize - 1 byte, size int bytes of ProtocolAddress fields
+// IPv4AddressSize - 1 byte, size int bytes of ProtocolAddress fields
 // SenderHardwareAddress - HardwareSize bytes
-// SenderProtocolAddress - ProtocolSize bytes
+// SenderProtocolAddress - IPv4AddressSize bytes
 // TargetHardwareAddress - HardwareSize bytes
-// TargetProtocolAddress - ProtocolSize bytes
+// TargetProtocolAddress - IPv4AddressSize bytes
 
 class ProtocolARP
 {

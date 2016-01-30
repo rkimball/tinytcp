@@ -80,34 +80,28 @@ void NetworkEntry( void* param )
    NetworkConfig& config = *(NetworkConfig*)param;
    char device[ 256 ];
 
-   //Config.Address.Hardware[ 0 ] = 0x00;
-   //Config.Address.Hardware[ 1 ] = 0xA0;
-   //Config.Address.Hardware[ 2 ] = 0xC6;
-   //Config.Address.Hardware[ 3 ] = 0x00;
-   //Config.Address.Hardware[ 4 ] = 0x0B;
-   //Config.Address.Hardware[ 5 ] = 0x0B;
-   Config.Address.Hardware[ 0 ] = 0x10;
-   Config.Address.Hardware[ 1 ] = 0xBF;
-   Config.Address.Hardware[ 2 ] = 0x48;
-   Config.Address.Hardware[ 3 ] = 0x44;
-   Config.Address.Hardware[ 4 ] = 0x55;
-   Config.Address.Hardware[ 5 ] = 0x66;
+   Config.MACAddress[ 0 ] = 0x10;
+   Config.MACAddress[ 1 ] = 0xBF;
+   Config.MACAddress[ 2 ] = 0x48;
+   Config.MACAddress[ 3 ] = 0x44;
+   Config.MACAddress[ 4 ] = 0x55;
+   Config.MACAddress[ 5 ] = 0x66;
 
    // 192.168.1.3
-   Config.Address.Protocol[ 0 ] = 0;
-   Config.Address.Protocol[ 1 ] = 0;
-   Config.Address.Protocol[ 2 ] = 0;
-   Config.Address.Protocol[ 3 ] = 0;
+   Config.IPv4.Address[ 0 ] = 0;
+   Config.IPv4.Address[ 1 ] = 0;
+   Config.IPv4.Address[ 2 ] = 0;
+   Config.IPv4.Address[ 3 ] = 0;
 
-   Config.SubnetMask[ 0 ] = 255;
-   Config.SubnetMask[ 1 ] = 255;
-   Config.SubnetMask[ 2 ] = 254;
-   Config.SubnetMask[ 3 ] = 0;
+   //Config.IPv4.SubnetMask[ 0 ] = 255;
+   //Config.IPv4.SubnetMask[ 1 ] = 255;
+   //Config.IPv4.SubnetMask[ 2 ] = 254;
+   //Config.IPv4.SubnetMask[ 3 ] = 0;
 
-   Config.Gateway[ 0 ] = 192;
-   Config.Gateway[ 1 ] = 168;
-   Config.Gateway[ 2 ] = 1;
-   Config.Gateway[ 3 ] = 1;
+   //Config.IPv4.Gateway[ 0 ] = 192;
+   //Config.IPv4.Gateway[ 1 ] = 168;
+   //Config.IPv4.Gateway[ 2 ] = 1;
+   //Config.IPv4.Gateway[ 3 ] = 1;
 
    PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
    printf( "using device %s\n", device );

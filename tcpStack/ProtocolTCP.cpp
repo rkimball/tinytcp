@@ -135,7 +135,7 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          Event.Wait( __FILE__, __LINE__ );
       }
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, Config.Address.Protocol, RemoteAddress );
+      checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, Config.IPv4.Address, RemoteAddress );
 
       packet[ 16 ] = checksum >> 8;
       packet[ 17 ] = checksum & 0xFF;
@@ -778,7 +778,7 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, uint8_t* remot
       packet[ 18 ] = 0;    // 2 bytes of UrgentPointer
       packet[ 19 ] = 0;
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, Config.Address.Protocol, remoteAddress );
+      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, Config.IPv4.Address, remoteAddress );
 
       packet[ 16 ] = checksum >> 8;
       packet[ 17 ] = checksum & 0xFF;
@@ -889,7 +889,7 @@ ProtocolTCP::Connection* ProtocolTCP::LocateConnection
       (
          ConnectionList[ i ].LocalPort == localPort &&
          ConnectionList[ i ].RemotePort == remotePort &&
-         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, Address::ProtocolSize )
+         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, AddressConfiguration::IPv4AddressSize )
       )
       {
          return &ConnectionList[ i ];
@@ -956,7 +956,7 @@ ProtocolTCP::Connection* ProtocolTCP::NewClient
          ConnectionList[ i ].LocalPort = localPort;
          ConnectionList[ i ].SequenceNumber = 1;
          ConnectionList[ i ].MaxSequenceTx = ConnectionList[ i ].SequenceNumber + 1024;
-         for( j=0; j<Address::ProtocolSize; j++ )
+         for( j=0; j<AddressConfiguration::IPv4AddressSize; j++ )
          {
             ConnectionList[ i ].RemoteAddress[ j ] = remoteAddress[ j ];
          }

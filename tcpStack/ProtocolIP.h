@@ -54,6 +54,7 @@ public:
    static DataBuffer* GetTxBuffer();
 
 private:
+   static bool IsLocal( const uint8_t* addr );
 
    static uint16_t PacketID;
 

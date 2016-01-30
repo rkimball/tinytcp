@@ -40,11 +40,11 @@ class AddressConfiguration
 {
 public:
    static const size_t IPv4AddressSize = 4;
+   static const uint8_t MACAddressSize = 6;
 
-   Address Address;
-   uint8_t SubnetMask[ Address::ProtocolSize ];
-   uint8_t Gateway[ Address::ProtocolSize ];
-   uint8_t BroadcastMACAddress[ Address::HardwareSize ];
+   //Address Address;
+   uint8_t MACAddress[ AddressConfiguration::MACAddressSize ];
+   uint8_t BroadcastMACAddress[ AddressConfiguration::MACAddressSize ];
 
    class IPv4_t
    {
@@ -54,7 +54,7 @@ public:
       uint32_t RenewTime = 0;
       uint32_t RebindTime = 0;
       uint8_t SubnetMask[ IPv4AddressSize ];
-      uint8_t Router[ IPv4AddressSize ];
+      uint8_t Gateway[ IPv4AddressSize ];
       uint8_t DomainNameServer[ IPv4AddressSize ];
       uint8_t BroadcastAddress[ IPv4AddressSize ];
    } IPv4;

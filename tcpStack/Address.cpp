@@ -31,7 +31,7 @@
 
 #include "Address.h"
 
-bool Address::Compare( uint8_t* a1, uint8_t* a2, int length )
+bool Address::Compare( const uint8_t* a1, const uint8_t* a2, int length )
 {
    for( int i=0; i<length; i++ )
    {

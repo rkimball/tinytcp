@@ -34,6 +34,7 @@
 
 #include <cinttypes>
 #include "ProtocolTCP.h"
+#include "NetworkInterface.h"
 #include "Address.h"
 #include "osQueue.h"
 #include "osMutex.h"
@@ -106,7 +107,7 @@ public:
       States State;
       uint16_t LocalPort;
       uint16_t RemotePort;
-      uint8_t  RemoteAddress[ Address::ProtocolSize ];
+      uint8_t  RemoteAddress[ AddressConfiguration::IPv4AddressSize ];
       int32_t SequenceNumber;
       int32_t AcknowledgementNumber;
       int32_t LastAck;

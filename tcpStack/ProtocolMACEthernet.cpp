@@ -100,7 +100,7 @@ bool ProtocolMACEthernet::IsLocalAddress( uint8_t* addr )
 {
    uint8_t broadcast[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-   return Address::Compare( Config.Address.Hardware, addr, 6 ) ||
+   return Address::Compare( Config.MACAddress, addr, 6 ) ||
       Address::Compare( broadcast, addr, 6 );
 }
 
@@ -238,7 +238,7 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, uint8_t* targetMAC, uint
 
    for( i=0; i<6; i++ )
    {
-      *p++ = Config.Address.Hardware[ i ];
+      *p++ = Config.MACAddress[ i ];
    }
 
    *p++ = type >> 8;
