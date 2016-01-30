@@ -195,31 +195,11 @@ void ProtocolDHCP::Discover()
       buffer->Packet[ buffer->Length++ ] = 1; // type is hardware address
       for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.Address.Hardware[ i ];
 
-      // requested address
-      buffer->Packet[ buffer->Length++ ] = 0x32;
-      buffer->Packet[ buffer->Length++ ] = 0x04;
-      buffer->Packet[ buffer->Length++ ] = 0xC0;
-      buffer->Packet[ buffer->Length++ ] = 0xA8;
-      buffer->Packet[ buffer->Length++ ] = 0x01;
-      buffer->Packet[ buffer->Length++ ] = 0x03;
-
       // host name
       const char* name = "tinytcp";
       buffer->Packet[ buffer->Length++ ] = 12;
       buffer->Packet[ buffer->Length++ ] = strlen( name );
       for( int i = 0; i < strlen( name ); i++ ) buffer->Packet[ buffer->Length++ ] = name[ i ];
-
-      // vendor class ident
-      buffer->Packet[ buffer->Length++ ] = 0x3C;
-      buffer->Packet[ buffer->Length++ ] = 0x08;
-      buffer->Packet[ buffer->Length++ ] = 0x4D;
-      buffer->Packet[ buffer->Length++ ] = 0x53;
-      buffer->Packet[ buffer->Length++ ] = 0x46;
-      buffer->Packet[ buffer->Length++ ] = 0x54;
-      buffer->Packet[ buffer->Length++ ] = 0x20;
-      buffer->Packet[ buffer->Length++ ] = 0x35;
-      buffer->Packet[ buffer->Length++ ] = 0x2E;
-      buffer->Packet[ buffer->Length++ ] = 0x30;
 
       // parameter request list
       buffer->Packet[ buffer->Length++ ] = 55;
@@ -228,15 +208,6 @@ void ProtocolDHCP::Discover()
       buffer->Packet[ buffer->Length++ ] = 3; // router
       buffer->Packet[ buffer->Length++ ] = 6; // dns
       buffer->Packet[ buffer->Length++ ] = 15; // domain name
-      buffer->Packet[ buffer->Length++ ] = 31; // domain name
-      buffer->Packet[ buffer->Length++ ] = 33; // domain name
-      buffer->Packet[ buffer->Length++ ] = 43; // domain name
-      buffer->Packet[ buffer->Length++ ] = 44; // domain name
-      buffer->Packet[ buffer->Length++ ] = 46; // domain name
-      buffer->Packet[ buffer->Length++ ] = 47; // domain name
-      buffer->Packet[ buffer->Length++ ] = 121; // domain name
-      buffer->Packet[ buffer->Length++ ] = 249; // domain name
-      buffer->Packet[ buffer->Length++ ] = 252; // domain name
 
       buffer->Packet[ buffer->Length++ ] = 255;  // End options
 
