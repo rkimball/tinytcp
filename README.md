@@ -9,6 +9,7 @@ The protocol stack has three main functions required:
 3) ProtocolTCP::Tick()
 
 Doing something useful:
+'''c_cpp
    ListenerConnection = ProtocolTCP::NewServer( port );
    while( 1 )
    {
@@ -26,3 +27,4 @@ Doing something useful:
          printf( "Error: Out of pages\n" );
       }
    }
+'''
