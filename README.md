@@ -3,13 +3,14 @@ tinytcp is designed primarily for use in an embedded environment. It is designed
 All memory used is preallocated in static arrays.
 
 Usage:
-The protocol stack has three main functions required:
-1) NetworkInterface.RxData
-2) NetworkInterface.TxData
-3) ProtocolTCP::Tick()
+The protocol stack has three main functions required
+
+1. NetworkInterface.RxData
+2. NetworkInterface.TxData
+3. ProtocolTCP::Tick()
 
 Doing something useful:
-'''c_cpp
+```c_cpp
    ListenerConnection = ProtocolTCP::NewServer( port );
    while( 1 )
    {
@@ -24,7 +25,7 @@ Doing something useful:
       }
       else
       {
-         printf( "Error: Out of pages\n" );
+         printf( "Error: Out of pages\\n" );
       }
    }
-'''
+```
