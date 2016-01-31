@@ -99,7 +99,7 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, uint8_t* hardwareAddress )
    uint16_t dataLength;
 
    headerLength = (packet[ 0 ] & 0x0F) * 4;
-   dataLength = packet[ 2 ] << 8 | packet[ 3 ];
+   dataLength = Unpack16( packet, 2 );
    protocol = packet[ 9 ];
    sourceIP = &packet[ 12 ];
    targetIP = &packet[ 16 ];
@@ -178,33 +178,21 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* target
 
    packet[ 0 ] = 0x45;     // Version and HeaderSize
    packet[ 1 ] = 0;        // ToS
-   packet[ 2 ] = buffer->Length >> 8;
-   packet[ 3 ] = buffer->Length & 0xFF;
+   Pack16( packet, 2, buffer->Length );
 
    PacketID++;
-   packet[ 4 ] = PacketID >> 8;
-   packet[ 5 ] = PacketID & 0xFF;
+   Pack16( packet, 4, PacketID );
    packet[ 6 ] = 0;        // Flags & FragmentOffset
    packet[ 7 ] = 0;        // rest of FragmentOffset
 
    packet[  8 ] = 32;      // TTL
    packet[  9 ] = protocol;
-   packet[ 10 ] = 0;       // Seed Checksum
-   packet[ 11 ] = 0;
-
-   packet[ 12 ] = sourceIP[ 0 ];
-   packet[ 13 ] = sourceIP[ 1 ];
-   packet[ 14 ] = sourceIP[ 2 ];
-   packet[ 15 ] = sourceIP[ 3 ];
-   
-   packet[ 16 ] = targetIP[ 0 ];
-   packet[ 17 ] = targetIP[ 1 ];
-   packet[ 18 ] = targetIP[ 2 ];
-   packet[ 19 ] = targetIP[ 3 ];
+   Pack16( packet, 10, 0 ); // checksum placeholder
+   PackBytes( packet, 12, sourceIP, 4 );
+   PackBytes( packet, 16, targetIP, 4 );
 
    checksum = FCS::Checksum( packet, 20 );
-   packet[ 10 ] = checksum >> 8;
-   packet[ 11 ] = checksum & 0xFF;
+   Pack16( packet, 10, checksum );
 
    //printf( "Tx to %d.%d.%d.%d\n",
    //   targetIP[ 0 ],

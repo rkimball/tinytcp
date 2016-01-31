@@ -100,31 +100,20 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
    length = buffer->Length;
    if( packet != 0 )
    {
-      packet[  0 ] = LocalPort >> 8;
-      packet[  1 ] = LocalPort & 0xFF;
-      packet[  2 ] = RemotePort >> 8;
-      packet[  3 ] = RemotePort & 0xFF;
-      packet[  4 ] = SequenceNumber >> 24;
-      packet[  5 ] = SequenceNumber >> 16;
-      packet[  6 ] = SequenceNumber >>  8;
-      packet[  7 ] = SequenceNumber >>  0;
+      Pack16( packet, 0, LocalPort );
+      Pack16( packet, 2, RemotePort );
+      Pack32( packet, 4, SequenceNumber );
       if( AcknowledgementNumber - LastAck > 0 )
       {
          // Only advance LastAck if Ack > LastAck
          LastAck = AcknowledgementNumber;
       }
-      packet[  8 ] = AcknowledgementNumber >> 24;
-      packet[  9 ] = AcknowledgementNumber >> 16;
-      packet[ 10 ] = AcknowledgementNumber >>  8;
-      packet[ 11 ] = AcknowledgementNumber >>  0;
+      Pack32( packet, 8, AcknowledgementNumber );
       packet[ 12 ] = 0x50;    // Header length and reserved
       packet[ 13 ] = flags;
-      packet[ 14 ] = CurrentWindow >> 8;
-      packet[ 15 ] = (CurrentWindow & 0xFF);
-      packet[ 16 ] = 0;    // 2 bytes of CheckSum
-      packet[ 17 ] = 0;
-      packet[ 18 ] = 0;    // 2 bytes of UrgentPointer
-      packet[ 19 ] = 0;
+      Pack16( packet, 14, CurrentWindow );
+      Pack16( packet, 16, 0 );   // checksum placeholder
+      Pack16( packet, 18, 0 );   // urgent pointer
 
       SequenceNumber += length;
       buffer->AcknowledgementNumber = SequenceNumber;
@@ -137,8 +126,7 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
 
       checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, Config.IPv4.Address, RemoteAddress );
 
-      packet[ 16 ] = checksum >> 8;
-      packet[ 17 ] = checksum & 0xFF;
+      Pack16( packet, 16, checksum );   // checksum
 
       buffer->Length += TCP_HEADER_SIZE;
       buffer->Remainder -= buffer->Length;

@@ -139,9 +139,6 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    // Check if the MAC Address is destined for me
    if( IsLocalAddress( packet->Packet ) )
    {
-      //printf( "RX:\n" );
-      //DumpData( packet->Packet, packet->Length, printf );
-
       if( actualLength > length )
       {
          //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
@@ -233,25 +230,15 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, uint8_t* targetMAC, uint
    
    p = buffer->Packet;
 
-   for( i=0; i<6; i++ )
-   {
-      *p++ = targetMAC[ i ];
-   }
-
-   for( i=0; i<6; i++ )
-   {
-      *p++ = Config.MACAddress[ i ];
-   }
-
-   *p++ = type >> 8;
-   *p++ = type & 0xFF;
-
-   p += buffer->Length;
-
+   size_t offset = 0;
+   offset = PackBytes( buffer->Packet, offset, targetMAC, 6 );
+   offset = PackBytes( buffer->Packet, offset, Config.MACAddress, 6 );
+   offset = Pack16( buffer->Packet, offset, type );
+   
+   offset += buffer->Length;
    while( buffer->Length < 60 )
    {
-      *p++ = 0;
-      buffer->Length++;
+      buffer->Packet[ buffer->Length++ ] = 0;
    }
 
    //printf( "TX:\n" );
@@ -285,7 +272,4 @@ void ProtocolMACEthernet::Retransmit( DataBuffer* buffer )
 
 void ProtocolMACEthernet::Show( osPrintfInterface* out )
 {
-   //out->Printf( "MAC Ethernet Information\n" );
-   //TxBufferQueue.Show( out );
-   //RxBufferQueue.Show( out );
 }

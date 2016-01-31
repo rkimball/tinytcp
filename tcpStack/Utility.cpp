@@ -37,9 +37,9 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
 {
    int   i, j;
    unsigned char* buf = (unsigned char*)buffer;
-   char  tmpBuf[90];
+   char  tmpBuf[ 90 ];
    int            tmpIndex = 0;
-   int            size = sizeof(tmpBuf);
+   int            size = sizeof( tmpBuf );
    int            count;
 
    if( buf == 0 )
@@ -49,51 +49,51 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
 
    i = 0;
    j = 0;
-   while( i+1 <= len )
+   while( i + 1 <= len )
    {
-      count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "%04X ", i );
+      count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "%04X ", i );
       tmpIndex += count;
       size -= count;
-      for( j=0; j<16; j++ )
+      for( j = 0; j < 16; j++ )
       {
-         if( i+j < len )
+         if( i + j < len )
          {
-            count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "%02X ", buf[i+j] );
+            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "%02X ", buf[ i + j ] );
             tmpIndex += count;
             size -= count;
          }
          else
          {
-            count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "   " );
+            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "   " );
             tmpIndex += count;
             size -= count;
          }
 
          if( j == 7 )
          {
-            count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "- " );
+            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "- " );
             tmpIndex += count;
             size -= count;
          }
       }
-      count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "  " );
+      count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "  " );
       tmpIndex += count;
       size -= count;
-      for( j=0; j<16; j++ )
+      for( j = 0; j < 16; j++ )
       {
-         if( buf[i+j] >= 0x20 && buf[i+j] <= 0x7E )
+         if( buf[ i + j ] >= 0x20 && buf[ i + j ] <= 0x7E )
          {
-            count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "%c", buf[i+j] );
+            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "%c", buf[ i + j ] );
             tmpIndex += count;
             size -= count;
          }
          else
          {
-            count = _snprintf_s( &tmpBuf[tmpIndex], size, size, "." );
+            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "." );
             tmpIndex += count;
             size -= count;
          }
-         if( i+j+1 == len )
+         if( i + j + 1 == len )
          {
             break;
          }
@@ -103,7 +103,7 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
 
       (void)pfunc( "%s\n", tmpBuf );
       tmpIndex = 0;
-      size = sizeof(tmpBuf);
+      size = sizeof( tmpBuf );
    }
 }
 
@@ -113,12 +113,12 @@ void DumpBits( void* buf, int size, PrintfFunctionPtr pfunc )
    int      i;
    unsigned char* buffer = (unsigned char*)buf;
 
-   for( i=0; i<size; i++ )
+   for( i = 0; i < size; i++ )
    {
       (void)pfunc( "%3d - ", i );
       for( bitIndex = 0x80; bitIndex != 0; bitIndex >>= 1 )
       {
-         if( buffer[i] & bitIndex )
+         if( buffer[ i ] & bitIndex )
          {
             (void)pfunc( "1" );
          }
@@ -214,7 +214,7 @@ size_t Pack8( uint8_t* p, size_t offset, uint8_t value )
 
 size_t Pack16( uint8_t* p, size_t offset, uint16_t value )
 {
-   p[ offset++ ] = (value >> 8)&0xFF;
+   p[ offset++ ] = (value >> 8) & 0xFF;
    p[ offset++ ] = value & 0xFF;
    return offset;
 }
@@ -225,6 +225,15 @@ size_t Pack32( uint8_t* p, size_t offset, uint32_t value )
    p[ offset++ ] = (value >> 16) & 0xFF;
    p[ offset++ ] = (value >> 8) & 0xFF;
    p[ offset++ ] = value & 0xFF;
+   return offset;
+}
+
+size_t PackBytes( uint8_t* p, size_t offset, const uint8_t* value, size_t count )
+{
+   for( int i = 0; i < count; i++ )
+   {
+      p[ offset++ ] = value[ i ];
+   }
    return offset;
 }
 
