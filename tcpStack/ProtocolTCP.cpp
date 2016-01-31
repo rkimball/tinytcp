@@ -1021,6 +1021,7 @@ void ProtocolTCP::Tick()
 
 void ProtocolTCP::Show( osPrintfInterface* out )
 {
+   out->Printf( "TCP Information\n" );
    for( int i = 0; i<TCP_MAX_CONNECTIONS; i++ )
    {
       out->Printf( "connection %s   ", ConnectionList[ i ].GetStateString() );

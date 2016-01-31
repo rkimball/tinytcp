@@ -215,7 +215,6 @@ bool osQueue::Contains( void* object )
 
 void osQueue::Show( osPrintfInterface* pfunc )
 {
-   int      index;
    int      i;
 
    QueueListLock.Take( __FILE__, __LINE__ );
@@ -225,10 +224,12 @@ void osQueue::Show( osPrintfInterface* pfunc )
       if( queue != NULL )
       {
          queue->Lock.Take( __FILE__, __LINE__ );
-         pfunc->Printf( "Queue %s contains %d objects\n", queue->GetName(), queue->GetCount() );
+         int      index = queue->NextOutIndex;
+         pfunc->Printf( "Queue %s is size %d and contains %d objects\n", queue->GetName(), queue->MaxElements, queue->GetCount() );
          for( i = 0; i<queue->GetCount(); i++ )
          {
             pfunc->Printf( "   Object at 0x%08X\n", queue->Array[ index ] );
+            index = queue->Increment( index );
          }
          queue->Lock.Give();
       }

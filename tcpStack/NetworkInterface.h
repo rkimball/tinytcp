@@ -35,6 +35,7 @@
 #include <cinttypes>
 
 #include "Address.h"
+#include "osPrintfInterface.h"
 
 class AddressConfiguration
 {
@@ -58,6 +59,8 @@ public:
       uint8_t DomainNameServer[ IPv4AddressSize ];
       uint8_t BroadcastAddress[ IPv4AddressSize ];
    } IPv4;
+
+   void Show( osPrintfInterface* out );
 };
 
 class NetworkInterface

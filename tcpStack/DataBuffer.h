@@ -34,8 +34,8 @@
 
 #include <cinttypes>
 
-#define TX_BUFFER_COUNT (3)
-#define RX_BUFFER_COUNT (4)
+#define TX_BUFFER_COUNT (10)
+#define RX_BUFFER_COUNT (10)
 
 #define DATA_BUFFER_PAYLOAD_SIZE (512)
 

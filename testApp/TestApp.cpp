@@ -52,9 +52,6 @@ static osThread MainThread;
 static osMutex* Semaphore;
 HTTPD WebServer;
 
-extern DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
-extern DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
-
 static osEvent StartEvent( "StartEvent" );
 
 struct NetworkConfig
@@ -80,6 +77,7 @@ void NetworkEntry( void* param )
    NetworkConfig& config = *(NetworkConfig*)param;
    char device[ 256 ];
 
+   // This is just a made-up MAC address to user for testing
    Config.MACAddress[ 0 ] = 0x10;
    Config.MACAddress[ 1 ] = 0xBF;
    Config.MACAddress[ 2 ] = 0x48;
@@ -87,25 +85,14 @@ void NetworkEntry( void* param )
    Config.MACAddress[ 4 ] = 0x55;
    Config.MACAddress[ 5 ] = 0x66;
 
-   // 192.168.1.3
    Config.IPv4.Address[ 0 ] = 0;
    Config.IPv4.Address[ 1 ] = 0;
    Config.IPv4.Address[ 2 ] = 0;
    Config.IPv4.Address[ 3 ] = 0;
 
-   //Config.IPv4.SubnetMask[ 0 ] = 255;
-   //Config.IPv4.SubnetMask[ 1 ] = 255;
-   //Config.IPv4.SubnetMask[ 2 ] = 254;
-   //Config.IPv4.SubnetMask[ 3 ] = 0;
-
-   //Config.IPv4.Gateway[ 0 ] = 192;
-   //Config.IPv4.Gateway[ 1 ] = 168;
-   //Config.IPv4.Gateway[ 2 ] = 1;
-   //Config.IPv4.Gateway[ 3 ] = 1;
-
    PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
    printf( "using device %s\n", device );
-   //PacketIO::GetMACAddress( device, Config.Address.Hardware );
+   //PacketIO::GetMACAddress( device, Config.MACAddress );
 
    PIO = new PacketIO( device );
 
@@ -164,8 +151,10 @@ void ProcessPageRequest
       page->SendString( "   <body/>\n" );
 
       page->SendString( "<pre>\n" );
+      Config.Show( page );
       osThread::Show( page );
       osEvent::Show( page );
+      osQueue::Show( page );
       ProtocolTCP::Show( page );
       page->SendString( "<pre/>\n" );
 

@@ -366,11 +366,31 @@ void osThread::Show( osPrintfInterface* pfunc )
          pfunc->Printf( "running\n" );
          break;
       case PENDING_MUTEX:
-         pfunc->Printf( "pending on mutex \"%s\"\n", ((osMutex*)(thread->StateObject))->GetName() );
+      {
+         osMutex* obj = (osMutex*)(thread->StateObject);
+         if( obj != nullptr )
+         {
+            pfunc->Printf( "pending on mutex \"%s\"\n", obj->GetName() );
+         }
+         else
+         {
+            pfunc->Printf( "pending on mutex \"UNKNOWN\"\n" );
+         }
          break;
+      }
       case PENDING_EVENT:
-         pfunc->Printf( "pending event \"%s\"\n", ((osEvent*)(thread->StateObject))->GetName() );
+      {
+         osEvent* obj = (osEvent*)(thread->StateObject);
+         if( obj != nullptr )
+         {
+            pfunc->Printf( "pending event \"%s\"\n", obj->GetName() );
+         }
+         else
+         {
+            pfunc->Printf( "pending event \"UNKNOWN\"\n" );
+         }
          break;
+      }
       case SLEEPING:
          pfunc->Printf( "sleeping %luus at %s %d\n",
             thread->USleepTime, thread->Filename,
