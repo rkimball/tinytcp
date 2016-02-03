@@ -29,17 +29,23 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include <stdio.h>
 
-#include "..\osMutex.h"
+#include "osMutex.h"
 
 osMutex* osMutex::MutexList[ MAX_MUTEX ];
 
 osMutex::osMutex( const char* name ) :
    Name( name )
 {
+#ifdef _WIN32
    Handle = CreateMutex( NULL, false, name );
+#elif __linux__
+   pthread_mutex_init( &m_mutex, NULL );
+#endif
 }
 
 void osMutex::Give()
@@ -51,11 +57,16 @@ void osMutex::Give()
    OwnerFile = "";
    OwnerLine = 0;
    OwnerThread = NULL;
+#ifdef _WIN32
    ReleaseMutex( Handle );
+#elif __linux__
+   pthread_mutex_unlock( &m_mutex );
+#endif
 }
 
 bool osMutex::Take( const char* file, int line )
 {
+#ifdef _WIN32
    DWORD    rc = -1;
 
    if( Handle )
@@ -78,11 +89,18 @@ bool osMutex::Take( const char* file, int line )
    }
 
    return rc == 0;
+#elif __linux__
+   pthread_mutex_lock( &m_mutex );
+#endif
 }
 
 bool osMutex::Take()
 {
+#ifdef _WIN32
    return WaitForSingleObject( Handle, INFINITE ) == 0;
+#elif __linux__
+   pthread_mutex_lock( &m_mutex );
+#endif
 }
 
 const char* osMutex::GetName()

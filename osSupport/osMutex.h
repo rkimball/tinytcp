@@ -32,6 +32,8 @@
 #ifndef OSMUTEX_H
 #define OSMUTEX_H
 
+#include <pthread.h>
+
 #include "osThread.h"
 
 #define MAX_MUTEX    (16)
@@ -51,9 +53,14 @@ public:
    static void Show( osPrintfInterface* pfunc );
 
 private:
+#ifdef _WIN32
+   void* Handle;
+#elif __linux__
+   pthread_mutex_t m_mutex;
+#endif
+
    bool Take();
    const char* Name;
-   void* Handle;
    static osMutex* MutexList[];
 
    const char* OwnerFile;

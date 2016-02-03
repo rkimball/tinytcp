@@ -238,7 +238,7 @@ void HTTPPage::SetTitle( const char* title )
 
 void HTTPPage::Reference( const char* link, const char* text )
 {
-   if( *link == '/' || !strincmp( (char*)link, "http:", 5 ) )
+   if( *link == '/' || !strncasecmp( (char*)link, "http:", 5 ) )
    {
       SendString( "<a href=\"" );
       SendASCIIString( link );
@@ -808,9 +808,15 @@ bool HTTPPage::SendFile( const char* filename )
    f = fopen( filename, "rb" );
    if( f )
    {
+#ifdef _WIN32
       _fseeki64( f, 0, SEEK_END );
       counti64 = _ftelli64( f );
       _fseeki64( f, 0, SEEK_SET );
+#elif __linux__
+      fseek( f, 0, SEEK_END );
+      counti64 = ftell( f );
+      fseek( f, 0, SEEK_SET );
+#endif
       SendString( "HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n" );
       snprintf( s, sizeof(s), "Content-Length: %lld\r\n\r\n", counti64 );
       SendString( s );
@@ -818,7 +824,11 @@ bool HTTPPage::SendFile( const char* filename )
       do
       {
          count = (int)fread( buffer, 1, sizeof(buffer), f );
+#ifdef _WIN32
          uint64_t offset = _ftelli64( f );
+#elif __linux__
+         uint64_t offset = ftell( f );
+#endif
          if( count > 0 )
          {
             RawSend( buffer, count );

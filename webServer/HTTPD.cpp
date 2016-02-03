@@ -31,6 +31,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "ProtocolTCP.h"
 #include "HTTPD.h"
@@ -43,6 +44,8 @@
 #define stricmp _stricmp
 #define snprintf _snprintf
 #define strdup _strdup
+#elif __linux__
+#include <strings.h>
 #endif
 
 HTTPPage    HTTPD::PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
@@ -102,11 +105,11 @@ void HTTPD::ProcessRequest( HTTPPage* page )
       }
 
       p = strtok( buffer, ":" );
-      if( !stricmp( "Authorization", p ) )
+      if( !strcasecmp( "Authorization", p ) )
       {
          encryptionType = strtok( 0, " " );
          loginString = strtok( 0, " " );
-         if( !stricmp( encryptionType, "Basic" ) )
+         if( !strcasecmp( encryptionType, "Basic" ) )
          {
             //char     s[80];
             //char*    tmp;
@@ -125,7 +128,7 @@ void HTTPD::ProcessRequest( HTTPPage* page )
             //}
          }
       }
-      else if( !stricmp( "Content-Type", p ) )
+      else if( !strcasecmp( "Content-Type", p ) )
       {
          char* tmp = strtok( 0, "" );
          if( tmp != NULL )
@@ -133,7 +136,7 @@ void HTTPD::ProcessRequest( HTTPPage* page )
             //strncpy( CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType) );
          }
       }
-      else if( !stricmp( "Content-Length", p ) )
+      else if( !strcasecmp( "Content-Length", p ) )
       {
          char* tmp = strtok( 0, " " );
          if( tmp != NULL )

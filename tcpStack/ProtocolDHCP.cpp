@@ -250,7 +250,7 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
       buffer->Length = Pack16( buffer->Packet, buffer->Length, 0x8000 );  // flags
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Client IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
-      if( serverAddress != nullptr )
+      if( serverAddress != NULL )
       {
          for( int i = 0; i < 4; i++ ) buffer->Packet[ buffer->Length++ ] = serverAddress[ i ]; // (Server IP address)
       }
@@ -277,14 +277,14 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
       buffer->Packet[ buffer->Length++ ] = 1;
       buffer->Packet[ buffer->Length++ ] = messageType;
 
-      if( requestAddress != nullptr )
+      if( requestAddress != NULL )
       {
          buffer->Packet[ buffer->Length++ ] = 50;
          buffer->Packet[ buffer->Length++ ] = 4; // length
          for( int i = 0; i < 4; i++ ) buffer->Packet[ buffer->Length++ ] = requestAddress[ i ];
       }
 
-      if( serverAddress != nullptr )
+      if( serverAddress != NULL )
       {
          // server address
          buffer->Packet[ buffer->Length++ ] = 54;

@@ -29,10 +29,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include <stdio.h>
 
-#include "../osTime.h"
+#include "osTime.h"
 //void osTime::SetTime( uint32_t seconds, uint32_t microseconds )
 //{
 //   // We don't want to change Windows' system time so we
@@ -43,6 +45,7 @@
 //
 uint64_t osTime::GetProcessorTime( void )
 {
+#ifdef _WIN32
    FILETIME    ftime;
    uint64_t         time;
 
@@ -53,6 +56,8 @@ uint64_t osTime::GetProcessorTime( void )
    time += ftime.dwLowDateTime;
 
    return time;
+#elif __linux__
+#endif
 }
 
 uint64_t osTime::GetTime( void )

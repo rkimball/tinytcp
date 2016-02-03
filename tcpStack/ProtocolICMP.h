@@ -32,7 +32,7 @@
 #ifndef PROTOCOLICMP_H
 #define PROTOCOLICMP_H
 
-#include <cinttypes>
+#include <inttypes.h>
 #include "DataBuffer.h"
 
 class ProtocolICMP

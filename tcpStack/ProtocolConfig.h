@@ -32,7 +32,7 @@
 #ifndef PROTOCOLCONFIG_H
 #define PROTOCOLCONFIG_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 #include "NetworkInterface.h"
 

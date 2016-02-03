@@ -32,7 +32,7 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 typedef int (*PrintfFunctionPtr)( const char* fmt, ... );
 

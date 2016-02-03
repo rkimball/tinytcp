@@ -32,7 +32,7 @@
 #ifndef ADDRESS_H
 #define ADDRESS_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 class Address
 {

@@ -51,45 +51,45 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
    j = 0;
    while( i + 1 <= len )
    {
-      count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "%04X ", i );
+      count = snprintf( &tmpBuf[ tmpIndex ], size, "%04X ", i );
       tmpIndex += count;
       size -= count;
       for( j = 0; j < 16; j++ )
       {
          if( i + j < len )
          {
-            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "%02X ", buf[ i + j ] );
+            count = snprintf( &tmpBuf[ tmpIndex ], size, "%02X ", buf[ i + j ] );
             tmpIndex += count;
             size -= count;
          }
          else
          {
-            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "   " );
+            count = snprintf( &tmpBuf[ tmpIndex ], size, "   " );
             tmpIndex += count;
             size -= count;
          }
 
          if( j == 7 )
          {
-            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "- " );
+            count = snprintf( &tmpBuf[ tmpIndex ], size, "- " );
             tmpIndex += count;
             size -= count;
          }
       }
-      count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "  " );
+      count = snprintf( &tmpBuf[ tmpIndex ], size, "  " );
       tmpIndex += count;
       size -= count;
       for( j = 0; j < 16; j++ )
       {
          if( buf[ i + j ] >= 0x20 && buf[ i + j ] <= 0x7E )
          {
-            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "%c", buf[ i + j ] );
+            count = snprintf( &tmpBuf[ tmpIndex ], size, "%c", buf[ i + j ] );
             tmpIndex += count;
             size -= count;
          }
          else
          {
-            count = _snprintf_s( &tmpBuf[ tmpIndex ], size, size, "." );
+            count = snprintf( &tmpBuf[ tmpIndex ], size, "." );
             tmpIndex += count;
             size -= count;
          }

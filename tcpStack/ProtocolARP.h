@@ -32,7 +32,7 @@
 #ifndef PROTOCOLARP_H
 #define PROTOCOLARP_H
 
-#include <cinttypes>
+#include <inttypes.h>
 #include "Address.h"
 #include "DataBuffer.h"
 #include "osMutex.h"

@@ -32,7 +32,8 @@
 #ifndef NETWORKINTERFACE_H
 #define NETWORKINTERFACE_H
 
-#include <cinttypes>
+#include <inttypes.h>
+#include <stdlib.h>
 
 #include "Address.h"
 #include "osPrintfInterface.h"

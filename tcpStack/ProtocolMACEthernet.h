@@ -32,7 +32,7 @@
 #ifndef PROTOCOLMACETHERNET_H
 #define PROTOCOLMACETHERNET_H
 
-#include <cinttypes>
+#include <inttypes.h>
 #include "DataBuffer.h"
 #include "osQueue.h"
 #include "NetworkInterface.h"

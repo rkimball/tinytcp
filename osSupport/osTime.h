@@ -32,7 +32,7 @@
 #ifndef OSTIME_H
 #define OSTIME_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 #define TIMESTAMP  osTime::GetTimestamp()
 

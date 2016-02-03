@@ -32,7 +32,11 @@
 #ifndef OSEVENT_H
 #define OSEVENT_H
 
-#include <cinttypes>
+#include <inttypes.h>
+
+#ifdef __linux__
+#include "pthread.h"
+#endif
 
 #include "osPrintfInterface.h"
 #include "osMutex.h"
@@ -53,7 +57,13 @@ public:
    static void Show( osPrintfInterface* out );
 
 private:
+#ifdef _WIN32
    void* Handle;
+#elif __linux__
+   pthread_mutex_t m_mutex;
+   pthread_cond_t m_condition;
+   bool m_test;
+#endif
    static const int NAME_LENGTH_MAX = 80;
    char Name[ NAME_LENGTH_MAX ];
 

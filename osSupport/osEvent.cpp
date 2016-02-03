@@ -29,11 +29,14 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include <stdio.h>
+#include <string.h>
 
-#include "../osEvent.h"
-#include "../osThread.h"
+#include "osEvent.h"
+#include "osThread.h"
 
 osEvent*    osEvent::InstanceList[ osEvent::INSTANCE_MAX ];
 osMutex     osEvent::ListMutex( "Event List" );
@@ -44,7 +47,12 @@ osEvent::osEvent( const char* name )
    {
       strncpy( Name, name, NAME_LENGTH_MAX - 1 );
    }
+#ifdef _WIN32
    Handle = CreateEvent( NULL, true, false, name );
+#elif __linux__
+   pthread_mutex_init( &m_mutex, NULL );
+   pthread_cond_init( &m_condition, NULL );
+#endif
    ListMutex.Take( __FILE__, __LINE__ );
    for( int i = 0; i < INSTANCE_MAX; i++ )
    {
@@ -67,17 +75,30 @@ osEvent::~osEvent()
          InstanceList[ i ] = 0;
       }
    }
-   ListMutex.Give();
+#ifdef WIN32
    CloseHandle( Handle );
+#elif __linux__
+   pthread_cond_destroy( &m_condition );
+   pthread_mutex_destroy( &m_mutex );
+#endif
+   ListMutex.Give();
 }
 
 void osEvent::Notify()
 {
+#ifdef _WIN32
    SetEvent( Handle );
+#elif __linux__
+   pthread_mutex_lock( &m_mutex );
+   m_test = true;
+   pthread_cond_signal( &m_condition );
+   pthread_mutex_unlock( &m_mutex );
+#endif
 }
 
 bool osEvent::Wait( const char* file, int line, int msTimeout )
 {
+#ifdef _WIN32
    uint32_t             rc = 0;
    osThread* caller = osThread::GetCurrent();
    caller->SetState( osThread::THREAD_STATE::PENDING_EVENT, file, line, this );
@@ -91,6 +112,17 @@ bool osEvent::Wait( const char* file, int line, int msTimeout )
    }
    caller->ClearState();
    return (rc) ? false : true;
+#elif __linux__
+   pthread_mutex_lock( &m_mutex );
+   int rc = 0;
+   while( m_test == false && rc == 0 )
+   {
+      rc = pthread_cond_wait( &m_condition, &m_mutex );
+   }
+   m_test = false;
+   pthread_mutex_unlock( &m_mutex );
+   return true;
+#endif
 }
 
 const char* osEvent::GetName()

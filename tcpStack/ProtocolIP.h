@@ -32,7 +32,7 @@
 #ifndef PROTOCOLIP_H
 #define PROTOCOLIP_H
 
-#include <cinttypes>
+#include <inttypes.h>
 #include "osQueue.h"
 #include "DataBuffer.h"
 

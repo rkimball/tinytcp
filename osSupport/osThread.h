@@ -32,7 +32,7 @@
 #ifndef OSTHREAD_H
 #define OSTHREAD_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 #ifndef _WIN32
 #include <pthread.h>

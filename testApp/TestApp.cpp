@@ -30,8 +30,13 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
-#include <tchar.h>
+#include <string.h>
+#ifdef _WIN32
 #include <pcap.h>
+#elif __linux__
+#include <strings.h>
+#include <unistd.h>
+#endif
 
 #include "PacketIO.h"
 #include "ProtocolMACEthernet.h"
@@ -63,10 +68,13 @@ struct NetworkConfig
 // Callback function invoked by libpcap for every incoming packet
 //============================================================================
 
+#ifdef _WIN32
 void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data )
 {
    ProtocolMACEthernet::ProcessRx( (uint8_t*)pkt_data, header->len );
 }
+#elif __linux__
+#endif
 
 //============================================================================
 //
@@ -90,6 +98,7 @@ void NetworkEntry( void* param )
    Config.IPv4.Address[ 2 ] = 0;
    Config.IPv4.Address[ 3 ] = 0;
 
+#ifdef _WIN32
    PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
    printf( "using device %s\n", device );
    //PacketIO::GetMACAddress( device, Config.MACAddress );
@@ -102,6 +111,8 @@ void NetworkEntry( void* param )
 
    // This method does not return...ever
    PIO->Start( packet_handler );
+#elif __linux__
+#endif
 }
 
 //============================================================================
@@ -112,7 +123,11 @@ void MainEntry( void* config )
 {
    NetworkThread.Create( NetworkEntry, "Network", 1024, 10, config );
 
+#ifdef _WIN32
    Sleep( 1000 );
+#elif __linux__
+   usleep( 1000000 );
+#endif
    StartEvent.Wait( __FILE__, __LINE__ );
 
    WebServer.Initialize( 80 );
@@ -132,7 +147,7 @@ void ProcessPageRequest
 {
    printf( "url %s\n", url );
 
-   if( !_stricmp( url, "/" ) )
+   if( !strcasecmp( url, "/" ) )
    {
       page->PageStart();
       page->SendString( "<html>\n" );
@@ -161,11 +176,11 @@ void ProcessPageRequest
       page->SendString( "<html/>\n" );
 
    }
-   else if( !_stricmp( url, "/files/test1.zip" ) )
+   else if( !strcasecmp( url, "/files/test1.zip" ) )
    {
       page->SendFile( "c:\\test.rar" );
    }
-   else if( !_stricmp( url, "/test/uploadfile" ) )
+   else if( !strcasecmp( url, "/test/uploadfile" ) )
    {
       printf( "Reading %d bytes\n", page->ContentLength );
       for( int i = 0; i<page->ContentLength; i++ )
@@ -212,7 +227,11 @@ int main( int argc, char* argv[] )
 
    while( 1 )
    {
+#ifdef _WIN32
       Sleep( 100 );
+#elif __linux__
+      usleep( 100000 );
+#endif
       ProtocolTCP::Tick();
    }
 

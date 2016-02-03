@@ -29,16 +29,17 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#ifdef _WIN32
 #include <pcap.h>
 #include <Packet32.h>
 #include <ntddndis.h>
-
-#ifndef WIN32
+#include <winsock.h>
+#elif __linux__
 #include <sys/socket.h>
 #include <netinet/in.h>
-#else
-#include <winsock.h>
+#include <netdb.h>
 #endif
+#include <stdio.h>
 
 #include "PacketIO.h"
 #include "Utility.h"
@@ -46,6 +47,42 @@
 #define Max_Num_Adapter 10
 char		AdapterList[ Max_Num_Adapter ][ 1024 ];
 
+#define IPTOSBUFFERS    12
+char *iptos( u_long in )
+{
+   static char output[ IPTOSBUFFERS ][ 3 * 4 + 3 + 1 ];
+   static short which;
+   u_char *p;
+
+   p = (u_char *)&in;
+   which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
+   snprintf( output[ which ], sizeof( output[ which ] ), "%d.%d.%d.%d", p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ] );
+   return output[ which ];
+}
+
+char* ip6tos( struct sockaddr *sockaddr, char *address, int addrlen )
+{
+   socklen_t sockaddrlen;
+
+#ifdef WIN32
+   sockaddrlen = sizeof( struct sockaddr_in6 );
+#else
+   sockaddrlen = sizeof( struct sockaddr_storage );
+#endif
+
+
+   if( getnameinfo( sockaddr,
+      sockaddrlen,
+      address,
+      addrlen,
+      NULL,
+      0,
+      NI_NUMERICHOST ) != 0 ) address = NULL;
+
+   return address;
+}
+
+#ifdef _WIN32
 int PacketIO::GetMACAddress( const char* adapter, uint8_t* mac )
 {
    LPADAPTER	lpAdapter = 0;
@@ -114,41 +151,6 @@ int PacketIO::GetMACAddress( const char* adapter, uint8_t* mac )
    free( OidData );
    PacketCloseAdapter( lpAdapter );
    return (0);
-}
-
-#define IPTOSBUFFERS    12
-char *iptos( u_long in )
-{
-   static char output[ IPTOSBUFFERS ][ 3 * 4 + 3 + 1 ];
-   static short which;
-   u_char *p;
-
-   p = (u_char *)&in;
-   which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
-   _snprintf_s( output[ which ], sizeof( output[ which ] ), sizeof( output[ which ] ), "%d.%d.%d.%d", p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ] );
-   return output[ which ];
-}
-
-char* ip6tos( struct sockaddr *sockaddr, char *address, int addrlen )
-{
-   socklen_t sockaddrlen;
-
-#ifdef WIN32
-   sockaddrlen = sizeof( struct sockaddr_in6 );
-#else
-   sockaddrlen = sizeof( struct sockaddr_storage );
-#endif
-
-
-   if( getnameinfo( sockaddr,
-      sockaddrlen,
-      address,
-      addrlen,
-      NULL,
-      0,
-      NI_NUMERICHOST ) != 0 ) address = NULL;
-
-   return address;
 }
 
 void PacketIO::DisplayDevices()
@@ -303,3 +305,8 @@ void PacketIO::TxData( void* packet, size_t length )
       fprintf( stderr, "\nError sending the packet: %s\n", pcap_geterr( adhandle ) );
    }
 }
+#elif __linux__
+void PacketIO::DisplayDevices()
+{
+}
+#endif

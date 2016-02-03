@@ -29,7 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "..\osQueue.h"
+#include "osQueue.h"
 
 #include <iostream>
 using namespace std;

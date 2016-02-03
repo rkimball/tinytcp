@@ -32,7 +32,7 @@
 #ifndef PROTOCOLTCP_H
 #define PROTOCOLTCP_H
 
-#include <cinttypes>
+#include <inttypes.h>
 #include "ProtocolTCP.h"
 #include "NetworkInterface.h"
 #include "Address.h"

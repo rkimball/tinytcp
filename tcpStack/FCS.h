@@ -32,7 +32,7 @@
 #ifndef FCS_H
 #define FCS_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 class FCS
 {

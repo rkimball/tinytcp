@@ -29,19 +29,25 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#ifdef _WIN32
 #include <Windows.h>
+#elif __linux__
+#include <unistd.h>
+#endif
 #include <cassert>
 #include <stdio.h>
 
-#include "../osThread.h"
-#include "../osMutex.h"
-#include "../osEvent.h"
+#include "osThread.h"
+#include "osMutex.h"
+#include "osEvent.h"
 
 static const int  MAX_THREADS = 48;
 static osThread*  Threads[ MAX_THREADS ];
 
 static osMutex    Mutex( "Thread List" );
+#ifdef _WIN32
 static DWORD      dwTlsIndex;
+#endif
 static osThread   MainThread;
 static bool       IsInitialized = false;
 
@@ -59,13 +65,17 @@ osThread::osThread()
    Filename = "";
    Linenumber = 0;
    Handle = 0;
+#ifdef _WIN32
    ThreadId = 0;
+#elif __linux__
+#endif
 }
 
 osThread::~osThread()
 {
 }
 
+#ifdef _WIN32
 DWORD WINAPI WinThreadEntry( LPVOID param )
 {
    WINTHREADPARAMPTR thread = (WINTHREADPARAMPTR)param;
@@ -86,12 +96,14 @@ DWORD WINAPI WinThreadEntry( LPVOID param )
 
    return 0;
 }
+#endif
 
 const char* osThread::GetName()
 {
    return Name;
 }
 
+#ifdef _WIN32
 void* osThread::GetHandle()
 {
    return Handle;
@@ -101,18 +113,20 @@ uint32_t osThread::GetThreadId()
 {
    return ThreadId;
 }
+#endif
 
 void osThread::Initialize()
 {
+   // This is a hack to add the thread that called main() to the list
+   printf( "setup main thread\n" );
+   snprintf( MainThread.Name, NAME_LENGTH_MAX, "main" );
+#ifdef _WIN32
    if( (dwTlsIndex = TlsAlloc()) == TLS_OUT_OF_INDEXES )
    {
       //ErrorExit( "TlsAlloc failed" );
    }
-
-   // This is a hack to add the thread that called main() to the list
-   printf( "setup main thread\n" );
-   snprintf( MainThread.Name, NAME_LENGTH_MAX, "main" );
    TlsSetValue( dwTlsIndex, &MainThread );
+#endif
    for( int i = 0; i<MAX_THREADS; i++ )
    {
       if( Threads[ i ] == NULL )
@@ -146,6 +160,7 @@ int osThread::Create
    snprintf( Name, NAME_LENGTH_MAX, name );
    Priority = priority;
 
+#ifdef _WIN32
    // Allocate heap memory for thread parameter
    threadParam = 
       (WINTHREADPARAMPTR)HeapAlloc
@@ -165,6 +180,8 @@ int osThread::Create
    // Create thread
    Handle = CreateThread( NULL, 0, WinThreadEntry, threadParam, 0, &tid );
    ThreadId = tid;
+#elif __linux__
+#endif
 
    Mutex.Take( __FILE__, __LINE__ );
    for( i=0; i<MAX_THREADS; i++ )
@@ -182,11 +199,14 @@ int osThread::Create
 
 int osThread::WaitForExit( int32_t millisecondWaitTimeout )
 {
+#ifdef _WIN32
    if( millisecondWaitTimeout < 0 )
    {
       millisecondWaitTimeout = INFINITE;
    }
    return WaitForSingleObject( Handle, millisecondWaitTimeout );
+#elif __linux__
+#endif
 }
 
 void osThread::Sleep( unsigned long ms, const char* file, int line )
@@ -199,12 +219,20 @@ void osThread::Sleep( unsigned long ms, const char* file, int line )
       thread->Linenumber = line;
 
       thread->USleepTime = ms * 1000;
+#ifdef _WIN32
       SleepEx( ms, true );
+#elif __linux__
+      usleep( ms*1000 );
+#endif
       thread->USleepTime = 0;
    }
    else
    {
+#ifdef _WIN32
       SleepEx( ms, true );
+#elif __linux__
+      usleep( ms*1000 );
+#endif
    }
 }
 
@@ -218,28 +246,42 @@ void osThread::USleep( unsigned long us, const char* file, int line )
       thread->Linenumber = line;
 
       thread->USleepTime = us;
+#ifdef _WIN32
       SleepEx( us/1000, true );
+#elif __linux__
+      usleep( us );
+#endif
       thread->USleepTime = 0;
    }
    else
    {
+#ifdef _WIN32
       SleepEx( us/1000, true );
+#elif __linux__
+      usleep( us );
+#endif
    }
 }
 
 osThread* osThread::GetCurrent()
 {
+#ifdef _WIN32
    return (osThread*)TlsGetValue( dwTlsIndex );
-   //return GetThreadById( ::GetCurrentThreadId() );
+#elif __linux__
+#endif
 }
 
 int osThread::GetCurrentThreadId()
 {
+#ifdef _WIN32
    return ::GetCurrentThreadId();
+#elif __linux__
+#endif
 }
 
 osThread* osThread::GetThreadById( int threadId )
 {
+#ifdef _WIN32
    osThread* thread = 0;
    Mutex.Take();
    for( int i = 0; i < MAX_THREADS; i++ )
@@ -253,11 +295,16 @@ osThread* osThread::GetThreadById( int threadId )
    }
    Mutex.Give();
    return thread;
+#elif __linux__
+#endif
 }
 
 void osThread::Kill()
 {
+#ifdef _WIN32
    TerminateThread( Handle, 0 );
+#elif __linux__
+#endif
 }
 
 void osThread::SetState( THREAD_STATE state, const char* file, int line, void* obj )
@@ -279,6 +326,7 @@ void osThread::ClearState()
 void osThread::Show( osPrintfInterface* pfunc )
 {
    osMutex        *mutex;
+#ifdef _WIN32
    FILETIME       creationTime;
    FILETIME       exitTime;
    FILETIME       kernelTime;
@@ -400,4 +448,6 @@ void osThread::Show( osPrintfInterface* pfunc )
    }
 
    Mutex.Give();
+#elif __linux__
+#endif
 }

@@ -32,8 +32,10 @@
 #ifndef PACKETIO_H
 #define PACKETIO_H
 
+#ifdef _WIN32
 #include <pcap.h>
-#include <cinttypes>
+#endif
+#include <inttypes.h>
 #include "NetworkInterface.h"
 
 void NetworkTxData( void* data, size_t length );
@@ -43,7 +45,10 @@ class PacketIO : public NetworkInterface
 public:
    PacketIO( const char* name );
 
+#ifdef _WIN32
    void Start( pcap_handler handler );
+#elif __linux__
+#endif
    void Stop( void );
 
    void TxData( void* data, size_t length );
@@ -52,8 +57,11 @@ public:
    static void DisplayDevices();
 
 private:
+#ifdef _WIN32
    const char* CaptureDevice;
    pcap_t *adhandle;
+#elif __linux__
+#endif
 };
 
 #endif

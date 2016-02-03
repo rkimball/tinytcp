@@ -32,7 +32,7 @@
 #ifndef DataBuffer_H
 #define DataBuffer_H
 
-#include <cinttypes>
+#include <inttypes.h>
 
 #define TX_BUFFER_COUNT (10)
 #define RX_BUFFER_COUNT (10)
