@@ -4,6 +4,6 @@ set( SOURCE
    TestApp.cpp
    PacketIO.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE})
-target_link_libraries(${PROJECT_NAME} webServer tcpStack osSupport )
+target_link_libraries(${PROJECT_NAME} webServer tcpStack osSupport pthread )
 add_dependencies( ${PROJECT_NAME} webServer tcpStack osSupport )
 include_directories( ../webServer ../tcpStack ../osSupport )

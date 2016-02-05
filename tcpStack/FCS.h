@@ -37,8 +37,8 @@
 class FCS
 {
 public:
-   static uint16_t Checksum( uint8_t* buffer, int length );
-   static uint32_t ChecksumAdd( uint8_t* buffer, int length, uint32_t checksum );
+   static uint16_t Checksum( const uint8_t* buffer, int length );
+   static uint32_t ChecksumAdd( const uint8_t* buffer, int length, uint32_t checksum );
    static uint16_t ChecksumComplete( uint32_t checksum );
 };
 

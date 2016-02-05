@@ -75,7 +75,7 @@ void HTTPD::ProcessRequest( HTTPPage* page )
    char*          p;
    char*          result;
    char*          path;
-   char*          url = "";
+   const char*    url = "";
    char           username[20];
    char           password[20];
    int            argc;

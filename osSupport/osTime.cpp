@@ -31,24 +31,20 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#elif __linux__
+#include <time.h>
 #endif
 #include <stdio.h>
 
 #include "osTime.h"
-//void osTime::SetTime( uint32_t seconds, uint32_t microseconds )
-//{
-//   // We don't want to change Windows' system time so we
-//   // store the offset in us used when getting processor time
-//   ProcessorTimeOffset = 0;
-//   ProcessorTimeOffset = GetTime() - ( seconds * 1000000 ) + microseconds;
-//}
-//
+
 uint64_t osTime::GetProcessorTime( void )
 {
 #ifdef _WIN32
    FILETIME    ftime;
    uint64_t         time;
 
+   // Time in 100ns ticks
    GetSystemTimeAsFileTime( &ftime );
 
    time = ftime.dwHighDateTime;
@@ -57,6 +53,10 @@ uint64_t osTime::GetProcessorTime( void )
 
    return time;
 #elif __linux__
+   timespec ts;
+   clock_gettime( CLOCK_MONOTONIC, &ts );
+   uint64_t rc = ts.tv_sec * 1000000 + ( ts.tv_nsec / 1000 );
+   return rc;
 #endif
 }
 

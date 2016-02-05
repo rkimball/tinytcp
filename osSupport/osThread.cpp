@@ -41,6 +41,8 @@
 #include "osMutex.h"
 #include "osEvent.h"
 
+#include <iostream>
+using namespace std;
 static const int  MAX_THREADS = 48;
 static osThread*  Threads[ MAX_THREADS ];
 
@@ -58,14 +60,15 @@ typedef struct WinThreadParam
    osThread*      Thread;
 } *WINTHREADPARAMPTR;
 
-osThread::osThread()
+osThread::osThread() :
+   ThreadStart( "ThreadStart" )
 {
    USleepTime = 0;
    State = INIT;
    Filename = "";
    Linenumber = 0;
-   Handle = 0;
 #ifdef _WIN32
+   Handle = 0;
    ThreadId = 0;
 #elif __linux__
 #endif
@@ -96,6 +99,15 @@ DWORD WINAPI WinThreadEntry( LPVOID param )
 
    return 0;
 }
+#elif __linux__
+static void* ThreadEntry( void* param )
+{
+   osThread* thread = (osThread*)param;
+   thread->ThreadStart.Notify();
+   thread->Entry( thread->Param );
+   return NULL;
+}
+
 #endif
 
 const char* osThread::GetName()
@@ -141,7 +153,7 @@ void osThread::Initialize()
 int osThread::Create
 ( 
    ThreadEntryPtr entry, 
-   char*          name, 
+   const char*    name,
    int            stackSize, 
    int            priority, 
    void*          param 
@@ -151,16 +163,16 @@ int osThread::Create
    {
       Initialize();
    }
-   printf( "osThread::Create( \"%s\" )\n", name );
    int               i;
    int               j;
    int               rc = 0;
-   WINTHREADPARAMPTR threadParam;
 
-   snprintf( Name, NAME_LENGTH_MAX, name );
+   snprintf( Name, NAME_LENGTH_MAX, "%s", name );
    Priority = priority;
 
 #ifdef _WIN32
+   WINTHREADPARAMPTR threadParam;
+
    // Allocate heap memory for thread parameter
    threadParam = 
       (WINTHREADPARAMPTR)HeapAlloc
@@ -181,6 +193,12 @@ int osThread::Create
    Handle = CreateThread( NULL, 0, WinThreadEntry, threadParam, 0, &tid );
    ThreadId = tid;
 #elif __linux__
+
+   // Set thread parameter values
+   Entry = entry;
+   Param = param;
+   pthread_create( &m_thread, NULL, ThreadEntry, this );
+   ThreadStart.Wait( __FILE__, __LINE__ );
 #endif
 
    Mutex.Take( __FILE__, __LINE__ );

@@ -41,6 +41,7 @@
 #endif
 
 #include "osPrintfInterface.h"
+#include "osEvent.h"
 
 typedef void (*ThreadEntryPtr)(void *);
 
@@ -65,7 +66,7 @@ public:
    int Create
    (
       ThreadEntryPtr entry,
-      char*          name,
+      const char*    name,
       int            stack,
       int            priority,
       void*          param
@@ -96,13 +97,18 @@ public:
 
    uint32_t GetThreadId();
    uint32_t ThreadId;
-#else
+
+   void* Handle;
+#elif __linux__
    uint32_t GetHandle();
+
+   pthread_t m_thread;
+   ThreadEntryPtr Entry;
+   void*          Param;
+   osEvent        ThreadStart;
 #endif
 
    static void Show( osPrintfInterface* pfunc );
-   
-   void* Handle;
 
    static const int32_t    STATE_LENGTH_MAX = 81;
    int32_t                 Priority;

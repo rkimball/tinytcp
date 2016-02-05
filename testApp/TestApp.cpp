@@ -45,6 +45,7 @@
 #include "ProtocolDHCP.h"
 #include "osThread.h"
 #include "osMutex.h"
+#include "osTime.h"
 #include "HTTPD.h"
 #include "HTTPPage.h"
 #include "NetworkInterface.h"
@@ -61,7 +62,7 @@ static osEvent StartEvent( "StartEvent" );
 
 struct NetworkConfig
 {
-   int interfaceNumber = 1;
+   int interfaceNumber;
 };
 
 //============================================================================
@@ -82,6 +83,7 @@ void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_ch
 
 void NetworkEntry( void* param )
 {
+   printf( "Hello from NetworkEntry\n" );
    NetworkConfig& config = *(NetworkConfig*)param;
    char device[ 256 ];
 
@@ -92,6 +94,13 @@ void NetworkEntry( void* param )
    Config.MACAddress[ 3 ] = 0x44;
    Config.MACAddress[ 4 ] = 0x55;
    Config.MACAddress[ 5 ] = 0x66;
+
+//   Config.MACAddress[ 0 ] = 0x00;
+//   Config.MACAddress[ 1 ] = 0x15;
+//   Config.MACAddress[ 2 ] = 0x5d;
+//   Config.MACAddress[ 3 ] = 0x1c;
+//   Config.MACAddress[ 4 ] = 0xa5;
+//   Config.MACAddress[ 5 ] = 0xee;
 
    Config.IPv4.Address[ 0 ] = 0;
    Config.IPv4.Address[ 1 ] = 0;
@@ -112,6 +121,10 @@ void NetworkEntry( void* param )
    // This method does not return...ever
    PIO->Start( packet_handler );
 #elif __linux__
+   PIO = new PacketIO();
+   ProtocolMACEthernet::Initialize( PIO );
+   StartEvent.Notify();
+   PIO->Start();
 #endif
 }
 
@@ -200,6 +213,7 @@ void ProcessPageRequest
 int main( int argc, char* argv[] )
 {
    NetworkConfig config;
+   config.interfaceNumber = 1;
 
    // Start at 1 to skip the file name
    for( int i = 1; i < argc; i++ )

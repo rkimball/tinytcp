@@ -34,8 +34,8 @@
 
 #include <inttypes.h>
 
-#define TX_BUFFER_COUNT (10)
-#define RX_BUFFER_COUNT (10)
+#define TX_BUFFER_COUNT (1000)
+#define RX_BUFFER_COUNT (1000)
 
 #define DATA_BUFFER_PAYLOAD_SIZE (512)
 

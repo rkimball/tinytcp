@@ -38,10 +38,17 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
+#include <linux/if_arp.h>
+#include <errno.h>
+#include <sys/ioctl.h>
 #endif
 #include <stdio.h>
+#include <cstring>
 
 #include "PacketIO.h"
+#include "ProtocolMACEthernet.h"
 #include "Utility.h"
 
 #define Max_Num_Adapter 10
@@ -306,7 +313,111 @@ void PacketIO::TxData( void* packet, size_t length )
    }
 }
 #elif __linux__
+
+PacketIO::PacketIO()
+{
+}
+
+//============================================================================
+//
+//============================================================================
+
 void PacketIO::DisplayDevices()
 {
 }
+
+//============================================================================
+//
+//============================================================================
+
+static void ThreadEntry( void* param )
+{
+   PacketIO* p = (PacketIO*)param;
+   p->Entry( param );
+}
+
+void PacketIO::Start()
+{
+   EthernetRxThread.Create( ThreadEntry, "EthernetRx", 2000, 0, this );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void PacketIO::Stop( void )
+{
+}
+
+//============================================================================
+//
+//============================================================================
+
+void PacketIO::TxData( void* packet, size_t length )
+{
+//   printf( "Ethernet Tx:\n" );
+//   DumpData( packet, length, printf );
+
+   struct sockaddr_ll dest;
+
+   memset( &dest, 0, sizeof(dest) );
+   dest.sll_family = AF_PACKET;
+   dest.sll_ifindex = m_IfIndex;
+
+   int rc = sendto( m_RawSocket, packet, length, 0, (sockaddr*)&dest, sizeof(dest) );
+   if( rc < 0 )
+   {
+      printf( "tx error %s\n", strerror( errno ) );
+   }
+}
+
+//============================================================================
+//
+//============================================================================
+
+void PacketIO::Entry( void* param )
+{
+   m_RawSocket = socket( AF_PACKET, SOCK_RAW, htons(ETH_P_ALL) );
+   if( m_RawSocket == -1 )
+   {
+      if( errno == EPERM )
+      {
+         printf( "need root privileges\n");
+      }
+      else
+      {
+         printf("Error while creating socket. Aborting...\n");
+      }
+   }
+   else
+   {
+      struct ifreq ifr;
+      const char* if_name = "eth0";
+      size_t if_name_len=strlen(if_name);
+      if( if_name_len<sizeof(ifr.ifr_name) )
+      {
+         memcpy(ifr.ifr_name,if_name,if_name_len);
+         ifr.ifr_name[if_name_len]=0;
+      }
+      else
+      {
+         printf("interface name is too long\n");
+      }
+
+
+
+      if( ioctl( m_RawSocket, SIOCGIFINDEX, &ifr ) == -1 )
+      {
+         printf( "oh crap %s", strerror(errno) );
+      }
+      m_IfIndex = ifr.ifr_ifindex;
+      void* pkt_data = (void*)malloc(ETH_FRAME_LEN);
+      while(1)
+      {
+         int length = recvfrom( m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, NULL, NULL );
+         ProtocolMACEthernet::ProcessRx( (uint8_t*)pkt_data, length );
+      }
+   }
+}
+
 #endif

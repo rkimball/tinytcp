@@ -74,7 +74,9 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    uint8_t* packet = buffer->Packet;
    uint16_t length = buffer->Length;
 
-   opType = packet[ OpOffset ] << 8 | packet[ OpOffset + 1 ];
+   opType = Unpack16( packet, OpOffset ); // packet[ OpOffset ] << 8 | packet[ OpOffset + 1 ];
+
+//   printf( "ARP: opType = %d\n", opType );
 
    if( opType == 1 )
    {
@@ -243,7 +245,7 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
 //
 //============================================================================
 
-void ProtocolARP::SendRequest( uint8_t* targetIP )
+void ProtocolARP::SendRequest( const uint8_t* targetIP )
 {
    printf( "Send ARP Request for %d.%d.%d.%d\n",
          targetIP[ 0 ],
@@ -298,7 +300,7 @@ void ProtocolARP::SendRequest( uint8_t* targetIP )
 //
 //============================================================================
 
-uint8_t* ProtocolARP::Protocol2Hardware( uint8_t* protocolAddress )
+uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 {
    int index;
    uint8_t* rc = 0;
@@ -331,7 +333,7 @@ uint8_t* ProtocolARP::Protocol2Hardware( uint8_t* protocolAddress )
 //
 //============================================================================
 
-bool ProtocolARP::IsBroadcast( uint8_t* protocolAddress )
+bool ProtocolARP::IsBroadcast( const uint8_t* protocolAddress )
 {
    bool rc = true;
    for( int i = 0; i < AddressConfiguration::IPv4AddressSize; i++ )
@@ -349,7 +351,7 @@ bool ProtocolARP::IsBroadcast( uint8_t* protocolAddress )
 //
 //============================================================================
 
-bool ProtocolARP::IsLocal( uint8_t* protocolAddress )
+bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
 {
    int i;
 
@@ -372,7 +374,7 @@ bool ProtocolARP::IsLocal( uint8_t* protocolAddress )
 //
 //============================================================================
 
-int ProtocolARP::LocateProtocolAddress( uint8_t* protocolAddress )
+int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
 {
    int i;
    int j;

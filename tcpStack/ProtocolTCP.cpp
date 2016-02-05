@@ -268,6 +268,8 @@ ProtocolTCP::Connection* ProtocolTCP::Connection::Listen()
    connection = NewConnection;
    NewConnection = 0;
 
+   printf( "Listen got connections\n" );
+
    return connection;
 }
 
@@ -480,6 +482,10 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, uint8_t* sourceIP, uint8_t* t
 
    checksum = ComputeChecksum( packet, length, sourceIP, targetIP );
 
+   printf( "RX TCP: %d.%d.%d.%d -> %d.%d.%d.%d\n",
+      sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
+      targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ] );
+
    if( checksum == 0 )
    {
       // pass
@@ -505,7 +511,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, uint8_t* sourceIP, uint8_t* t
       if( connection == 0 )
       {
          // No connection found
-         //printf( "Connection port %d not found\n", localPort );
+         printf( "Connection port %d not found\n", localPort );
       }
       else
       {
@@ -815,7 +821,7 @@ uint16_t ProtocolTCP::ComputeChecksum( uint8_t* packet, uint16_t length, uint8_t
 
 const char* ProtocolTCP::Connection::GetStateString()
 {
-   char* rc;
+   const char* rc;
    switch( State )
    {
    case ProtocolTCP::Connection::CLOSED:

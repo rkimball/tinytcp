@@ -51,10 +51,17 @@ public:
    class IPv4_t
    {
    public:
+      IPv4_t() :
+         IpAddressLeaseTime(0),
+         RenewTime(0),
+         RebindTime(0)
+      {
+      }
+
       uint8_t Address[ IPv4AddressSize ];
-      uint32_t IpAddressLeaseTime = 0;
-      uint32_t RenewTime = 0;
-      uint32_t RebindTime = 0;
+      uint32_t IpAddressLeaseTime;
+      uint32_t RenewTime;
+      uint32_t RebindTime;
       uint8_t SubnetMask[ IPv4AddressSize ];
       uint8_t Gateway[ IPv4AddressSize ];
       uint8_t DomainNameServer[ IPv4AddressSize ];

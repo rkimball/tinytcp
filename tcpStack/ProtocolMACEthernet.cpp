@@ -139,11 +139,11 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    // Check if the MAC Address is destined for me
    if( IsLocalAddress( packet->Packet ) )
    {
+      //DumpData( buffer, length, printf );
       if( actualLength > length )
       {
          //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
          //printf( "Unicast type 0x%04X\n", type );
-         //DumpData( buffer, length, printf );
          RxBufferQueue.Put( packet );
          return;
       }
@@ -241,8 +241,8 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, uint8_t* targetMAC, uint
       buffer->Packet[ buffer->Length++ ] = 0;
    }
 
-   //printf( "TX:\n" );
-   //DumpData( buffer->Packet, buffer->Length, printf );
+//   printf( "TX:\n" );
+//   DumpData( buffer->Packet, buffer->Length, printf );
 
    DataInterface->TxData( buffer->Packet, buffer->Length );
 

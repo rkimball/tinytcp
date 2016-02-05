@@ -34,7 +34,9 @@
 
 #include <pthread.h>
 
-#include "osThread.h"
+#include "osPrintfInterface.h"
+
+class osThread;
 
 #define MAX_MUTEX    (16)
 

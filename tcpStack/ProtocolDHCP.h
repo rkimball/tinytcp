@@ -38,34 +38,6 @@
 
 // UDP Src = 0.0.0.0 sPort = 68
 // Dest = 255.255.255.255 dPort = 67
-struct DHCPDISCOVER
-{
-   uint8_t op = 0x01;
-   uint8_t htype = 0x01;
-   uint8_t hlen = 0x06;
-   uint8_t hops = 0x00;
-   uint32_t xid = 0x3903F326;
-   uint16_t secs = 0x0000;
-   uint16_t flags = 0x8000;
-   uint32_t ciaddr = 0x00000000; // (Client IP address)
-   uint32_t yiaddr = 0x00000000; // (Your IP address)
-   uint32_t siaddr = 0x00000000; // (Server IP address)
-   uint32_t giaddr = 0x00000000; // (Gateway IP address)
-
-   uint8_t chaddr[ 16 ]; // (Client hardware address)
-   uint8_t sname[ 64 ];
-   uint8_t file[ 128 ];
-
-   uint32_t magic;
-   //192 octets of 0s, or overflow space for additional options.BOOTP legacy
-   //Magic cookie
-   //0x63825363
-   //DHCP Options
-   //DHCP option 53: DHCP Discover
-   //DHCP option 50 : 192.168.1.100 requested
-   //DHCP option 55 : Parameter Request List :
-   //Request Subnet Mask( 1 ), Router( 3 ), Domain Name( 15 ), Domain Name Server( 6 )
-};
 
 class ProtocolDHCP
 {

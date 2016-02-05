@@ -63,16 +63,16 @@ public:
 
    static void Add( uint8_t* protocolAddress, uint8_t* hardwareAddress );
 
-   static uint8_t* Protocol2Hardware( uint8_t* protocolAddress );
-   static bool IsLocal( uint8_t* protocolAddress );
-   static bool IsBroadcast( uint8_t* protocolAddress );
+   static uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
+   static bool IsLocal( const uint8_t* protocolAddress );
+   static bool IsBroadcast( const uint8_t* protocolAddress );
 
    static void Show();
 
 private:
    static void SendReply( uint8_t* packet, int length );
-   static void SendRequest( uint8_t* targetIP );
-   static int LocateProtocolAddress( uint8_t* protocolAddress );
+   static void SendRequest( const uint8_t* targetIP );
+   static int LocateProtocolAddress( const uint8_t* protocolAddress );
 
    static const uint8_t CacheSize = 5;
    static DataBuffer ARPRequest;

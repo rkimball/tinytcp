@@ -58,7 +58,7 @@ DataBuffer* ProtocolUDP::GetTxBuffer()
 //
 //============================================================================
 
-void ProtocolUDP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP, uint8_t* targetIP )
+void ProtocolUDP::ProcessRx( DataBuffer* buffer, const uint8_t* sourceIP, const uint8_t* targetIP )
 {
    uint16_t sourcePort = Unpack16( buffer->Packet, 0 );
    uint16_t targetPort = Unpack16( buffer->Packet, 2 );
@@ -81,7 +81,7 @@ void ProtocolUDP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP, uint8_t* tar
 //
 //============================================================================
 
-void ProtocolUDP::Transmit( DataBuffer* buffer, uint8_t* targetIP, uint16_t targetPort, uint8_t* sourceIP, uint16_t sourcePort )
+void ProtocolUDP::Transmit( DataBuffer* buffer, const uint8_t* targetIP, uint16_t targetPort, const uint8_t* sourceIP, uint16_t sourcePort )
 {
    buffer->Packet -= UDP_HEADER_SIZE;
    buffer->Remainder += UDP_HEADER_SIZE;

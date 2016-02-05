@@ -404,8 +404,8 @@ void HTTPPage::TableRowStop()
 void HTTPPage::TableRowHeader( HALIGN ha, VALIGN va, int colSpan, const char* value )
 {
    char        buffer[ BUFFER_SIZE ];
-   char*       horiz="";
-   char*       vert="";
+   const char* horiz="";
+   const char* vert="";
 
    switch( ha )
    {
@@ -461,8 +461,8 @@ void HTTPPage::TableRowData
 )
 {
    char        buffer[ BUFFER_SIZE ];
-   char*       horiz="";
-   char*       vert="";
+   const char* horiz="";
+   const char* vert="";
    va_list     vlist;
 
    switch( ha )
@@ -579,7 +579,7 @@ void HTTPPage::TableRow( const char* column1, ... )
 
 void HTTPPage::TableEnd( void )
 {
-   char* s = "</table>\n";
+   const char* s = "</table>\n";
    SendString( s );
 }
 
@@ -700,11 +700,11 @@ void HTTPPage::FormTextField( const char* tag, size_t size, const char* initValu
    if( initValue )
    {
       snprintf( s, sizeof(s), "<input type=text name=\"%s\" size=\"%d\" value=\"%s\">\n",
-               tag, size, initValue );
+               tag, (int)size, initValue );
    }
    else
    {
-      snprintf( s, sizeof(s), "<input type=text name=\"%s\" size=\"%d\">\n", tag, size );
+      snprintf( s, sizeof(s), "<input type=text name=\"%s\" size=\"%d\">\n", tag, (int)size );
    }
    SendString( s );
 }
@@ -818,7 +818,7 @@ bool HTTPPage::SendFile( const char* filename )
       fseek( f, 0, SEEK_SET );
 #endif
       SendString( "HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n" );
-      snprintf( s, sizeof(s), "Content-Length: %lld\r\n\r\n", counti64 );
+      snprintf( s, sizeof(s), "Content-Length: %lud\r\n\r\n", counti64 );
       SendString( s );
 
       do
@@ -943,7 +943,7 @@ void HTTPPage::Flush()
 void HTTPPage::SelectStart( const char* msg, const char* name, size_t size )
 {
    char     s[ BUFFER_SIZE ];
-   snprintf( s, sizeof(s),"%s<select name=\"%s\" size=\"%d\">",msg,name,size);
+   snprintf( s, sizeof(s),"%s<select name=\"%s\" size=\"%lud\">",msg,name,size);
    SendString( s );
 }
 

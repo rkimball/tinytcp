@@ -88,7 +88,7 @@ bool ProtocolIP::IsLocal( const uint8_t* addr )
 //
 //============================================================================
 
-void ProtocolIP::ProcessRx( DataBuffer* buffer, uint8_t* hardwareAddress )
+void ProtocolIP::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
 {
    uint8_t headerLength;
    uint8_t protocol;
@@ -108,13 +108,13 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, uint8_t* hardwareAddress )
 
    if( IsLocal( targetIP ) )
    {
-      if( targetIP[ 3 ] != 0xFF )  // not broadcast
-      {
-         printf( "RX IP: %d.%d.%d.%d -> %d.%d.%d.%d, protocol 0x%02X\n",
-            sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-            targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ],
-            protocol );
-      }
+//      if( targetIP[ 3 ] != 0xFF )  // not broadcast
+//      {
+//         printf( "RX IP: %d.%d.%d.%d -> %d.%d.%d.%d, protocol 0x%02X\n",
+//            sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
+//            targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ],
+//            protocol );
+//      }
       buffer->Packet += headerLength;
       dataLength -= headerLength;
       buffer->Length = dataLength;
@@ -161,12 +161,12 @@ DataBuffer* ProtocolIP::GetTxBuffer()
 //
 //============================================================================
 
-void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP )
+void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP )
 {
    Transmit( buffer, protocol, targetIP, Config.IPv4.Address );
 }
 
-void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, uint8_t* targetIP, uint8_t* sourceIP )
+void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP )
 {
    uint16_t checksum;
    uint8_t* targetMAC;

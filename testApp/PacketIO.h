@@ -37,20 +37,23 @@
 #endif
 #include <inttypes.h>
 #include "NetworkInterface.h"
+#include "osThread.h"
 
 void NetworkTxData( void* data, size_t length );
 
 class PacketIO : public NetworkInterface
 {
 public:
+   PacketIO();
    PacketIO( const char* name );
 
 #ifdef _WIN32
    void Start( pcap_handler handler );
 #elif __linux__
+   void Start();
+   void Entry( void* param );
 #endif
    void Stop( void );
-
    void TxData( void* data, size_t length );
    static void GetDevice( int interfaceNumber, char* buffer, size_t buffer_size );
    static int GetMACAddress( const char* adapter, uint8_t* mac );
@@ -61,6 +64,9 @@ private:
    const char* CaptureDevice;
    pcap_t *adhandle;
 #elif __linux__
+   osThread    EthernetRxThread;
+   int         m_RawSocket;
+   int         m_IfIndex;
 #endif
 };
 

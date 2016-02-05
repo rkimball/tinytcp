@@ -63,17 +63,15 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP )
       txBuffer = ProtocolIP::GetTxBuffer();
       if( txBuffer && buffer->Length <= txBuffer->Remainder )
       {
-         txBuffer->Packet[ 0 ] = 0;
-         for( i=1; i<buffer->Length; i++ )
+         for( i=0; i<buffer->Length; i++ )
          {
             txBuffer->Packet[ i ] = buffer->Packet[ i ];
          }
-         txBuffer->Packet[ 2 ] = 0;
-         txBuffer->Packet[ 3 ] = 0;
+         txBuffer->Packet[ 0 ] = 0;
+         Pack16( txBuffer->Packet, 2, 0 ); // clear the checksum
          i = FCS::Checksum( txBuffer->Packet, buffer->Length );
-         txBuffer->Packet[ 2 ] = i >> 8;
-         txBuffer->Packet[ 3 ] = i & 0xFF;
-         txBuffer->Length += buffer->Length + 4;
+         Pack16( txBuffer->Packet, 2, i ); // set the checksum
+         txBuffer->Length = buffer->Length;
          ProtocolIP::Transmit( txBuffer, 0x01, sourceIP );
       }
       break;
