@@ -43,6 +43,7 @@
 #include "Address.h"
 #include "ProtocolTCP.h"
 #include "ProtocolDHCP.h"
+#include "ProtocolARP.h"
 #include "osThread.h"
 #include "osMutex.h"
 #include "osTime.h"
@@ -185,6 +186,7 @@ void ProcessPageRequest
 
       page->SendString( "<pre>\n" );
       Config.Show( page );
+      ProtocolARP::Show( page );
       osThread::Show( page );
       osEvent::Show( page );
       osQueue::Show( page );
@@ -219,6 +221,8 @@ int main( int argc, char* argv[] )
 {
    NetworkConfig config;
    config.interfaceNumber = 1;
+
+   printf( "%d bit build\n", (sizeof(void*)==4?32:64) );
 
    // Start at 1 to skip the file name
    for( int i = 1; i < argc; i++ )

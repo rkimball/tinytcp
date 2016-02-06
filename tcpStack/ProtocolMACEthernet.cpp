@@ -172,10 +172,6 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    {
       RxBufferQueue.Put( packet );
    }
-   else
-   {
-      printf( "not disposable\n" );
-   }
 }
 
 //============================================================================

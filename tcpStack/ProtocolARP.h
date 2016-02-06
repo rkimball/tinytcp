@@ -67,7 +67,7 @@ public:
    static bool IsLocal( const uint8_t* protocolAddress );
    static bool IsBroadcast( const uint8_t* protocolAddress );
 
-   static void Show();
+   static void Show( osPrintfInterface* pfunc );
 
 private:
    static void SendReply( uint8_t* packet, int length );

@@ -74,9 +74,7 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    uint8_t* packet = buffer->Packet;
    uint16_t length = buffer->Length;
 
-   opType = Unpack16( packet, OpOffset ); // packet[ OpOffset ] << 8 | packet[ OpOffset + 1 ];
-
-//   printf( "ARP: opType = %d\n", opType );
+   opType = Unpack16( packet, OpOffset );
 
    if( opType == 1 )
    {
@@ -174,26 +172,27 @@ void ProtocolARP::Add( uint8_t* protocolAddress, uint8_t* hardwareAddress )
 //
 //============================================================================
 
-void ProtocolARP::Show()
+void ProtocolARP::Show( osPrintfInterface* pfunc )
 {
    int i;
 
-   printf( "ARP Cache:\n" );
+   pfunc->Printf( "ARP Cache:\n" );
    for( i = 0; i < CacheSize; i++ )
    {
-      printf( "%d.%d.%d.%d ",
+      int length = pfunc->Printf( "   %d.%d.%d.%d ",
          Cache[ i ].IPv4Address[ 0 ],
          Cache[ i ].IPv4Address[ 1 ],
          Cache[ i ].IPv4Address[ 2 ],
          Cache[ i ].IPv4Address[ 3 ] );
-      printf( "%02X:%02X:%02X:%02X:%02X:%02X ",
+      for( ; length<16; length++ ) pfunc->Printf( " " );
+      pfunc->Printf( " %02X:%02X:%02X:%02X:%02X:%02X ",
          Cache[ i ].MACAddress[ 0 ],
          Cache[ i ].MACAddress[ 1 ],
          Cache[ i ].MACAddress[ 2 ],
          Cache[ i ].MACAddress[ 3 ],
          Cache[ i ].MACAddress[ 4 ],
          Cache[ i ].MACAddress[ 5 ] );
-      printf( "%d\n", Cache[ i ].Age );
+      pfunc->Printf( "   age = %d\n", Cache[ i ].Age );
    }
 }
 
@@ -247,12 +246,6 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
 
 void ProtocolARP::SendRequest( const uint8_t* targetIP )
 {
-   printf( "Send ARP Request for %d.%d.%d.%d\n",
-         targetIP[ 0 ],
-         targetIP[ 1 ],
-         targetIP[ 2 ],
-         targetIP[ 3 ] );
-
    ARPRequest.Initialize();
    ARPRequest.Packet += ProtocolMACEthernet::HeaderSize();
    ARPRequest.Remainder -= ProtocolMACEthernet::HeaderSize();
@@ -379,12 +372,6 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
    int i;
    int j;
 
-   //printf( "Check ARP cache for %d.%d.%d.%d\n",
-   //   protocolAddress[ 0 ],
-   //   protocolAddress[ 1 ],
-   //   protocolAddress[ 2 ],
-   //   protocolAddress[ 3 ] );
-
    for( i = 0; i < CacheSize; i++ )
    {
       // Go through the address backwards since least significant byte is most
@@ -399,13 +386,6 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
       if( j == -1 )
       {
          // found
-         //printf( "Found MAC %02X:%02X:%02X:%02X:%02X:%02X\n",
-         //   Cache[ i ].Hardware[ 0 ],
-         //   Cache[ i ].Hardware[ 1 ],
-         //   Cache[ i ].Hardware[ 2 ],
-         //   Cache[ i ].Hardware[ 3 ],
-         //   Cache[ i ].Hardware[ 4 ],
-         //   Cache[ i ].Hardware[ 5 ] );
          return i;
       }
    }

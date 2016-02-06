@@ -114,17 +114,8 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
    sourceIP = &packet[ 12 ];
    targetIP = &packet[ 16 ];
 
-   //printf( "IP %d, dataLength %d, header %d\n", buffer->Length, dataLength, headerLength );
-
    if( IsLocal( targetIP ) )
    {
-//      if( targetIP[ 3 ] != 0xFF )  // not broadcast
-//      {
-//         printf( "RX IP: %d.%d.%d.%d -> %d.%d.%d.%d, protocol 0x%02X\n",
-//            sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-//            targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ],
-//            protocol );
-//      }
       buffer->Packet += headerLength;
       dataLength -= headerLength;
       buffer->Length = dataLength;
@@ -132,9 +123,6 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
       switch( protocol )
       {
       case 0x01:  // ICMP
-         printf( "RX IP ICMP: %d.%d.%d.%d -> %d.%d.%d.%d\n",
-            sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-            targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ] );
          ProtocolICMP::ProcessRx( buffer, sourceIP );
          break;
       case 0x02:  // IGMP
@@ -207,11 +195,6 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* 
    checksum = FCS::Checksum( packet, 20 );
    Pack16( packet, 10, checksum );
 
-   //printf( "Tx to %d.%d.%d.%d\n",
-   //   targetIP[ 0 ],
-   //   targetIP[ 1 ],
-   //   targetIP[ 2 ],
-   //   targetIP[ 3 ] );
    targetMAC = ProtocolARP::Protocol2Hardware( targetIP );
    if( targetMAC != 0 )
    {
@@ -219,11 +202,7 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* 
    }
    else
    {
-      printf( "Could not find MAC for IP %d.%d.%d.%d\n",
-         targetIP[ 0 ],
-         targetIP[ 1 ],
-         targetIP[ 2 ],
-         targetIP[ 3 ]);
+      // Could not find MAC address, ARP for it
       UnresolvedQueue.Put( buffer );
    }
 }
@@ -252,15 +231,9 @@ void ProtocolIP::Retry()
    {
       buffer = (DataBuffer*)UnresolvedQueue.Get();
 
-      printf( "Retry Tx to %d.%d.%d.%d\n",
-         buffer->Packet[ 16 ],
-         buffer->Packet[ 17 ],
-         buffer->Packet[ 18 ],
-         buffer->Packet[ 19 ] );
       targetMAC = ProtocolARP::Protocol2Hardware( &buffer->Packet[ 16 ] );
       if( targetMAC != 0 )
       {
-         printf( "Success\n" );
          ProtocolMACEthernet::Transmit( buffer, targetMAC, 0x0800 );
       }
       else
