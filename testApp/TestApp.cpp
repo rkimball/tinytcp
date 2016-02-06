@@ -50,6 +50,11 @@
 #include "HTTPPage.h"
 #include "NetworkInterface.h"
 
+#ifdef WIN32
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#endif
+
 AddressConfiguration Config;
 
 PacketIO* PIO;

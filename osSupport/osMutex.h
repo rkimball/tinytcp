@@ -32,7 +32,10 @@
 #ifndef OSMUTEX_H
 #define OSMUTEX_H
 
+#ifdef _WIN32
+#elif __linux__
 #include <pthread.h>
+#endif
 
 #include "osPrintfInterface.h"
 

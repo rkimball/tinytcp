@@ -37,8 +37,10 @@
 #include "osThread.h"
 
 #ifdef WIN32
-//#include <windows.h>
-#define strincmp _strnicmp
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#elif __linux__
+#include <strings.h>
 #endif
 
 HTTPPage::HTTPPage() 

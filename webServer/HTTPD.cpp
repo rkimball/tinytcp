@@ -41,9 +41,8 @@
 #include "osQueue.h"
 
 #ifdef WIN32
-#define stricmp _stricmp
-#define snprintf _snprintf
-#define strdup _strdup
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
 #elif __linux__
 #include <strings.h>
 #endif

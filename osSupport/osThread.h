@@ -105,8 +105,8 @@ public:
    pthread_t m_thread;
    ThreadEntryPtr Entry;
    void*          Param;
-   osEvent        ThreadStart;
 #endif
+   osEvent        ThreadStart;
 
    static void Show( osPrintfInterface* pfunc );
 

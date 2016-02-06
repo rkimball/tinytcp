@@ -405,11 +405,6 @@ void PacketIO::Entry( void* param )
          printf("interface name is too long\n");
       }
 
-//      icmp_filter filter;
-//      socklen_t len = sizeof(filter);
-//      int rc = setsockopt( m_RawSocket, IPPROTO_RAW, ICMP_FILTER, &filter, len );
-//      printf( "getsockopt filter rc = %d, data = 0x%08X\n", rc, filter.data );
-
       // Find the socket index for tx later
       if( ioctl( m_RawSocket, SIOCGIFINDEX, &ifr ) == -1 )
       {
