@@ -117,7 +117,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
          break;
       case 28: // Broadcast Address
          for( int i = 0; i < 4; i++ ) ipv4Data.BroadcastAddress[ i ] = optionData[ i ];
-         break;
+          break;
       case 255:
          offset = buffer->Remainder;
          break;
@@ -139,6 +139,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
          for( int i = 0; i < 4; i++ ) ipv4Data.Address[ i ] = yiaddr[ i ];
          memcpy( &(Config.IPv4), &ipv4Data, sizeof( AddressConfiguration::IPv4_t ) );
          printf( "DHCP got address %d.%d.%d.%d\n", Config.IPv4.Address[ 0 ], Config.IPv4.Address[ 1 ], Config.IPv4.Address[ 2 ], Config.IPv4.Address[ 3 ] );
+         Config.IPv4.DataValid = true;
          break;
       case 6:  // nak
          break;

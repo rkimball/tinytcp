@@ -44,7 +44,7 @@
 //
 //============================================================================
 
-void ProtocolICMP::ProcessRx( DataBuffer* buffer, uint8_t* sourceIP )
+void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* sourceIP )
 {
    uint8_t type;
    uint8_t code;

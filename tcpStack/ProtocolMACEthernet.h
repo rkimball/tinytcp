@@ -46,13 +46,13 @@ public:
 
    static void ProcessRx( uint8_t* buffer, int length );
 
-   static void Transmit( DataBuffer*, uint8_t* targetMAC, uint16_t type );
+   static void Transmit( DataBuffer*, const uint8_t* targetMAC, uint16_t type );
    static void Retransmit( DataBuffer* buffer );
 
    static DataBuffer* GetTxBuffer();
    static void FreeTxBuffer( DataBuffer* );
    static void FreeRxBuffer( DataBuffer* );
-   static bool IsLocalAddress( uint8_t* addr );
+   static bool IsLocalAddress( const uint8_t* addr );
 
    static void Show( osPrintfInterface* pfunc );
 

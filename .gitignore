@@ -2,7 +2,7 @@ html/
 latex/
 
 CMakeLists.txt.user*
-
+*.autosave
 
 # Created by https://www.gitignore.io/api/visualstudio
 

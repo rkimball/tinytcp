@@ -78,10 +78,20 @@ void ProtocolIP::Initialize()
 
 bool ProtocolIP::IsLocal( const uint8_t* addr )
 {
-   uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF};
-   return Address::Compare( addr, Config.IPv4.Address, Config.IPv4AddressSize ) ||
-      Address::Compare( addr, broadcastAddress, Config.IPv4AddressSize )
-      ;
+   bool rc;
+   uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
+   if( Config.IPv4.DataValid )
+   {
+      rc = Address::Compare( addr, broadcast, Config.IPv4AddressSize ) ||
+            Address::Compare( addr, Config.IPv4.Address, Config.IPv4AddressSize ) ||
+            Address::Compare( addr, Config.IPv4.BroadcastAddress, Config.IPv4AddressSize )
+         ;
+   }
+   else
+   {
+      rc = Address::Compare( addr, broadcast, Config.IPv4AddressSize );
+   }
+   return rc;
 }
 
 //============================================================================
@@ -122,6 +132,9 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
       switch( protocol )
       {
       case 0x01:  // ICMP
+         printf( "RX IP ICMP: %d.%d.%d.%d -> %d.%d.%d.%d\n",
+            sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
+            targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ] );
          ProtocolICMP::ProcessRx( buffer, sourceIP );
          break;
       case 0x02:  // IGMP

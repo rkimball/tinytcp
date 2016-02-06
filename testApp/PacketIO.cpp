@@ -43,6 +43,7 @@
 #include <linux/if_arp.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <linux/icmp.h>
 #endif
 #include <stdio.h>
 #include <cstring>
@@ -404,19 +405,35 @@ void PacketIO::Entry( void* param )
          printf("interface name is too long\n");
       }
 
+//      icmp_filter filter;
+//      socklen_t len = sizeof(filter);
+//      int rc = setsockopt( m_RawSocket, IPPROTO_RAW, ICMP_FILTER, &filter, len );
+//      printf( "getsockopt filter rc = %d, data = 0x%08X\n", rc, filter.data );
 
-
+      // Find the socket index for tx later
       if( ioctl( m_RawSocket, SIOCGIFINDEX, &ifr ) == -1 )
       {
          printf( "oh crap %s", strerror(errno) );
       }
       m_IfIndex = ifr.ifr_ifindex;
+
+      // Set socket to promiscuous mode
+      struct packet_mreq mreq;
+      mreq.mr_ifindex = ifr.ifr_ifindex;
+      mreq.mr_type = PACKET_MR_PROMISC;
+      mreq.mr_alen = 6;
+      if (setsockopt(m_RawSocket,SOL_PACKET,PACKET_ADD_MEMBERSHIP, &mreq,(socklen_t)sizeof(mreq)) < 0)
+      {
+         printf( "promiscuous membership error %s", strerror(errno) );
+      }
+
       void* pkt_data = (void*)malloc(ETH_FRAME_LEN);
       while(1)
       {
          int length = recvfrom( m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, NULL, NULL );
          ProtocolMACEthernet::ProcessRx( (uint8_t*)pkt_data, length );
       }
+      free( pkt_data ); // no way to get here, but ...
    }
 }
 

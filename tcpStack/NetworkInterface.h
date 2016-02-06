@@ -52,12 +52,14 @@ public:
    {
    public:
       IPv4_t() :
+         DataValid(false),
          IpAddressLeaseTime(0),
          RenewTime(0),
          RebindTime(0)
       {
       }
 
+      bool  DataValid;
       uint8_t Address[ IPv4AddressSize ];
       uint32_t IpAddressLeaseTime;
       uint32_t RenewTime;

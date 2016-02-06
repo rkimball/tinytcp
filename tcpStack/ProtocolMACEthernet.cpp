@@ -96,7 +96,7 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
 //
 //============================================================================
 
-bool ProtocolMACEthernet::IsLocalAddress( uint8_t* addr )
+bool ProtocolMACEthernet::IsLocalAddress( const uint8_t* addr )
 {
    return Address::Compare( Config.MACAddress, addr, 6 ) ||
       Address::Compare( Config.BroadcastMACAddress, addr, 6 );
@@ -135,6 +135,9 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    packet->Length = length;
 
    type = packet->Packet[ 12 ] << 8 | packet->Packet[ 13 ];
+
+//   static int count = 0;
+//   printf( "RX: %d\n", count++ );
 
    // Check if the MAC Address is destined for me
    if( IsLocalAddress( packet->Packet ) )
@@ -220,15 +223,12 @@ void ProtocolMACEthernet::FreeRxBuffer( DataBuffer* buffer )
 //
 //============================================================================
 
-void ProtocolMACEthernet::Transmit( DataBuffer* buffer, uint8_t* targetMAC, uint16_t type )
+void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC, uint16_t type )
 {
    uint8_t i;
-   uint8_t* p;
 
    buffer->Packet -= MAC_HEADER_SIZE;
    buffer->Length += MAC_HEADER_SIZE;
-   
-   p = buffer->Packet;
 
    size_t offset = 0;
    offset = PackBytes( buffer->Packet, offset, targetMAC, 6 );

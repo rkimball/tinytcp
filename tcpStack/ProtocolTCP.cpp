@@ -168,7 +168,7 @@ DataBuffer* ProtocolTCP::Connection::GetTxBuffer()
 //
 //============================================================================
 
-void ProtocolTCP::Connection::Write( uint8_t *data, uint16_t length )
+void ProtocolTCP::Connection::Write( const uint8_t *data, uint16_t length )
 {
    uint16_t i;
 
@@ -460,7 +460,7 @@ void ProtocolTCP::Connection::StoreRxData( DataBuffer* buffer )
 //
 //============================================================================
 
-void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, uint8_t* sourceIP, uint8_t* targetIP )
+void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, const uint8_t* targetIP )
 {
    Connection* connection;
    uint16_t checksum;
@@ -482,9 +482,9 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, uint8_t* sourceIP, uint8_t* t
 
    checksum = ComputeChecksum( packet, length, sourceIP, targetIP );
 
-   printf( "RX TCP: %d.%d.%d.%d -> %d.%d.%d.%d\n",
-      sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-      targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ] );
+//   printf( "RX TCP: %d.%d.%d.%d -> %d.%d.%d.%d\n",
+//      sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
+//      targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ] );
 
    if( checksum == 0 )
    {
@@ -732,7 +732,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, uint8_t* sourceIP, uint8_t* t
 //
 //============================================================================
 
-void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, uint8_t* remoteAddress )
+void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress )
 {
    uint8_t* packet;
    uint16_t checksum;
@@ -753,10 +753,8 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, uint8_t* remot
    length = buffer->Length;
    if( packet != 0 )
    {
-      packet[  0 ] = localPort >> 8;
-      packet[  1 ] = localPort & 0xFF;
-      packet[  2 ] = remotePort >> 8;
-      packet[  3 ] = remotePort & 0xFF;
+      Pack16( packet, 0, localPort );
+      Pack16( packet, 2, remotePort );
       packet[  4 ] = 0;
       packet[  5 ] = 0;
       packet[  6 ] = 0;
@@ -790,7 +788,7 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, uint8_t* remot
 //
 //============================================================================
 
-uint16_t ProtocolTCP::ComputeChecksum( uint8_t* packet, uint16_t length, uint8_t* sourceIP, uint8_t* targetIP )
+uint16_t ProtocolTCP::ComputeChecksum( uint8_t* packet, uint16_t length, const uint8_t* sourceIP, const uint8_t* targetIP )
 {
    uint32_t checksum;
    uint16_t tmp;
@@ -867,7 +865,7 @@ const char* ProtocolTCP::Connection::GetStateString()
 ProtocolTCP::Connection* ProtocolTCP::LocateConnection
 (
    uint16_t remotePort,
-   uint8_t* remoteAddress,
+   const uint8_t* remoteAddress,
    uint16_t localPort
 )
 {
@@ -937,7 +935,7 @@ uint16_t ProtocolTCP::NewPort()
 
 ProtocolTCP::Connection* ProtocolTCP::NewClient
 (
-   uint8_t* remoteAddress,
+   const uint8_t* remoteAddress,
    uint16_t remotePort,
    uint16_t localPort
 )

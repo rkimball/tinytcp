@@ -123,7 +123,7 @@ public:
 
       int Read();
       int ReadLine( char* buffer, int size );
-      void Write( uint8_t* data, uint16_t length );
+      void Write( const uint8_t* data, uint16_t length );
       void Flush();
       const char* GetStateString();
    
@@ -160,17 +160,17 @@ public:
    static void Initialize();
    static void Tick();
 
-   static Connection* NewClient( uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
+   static Connection* NewClient( const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
    static Connection* NewServer( uint16_t port );
    static uint16_t NewPort();
 
-   static void ProcessRx( DataBuffer*, uint8_t* sourceIP, uint8_t* targetIP );
+   static void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
    static void Show( osPrintfInterface* out );
 
 private:
-   static Connection* LocateConnection( uint16_t remotePort, uint8_t* remoteAddress, uint16_t localPort );
-   static uint16_t ComputeChecksum( uint8_t* packet, uint16_t length, uint8_t* sourceIP, uint8_t* targetIP );
-   static void Reset( uint16_t localPort, uint16_t remotePort, uint8_t* remoteAddress );
+   static Connection* LocateConnection( uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort );
+   static uint16_t ComputeChecksum( uint8_t* packet, uint16_t length, const uint8_t* sourceIP, const uint8_t* targetIP );
+   static void Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress );
 
    static Connection ConnectionList[ TCP_MAX_CONNECTIONS ];
    static uint16_t NextPort;
