@@ -46,8 +46,6 @@ NetworkInterface* ProtocolMACEthernet::DataInterface;
 static int DropCount = 0;
 #define MAC_DROP_COUNT 20
 
-extern AddressConfiguration Config;
-
 DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
 DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
 
@@ -135,9 +133,6 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    packet->Length = length;
 
    type = packet->Packet[ 12 ] << 8 | packet->Packet[ 13 ];
-
-//   static int count = 0;
-//   printf( "RX: %d\n", count++ );
 
    // Check if the MAC Address is destined for me
    if( IsLocalAddress( packet->Packet ) )
@@ -236,9 +231,6 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC
    {
       buffer->Packet[ buffer->Length++ ] = 0;
    }
-
-//   printf( "TX:\n" );
-//   DumpData( buffer->Packet, buffer->Length, printf );
 
    DataInterface->TxData( buffer->Packet, buffer->Length );
 

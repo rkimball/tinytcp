@@ -36,25 +36,18 @@
 
 typedef int (*PrintfFunctionPtr)( const char* fmt, ... );
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-void DumpData( void* buffer, int len, PrintfFunctionPtr );
-
-void DumpBits( void* buffer, int size, PrintfFunctionPtr );
+void DumpData( void* buffer, size_t len, PrintfFunctionPtr );
+void DumpBits( void* buffer, size_t size, PrintfFunctionPtr );
 
 uint16_t ntoh16( uint16_t value );
 uint16_t hton16( uint16_t value );
 uint32_t ntoh32( uint32_t value );
 uint32_t hton32( uint32_t value );
 
-#ifdef __cplusplus
-}
-#endif
+const char* ipv4toa( uint32_t addr );
+const char* ipv4toa( const uint8_t* addr );
+const char* macaddrtoa( const uint8_t* addr );
 
-const char* inet_ntoa( uint32_t addr );
 uint8_t Unpack8( const uint8_t* p, size_t offset, size_t size = 1 );
 uint16_t Unpack16( const uint8_t* p, size_t offset, size_t size = 2 );
 uint32_t Unpack32( const uint8_t* p, size_t offset, size_t size = 4 );
@@ -62,5 +55,6 @@ size_t Pack8( uint8_t* p, size_t offset, uint8_t value );
 size_t Pack16( uint8_t* p, size_t offset, uint16_t value );
 size_t Pack32( uint8_t* p, size_t offset, uint32_t value );
 size_t PackBytes( uint8_t* p, size_t offset, const uint8_t* value, size_t count );
+int ReadLine( char* buffer, size_t size, int(*ReadFunction)() );
 
 #endif

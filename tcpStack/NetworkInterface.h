@@ -38,41 +38,6 @@
 #include "Address.h"
 #include "osPrintfInterface.h"
 
-class AddressConfiguration
-{
-public:
-   static const size_t IPv4AddressSize = 4;
-   static const uint8_t MACAddressSize = 6;
-
-   //Address Address;
-   uint8_t MACAddress[ AddressConfiguration::MACAddressSize ];
-   uint8_t BroadcastMACAddress[ AddressConfiguration::MACAddressSize ];
-
-   class IPv4_t
-   {
-   public:
-      IPv4_t() :
-         DataValid(false),
-         IpAddressLeaseTime(0),
-         RenewTime(0),
-         RebindTime(0)
-      {
-      }
-
-      bool  DataValid;
-      uint8_t Address[ IPv4AddressSize ];
-      uint32_t IpAddressLeaseTime;
-      uint32_t RenewTime;
-      uint32_t RebindTime;
-      uint8_t SubnetMask[ IPv4AddressSize ];
-      uint8_t Gateway[ IPv4AddressSize ];
-      uint8_t DomainNameServer[ IPv4AddressSize ];
-      uint8_t BroadcastAddress[ IPv4AddressSize ];
-   } IPv4;
-
-   void Show( osPrintfInterface* out );
-};
-
 class NetworkInterface
 {
 public:

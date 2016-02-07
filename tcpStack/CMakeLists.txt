@@ -5,7 +5,6 @@ set( SOURCE
     FCS.cpp
     NetworkInterface.cpp
     ProtocolARP.cpp
-    ProtocolConfig.cpp
     ProtocolDHCP.cpp
     ProtocolICMP.cpp
     ProtocolIP.cpp

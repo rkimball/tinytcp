@@ -35,6 +35,7 @@
 #include "ProtocolIP.h"
 #include "FCS.h"
 #include "Utility.h"
+#include "NetworkInterface.h"
 
 // Type - 8 bits
 // Code - 8 bits
@@ -44,15 +45,12 @@
 //
 //============================================================================
 
-void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* sourceIP )
+void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP )
 {
    uint8_t type;
    uint8_t code;
    DataBuffer* txBuffer;
    uint16_t i;
-
-   //printf( "ICMP Payload\n" );
-   //DumpData( packet, length, printf );
 
    type = buffer->Packet[ 0 ];
    code = buffer->Packet[ 1 ];
@@ -72,7 +70,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* sourceIP )
          i = FCS::Checksum( txBuffer->Packet, buffer->Length );
          Pack16( txBuffer->Packet, 2, i ); // set the checksum
          txBuffer->Length = buffer->Length;
-         ProtocolIP::Transmit( txBuffer, 0x01, sourceIP );
+         ProtocolIP::Transmit( txBuffer, 0x01, remoteIP, Config.IPv4.Address );
       }
       break;
    default:

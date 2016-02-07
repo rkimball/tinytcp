@@ -58,9 +58,9 @@
 // UrgentPointer - 16 bits
 
 #define TCP_HEADER_SIZE (20)
-#define TCP_MAX_CONNECTIONS 5
+#define TCP_MAX_CONNECTIONS (5)
 #define TCP_RX_WINDOW_SIZE (256)
-#if TCP_RX_WINDOW_SIZE > (DATA_BUFFER_PAYLOAD_SIZE-20-20-10)
+#if TCP_RX_WINDOW_SIZE > (DATA_BUFFER_PAYLOAD_SIZE - TCP_HEADER_SIZE - IP_HEADER_SIZE - MAC_HEADER_SIZE)
 #error Rx window size must be smaller than data payload
 #endif
 #define TCP_RETRANSMIT_TIMEOUT_US 100000
@@ -117,7 +117,7 @@ public:
       int32_t Time_us;
 
       ~Connection();
-      void Send( uint8_t flags );
+      void SendFlags( uint8_t flags );
       void Close();
       Connection* Listen();
 

@@ -33,14 +33,18 @@
 
 #include "Utility.h"
 
-void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
+//============================================================================
+//
+//============================================================================
+
+void DumpData( void* buffer, size_t len, PrintfFunctionPtr pfunc )
 {
-   int   i, j;
-   unsigned char* buf = (unsigned char*)buffer;
+   size_t   i, j;
+   uint8_t* buf = (uint8_t*)buffer;
    char  tmpBuf[ 90 ];
-   int            tmpIndex = 0;
-   int            size = sizeof( tmpBuf );
-   int            count;
+   size_t   tmpIndex = 0;
+   size_t   size = sizeof( tmpBuf );
+   size_t   count;
 
    if( buf == 0 )
    {
@@ -51,7 +55,7 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
    j = 0;
    while( i + 1 <= len )
    {
-      count = snprintf( &tmpBuf[ tmpIndex ], size, "%04X ", i );
+      count = snprintf( &tmpBuf[ tmpIndex ], size, "%04X ", (uint16_t)i );
       tmpIndex += count;
       size -= count;
       for( j = 0; j < 16; j++ )
@@ -101,73 +105,43 @@ void DumpData( void* buffer, int len, PrintfFunctionPtr pfunc )
 
       i += 16;
 
-      (void)pfunc( "%s\n", tmpBuf );
+      pfunc( "%s\n", tmpBuf );
       tmpIndex = 0;
       size = sizeof( tmpBuf );
    }
 }
 
-void DumpBits( void* buf, int size, PrintfFunctionPtr pfunc )
-{
-   int      bitIndex;
-   int      i;
-   unsigned char* buffer = (unsigned char*)buf;
+//============================================================================
+//
+//============================================================================
 
-   for( i = 0; i < size; i++ )
+void DumpBits( void* buf, size_t size, PrintfFunctionPtr pfunc )
+{
+   uint8_t* buffer = (uint8_t*)buf;
+
+   for( size_t i = 0; i < size; i++ )
    {
-      (void)pfunc( "%3d - ", i );
-      for( bitIndex = 0x80; bitIndex != 0; bitIndex >>= 1 )
+      pfunc( "%3d - ", i );
+      for( uint8_t bitIndex = 0x80; bitIndex != 0; bitIndex >>= 1 )
       {
          if( buffer[ i ] & bitIndex )
          {
-            (void)pfunc( "1" );
+            pfunc( "1" );
          }
          else
          {
-            (void)pfunc( "0" );
+            pfunc( "0" );
          }
       }
-      (void)pfunc( "\n" );
+      pfunc( "\n" );
    }
 }
 
-//uint16_t ntoh16( uint16_t value )
-//{
-//   uint8_t rc[ 2 ];
-//   rc[ 0 ] = value >> 8;
-//   rc[ 1 ] = value & 0xFF;
-//   return *(uint16_t*)rc;
-//}
+//============================================================================
 //
-//uint16_t hton16( uint16_t value )
-//{
-//   uint8_t rc[ 2 ];
-//   rc[ 0 ] = value >> 8;
-//   rc[ 1 ] = value & 0xFF;
-//   return *(uint16_t*)rc;
-//}
-//
-//uint32_t ntoh32( uint32_t value )
-//{
-//   uint8_t rc[ 4 ];
-//   rc[ 0 ] = (value >> 24) & 0xFF;
-//   rc[ 1 ] = (value >> 16) & 0xFF;
-//   rc[ 2 ] = (value >> 8) & 0xFF;
-//   rc[ 3 ] = (value >> 0) & 0xFF;
-//   return *(uint32_t*)rc;
-//}
-//
-//uint32_t hton32( uint32_t value )
-//{
-//   uint8_t rc[ 4 ];
-//   rc[ 0 ] = (value >> 24) & 0xFF;
-//   rc[ 1 ] = (value >> 16) & 0xFF;
-//   rc[ 2 ] = (value >> 8) & 0xFF;
-//   rc[ 3 ] = (value >> 0) & 0xFF;
-//   return *(uint32_t*)rc;
-//}
+//============================================================================
 
-const char* inet_ntoa( uint32_t addr )
+const char* ipv4toa( uint32_t addr )
 {
    static char rc[ 20 ];
    sprintf( rc, "%d.%d.%d.%d",
@@ -179,10 +153,41 @@ const char* inet_ntoa( uint32_t addr )
    return rc;
 }
 
+//============================================================================
+//
+//============================================================================
+
+const char* ipv4toa( const uint8_t* addr )
+{
+   static char rc[ 20 ];
+   sprintf( rc, "%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3] );
+   return rc;
+}
+
+//============================================================================
+//
+//============================================================================
+
+const char* macaddrtoa( const uint8_t* addr )
+{
+   static char rc[ 20 ];
+   sprintf( rc, "%02x:%02x:%02x:%02x:%02x:%02x",
+            addr[0], addr[1], addr[2], addr[3], addr[4], addr[5] );
+   return rc;
+}
+
+//============================================================================
+//
+//============================================================================
+
 uint8_t Unpack8( const uint8_t* p, size_t offset, size_t size )
 {
    return p[ offset ];
 }
+
+//============================================================================
+//
+//============================================================================
 
 uint16_t Unpack16( const uint8_t* p, size_t offset, size_t size )
 {
@@ -195,6 +200,10 @@ uint16_t Unpack16( const uint8_t* p, size_t offset, size_t size )
    return rc;
 }
 
+//============================================================================
+//
+//============================================================================
+
 uint32_t Unpack32( const uint8_t* p, size_t offset, size_t size )
 {
    uint32_t rc = 0;
@@ -206,11 +215,19 @@ uint32_t Unpack32( const uint8_t* p, size_t offset, size_t size )
    return rc;
 }
 
+//============================================================================
+//
+//============================================================================
+
 size_t Pack8( uint8_t* p, size_t offset, uint8_t value )
 {
    p[ offset++ ] = value;
    return offset;
 }
+
+//============================================================================
+//
+//============================================================================
 
 size_t Pack16( uint8_t* p, size_t offset, uint16_t value )
 {
@@ -218,6 +235,10 @@ size_t Pack16( uint8_t* p, size_t offset, uint16_t value )
    p[ offset++ ] = value & 0xFF;
    return offset;
 }
+
+//============================================================================
+//
+//============================================================================
 
 size_t Pack32( uint8_t* p, size_t offset, uint32_t value )
 {
@@ -228,6 +249,10 @@ size_t Pack32( uint8_t* p, size_t offset, uint32_t value )
    return offset;
 }
 
+//============================================================================
+//
+//============================================================================
+
 size_t PackBytes( uint8_t* p, size_t offset, const uint8_t* value, size_t count )
 {
    for( int i = 0; i < count; i++ )
@@ -237,3 +262,51 @@ size_t PackBytes( uint8_t* p, size_t offset, const uint8_t* value, size_t count 
    return offset;
 }
 
+//============================================================================
+//
+//============================================================================
+
+int ReadLine( char* buffer, size_t size, int(*ReadFunction)() )
+{
+   int      i;
+   char     c;
+   bool     done = false;
+   int      bytesProcessed = 0;
+
+   while( !done )
+   {
+      i = ReadFunction();
+      if( i == -1 )
+      {
+         *buffer = 0;
+         break;
+      }
+      c = (char)i;
+      bytesProcessed++;
+      switch( c )
+      {
+      case '\r':
+         *buffer++ = 0;
+         break;
+      case '\n':
+         *buffer++ = 0;
+         done = true;
+         break;
+      default:
+         *buffer++ = c;
+         break;
+      }
+
+      if( bytesProcessed == size )
+      {
+         break;
+      }
+   }
+
+   *buffer = 0;
+   return bytesProcessed;
+}
+
+//============================================================================
+//
+//============================================================================

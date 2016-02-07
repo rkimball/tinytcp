@@ -45,8 +45,6 @@
 #include "osTime.h"
 #include "NetworkInterface.h"
 
-extern AddressConfiguration Config;
-
 ProtocolTCP::Connection ProtocolTCP::ConnectionList[ TCP_MAX_CONNECTIONS ];
 uint16_t ProtocolTCP::NextPort;
 
@@ -67,6 +65,10 @@ ProtocolTCP::Connection::Connection() :
    CurrentWindow = TCP_RX_WINDOW_SIZE;
 }
 
+//============================================================================
+//
+//============================================================================
+
 ProtocolTCP::Connection::~Connection()
 {
 }
@@ -75,7 +77,7 @@ ProtocolTCP::Connection::~Connection()
 //
 //============================================================================
 
-void ProtocolTCP::Connection::Send( uint8_t flags )
+void ProtocolTCP::Connection::SendFlags( uint8_t flags )
 {
    DataBuffer* buffer = GetTxBuffer();
 
@@ -131,7 +133,6 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
       Pack16( packet, 16, checksum );   // checksum
 
       buffer->Length += TCP_HEADER_SIZE;
-      buffer->Remainder -= buffer->Length;
 
       if( length > 0 || (flags & (FLAG_SYN|FLAG_FIN)) )
       {
@@ -142,7 +143,7 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          HoldingQueueLock.Give();
       }
 
-      ProtocolIP::Transmit( buffer, 0x06, RemoteAddress );
+      ProtocolIP::Transmit( buffer, 0x06, RemoteAddress, Config.IPv4.Address );
    }
 }
 
@@ -239,12 +240,12 @@ void ProtocolTCP::Connection::Close()
       break;
    case SYN_RECEIVED:
    case ESTABLISHED:
-      Send( FLAG_FIN );
+      SendFlags( FLAG_FIN );
       State = FIN_WAIT_1;
       SequenceNumber++;    // FIN consumes a sequence number
       break;
    case CLOSE_WAIT:
-      Send( FLAG_FIN );
+      SendFlags( FLAG_FIN );
       SequenceNumber++;    // FIN consumes a sequence number
       State = LAST_ACK;
       break;
@@ -268,8 +269,6 @@ ProtocolTCP::Connection* ProtocolTCP::Connection::Listen()
    connection = NewConnection;
    NewConnection = 0;
 
-   printf( "Listen got connections\n" );
-
    return connection;
 }
 
@@ -285,7 +284,7 @@ int ProtocolTCP::Connection::Read()
    {
       if( LastAck != AcknowledgementNumber )
       {
-         Send( FLAG_ACK );
+         SendFlags( FLAG_ACK );
       }
       Event.Wait( __FILE__, __LINE__ );
    }
@@ -320,8 +319,7 @@ int ProtocolTCP::Connection::ReadLine( char* buffer, int size  )
 {
    int      i;
    char     c;
-   uint8_t       done = 0;
-   int      loop = 0;
+   bool     done = false;
    int      bytesProcessed = 0;
 
    while( !done )
@@ -341,7 +339,7 @@ int ProtocolTCP::Connection::ReadLine( char* buffer, int size  )
          break;
       case '\n':
          *buffer++ = 0;
-         done = 1;
+         done = true;
          break;
       default:
          *buffer++ = c;
@@ -395,7 +393,6 @@ void ProtocolTCP::Connection::Tick()
       {
          if( currentTime_us - ConnectionList[ i ].Time_us >= TCP_TIMED_WAIT_TIMEOUT_US  )
          {
-            printf( "TIMED_WAIT timeout, close connection\n" );
             ConnectionList[ i ].State = CLOSED;
          }
       }
@@ -404,7 +401,7 @@ void ProtocolTCP::Connection::Tick()
    // Check for delayed ACK
    if( LastAck != AcknowledgementNumber )
    {
-      Send( FLAG_ACK );
+      SendFlags( FLAG_ACK );
    }
 }
 
@@ -482,27 +479,15 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
 
    checksum = ComputeChecksum( packet, length, sourceIP, targetIP );
 
-//   printf( "RX TCP: %d.%d.%d.%d -> %d.%d.%d.%d\n",
-//      sourceIP[ 0 ], sourceIP[ 1 ], sourceIP[ 2 ], sourceIP[ 3 ],
-//      targetIP[ 0 ], targetIP[ 1 ], targetIP[ 2 ], targetIP[ 3 ] );
-
    if( checksum == 0 )
    {
       // pass
-      remotePort = (packet[ 0 ] << 8) | packet[ 1 ];
-      localPort    = (packet[ 2 ] << 8) | packet[ 3 ];
-      headerLength = (packet[ 12 ] >> 4) * 4;
-      windowSize = (packet[ 14 ] << 8) | packet[ 15 ];
-
-      SequenceNumber  = packet[ 4 ] << 24;
-      SequenceNumber |= packet[ 5 ] << 16;
-      SequenceNumber |= packet[ 6 ] <<  8;
-      SequenceNumber |= packet[ 7 ] <<  0;
-
-      AcknowledgementNumber  = packet[  8 ] << 24;
-      AcknowledgementNumber |= packet[  9 ] << 16;
-      AcknowledgementNumber |= packet[ 10 ] <<  8;
-      AcknowledgementNumber |= packet[ 11 ] <<  0;
+      remotePort            = Unpack16( packet, 0 );
+      localPort             = Unpack16( packet, 2 );
+      SequenceNumber        = Unpack32( packet, 4 );
+      AcknowledgementNumber = Unpack32( packet, 8 );
+      headerLength          = (Unpack8( packet, 12 ) >> 4) * 4;
+      windowSize            = Unpack16( packet, 14 );
 
       rxBuffer->Packet += headerLength;
       rxBuffer->Length -= headerLength;
@@ -520,11 +505,9 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
          {
          case Connection::CLOSED:
             // Do nothing
-            printf( "CLOSED\n" );
             Reset( localPort, remotePort, sourceIP );
             break;
          case Connection::LISTEN:
-            printf( "LISTEN\n" );
             if( SYN )
             {
                // Need a closed connection to work with
@@ -534,11 +517,10 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                   tmp->Parent = connection;
                   connection = tmp;
                   connection->State = Connection::SYN_RECEIVED;
-                  printf( "Enter SYN_RECEIVED\n" );
                   connection->AcknowledgementNumber = SequenceNumber;
                   connection->LastAck = connection->AcknowledgementNumber;
                   connection->AcknowledgementNumber++;   // SYN flag consumes a sequence number
-                  connection->Send( FLAG_SYN | FLAG_ACK );
+                  connection->SendFlags( FLAG_SYN | FLAG_ACK );
                   connection->SequenceNumber++; // Our SYN costs too
                }
                else
@@ -548,7 +530,6 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
             }
             break;
          case Connection::SYN_SENT:
-            printf( "SYN_SENT\n" );
             if( SYN )
             {
                connection->AcknowledgementNumber = SequenceNumber;
@@ -556,25 +537,21 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                if( ACK )
                {
                   connection->State = Connection::ESTABLISHED;
-                  connection->Send( FLAG_ACK );
-                  printf( "Enter ESTABLISHED\n" );
+                  connection->SendFlags( FLAG_ACK );
                }
                else
                {
                   // Simultaneous open
                   connection->State = Connection::SYN_RECEIVED;
                   connection->AcknowledgementNumber++;   // SYN flag consumes a sequence number
-                  connection->Send( FLAG_SYN | FLAG_ACK );
-                  printf( "Enter SYN_RECEIVED\n" );
+                  connection->SendFlags( FLAG_SYN | FLAG_ACK );
                }
             }
             break;
          case Connection::SYN_RECEIVED:
-            printf( "SYN_RECEIVED\n" );
             if( ACK )
             {
                connection->State = Connection::ESTABLISHED;
-               printf( "Enter ESTABLISHED\n" );
 
                if( connection->Parent->NewConnection == 0 )
                {
@@ -585,67 +562,54 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
             }
             break;
          case Connection::ESTABLISHED:
-            printf( "ESTABLISHED\n" );
             if( FIN )
             {
                connection->State = Connection::CLOSE_WAIT;
                connection->AcknowledgementNumber++;      // FIN consumes sequence number
-               connection->Send( FLAG_ACK );
-               printf( "Enter CLOSE_WAIT\n" );
+               connection->SendFlags( FLAG_ACK );
             }
             break;
          case Connection::FIN_WAIT_1:
-            printf( "FIN_WAIT_1\n" );
             if( FIN )
             {
                if( ACK )
                {
                   connection->State = Connection::TIMED_WAIT;
-                  printf( "Enter TIMED_WAIT\n" );
                   // Start TimedWait timer
                }
                else
                {
                   connection->State = Connection::CLOSING;
-                  printf( "Enter CLOSING\n" );
                }
                connection->AcknowledgementNumber++;      // FIN consumes sequence number
-               connection->Send( FLAG_ACK );
+               connection->SendFlags( FLAG_ACK );
             }
             else if( ACK )
             {
                connection->State = Connection::FIN_WAIT_2;
-               printf( "Enter FIN_WAIT_2\n" );
             }
             break;
          case Connection::FIN_WAIT_2:
-            printf( "FIN_WAIT_2\n" );
             if( FIN )
             {
                connection->State = Connection::TIMED_WAIT;
-               printf( "Enter TIMED_WAIT\n" );
                // Start TimedWait timer
                connection->AcknowledgementNumber++;      // FIN consumes sequence number
                connection->Time_us = (int32_t)osTime::GetTime();
-               connection->Send( FLAG_ACK );
+               connection->SendFlags( FLAG_ACK );
             }
             break;
          case Connection::CLOSE_WAIT:
-            printf( "CLOSE_WAIT\n" );
             break;
          case Connection::CLOSING:
-            printf( "CLOSING\n" );
             break;
          case Connection::LAST_ACK:
-            printf( "LAST_ACK\n" );
             if( ACK )
             {
                connection->State = Connection::CLOSED;
-               printf( "Enter CLOSED\n" );
             }
             break;
          case Connection::TIMED_WAIT:
-            //printf( "TIMED_WAIT\n" );
             break;
          default:
             break;
@@ -666,12 +630,10 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
 
             connection->MaxSequenceTx = AcknowledgementNumber + windowSize;
             connection->Event.Notify();
-            //printf( "MaxSequenceTx set to %d\n", connection->MaxSequenceTx );
 
             // Handle any ACKed data
             if( ACK )
             {
-               //printf( "ACK %d\n", AcknowledgementNumber );
                connection->HoldingQueueLock.Take( __FILE__, __LINE__ );
                count = connection->HoldingQueue.GetCount();
                time_us = (int32_t)osTime::GetTime();
@@ -717,7 +679,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
 
             if( flags != 0 )
             {
-               connection->Send( flags );
+               connection->SendFlags( flags );
             }
          }
       }
@@ -755,32 +717,22 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t*
    {
       Pack16( packet, 0, localPort );
       Pack16( packet, 2, remotePort );
-      packet[  4 ] = 0;
-      packet[  5 ] = 0;
-      packet[  6 ] = 0;
-      packet[  7 ] = 0;
-      packet[  8 ] = 0;
-      packet[  9 ] = 0;
-      packet[ 10 ] = 0;
-      packet[ 11 ] = 0;
-      packet[ 12 ] = 0x50;    // Header length and reserved
-      packet[ 13 ] = FLAG_RST;
-      packet[ 14 ] = 0;
-      packet[ 15 ] = 0;
-      packet[ 16 ] = 0;    // 2 bytes of CheckSum
-      packet[ 17 ] = 0;
-      packet[ 18 ] = 0;    // 2 bytes of UrgentPointer
-      packet[ 19 ] = 0;
+      Pack32( packet, 4, 0 );       // Sequence
+      Pack32( packet, 8, 0 );       // AckSequence
+      Pack8( packet, 12, 0x50 );    // Header length and reserved
+      Pack8( packet, 13, FLAG_RST );
+      Pack16( packet, 14, 0 );      // window size
+      Pack16( packet, 16, 0 );      // clear checksum
+      Pack16( packet, 18, 0 );      // 2 bytes of UrgentPointer
 
       checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, Config.IPv4.Address, remoteAddress );
 
-      packet[ 16 ] = checksum >> 8;
-      packet[ 17 ] = checksum & 0xFF;
+      Pack16( packet, 16, checksum ); // checksum
 
       buffer->Length += TCP_HEADER_SIZE;
       buffer->Remainder -= buffer->Length;
 
-      ProtocolIP::Transmit( buffer, 0x06, remoteAddress );
+      ProtocolIP::Transmit( buffer, 0x06, remoteAddress, Config.IPv4.Address );
    }
 }
 

@@ -92,6 +92,8 @@ bool osMutex::Take( const char* file, int line )
    return rc == 0;
 #elif __linux__
    pthread_mutex_lock( &m_mutex );
+   OwnerFile = file;
+   OwnerLine = line;
 #endif
 }
 

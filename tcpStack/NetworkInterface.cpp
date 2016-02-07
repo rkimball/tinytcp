@@ -31,8 +31,7 @@
 
 #include "NetworkInterface.h"
 #include "ProtocolMACEthernet.h"
-
-extern AddressConfiguration Config;
+#include "Utility.h"
 
 void NetworkInterface::RxData( void* data, size_t length )
 {
@@ -42,28 +41,5 @@ void NetworkInterface::RxData( void* data, size_t length )
 void NetworkRxData( void* data, size_t length )
 {
    ProtocolMACEthernet::ProcessRx( (uint8_t*)data, length );
-}
-
-void AddressConfiguration::Show( osPrintfInterface* out )
-{
-   out->Printf( "Network Configuration\n" );
-   out->Printf( "Ethernet MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n",
-      MACAddress[ 0 ], MACAddress[ 1 ], MACAddress[ 2 ],
-      MACAddress[ 3 ], MACAddress[ 4 ], MACAddress[ 5 ] );
-   //uint8_t BroadcastMACAddress[ AddressConfiguration::MACAddressSize ];
-
-   out->Printf( "IPv4 Configuration\n" );
-   out->Printf( "   Address:          %d.%d.%d.%d\n", IPv4.Address[ 0 ], IPv4.Address[ 1 ], IPv4.Address[ 2 ], IPv4.Address[ 3 ] );
-   out->Printf( "   SubnetMask:       %d.%d.%d.%d\n", IPv4.SubnetMask[ 0 ], IPv4.SubnetMask[ 1 ], IPv4.SubnetMask[ 2 ], IPv4.SubnetMask[ 3 ] );
-   out->Printf( "   Gateway:          %d.%d.%d.%d\n", IPv4.Gateway[ 0 ], IPv4.Gateway[ 1 ], IPv4.Gateway[ 2 ], IPv4.Gateway[ 3 ] );
-   out->Printf( "   DomainNameServer: %d.%d.%d.%d\n", IPv4.DomainNameServer[ 0 ], IPv4.DomainNameServer[ 1 ], IPv4.DomainNameServer[ 2 ], IPv4.DomainNameServer[ 3 ] );
-   out->Printf( "   BroadcastAddress: %d.%d.%d.%d\n", IPv4.BroadcastAddress[ 0 ], IPv4.BroadcastAddress[ 1 ], IPv4.BroadcastAddress[ 2 ], IPv4.BroadcastAddress[ 3 ] );
-   //   uint32_t IpAddressLeaseTime = 0;
-   //   uint32_t RenewTime = 0;
-   //   uint32_t RebindTime = 0;
-   //   uint8_t SubnetMask[ IPv4AddressSize ];
-   //   uint8_t Gateway[ IPv4AddressSize ];
-   //   uint8_t DomainNameServer[ IPv4AddressSize ];
-   //   uint8_t BroadcastAddress[ IPv4AddressSize ];
 }
 

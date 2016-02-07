@@ -56,8 +56,6 @@
 #define strncasecmp _strnicmp
 #endif
 
-AddressConfiguration Config;
-
 PacketIO* PIO;
 static osThread NetworkThread;
 static osThread MainThread;
@@ -89,7 +87,6 @@ void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_ch
 
 void NetworkEntry( void* param )
 {
-   printf( "Hello from NetworkEntry\n" );
    NetworkConfig& config = *(NetworkConfig*)param;
    char device[ 256 ];
 
@@ -164,8 +161,6 @@ void ProcessPageRequest
    char** argv
 )
 {
-   printf( "url %s\n", url );
-
    if( !strcasecmp( url, "/" ) )
    {
       page->PageStart();
@@ -174,15 +169,17 @@ void ProcessPageRequest
       page->SendString( "      <title>Protocol Stack Test Page</title>\n" );
       page->SendString( "   </head>\n" );
       page->SendString( "   <body>\n" );
-      page->Printf( "Hello World!\n" );
-      page->Reference( "/files/test1.zip", "test1.zip" );
 
-      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
-      page->SendString( "      enctype=\"multipart/form-data\" action=\"_URL_\">\n" );
-      page->SendString( "File: <input type=\"file\" name=\"file\" size=\"50\"><br/>\n" );
-      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
-      page->SendString( "      </form><br/>\n" );
-      page->SendString( "   <body/>\n" );
+      time_t t = time(0);
+      struct tm* now = localtime( &t );
+      page->Printf( "Current time: %s\n", asctime( now ) );
+
+//      page->Reference( "/files/test1.zip", "test1.zip" );
+//      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
+//      page->SendString( "      enctype=\"multipart/form-data\" action=\"_URL_\">\n" );
+//      page->SendString( "File: <input type=\"file\" name=\"file\" size=\"50\"><br/>\n" );
+//      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
+//      page->SendString( "      </form><br/>\n" );
 
       page->SendString( "<pre>\n" );
       Config.Show( page );
@@ -193,8 +190,8 @@ void ProcessPageRequest
       ProtocolTCP::Show( page );
       page->SendString( "<pre/>\n" );
 
+      page->SendString( "   <body/>\n" );
       page->SendString( "<html/>\n" );
-
    }
    else if( !strcasecmp( url, "/files/test1.zip" ) )
    {

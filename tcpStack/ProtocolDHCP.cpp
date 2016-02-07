@@ -41,7 +41,6 @@
 #include "Utility.h"
 #include "osTime.h"
 
-extern AddressConfiguration Config;
 int32_t ProtocolDHCP::PendingXID = -1;
 static const uint32_t DHCP_MAGIC = 0x63825363;
 

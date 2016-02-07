@@ -39,8 +39,6 @@
 #include "DataBuffer.h"
 #include "NetworkInterface.h"
 
-extern AddressConfiguration Config;
-
 ARPCacheEntry ProtocolARP::Cache[ ProtocolARP::CacheSize ];
 
 DataBuffer ProtocolARP::ARPRequest;
@@ -79,7 +77,8 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    if( opType == 1 )
    {
       // ARP Request
-      if( packet[ HardwareSizeOffset ] == Config.MACAddressSize && packet[ ProtocolSizeOffset ] == Config.IPv4AddressSize )
+      if( packet[ HardwareSizeOffset ] == Config.MACAddressSize &&
+          packet[ ProtocolSizeOffset ] == Config.IPv4AddressSize )
       {
          // All of the sizes match
          targetProtocolOffset = SenderHardwareAddressOffset + Config.MACAddressSize * 2 + Config.IPv4AddressSize;
@@ -103,7 +102,7 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
 //
 //============================================================================
 
-void ProtocolARP::Add( uint8_t* protocolAddress, uint8_t* hardwareAddress )
+void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress )
 {
    int index;
    int i;

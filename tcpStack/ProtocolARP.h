@@ -61,7 +61,7 @@ public:
    
    static void ProcessRx( DataBuffer* );
 
-   static void Add( uint8_t* protocolAddress, uint8_t* hardwareAddress );
+   static void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );
 
    static uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
    static bool IsLocal( const uint8_t* protocolAddress );

@@ -45,8 +45,6 @@
 
 uint16_t ProtocolIP::PacketID;
 
-extern AddressConfiguration Config;
-
 osQueue ProtocolIP::UnresolvedQueue;
 
 // Version - 4 bits
@@ -161,11 +159,6 @@ DataBuffer* ProtocolIP::GetTxBuffer()
 //============================================================================
 //
 //============================================================================
-
-void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP )
-{
-   Transmit( buffer, protocol, targetIP, Config.IPv4.Address );
-}
 
 void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP )
 {
