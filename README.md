@@ -10,9 +10,15 @@ Windows build has been tested on Windows 10 using the community version of [Visu
 cmake -G "Visual Studio 14 2015" ..\tinytcp
 ```
 ###Linux
-Linux build has been tested on Ubuntu 14.04
+Linux build has been tested on Ubuntu 14.04. tinytcp does not support in-tree building.
 ```
-cmake -G "Unix Makefiles" ..\tinytcp
+mkdir myproject
+cd myproject
+git clone https://github.com/rkimball/tinytcp.git
+mkdir build
+cd build
+cmake -G "Unix Makefiles" ../tinytcp
+make
 ```
 
 ##Usage
