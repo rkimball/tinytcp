@@ -55,9 +55,9 @@ public:
    bool RawSend( const void* buffer, size_t length );
    void SendASCIIString( const char* string );
    bool SendFile( const char* filename );
-   void Font( int size );
+   void FontBegin( int size );
    void FontEnd();
-   void PageStart( const char* mimeType="text/html" );
+   void PageBegin( const char* mimeType="text/html" );
    void PageNotFound( void );
    void PageNoContent( void );
    void PageUnauthorized( void );
@@ -65,11 +65,11 @@ public:
    void SetTitle( const char* title );
    void Reference( const char* link, const char* text );
    void Reference( HTTPPage& page, const char* text );
-   void Center();
+   void CenterBegin();
    void CenterEnd();
    void Background( unsigned char red, unsigned char green, unsigned char blue );
-   void TableStart( const char* title, int columns, ... );
-   void TableStart( bool border, int pad, int space, int percentWidth );
+   void TableBegin( const char* title, int columns, ... );
+   void TableBegin( bool border, int pad, int space, int percentWidth );
    void TableRow( const char* row1, ... );
    void TableEnd( void );
    typedef enum
@@ -89,8 +89,8 @@ public:
    void TableSetVAlign( VALIGN va );
    void TableSetColSpan( int colSpan );
 
-   void TableRowStart();
-   void TableRowStop();
+   void TableRowBegin();
+   void TableRowEnd();
    void TableRowHeader( HALIGN ha, VALIGN va, int colSpan, const char* value );
    void TableRowData
       (
@@ -100,13 +100,13 @@ public:
          const char* fmt, ...
       );
    void TableData( const char* fmt, ... );
-   void TableDataStart();
-   void TableDataStop();
+   void TableDataBegin();
+   void TableDataEnd();
    void TableHeader( const char* fmt, ... );
-   void TableHeaderStart();
-   void TableHeaderStop();
+   void TableHeaderBegin();
+   void TableHeaderEnd();
 
-   void SelectStart( const char* msg, const char* name, size_t size );
+   void SelectBegin( const char* msg, const char* name, size_t size );
    void SelectAddItem( const char* item, bool selected = false );
    void SelectEnd();
 
@@ -115,7 +115,7 @@ public:
    
    void HorizontalLine( void );
 
-   void FormStart( const char* action );
+   void FormBegin( const char* action );
    void FormTextField( const char* tag, size_t size, const char* initValue = 0 );
    void FormTextField( const char* tag, size_t size, int initValue );
    void FormButton( const char* label );
@@ -126,7 +126,8 @@ public:
 
    bool Image( const char* image, int width, int height );
 
-   bool Preformatted( bool enable );
+   void PreformattedBegin();
+   void PreformattedEnd();
 
    void Flush();
 

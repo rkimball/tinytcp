@@ -132,7 +132,7 @@ void HTTPPage::Background( unsigned char red, unsigned char green, unsigned char
 //
 //============================================================================
 
-void HTTPPage::Font( int size )
+void HTTPPage::FontBegin( int size )
 {
    char        buffer[ BUFFER_SIZE ];
 
@@ -153,7 +153,7 @@ void HTTPPage::FontEnd()
 //
 //============================================================================
 
-void HTTPPage::Center()
+void HTTPPage::CenterBegin()
 {
    SendString( "<center>" );
 }
@@ -180,7 +180,7 @@ void HTTPPage::PageNotFound( void )
 //
 //============================================================================
 
-void HTTPPage::PageStart( const char* mimeType )
+void HTTPPage::PageBegin( const char* mimeType )
 {
    TableBorder = true;
    SendString( "HTTP/1.0 200 OK\r\nContent-type: " );
@@ -365,7 +365,7 @@ void HTTPPage::HTMLEncodef( osPrintfInterface* pfunc, const char* format, ... )
 //
 //============================================================================
 
-void HTTPPage::TableStart( bool border, int pad, int space, int percentWidth )
+void HTTPPage::TableBegin( bool border, int pad, int space, int percentWidth )
 {
    Printf
    (
@@ -385,7 +385,7 @@ void HTTPPage::TableStart( bool border, int pad, int space, int percentWidth )
 //
 //============================================================================
 
-void HTTPPage::TableRowStart()
+void HTTPPage::TableRowBegin()
 {
    SendString( "<tr>\n" );
 }
@@ -394,7 +394,7 @@ void HTTPPage::TableRowStart()
 //
 //============================================================================
 
-void HTTPPage::TableRowStop()
+void HTTPPage::TableRowEnd()
 {
    SendString( "</tr>\n" );
 }
@@ -519,7 +519,7 @@ void HTTPPage::TableRowData
 //
 //============================================================================
 
-void HTTPPage::TableStart( const char* title, int columns, ... )
+void HTTPPage::TableBegin( const char* title, int columns, ... )
 {
    char        buffer[ BUFFER_SIZE ];
    int         i;
@@ -589,7 +589,7 @@ void HTTPPage::TableEnd( void )
 //
 //============================================================================
 
-void HTTPPage::TableDataStart()
+void HTTPPage::TableDataBegin()
 {
    SendString( "<td>" );
 }
@@ -598,7 +598,7 @@ void HTTPPage::TableDataStart()
 //
 //============================================================================
 
-void HTTPPage::TableDataStop()
+void HTTPPage::TableDataEnd()
 {
    SendString( "</td>\n" );
 }
@@ -607,7 +607,7 @@ void HTTPPage::TableDataStop()
 //
 //============================================================================
 
-void HTTPPage::TableHeaderStart()
+void HTTPPage::TableHeaderBegin()
 {
    SendString( "<th>" );
 }
@@ -616,7 +616,7 @@ void HTTPPage::TableHeaderStart()
 //
 //============================================================================
 
-void HTTPPage::TableHeaderStop()
+void HTTPPage::TableHeaderEnd()
 {
    SendString( "</th>\n" );
 }
@@ -683,7 +683,7 @@ void HTTPPage::TableData( const char* fmt, ... )
 //
 //============================================================================
 
-void HTTPPage::FormStart( const char* action )
+void HTTPPage::FormBegin( const char* action )
 {
    char     s[ BUFFER_SIZE ];
 
@@ -858,21 +858,18 @@ void HTTPPage::Background( const char* image )
 //
 //============================================================================
 
-bool HTTPPage::Preformatted( bool enable )
+void HTTPPage::PreformattedBegin()
 {
-   bool     oldValue = DataPreformatted;
+   SendString( "<pre>\n" );
+}
 
-   DataPreformatted = enable;
-   if( enable )
-   {
-      SendString( "<pre>\n" );
-   }
-   else
-   {
-      SendString( "</pre>\n" );
-   }
+//============================================================================
+//
+//============================================================================
 
-   return oldValue;
+void HTTPPage::PreformattedEnd()
+{
+   SendString( "</pre>\n" );
 }
 
 //============================================================================
@@ -942,7 +939,7 @@ void HTTPPage::Flush()
 //
 //============================================================================
 
-void HTTPPage::SelectStart( const char* msg, const char* name, size_t size )
+void HTTPPage::SelectBegin( const char* msg, const char* name, size_t size )
 {
    char     s[ BUFFER_SIZE ];
    snprintf( s, sizeof(s),"%s<select name=\"%s\" size=\"%lud\">",msg,name,size);
