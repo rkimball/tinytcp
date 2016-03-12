@@ -383,7 +383,8 @@ void PacketIO::Entry( void* param )
    {
       if( errno == EPERM )
       {
-         printf( "need root privileges\n");
+         printf( "need root privileges, try 'sudo ./testApp'\n");
+         exit(-1);
       }
       else
       {
