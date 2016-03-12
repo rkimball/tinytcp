@@ -7,8 +7,13 @@ Building uses [CMake](https://cmake.org/) and has been tested with cmake version
 ###Windows
 Windows build has been tested on Windows 10 using the community version of [Visual Studio 2015](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx).
 ```
-cmake -G "Visual Studio 14 2015" ..\tinytcp
+mkdir myproject
+cd myproject
+git clone https://github.com/rkimball/tinytcp.git
+mkdir build
+cd buildcmake -G "Visual Studio 14 2015" ..\tinytcp
 ```
+This generates tinytcp.sln solution file.
 ###Linux
 Linux build has been tested on Ubuntu 14.04. tinytcp does not support in-tree building.
 ```
