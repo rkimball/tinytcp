@@ -24,8 +24,8 @@ make
 ##Usage
 The protocol stack has three main functions required
 
-1. NetworkInterface.RxData
-2. NetworkInterface.TxData
+1. NetworkInterface.RxData - expects a [Layer 2 Ethernet frame](https://en.wikipedia.org/wiki/Ethernet_frame) as input
+2. NetworkInterface.TxData - outputs a [Layer 2 Ethernet frame](https://en.wikipedia.org/wiki/Ethernet_frame)
 3. ProtocolTCP::Tick()
 
 Doing something useful:
