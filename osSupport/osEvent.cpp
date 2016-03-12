@@ -41,7 +41,8 @@
 osEvent*    osEvent::InstanceList[ osEvent::INSTANCE_MAX ];
 osMutex     osEvent::ListMutex( "Event List" );
 
-osEvent::osEvent( const char* name )
+osEvent::osEvent( const char* name ) :
+   pending(NULL)
 {
    if( name )
    {
@@ -113,6 +114,12 @@ bool osEvent::Wait( const char* file, int line, int msTimeout )
    caller->ClearState();
    return (rc) ? false : true;
 #elif __linux__
+   osThread* thread = (osThread*)pthread_getspecific( tlsKey );
+   if( thread )
+   {
+      thread->SetState( osThread::PENDING_EVENT, file, line, this );
+      pending = thread;
+   }
    pthread_mutex_lock( &m_mutex );
    int rc = 0;
    while( m_test == false && rc == 0 )
@@ -120,6 +127,11 @@ bool osEvent::Wait( const char* file, int line, int msTimeout )
       rc = pthread_cond_wait( &m_condition, &m_mutex );
    }
    m_test = false;
+   if( thread )
+   {
+      thread->ClearState();
+      pending = NULL;
+   }
    pthread_mutex_unlock( &m_mutex );
    return true;
 #endif
@@ -141,8 +153,18 @@ void osEvent::Show( osPrintfInterface* out )
       osEvent* e = InstanceList[ i ];
       if( e )
       {
-         out->Printf( "%-30s|%-20s|%-10s\n",
-            e->GetName(), "", "" );
+         osThread* thread = e->pending;
+         if( thread )
+         {
+            printf( "%s %d\n", __FILE__, __LINE__ );
+            out->Printf( "%-30s|%-20s|%-10s\n",
+               e->GetName(), thread->GetName(), "" );
+         }
+         else
+         {
+            out->Printf( "%-30s|%-20s|%-10s\n",
+               e->GetName(), "", "" );
+         }
       }
    }
 }

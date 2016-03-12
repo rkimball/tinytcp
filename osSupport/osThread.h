@@ -123,6 +123,10 @@ private:
    void*                StateObject;
 };
 
+#ifdef __linux__
+extern pthread_key_t tlsKey;
+#endif
+
 #endif
 
 

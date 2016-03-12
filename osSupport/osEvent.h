@@ -66,6 +66,7 @@ private:
 #endif
    static const int NAME_LENGTH_MAX = 80;
    char Name[ NAME_LENGTH_MAX ];
+   osThread* pending;
 
    static osMutex ListMutex;
    static const int INSTANCE_MAX = 20;

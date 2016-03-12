@@ -45,7 +45,10 @@ osMutex::osMutex( const char* name ) :
 #ifdef _WIN32
    Handle = CreateMutex( NULL, false, name );
 #elif __linux__
-   pthread_mutex_init( &m_mutex, NULL );
+   pthread_mutexattr_t attr;
+   pthread_mutexattr_init( &attr );
+   pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_RECURSIVE );
+   pthread_mutex_init( &m_mutex, &attr );
 #endif
 }
 
@@ -91,7 +94,16 @@ bool osMutex::Take( const char* file, int line )
 
    return rc == 0;
 #elif __linux__
+   osThread* thread = (osThread*)pthread_getspecific( tlsKey );
+   if( thread )
+   {
+      thread->SetState( osThread::PENDING_MUTEX, file, line, this );
+   }
    pthread_mutex_lock( &m_mutex );
+   if( thread )
+   {
+      thread->ClearState();
+   }
    OwnerFile = file;
    OwnerLine = line;
 #endif

@@ -225,19 +225,19 @@ void osQueue::Show( osPrintfInterface* pfunc )
       osQueue* queue = QueueList[ i ];
       if( queue != NULL )
       {
+         queue->Lock.Take( __FILE__, __LINE__ );
+         int      index = queue->NextOutIndex;
          pfunc->Printf( "Queue %s is size %d and contains %d objects\n", queue->GetName(), queue->MaxElements, queue->GetCount() );
          // This is hanging
          // can't lock the queue and tx tcp frames as it can deadlock
          // tx tcp locks queues
          // might be a better way to do this
-//         queue->Lock.Take( __FILE__, __LINE__ );
-//         int      index = queue->NextOutIndex;
-//         for( i = 0; i<queue->GetCount(); i++ )
-//         {
-//            pfunc->Printf( "   Object at 0x%08X\n", queue->Array[ index ] );
-//            index = queue->Increment( index );
-//         }
-//         queue->Lock.Give();
+         for( i = 0; i<queue->GetCount(); i++ )
+         {
+            pfunc->Printf( "   Object at 0x%08X\n", queue->Array[ index ] );
+            index = queue->Increment( index );
+         }
+         queue->Lock.Give();
       }
    }
 

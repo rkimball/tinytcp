@@ -49,6 +49,8 @@ static osThread*  Threads[ MAX_THREADS ];
 static osMutex    Mutex( "Thread List" );
 #ifdef _WIN32
 static DWORD      dwTlsIndex;
+#elif __linux__
+pthread_key_t tlsKey;
 #endif
 static osThread   MainThread;
 static bool       IsInitialized = false;
@@ -103,6 +105,7 @@ DWORD WINAPI WinThreadEntry( LPVOID param )
 static void* ThreadEntry( void* param )
 {
    osThread* thread = (osThread*)param;
+   pthread_setspecific( tlsKey, thread ); // Thread Local Storage points to osThread
    thread->ThreadStart.Notify();
    thread->Entry( thread->Param );
    return NULL;
@@ -139,6 +142,9 @@ void osThread::Initialize()
    }
    TlsSetValue( dwTlsIndex, &MainThread );
 #endif
+   pthread_key_create( &tlsKey, NULL );
+   pthread_t mainThread = pthread_self();
+   printf( "pthread_self in init %lu\n", mainThread );
    for( int i = 0; i<MAX_THREADS; i++ )
    {
       if( Threads[ i ] == NULL )
@@ -343,8 +349,7 @@ void osThread::ClearState()
 
 void osThread::Show( osPrintfInterface* pfunc )
 {
-   osMutex        *mutex;
-#ifdef _WIN32
+#ifdef WIN32
    FILETIME       creationTime;
    FILETIME       exitTime;
    FILETIME       kernelTime;
@@ -376,6 +381,7 @@ void osThread::Show( osPrintfInterface* pfunc )
          sysTime.wMilliseconds 
       );   
    }
+#endif
 
    pfunc->Printf
    ( 
@@ -395,6 +401,7 @@ void osThread::Show( osPrintfInterface* pfunc )
       {
          continue;
       }
+#ifdef WIN32
       handle = thread->GetHandle();
 
       int priority;
@@ -421,6 +428,13 @@ void osThread::Show( osPrintfInterface* pfunc )
 
       FileTimeToSystemTime( &userTime, &sysTime );
       pfunc->Printf( "%2d:%02d:%02d.%03d | ", sysTime.wHour, sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds );
+#elif __linux__
+      pfunc->Printf
+      (
+         "    |%-20s|       |              |              |",
+         thread->Name
+      );
+#endif
 
       // Find out what this thread is doing
       switch( thread->State )
@@ -434,7 +448,7 @@ void osThread::Show( osPrintfInterface* pfunc )
       case PENDING_MUTEX:
       {
          osMutex* obj = (osMutex*)(thread->StateObject);
-         if( obj != nullptr )
+         if( obj != NULL )
          {
             pfunc->Printf( "pending on mutex \"%s\"\n", obj->GetName() );
          }
@@ -447,7 +461,7 @@ void osThread::Show( osPrintfInterface* pfunc )
       case PENDING_EVENT:
       {
          osEvent* obj = (osEvent*)(thread->StateObject);
-         if( obj != nullptr )
+         if( obj != NULL )
          {
             pfunc->Printf( "pending event \"%s\"\n", obj->GetName() );
          }
@@ -466,6 +480,4 @@ void osThread::Show( osPrintfInterface* pfunc )
    }
 
    Mutex.Give();
-#elif __linux__
-#endif
 }
