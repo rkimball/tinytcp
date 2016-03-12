@@ -371,6 +371,8 @@ void ProtocolTCP::Connection::Tick()
    HoldingQueueLock.Take( __FILE__, __LINE__ );
    count = HoldingQueue.GetCount();
    currentTime_us = (int32_t)osTime::GetTime();
+
+   // Check for retransmit timeout
    timeoutTime_us = currentTime_us - TCP_RETRANSMIT_TIMEOUT_US;
    for( i=0; i<count; i++ )
    {
