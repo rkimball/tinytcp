@@ -16,6 +16,7 @@ cd buildcmake -G "Visual Studio 14 2015" ..\tinytcp
 This generates tinytcp.sln solution file.
 ###Linux
 Linux build has been tested on Ubuntu 14.04. tinytcp does not support in-tree building.
+
 ```
 mkdir myproject
 cd myproject
@@ -25,7 +26,11 @@ cd build
 cmake -G "Unix Makefiles" ../tinytcp
 make
 ```
-
+*Because the tinytcp test app uses a promiscuous socket in order to read/write Layer 2 Ethernet frames, the test app must be run
+with elevated privileges.
+```
+sudo ./testApp
+```
 ##Usage
 The protocol stack has three main functions required
 
