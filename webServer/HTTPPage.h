@@ -41,6 +41,20 @@ namespace http
    class Page;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class http::Page : public osPrintfInterface
 {
    friend class Server;
@@ -48,68 +62,163 @@ class http::Page : public osPrintfInterface
 public:
    static const uint32_t  BUFFER_SIZE = 512;
 
-   int Printf( const char* format, ... );
-   static void HTMLEncodef( osPrintfInterface*, const char* format, ... );
+   typedef enum
+   {
+      Comment,
+      Doctype,
+      a,
+      abbr,
+      acronym,
+      address,
+      applet,
+      area,
+      article,
+      aside,
+      audio,
+      b,
+      base,
+      basefont,
+      bdi,
+      bdo,
+      big,
+      blockquote,
+      body,
+      br,
+      button,
+      canvas,
+      caption,
+      center,
+      cite,
+      code,
+      col,
+      colgroup,
+      datalist,
+      dd,
+      del,
+      details,
+      dfn,
+      dialog,
+      dir,
+      div,
+      dl,
+      dt,
+      em,
+      embed,
+      fieldset,
+      figcaption,
+      figure,
+      font,
+      footer,
+      form,
+      frame,
+      frameset,
+      h1,
+      head,
+      header,
+      hr,
+      html,
+      i,
+      iframe,
+      img,
+      input,
+      ins,
+      kbd,
+      keygen,
+      label,
+      legend,
+      li,
+      link,
+      main,
+      map,
+      mark,
+      menu,
+      menuitem,
+      meta,
+      meter,
+      nav,
+      noframes,
+      noscript,
+      object,
+      ol,
+      optgroup,
+      option,
+      output,
+      p,
+      param,
+      pre,
+      progress,
+      q,
+      rp,
+      rt,
+      ruby,
+      s,
+      samp,
+      script,
+      section,
+      select,
+      small,
+      source,
+      span,
+      strike,
+      strong,
+      style,
+      sub,
+      summary,
+      sup,
+      table,
+      tbody,
+      td,
+      textarea,
+      tfoot,
+      th,
+      thead,
+      time,
+      title,
+      tr,
+      track,
+      tt,
+      u,
+      ul,
+      var,
+      video,
+      wbr
+   }TagType;
 
-   bool Puts( const char* string );
+   class Tag
+   {
+   public:
+      Tag();
+      ~Tag();
+      Tag& Class( const char* value );
+      Tag& Id( const char* value );
+   };
 
    void Initialize( ProtocolTCP::Connection* );
 
+   int Printf( const char* format, ... );
+   static void HTMLEncodef( osPrintfInterface*, const char* format, ... );
+
+   /// Puts writes the string converting all newline characters to <br/>
+   bool Puts( const char* string );
    bool SendString( const char* string );
-   void DumpData( const char* buffer, size_t length );
    bool RawSend( const void* buffer, size_t length );
+   /// SendASCIIString converts all non-displayable characters
+   /// to '%XX' where XX is the hex values of the character
    void SendASCIIString( const char* string );
+   void DumpData( const char* buffer, size_t length );
    bool SendFile( const char* filename );
-   void FontBegin( int size );
-   void FontEnd();
-   void PageBegin( const char* mimeType="text/html" );
-   void PageNotFound( void );
-   void PageNoContent( void );
-   void PageUnauthorized( void );
-   void SetRefresh( int interval, const char* title=0 );
-   void SetTitle( const char* title );
-   void Reference( const char* link, const char* text );
-   void Reference( Page& page, const char* text );
-   void CenterBegin();
-   void CenterEnd();
-   void Background( unsigned char red, unsigned char green, unsigned char blue );
-   void TableBegin( const char* title, int columns, ... );
-   void TableBegin( bool border, int pad, int space, int percentWidth );
-   void TableRow( const char* row1, ... );
-   void TableEnd( void );
-   typedef enum
-   {
-      LEFT,
-      CENTER,
-      RIGHT
-   } HALIGN;
-   typedef enum
-   {
-      TOP,
-      MIDDLE,
-      BOTTOM
-   } VALIGN;
 
-   void TableSetHAlign( HALIGN ha );
-   void TableSetVAlign( VALIGN va );
-   void TableSetColSpan( int colSpan );
+   void PageOK( const char* mimeType="text/html" );
+   void PageNotFound();
+   void PageNoContent();
+   void PageUnauthorized();
 
-   void TableRowBegin();
-   void TableRowEnd();
-   void TableRowHeader( HALIGN ha, VALIGN va, int colSpan, const char* value );
-   void TableRowData
-      (
-         HALIGN      ha,
-         VALIGN      va,
-         int         colSpan,
-         const char* fmt, ...
-      );
-   void TableData( const char* fmt, ... );
-   void TableDataBegin();
-   void TableDataEnd();
-   void TableHeader( const char* fmt, ... );
-   void TableHeaderBegin();
-   void TableHeaderEnd();
+   void WriteStartTag( http::Page::TagType );
+   void WriteTag( http::Page::TagType, const char* value );
+   void WriteEndTag( http::Page::TagType );
+   void WriteAttribute( const char* name, const char* value );
+   void WriteValue( const char* value );
+   void WriteNode( const char* value );
 
    void SelectBegin( const char* msg, const char* name, size_t size );
    void SelectAddItem( const char* item, bool selected = false );
@@ -127,12 +236,7 @@ public:
    void FormCheckboxField( const char* tag, const char* title, bool checked );
    void FormEnd( void );
 
-   void Background( const char* image );
-
    bool Image( const char* image, int width, int height );
-
-   void PreformattedBegin();
-   void PreformattedEnd();
 
    void Flush();
 
@@ -145,6 +249,8 @@ public:
    int         Busy;
    int         argc;
    char*       argv[ 10 ];
+   int         TagDepth;
+   bool        StartTagOpen;
 
    ProtocolTCP::Connection*   Connection;
 
@@ -153,12 +259,11 @@ private:
    Page();
    ~Page();
 
-   char        argvArray[400];
+   const char* TagTypeToString( TagType tag );
+   void ClosePendingOpen();
 
    int         ColumnCount;
    bool        DataPreformatted;
-   HALIGN      HAlign;
-   VALIGN      VAlign;
 
    osThread    Thread;
 };

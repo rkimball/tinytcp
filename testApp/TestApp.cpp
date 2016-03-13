@@ -163,28 +163,27 @@ void ProcessPageRequest
 {
    if( !strcasecmp( url, "/" ) )
    {
-      page->PageBegin();
-      page->SendString( "<html>\n" );
-      page->SendString( "   <head>\n" );
-      page->SendString( "      <title>Protocol Stack Test Page</title>\n" );
+      page->PageOK();
+      page->WriteStartTag( http::Page::html );
+      page->WriteStartTag( http::Page::head );
+      page->WriteTag( http::Page::title, "Protocol Stack Test Page" );
 
+      page->WriteTag( http::Page::Comment, "Latest compiled and minified CSS" );
+      page->WriteNode( "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" crossorigin=\"anonymous\">" );
 
-      page->SendString( "      <!-- Latest compiled and minified CSS -->\n" );
-      page->SendString( "      <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" crossorigin=\"anonymous\">\n" );
+      page->WriteTag( http::Page::Comment, "Optional theme" );
+      page->WriteNode( "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css\" integrity=\"sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r\" crossorigin=\"anonymous\">" );
 
-      page->SendString( "      <!-- Optional theme -->\n" );
-      page->SendString( "      <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css\" integrity=\"sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r\" crossorigin=\"anonymous\">\n" );
+      page->WriteTag( http::Page::Comment, "Latest compiled and minified JavaScript" );
+      page->WriteNode( "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" crossorigin=\"anonymous\"></script>" );
 
-      page->SendString( "      <!-- Latest compiled and minified JavaScript -->\n" );
-      page->SendString( "      <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" crossorigin=\"anonymous\"></script>\n" );
-
-
-      page->SendString( "   </head>\n" );
-      page->SendString( "   <body>\n" );
+      page->WriteEndTag( http::Page::head );
+      page->WriteEndTag( http::Page::html );
 
       time_t t = time(0);
       struct tm* now = localtime( &t );
       page->Printf( "Current time: %s\n", asctime( now ) );
+
 
 //      page->Reference( "/files/test1.zip", "test1.zip" );
 //      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
@@ -217,7 +216,7 @@ void ProcessPageRequest
          page->Connection->Read();
       }
       printf( "Done reading\n" );
-      page->PageBegin();
+      page->PageOK();
       page->Printf( "Upload %d bytes complete\n", page->ContentLength );
    }
 }
