@@ -36,9 +36,14 @@
 #include "osThread.h"
 #include "osPrintfInterface.h"
 
-class HTTPPage : public osPrintfInterface
+namespace http
 {
-   friend class HTTPD;
+   class Page;
+}
+
+class http::Page : public osPrintfInterface
+{
+   friend class Server;
 
 public:
    static const uint32_t  BUFFER_SIZE = 512;
@@ -64,7 +69,7 @@ public:
    void SetRefresh( int interval, const char* title=0 );
    void SetTitle( const char* title );
    void Reference( const char* link, const char* text );
-   void Reference( HTTPPage& page, const char* text );
+   void Reference( Page& page, const char* text );
    void CenterBegin();
    void CenterEnd();
    void Background( unsigned char red, unsigned char green, unsigned char blue );
@@ -144,9 +149,9 @@ public:
    ProtocolTCP::Connection*   Connection;
 
 private:
-   HTTPPage( HTTPPage& );
-   HTTPPage();
-   ~HTTPPage();
+   Page( Page& );
+   Page();
+   ~Page();
 
    char        argvArray[400];
 

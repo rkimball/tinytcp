@@ -47,25 +47,25 @@
 #include <strings.h>
 #endif
 
-HTTPPage    HTTPD::PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
-osQueue     HTTPD::PagePool;
-PageRequestHandler HTTPD::PageHandler = 0;
+http::Page  http::Server::PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
+osQueue     http::Server::PagePool;
+PageRequestHandler http::Server::PageHandler = 0;
 
 #define MAX_ARGV 10
 
-bool                 HTTPD::DebugFlag = false;
+bool                 http::Server::DebugFlag = false;
 
 static osThread      Thread;
 
 static ProtocolTCP::Connection*  ListenerConnection;
 static ProtocolTCP::Connection*  CurrentConnection;
 
-void HTTPD::RegisterPageHandler( PageRequestHandler handler )
+void http::Server::RegisterPageHandler( PageRequestHandler handler )
 {
    PageHandler = handler;
 }
 
-void HTTPD::ProcessRequest( HTTPPage* page )
+void http::Server::ProcessRequest( http::Page* page )
 {
    int            i;
    static char    buffer1[ 512 ];
@@ -216,7 +216,7 @@ void HTTPD::ProcessRequest( HTTPPage* page )
    }
 }
 
-void HTTPD::Initialize( uint16_t port )
+void http::Server::Initialize( uint16_t port )
 {
    int   i;
 
@@ -227,29 +227,29 @@ void HTTPD::Initialize( uint16_t port )
    }
 
   ListenerConnection = ProtocolTCP::NewServer( port );
-  Thread.Create( HTTPD::TaskEntry, "HTTPD", 1024*32, 100, 0 );
+  Thread.Create( http::Server::TaskEntry, "HTTPD", 1024*32, 100, 0 );
 }
 
-void HTTPD::ConnectionHandlerEntry( void* param )
+void http::Server::ConnectionHandlerEntry( void* param )
 {
-   HTTPPage* page = (HTTPPage*)param;
+   Page* page = (Page*)param;
 
    ProcessRequest( page );
 
    PagePool.Put( page );
 }
 
-void HTTPD::TaskEntry( void* param )
+void http::Server::TaskEntry( void* param )
 {
    ProtocolTCP::Connection* connection;
-   HTTPPage* page;
+   Page* page;
 
    while( 1 )
    {
       connection = ListenerConnection->Listen();
 
       // Spawn off a thread to handle this connection
-      page = (HTTPPage*)PagePool.Get();
+      page = (Page*)PagePool.Get();
       if( page )
       {
          page->Initialize( connection );
@@ -262,12 +262,12 @@ void HTTPD::TaskEntry( void* param )
    }
 }
 
-void HTTPD::SetDebug( bool enable )
+void http::Server::SetDebug( bool enable )
 {
    DebugFlag = enable;
 }
 
-bool HTTPD::Authorized( const char* username, const char* password, const char* url )
+bool http::Server::Authorized( const char* username, const char* password, const char* url )
 {
    return true;
 }

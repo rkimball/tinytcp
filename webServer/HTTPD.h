@@ -37,14 +37,19 @@
 #define MAX_ACTIVE_CONNECTIONS 3
 #define HTTPD_PATH_LENGTH_MAX    256
 
-typedef void( *PageRequestHandler )(HTTPPage* page, const char* url, int argc, char** argv);
+namespace http
+{
+   class Server;
+}
 
-class HTTPD
+typedef void( *PageRequestHandler )(http::Page* page, const char* url, int argc, char** argv);
+
+class http::Server
 {
    friend class HTTPPage;
 
 public:
-   HTTPD(){}
+   Server(){}
    static void RegisterPageHandler( PageRequestHandler );
    static void TaskEntry( void* param );
 
@@ -52,15 +57,15 @@ public:
    static void SetDebug( bool );
 
    static bool Authorized( const char* username, const char* password, const char* url );
-   static void ProcessRequest( HTTPPage* page );
+   static void ProcessRequest( Page* page );
 
 private:
-   HTTPD( HTTPD& );
+   Server( Server& );
 
    static void ConnectionHandlerEntry( void* );
 
    static bool          DebugFlag;
-   static HTTPPage      PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
+   static Page          PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
    static osQueue       PagePool;
    static PageRequestHandler PageHandler;
 };

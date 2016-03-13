@@ -60,7 +60,7 @@ PacketIO* PIO;
 static osThread NetworkThread;
 static osThread MainThread;
 static osMutex* Semaphore;
-HTTPD WebServer;
+http::Server WebServer;
 
 static osEvent StartEvent( "StartEvent" );
 
@@ -155,7 +155,7 @@ void MainEntry( void* config )
 
 void ProcessPageRequest
 (
-   HTTPPage* page,
+   http::Page* page,
    const char* url,
    int argc,
    char** argv
@@ -163,7 +163,7 @@ void ProcessPageRequest
 {
    if( !strcasecmp( url, "/" ) )
    {
-      page->PageStart();
+      page->PageBegin();
       page->SendString( "<html>\n" );
       page->SendString( "   <head>\n" );
       page->SendString( "      <title>Protocol Stack Test Page</title>\n" );
@@ -217,7 +217,7 @@ void ProcessPageRequest
          page->Connection->Read();
       }
       printf( "Done reading\n" );
-      page->PageStart();
+      page->PageBegin();
       page->Printf( "Upload %d bytes complete\n", page->ContentLength );
    }
 }
@@ -252,7 +252,7 @@ int main( int argc, char* argv[] )
       }
    }
 
-   HTTPD::RegisterPageHandler( ProcessPageRequest );
+   http::Server::RegisterPageHandler( ProcessPageRequest );
    MainEntry( &config );
 
    ProtocolDHCP::test();
