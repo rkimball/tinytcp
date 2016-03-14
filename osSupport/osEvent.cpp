@@ -156,7 +156,6 @@ void osEvent::Show( osPrintfInterface* out )
          osThread* thread = e->pending;
          if( thread )
          {
-            printf( "%s %d\n", __FILE__, __LINE__ );
             out->Printf( "%-30s|%-20s|%-10s\n",
                e->GetName(), thread->GetName(), "" );
          }

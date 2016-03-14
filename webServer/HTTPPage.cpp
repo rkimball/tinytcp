@@ -654,7 +654,6 @@ const char* http::Page::TagTypeToString( TagType tag )
 
 void http::Page::Process( const char* htmlFile, const char* marker, MarkerContent content )
 {
-   printf( "start with process\n" );
    char* path;
    realpath( htmlFile, path );
    FILE* f = fopen( htmlFile, "r" );
@@ -698,5 +697,4 @@ void http::Page::Process( const char* htmlFile, const char* marker, MarkerConten
    {
       printf( "failed to open file '%s'\n", htmlFile );
    }
-   printf( "done with process\n" );
 }

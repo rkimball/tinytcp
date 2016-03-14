@@ -107,7 +107,7 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
       Pack16( packet, 0, LocalPort );
       Pack16( packet, 2, RemotePort );
       Pack32( packet, 4, SequenceNumber );
-      if( AcknowledgementNumber - LastAck > 0 )
+      if( (int32_t)(AcknowledgementNumber - LastAck) > 0 )
       {
          // Only advance LastAck if Ack > LastAck
          LastAck = AcknowledgementNumber;
@@ -122,7 +122,7 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
       SequenceNumber += length;
       buffer->AcknowledgementNumber = SequenceNumber;
 
-      while( MaxSequenceTx - SequenceNumber < 0 )
+      while( (int32_t)(MaxSequenceTx - SequenceNumber) < 0 )
       {
          printf( "tx window full\n" );
          Event.Wait( __FILE__, __LINE__ );
@@ -137,7 +137,7 @@ void ProtocolTCP::Connection::BuildPacket( DataBuffer* buffer, uint8_t flags )
       if( length > 0 || (flags & (FLAG_SYN|FLAG_FIN)) )
       {
          buffer->Disposable = false;
-         buffer->Time_us = (int32_t)osTime::GetTime();
+         buffer->Time_us = (uint32_t)osTime::GetTime();
          HoldingQueueLock.Take( __FILE__, __LINE__ );
          HoldingQueue.Put( buffer );
          HoldingQueueLock.Give();
@@ -365,8 +365,8 @@ void ProtocolTCP::Connection::Tick()
    int count;
    int i;
    DataBuffer* buffer;
-   int32_t currentTime_us;
-   int32_t timeoutTime_us;
+   uint32_t currentTime_us;
+   uint32_t timeoutTime_us;
 
    HoldingQueueLock.Take( __FILE__, __LINE__ );
    count = HoldingQueue.GetCount();
@@ -377,7 +377,7 @@ void ProtocolTCP::Connection::Tick()
    for( i=0; i<count; i++ )
    {
       buffer = (DataBuffer*)HoldingQueue.Get();
-      if( (buffer->Time_us - timeoutTime_us) <= 0 )
+      if( (int32_t)(buffer->Time_us - timeoutTime_us) <= 0 )
       {
          printf( "TCP retransmit timeout %d, %d\n", buffer->Time_us, timeoutTime_us );
          buffer->Time_us = currentTime_us;
@@ -473,11 +473,11 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
    uint8_t flags = 0;
    uint8_t* packet = rxBuffer->Packet;
    uint16_t length = rxBuffer->Length;
-   uint16_t windowSize;
-   int32_t time_us;
+   uint16_t remoteWindowSize;
+   uint32_t time_us;
 
-   int32_t SequenceNumber;
-   int32_t AcknowledgementNumber;
+   uint32_t SequenceNumber;
+   uint32_t AcknowledgementNumber;
 
    checksum = ComputeChecksum( packet, length, sourceIP, targetIP );
 
@@ -489,7 +489,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
       SequenceNumber        = Unpack32( packet, 4 );
       AcknowledgementNumber = Unpack32( packet, 8 );
       headerLength          = (Unpack8( packet, 12 ) >> 4) * 4;
-      windowSize            = Unpack16( packet, 14 );
+      remoteWindowSize      = Unpack16( packet, 14 );
 
       rxBuffer->Packet += headerLength;
       rxBuffer->Length -= headerLength;
@@ -557,7 +557,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
 
                if( connection->Parent->NewConnection == 0 )
                {
-                  connection->MaxSequenceTx = AcknowledgementNumber + windowSize;
+                  connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
                   connection->Parent->NewConnection = connection;
                   connection->Parent->Event.Notify();
                }
@@ -630,7 +630,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
             data = rxBuffer->Packet;
             dataLength = rxBuffer->Length;
 
-            connection->MaxSequenceTx = AcknowledgementNumber + windowSize;
+            connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
             connection->Event.Notify();
 
             // Handle any ACKed data
@@ -638,13 +638,13 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
             {
                connection->HoldingQueueLock.Take( __FILE__, __LINE__ );
                count = connection->HoldingQueue.GetCount();
-               time_us = (int32_t)osTime::GetTime();
+               time_us = (uint32_t)osTime::GetTime();
                for( int i=0; i<count; i++ )
                {
                   buffer = (DataBuffer*)connection->HoldingQueue.Get();
-                  if( AcknowledgementNumber - buffer->AcknowledgementNumber >= 0 )
+                  if( (int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0 )
                   {
-                     connection->CalculateRTT( time_us - buffer->Time_us );
+                     connection->CalculateRTT( (int32_t)(time_us - buffer->Time_us) );
                      ProtocolMACEthernet::FreeTxBuffer( buffer );
                   }
                   else

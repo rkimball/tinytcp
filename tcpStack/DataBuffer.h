@@ -45,8 +45,8 @@ public:
    DataBuffer(){};
    
    uint8_t* Packet;
-   int32_t  AcknowledgementNumber;
-   int32_t  Time_us;
+   uint32_t  AcknowledgementNumber;
+   uint32_t  Time_us;
    uint16_t Length;
    uint16_t Remainder;
    bool  Disposable;

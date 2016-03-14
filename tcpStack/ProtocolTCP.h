@@ -108,13 +108,13 @@ public:
       uint16_t LocalPort;
       uint16_t RemotePort;
       uint8_t  RemoteAddress[ AddressConfiguration::IPv4AddressSize ];
-      int32_t SequenceNumber;
-      int32_t AcknowledgementNumber;
-      int32_t LastAck;
-      int32_t MaxSequenceTx;
-      int32_t RTT_us;
-      int32_t RTTDeviation;
-      int32_t Time_us;
+      uint32_t SequenceNumber;
+      uint32_t AcknowledgementNumber;
+      uint32_t LastAck;
+      uint32_t MaxSequenceTx;
+      uint32_t RTT_us;
+      uint32_t RTTDeviation;
+      uint32_t Time_us;
 
       ~Connection();
       void SendFlags( uint8_t flags );
@@ -143,10 +143,10 @@ public:
       void CalculateRTT( int32_t msRTT );
 
       // This stuff is used for Listening for incomming connections
-      osEvent Event;
       Connection* NewConnection;
       Connection* Parent;
 
+      osEvent Event;
       osQueue  HoldingQueue;
       osMutex  HoldingQueueLock;
       void Tick();

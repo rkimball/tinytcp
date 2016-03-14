@@ -234,7 +234,6 @@ typedef void(*PageFunction)( http::Page* );
 
 void HomePage( http::Page* page )
 {
-   printf( "Hello from home page\n" );
    time_t t = time(0);
    struct tm* now = localtime( &t );
    page->Printf( "Current time: %s\n", asctime( now ) );
