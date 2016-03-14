@@ -43,6 +43,7 @@ namespace http
 }
 
 typedef void( *PageRequestHandler )(http::Page* page, const char* url, int argc, char** argv);
+typedef void( *ErrorMessageHandler )( const char* message );
 
 class http::Server
 {
@@ -51,6 +52,7 @@ class http::Server
 public:
    Server(){}
    static void RegisterPageHandler( PageRequestHandler );
+   static void RegisterErrorHandler( ErrorMessageHandler );
    static void TaskEntry( void* param );
 
    static void Initialize( uint16_t port );
@@ -67,7 +69,8 @@ private:
    static bool          DebugFlag;
    static Page          PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
    static osQueue       PagePool;
-   static PageRequestHandler PageHandler;
+   static PageRequestHandler  PageHandler;
+   static ErrorMessageHandler ErrorHandler;
 };
 
 #endif

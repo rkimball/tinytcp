@@ -326,121 +326,6 @@ void http::Page::PageUnauthorized( void )
 //
 //============================================================================
 
-void http::Page::FormBegin( const char* action )
-{
-   char     s[ BUFFER_SIZE ];
-
-   snprintf( s, sizeof(s), "<form action=\"/%s/%s\" method=get>\n<div>\n", Directory, action );
-   SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::FormTextField( const char* tag, size_t size, const char* initValue )
-{
-   char     s[ BUFFER_SIZE ];
-
-   if( initValue )
-   {
-      snprintf( s, sizeof(s), "<input type=text name=\"%s\" size=\"%d\" value=\"%s\">\n",
-               tag, (int)size, initValue );
-   }
-   else
-   {
-      snprintf( s, sizeof(s), "<input type=text name=\"%s\" size=\"%d\">\n", tag, (int)size );
-   }
-   SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::FormTextField( const char* tag, size_t size, int initValue )
-{
-   char  s[20];
-
-   snprintf( s, sizeof(s), "%d", initValue );
-
-   FormTextField( tag, size, s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::FormCheckboxField( const char* tag, const char* title, bool checked )
-{
-   char     s[ BUFFER_SIZE ];
-
-   if( checked )
-   {
-      snprintf( s, sizeof(s), "<input type=\"checkbox\" name=\"%s\" Checked> %s\n", tag, title );
-   }
-   else
-   {
-      snprintf( s, sizeof(s), "<input type=\"checkbox\" name=\"%s\"> %s\n", tag, title );
-   }
-   SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::FormButton( const char* label )
-{
-   char     s[ BUFFER_SIZE ];
-
-   snprintf( s, sizeof(s), "<input type=\"submit\" value=\"%s\">\n", label );
-   SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::FormEnd( void )
-{
-   SendString( "</div>\n</form>\n" );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::HorizontalLine( void )
-{
-   SendString( "<hr/>\n" );
-}
-
-//============================================================================
-//
-//============================================================================
-
-bool http::Page::Image( const char* image, int width, int height )
-{
-   char     s[ BUFFER_SIZE ];
-
-   snprintf
-   (
-      s,
-      sizeof(s),
-      "<img src=\"/%s/%s\" height=\"%d\" width=\"%d\">\n",
-      Directory,
-      image,
-      height,
-      width
-   );
-   return SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
 bool http::Page::SendFile( const char* filename )
 {
    char     s[ BUFFER_SIZE ];
@@ -499,90 +384,20 @@ void http::Page::Flush()
 //
 //============================================================================
 
-void http::Page::SelectBegin( const char* msg, const char* name, size_t size )
-{
-   char     s[ BUFFER_SIZE ];
-   snprintf( s, sizeof(s),"%s<select name=\"%s\" size=\"%lud\">",msg,name,size);
-   SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::SelectAddItem( const char* item, bool selected )
-{
-   char     s[ BUFFER_SIZE ];
-   if( selected == false )
-   {
-      snprintf(s, sizeof(s),"<option>%s",item);
-   }
-   else
-   {
-      snprintf(s, sizeof(s),"<option selected>%s",item);
-   }
-   SendString( s );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::SelectEnd()
-{
-   SendString("</select>");
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::RadioAddItem( const char* name, const char* value, const char* displayed, bool checked )
-{
-   if( checked )
-   {
-      SendString( "<input type=\"radio\" checked name=\"" );
-   }
-   else
-   {
-      SendString( "<input type=\"radio\" name=\"" );
-   }
-
-   SendString( name );
-   SendString( "\" value=\"" );
-   SendString( value );
-   SendString( "\"> " );
-   SendString( displayed );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::Redirect( const char* url, int delay, const char* greeting )
-{
-   // url      - can be relative
-   // delay    - in seconds
-   // greeting - message to display for "delay" seconds
-
-   char  s[ BUFFER_SIZE ];
-   snprintf(s, sizeof(s),"<meta http-equiv=\"Refresh\" content=\"%d;URL=http:%s\">",delay,url);
-   if( SendString( s ) )
-   {
-      snprintf(s, sizeof(s),"%s",greeting);
-      SendString( s );
-   }
-}
-
-//============================================================================
-//
-//============================================================================
-
 void http::Page::WriteStartTag( http::Page::TagType type )
+{
+   WriteStartTag( TagTypeToString(type) );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void http::Page::WriteStartTag( const char* tag )
 {
    ClosePendingOpen();
    RawSend( "<", 1 );
-   SendString( TagTypeToString(type) );
+   SendString( tag );
    TagDepth++;
    StartTagOpen = true;
 }
@@ -593,18 +408,22 @@ void http::Page::WriteStartTag( http::Page::TagType type )
 
 void http::Page::WriteTag( http::Page::TagType type, const char* value )
 {
-   if( type == Comment )
+   switch( type )
    {
+   case Comment:
       ClosePendingOpen();
       RawSend( "<!-- ", 5 );
-      SendString( value );
+      if( value ) SendString( value );
       RawSend( " -->", 4 );
-   }
-   else
-   {
+      break;
+   case br:
+      RawSend( "<br>", 4 );
+      break;
+   default:
       WriteStartTag( type );
-      WriteValue( value );
+      if( value ) WriteValue( value );
       WriteEndTag( type );
+      break;
    }
 }
 
@@ -624,12 +443,21 @@ void http::Page::WriteNode( const char* text )
 
 void http::Page::WriteEndTag( http::Page::TagType type )
 {
+   WriteEndTag( TagTypeToString(type) );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void http::Page::WriteEndTag( const char* tag )
+{
    ClosePendingOpen();
    if( TagDepth > 0 )
    {
       TagDepth--;
       RawSend( "</", 2 );
-      SendString( TagTypeToString(type) );
+      SendString( tag );
       RawSend( ">", 1 );
    }
 }
@@ -667,6 +495,25 @@ void http::Page::ClosePendingOpen()
    {
       RawSend( ">", 1 );
       StartTagOpen = false;
+   }
+}
+
+//============================================================================
+//
+//============================================================================
+
+void http::Page::ParseArg( char* arg, char** name, char** value )
+{
+   *name = arg;
+   while( *arg )
+   {
+      if( *arg == '=' )
+      {
+         *arg = 0;
+         *value = ++arg;
+         break;
+      }
+      arg++;
    }
 }
 
@@ -799,4 +646,57 @@ const char* http::Page::TagTypeToString( TagType tag )
    case wbr: rc = "wbr"; break;
    }
    return rc;
+}
+
+//============================================================================
+//
+//============================================================================
+
+void http::Page::Process( const char* htmlFile, const char* marker, MarkerContent content )
+{
+   printf( "start with process\n" );
+   char* path;
+   realpath( htmlFile, path );
+   FILE* f = fopen( htmlFile, "r" );
+   if( f )
+   {
+      int c;
+      int markerIndex = 0;
+      int markerLength = strlen(marker);
+      while( (c = fgetc( f )) > 0 )
+      {
+         if( c == marker[markerIndex] )
+         {
+            markerIndex++;
+            if( markerIndex == markerLength )
+            {
+               // found the marker
+               markerIndex = 0;
+               SendString( "<!-- " );
+               SendString( marker );
+               SendString( " start -->" );
+               content( this );
+               SendString( "<!-- " );
+               SendString( marker );
+               SendString( " end -->" );
+            }
+         }
+         else if( markerIndex > 0 )
+         {
+            // Send the part of the marker that matched so far
+            RawSend( marker, markerIndex );
+            markerIndex = 0;
+         }
+         else
+         {
+            char ch = c;
+            RawSend( &ch, 1 );
+         }
+      }
+   }
+   else
+   {
+      printf( "failed to open file '%s'\n", htmlFile );
+   }
+   printf( "done with process\n" );
 }

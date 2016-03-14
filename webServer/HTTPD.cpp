@@ -50,6 +50,7 @@
 http::Page  http::Server::PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
 osQueue     http::Server::PagePool;
 PageRequestHandler http::Server::PageHandler = 0;
+ErrorMessageHandler http::Server::ErrorHandler = 0;
 
 #define MAX_ARGV 10
 
@@ -63,6 +64,11 @@ static ProtocolTCP::Connection*  CurrentConnection;
 void http::Server::RegisterPageHandler( PageRequestHandler handler )
 {
    PageHandler = handler;
+}
+
+void http::Server::RegisterErrorHandler( ErrorMessageHandler handler )
+{
+   ErrorHandler = handler;
 }
 
 void http::Server::ProcessRequest( http::Page* page )

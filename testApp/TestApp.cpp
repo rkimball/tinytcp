@@ -153,36 +153,111 @@ void MainEntry( void* config )
 //
 //============================================================================
 
-void ProcessPageRequest
-(
-   http::Page* page,
-   const char* url,
-   int argc,
-   char** argv
-)
+typedef void(*PageFunction)( http::Page* );
+
+//void MasterPage( http::Page* page, PageFunction content )
+//{
+//   page->PageOK();
+//   page->WriteStartTag( http::Page::html );
+//   page->WriteStartTag( http::Page::head );
+//   page->WriteTag( http::Page::title, "Protocol Stack Test Page" );
+
+//   page->WriteTag( http::Page::Comment, "Latest compiled and minified CSS" );
+//   page->WriteNode( "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" crossorigin=\"anonymous\">" );
+
+//   page->WriteTag( http::Page::Comment, "Optional theme" );
+//   page->WriteNode( "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css\" integrity=\"sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r\" crossorigin=\"anonymous\">" );
+
+//   page->WriteTag( http::Page::Comment, "Latest compiled and minified JavaScript" );
+//   page->WriteNode( "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" crossorigin=\"anonymous\"></script>" );
+
+//   page->WriteEndTag( http::Page::head );
+//   page->WriteStartTag( http::Page::body );
+
+//   page->WriteStartTag( "nav" ); page->WriteAttribute( "class", "navbar navbar-default" );
+//   page->WriteStartTag( "div" ); page->WriteAttribute( "class", "container-fluid" );
+//   page->WriteStartTag( "div" ); page->WriteAttribute( "class", "navbar-header" );
+////   page->WriteTag( "button" ); page->WriteAttribute( "type", "button" ); page->WriteAttribute( "class", "navbar-toggle collapsed" );
+////   page->WriteAttribute( "data-toggle", "collapse" );
+////   page->WriteAttribute( "data-target", "#navbar" );
+////   page->WriteAttribute( "aria-expanded", "false" );
+////   page->WriteAttribute( "aria-controls", "navbar" );
+
+////           <span class="sr-only">Toggle navigation</span>
+////           <span class="icon-bar"></span>
+////           <span class="icon-bar"></span>
+////           <span class="icon-bar"></span>
+////         </button>
+////       <a class="navbar-brand" href="#">Project name</a>
+//   page->WriteStartTag( "a" ); page->WriteAttribute( "class", "navbar-brand" ); page->WriteAttribute( "href", "#" );
+//   page->WriteValue( "tinytcp" );
+//   page->WriteEndTag( "a" );
+////       </div>
+//   page->WriteEndTag( "div" );
+////       <div id="navbar" class="navbar-collapse collapse">
+//   page->WriteStartTag( "div" ); page->WriteAttribute( "id", "navbar" ); page->WriteAttribute( "class", "navbar-collapse collapse" );
+////         <ul class="nav navbar-nav">
+//   page->WriteStartTag( "ul" ); page->WriteAttribute( "class", "nav navbar-nav" );
+////           <li class="active"><a href="#">Home</a></li>
+//   page->WriteStartTag( "li" ); page->WriteStartTag( "a" ); page->WriteAttribute( "href", "#" );
+//   page->WriteEndTag("a"); page->WriteEndTag( "li" );
+////           <li><a href="#">About</a></li>
+////           <li><a href="#">Contact</a></li>
+////           <li class="dropdown">
+////             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+////             <ul class="dropdown-menu">
+////               <li><a href="#">Action</a></li>
+////               <li><a href="#">Another action</a></li>
+////               <li><a href="#">Something else here</a></li>
+////               <li role="separator" class="divider"></li>
+////               <li class="dropdown-header">Nav header</li>
+////               <li><a href="#">Separated link</a></li>
+////               <li><a href="#">One more separated link</a></li>
+////             </ul>
+////           </li>
+////         </ul>
+////         <ul class="nav navbar-nav navbar-right">
+////           <li class="active"><a href="./">Default <span class="sr-only">(current)</span></a></li>
+////           <li><a href="../navbar-static-top/">Static top</a></li>
+////           <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+////         </ul>
+////       </div><!--/.nav-collapse -->
+////     </div><!--/.container-fluid -->
+////   </nav>
+
+
+
+
+//   content( page );
+//   page->WriteEndTag( http::Page::body );
+//}
+
+void HomePage( http::Page* page )
 {
-   if( !strcasecmp( url, "/" ) )
-   {
-      page->PageOK();
-      page->WriteStartTag( http::Page::html );
-      page->WriteStartTag( http::Page::head );
-      page->WriteTag( http::Page::title, "Protocol Stack Test Page" );
+   printf( "Hello from home page\n" );
+   time_t t = time(0);
+   struct tm* now = localtime( &t );
+   page->Printf( "Current time: %s\n", asctime( now ) );
 
-      page->WriteTag( http::Page::Comment, "Latest compiled and minified CSS" );
-      page->WriteNode( "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" integrity=\"sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7\" crossorigin=\"anonymous\">" );
+   page->WriteStartTag( http::Page::form );
+   page->WriteAttribute( "action", "/formsdemo.html" );
+   page->WriteValue( "First name:" );
+   page->WriteStartTag( http::Page::input );
+   page->WriteAttribute( "type", "text" );
+   page->WriteAttribute( "name", "FirstName" );
+   page->WriteAttribute( "value", "Mike" );
+   page->WriteStartTag( http::Page::br );
 
-      page->WriteTag( http::Page::Comment, "Optional theme" );
-      page->WriteNode( "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css\" integrity=\"sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r\" crossorigin=\"anonymous\">" );
+   page->WriteValue( "Last name:" );
+   page->WriteStartTag( http::Page::input );
+   page->WriteAttribute( "type", "text" );
+   page->WriteAttribute( "name", "LastName" );
+   page->WriteAttribute( "value", "Easter" );
+   page->WriteStartTag( http::Page::br );
 
-      page->WriteTag( http::Page::Comment, "Latest compiled and minified JavaScript" );
-      page->WriteNode( "<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\" integrity=\"sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS\" crossorigin=\"anonymous\"></script>" );
-
-      page->WriteEndTag( http::Page::head );
-      page->WriteEndTag( http::Page::html );
-
-      time_t t = time(0);
-      struct tm* now = localtime( &t );
-      page->Printf( "Current time: %s\n", asctime( now ) );
+   page->WriteStartTag( http::Page::input );
+   page->WriteAttribute( "type", "submit" );
+   page->WriteAttribute( "value", "Submit" );
 
 
 //      page->Reference( "/files/test1.zip", "test1.zip" );
@@ -192,17 +267,56 @@ void ProcessPageRequest
 //      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
 //      page->SendString( "      </form><br/>\n" );
 
-      page->SendString( "<pre>\n" );
-      Config.Show( page );
-      ProtocolARP::Show( page );
-      osThread::Show( page );
-      osEvent::Show( page );
-      osQueue::Show( page );
-      ProtocolTCP::Show( page );
-      page->SendString( "<pre/>\n" );
+   page->WriteStartTag( http::Page::pre );
+   Config.Show( page );
+   ProtocolARP::Show( page );
+   osThread::Show( page );
+   osEvent::Show( page );
+   osQueue::Show( page );
+   ProtocolTCP::Show( page );
+   page->WriteEndTag( http::Page::pre );
+}
 
-      page->SendString( "   <body/>\n" );
-      page->SendString( "<html/>\n" );
+void FormsResponse( http::Page* page )
+{
+   for( int i=0; i<page->argc; i++ )
+   {
+      char* name;
+      char* value;
+      page->ParseArg( page->argv[i], &name, &value );
+      page->WriteStartTag( http::Page::span );
+      page->WriteValue( name );
+      page->WriteValue( " = " );
+      page->WriteValue( value );
+      page->WriteEndTag( http::Page::span );
+      page->WriteTag( http::Page::br );
+   }
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ProcessPageRequest
+(
+   http::Page* page,
+   const char* url,
+   int argc,
+   char** argv
+)
+{
+   printf( "url '%s'\n", url );
+   for( int i=0; i<argc; i++ )
+   {
+      printf( "   arg[%d] = '%s'\n", i, argv[i] );
+   }
+   if( !strcasecmp( url, "/" ) )
+   {
+      page->Process( "master.html", "@Content", HomePage );
+   }
+   else if( !strcasecmp( url, "/formsdemo.html" ) )
+   {
+      page->Process( "master.html", "@Content", FormsResponse );
    }
    else if( !strcasecmp( url, "/files/test1.zip" ) )
    {
@@ -218,6 +332,10 @@ void ProcessPageRequest
       printf( "Done reading\n" );
       page->PageOK();
       page->Printf( "Upload %d bytes complete\n", page->ContentLength );
+   }
+   else
+   {
+      page->PageNotFound();
    }
 }
 

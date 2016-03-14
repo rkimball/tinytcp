@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 2.8)
 set( SOURCE
    TestApp.cpp
    PacketIO.h
-   PacketIO.cpp)
+   PacketIO.cpp
+   )
+set( HTML
+    master.html
+    )
 set( LIBS
    webServer
    tcpStack
@@ -13,8 +17,9 @@ if( UNIX )
 elseif(WIN32)
 	set( LIBS ${LIBS} Packet.lib wpcap.lib Ws2_32.lib )
 endif()
+file( COPY ${HTML} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/WinPcap/Lib )
-add_executable(${PROJECT_NAME} ${SOURCE})
+add_executable(${PROJECT_NAME} ${SOURCE} ${HTML})
 
 
 

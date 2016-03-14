@@ -61,6 +61,7 @@ class http::Page : public osPrintfInterface
 
 public:
    static const uint32_t  BUFFER_SIZE = 512;
+   typedef void(*MarkerContent)( http::Page* );
 
    typedef enum
    {
@@ -214,29 +215,17 @@ public:
    void PageUnauthorized();
 
    void WriteStartTag( http::Page::TagType );
-   void WriteTag( http::Page::TagType, const char* value );
+   void WriteStartTag( const char* tag );
+   void WriteTag( http::Page::TagType, const char* value=NULL );
    void WriteEndTag( http::Page::TagType );
+   void WriteEndTag( const char* tag );
    void WriteAttribute( const char* name, const char* value );
    void WriteValue( const char* value );
    void WriteNode( const char* value );
 
-   void SelectBegin( const char* msg, const char* name, size_t size );
-   void SelectAddItem( const char* item, bool selected = false );
-   void SelectEnd();
+   void ParseArg( char* arg, char** name, char** value );
 
-   void RadioAddItem( const char* name, const char* value, const char* displayed, bool checked );
-   void Redirect( const char* url, int delay, const char* greeting );
-   
-   void HorizontalLine( void );
-
-   void FormBegin( const char* action );
-   void FormTextField( const char* tag, size_t size, const char* initValue = 0 );
-   void FormTextField( const char* tag, size_t size, int initValue );
-   void FormButton( const char* label );
-   void FormCheckboxField( const char* tag, const char* title, bool checked );
-   void FormEnd( void );
-
-   bool Image( const char* image, int width, int height );
+   void Process( const char* htmlFile, const char* marker, MarkerContent );
 
    void Flush();
 
