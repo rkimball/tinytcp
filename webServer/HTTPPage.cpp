@@ -56,8 +56,6 @@ http::Page::~Page()
 void http::Page::Initialize( ProtocolTCP::Connection* connection )
 {
    Connection = connection;
-   DataPreformatted = false;
-   TableBorder = true;
    Busy = 0;
 }
 
@@ -76,29 +74,11 @@ int http::Page::Printf( const char* format, ... )
 
    vsnprintf( buffer, sizeof(buffer), format, vlist );
 
-   if( DataPreformatted )
+   for( i=0; buffer[i] && i<(int)(sizeof(buffer)-1); i++ )
    {
-      SendString( buffer );
-      rc = (int)strlen(buffer);
+      RawSend( &buffer[ i ], 1 );
    }
-   else
-   {
-      for( i=0; buffer[i] && i<(int)(sizeof(buffer)-1); i++ )
-      {
-         if( buffer[i] == '\n' )
-         {
-            SendString( "<br/>" );
-         }
-         else if( buffer[i] == '\r' )
-         {
-         }
-         else
-         {
-            RawSend( &buffer[ i ], 1 );
-         }
-      }
-      rc = i;
-   }
+   rc = i;
 
    return rc;
 }
@@ -159,25 +139,18 @@ bool http::Page::Puts( const char* string )
    int      i;
    int      length = (int)strlen(string);
 
-   if( DataPreformatted )
+   for( i=0; i<length; i++ )
    {
-      RawSend( string, length );
-   }
-   else
-   {
-      for( i=0; i<length; i++ )
+      switch( string[i] )
       {
-         switch( string[i] )
-         {
-         case '\n':
-            RawSend( "<br/>", 5 );
-            break;
-         case '\r':
-            break;
-         default:
-            RawSend( &string[i], 1 );
-            break;
-         }
+      case '\n':
+         RawSend( "<br>", 5 );
+         break;
+      case '\r':
+         break;
+      default:
+         RawSend( &string[i], 1 );
+         break;
       }
    }
 
@@ -278,7 +251,7 @@ void http::Page::DumpData( const char* buffer, size_t length )
 
       i += 16;
 
-      SendString( "<br/>\n" );
+      SendString( "<br>\n" );
    }
    SendString( "</code>\n" );
 }
@@ -298,7 +271,6 @@ void http::Page::PageNotFound( void )
 
 void http::Page::PageOK( const char* mimeType )
 {
-   TableBorder = true;
    SendString( "HTTP/1.0 200 OK\r\nContent-type: " );
    SendString( mimeType );
    SendString( "\r\n\r\n" );
@@ -384,124 +356,6 @@ void http::Page::Flush()
 //
 //============================================================================
 
-void http::Page::WriteStartTag( http::Page::TagType type )
-{
-   WriteStartTag( TagTypeToString(type) );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteStartTag( const char* tag )
-{
-   ClosePendingOpen();
-   RawSend( "<", 1 );
-   SendString( tag );
-   TagDepth++;
-   StartTagOpen = true;
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteTag( http::Page::TagType type, const char* value )
-{
-   switch( type )
-   {
-   case Comment:
-      ClosePendingOpen();
-      RawSend( "<!-- ", 5 );
-      if( value ) SendString( value );
-      RawSend( " -->", 4 );
-      break;
-   case br:
-      RawSend( "<br>", 4 );
-      break;
-   default:
-      WriteStartTag( type );
-      if( value ) WriteValue( value );
-      WriteEndTag( type );
-      break;
-   }
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteNode( const char* text )
-{
-   ClosePendingOpen();
-   SendString( text );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteEndTag( http::Page::TagType type )
-{
-   WriteEndTag( TagTypeToString(type) );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteEndTag( const char* tag )
-{
-   ClosePendingOpen();
-   if( TagDepth > 0 )
-   {
-      TagDepth--;
-      RawSend( "</", 2 );
-      SendString( tag );
-      RawSend( ">", 1 );
-   }
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteAttribute( const char* name, const char* value )
-{
-   RawSend( " ", 1 );
-   SendString( name );
-   RawSend( "=\"", 2 );
-   SendString( value );
-   RawSend( "\"", 1 );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::WriteValue( const char* value )
-{
-   ClosePendingOpen();
-   SendString( value );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::ClosePendingOpen()
-{
-   if( StartTagOpen )
-   {
-      RawSend( ">", 1 );
-      StartTagOpen = false;
-   }
-}
-
-//============================================================================
-//
-//============================================================================
-
 void http::Page::ParseArg( char* arg, char** name, char** value )
 {
    *name = arg;
@@ -515,137 +369,6 @@ void http::Page::ParseArg( char* arg, char** name, char** value )
       }
       arg++;
    }
-}
-
-//============================================================================
-//
-//============================================================================
-
-const char* http::Page::TagTypeToString( TagType tag )
-{
-   const char* rc = NULL;
-   switch(tag)
-   {
-   case Comment: rc = "!--"; break;
-   case Doctype: rc = "!DOCTYPE"; break;
-   case a: rc = "a"; break;
-   case abbr: rc = "abbr"; break;
-   case acronym: rc = "acronym"; break;
-   case address: rc = "address"; break;
-   case applet: rc = "applet"; break;
-   case area: rc = "area"; break;
-   case article: rc = "article"; break;
-   case aside: rc = "aside"; break;
-   case audio: rc = "audio"; break;
-   case b: rc = "b"; break;
-   case base: rc = "base"; break;
-   case basefont: rc = "basefont"; break;
-   case bdi: rc = "bdi"; break;
-   case bdo: rc = "bdo"; break;
-   case big: rc = "big"; break;
-   case blockquote: rc = "blockquote"; break;
-   case body: rc = "body"; break;
-   case br: rc = "br"; break;
-   case button: rc = "button"; break;
-   case canvas: rc = "canvas"; break;
-   case caption: rc = "caption"; break;
-   case center: rc = "center"; break;
-   case cite: rc = "cite"; break;
-   case code: rc = "code"; break;
-   case col: rc = "col"; break;
-   case colgroup: rc = "colgroup"; break;
-   case datalist: rc = "datalist"; break;
-   case dd: rc = "dd"; break;
-   case del: rc = "del"; break;
-   case details: rc = "details"; break;
-   case dfn: rc = "dfn"; break;
-   case dialog: rc = "dialog"; break;
-   case dir: rc = "dir"; break;
-   case div: rc = "div"; break;
-   case dl: rc = "dl"; break;
-   case dt: rc = "dt"; break;
-   case em: rc = "em"; break;
-   case embed: rc = "embed"; break;
-   case fieldset: rc = "fieldset"; break;
-   case figcaption: rc = "figcaption"; break;
-   case figure: rc = "figure"; break;
-   case font: rc = "font"; break;
-   case footer: rc = "footer"; break;
-   case form: rc = "form"; break;
-   case frame: rc = "frame"; break;
-   case frameset: rc = "frameset"; break;
-   case h1: rc = "h1"; break;
-   case head: rc = "head"; break;
-   case header: rc = "header"; break;
-   case hr: rc = "hr"; break;
-   case html: rc = "html"; break;
-   case i: rc = "i"; break;
-   case iframe: rc = "iframe"; break;
-   case img: rc = "img"; break;
-   case input: rc = "input"; break;
-   case ins: rc = "ins"; break;
-   case kbd: rc = "kbd"; break;
-   case keygen: rc = "keygen"; break;
-   case label: rc = "label"; break;
-   case legend: rc = "legend"; break;
-   case li: rc = "li"; break;
-   case link: rc = "link"; break;
-   case main: rc = "main"; break;
-   case map: rc = "map"; break;
-   case mark: rc = "mark"; break;
-   case menu: rc = "menu"; break;
-   case menuitem: rc = "menuitem"; break;
-   case meta: rc = "meta"; break;
-   case meter: rc = "meter"; break;
-   case nav: rc = "nav"; break;
-   case noframes: rc = "noframes"; break;
-   case noscript: rc = "noscript"; break;
-   case object: rc = "object"; break;
-   case ol: rc = "ol"; break;
-   case optgroup: rc = "optgroup"; break;
-   case option: rc = "option"; break;
-   case output: rc = "output"; break;
-   case p: rc = "p"; break;
-   case param: rc = "param"; break;
-   case pre: rc = "pre"; break;
-   case progress: rc = "progress"; break;
-   case q: rc = "q"; break;
-   case rp: rc = "rp"; break;
-   case rt: rc = "rt"; break;
-   case ruby: rc = "ruby"; break;
-   case s: rc = "s"; break;
-   case samp: rc = "samp"; break;
-   case script: rc = "script"; break;
-   case section: rc = "section"; break;
-   case select: rc = "select"; break;
-   case small: rc = "small"; break;
-   case source: rc = "source"; break;
-   case span: rc = "span"; break;
-   case strike: rc = "strike"; break;
-   case strong: rc = "strong"; break;
-   case style: rc = "style"; break;
-   case sub: rc = "sub"; break;
-   case summary: rc = "summary"; break;
-   case sup: rc = "sup"; break;
-   case table: rc = "table"; break;
-   case tbody: rc = "tbody"; break;
-   case td: rc = "td"; break;
-   case textarea: rc = "textarea"; break;
-   case tfoot: rc = "tfoot"; break;
-   case th: rc = "th"; break;
-   case thead: rc = "thead"; break;
-   case time: rc = "time"; break;
-   case title: rc = "title"; break;
-   case tr: rc = "tr"; break;
-   case track: rc = "track"; break;
-   case tt: rc = "tt"; break;
-   case u: rc = "u"; break;
-   case ul: rc = "ul"; break;
-   case var: rc = "var"; break;
-   case video: rc = "video"; break;
-   case wbr: rc = "wbr"; break;
-   }
-   return rc;
 }
 
 //============================================================================

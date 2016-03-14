@@ -238,42 +238,33 @@ void HomePage( http::Page* page )
    struct tm* now = localtime( &t );
    page->Printf( "Current time: %s\n", asctime( now ) );
 
-   page->WriteStartTag( http::Page::form );
-   page->WriteAttribute( "action", "/formsdemo.html" );
-   page->WriteValue( "First name:" );
-   page->WriteStartTag( http::Page::input );
-   page->WriteAttribute( "type", "text" );
-   page->WriteAttribute( "name", "FirstName" );
-   page->WriteAttribute( "value", "Mike" );
-   page->WriteStartTag( http::Page::br );
+   page->Printf( "<form action=\"/formsdemo.html\">" );
 
-   page->WriteValue( "Last name:" );
-   page->WriteStartTag( http::Page::input );
-   page->WriteAttribute( "type", "text" );
-   page->WriteAttribute( "name", "LastName" );
-   page->WriteAttribute( "value", "Easter" );
-   page->WriteStartTag( http::Page::br );
+   page->Printf( "First name:" );
+   page->Printf( "<input type=\"text\" name=\"FirstName\" value=\"Mike\"/>" );
+   page->Printf( "<br>" );
 
-   page->WriteStartTag( http::Page::input );
-   page->WriteAttribute( "type", "submit" );
-   page->WriteAttribute( "value", "Submit" );
+   page->Printf( "Last name:" );
+   page->Printf( "<input type=\"text\" name=\"LastName\" value=\"Easter\"/>" );
+   page->Printf( "<br>" );
 
+   page->Printf( "<input type=\"submit\" value=\"submit\" />" );
 
 //      page->Reference( "/files/test1.zip", "test1.zip" );
 //      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
 //      page->SendString( "      enctype=\"multipart/form-data\" action=\"_URL_\">\n" );
-//      page->SendString( "File: <input type=\"file\" name=\"file\" size=\"50\"><br/>\n" );
+//      page->SendString( "File: <input type=\"file\" name=\"file\" size=\"50\"><br>\n" );
 //      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
-//      page->SendString( "      </form><br/>\n" );
+//      page->SendString( "      </form><br>\n" );
 
-   page->WriteStartTag( http::Page::pre );
+   page->Printf( "<pre>" );
    Config.Show( page );
    ProtocolARP::Show( page );
    osThread::Show( page );
    osEvent::Show( page );
    osQueue::Show( page );
    ProtocolTCP::Show( page );
-   page->WriteEndTag( http::Page::pre );
+   page->Printf( "</pre>" );
 }
 
 void FormsResponse( http::Page* page )
@@ -283,12 +274,8 @@ void FormsResponse( http::Page* page )
       char* name;
       char* value;
       page->ParseArg( page->argv[i], &name, &value );
-      page->WriteStartTag( http::Page::span );
-      page->WriteValue( name );
-      page->WriteValue( " = " );
-      page->WriteValue( value );
-      page->WriteEndTag( http::Page::span );
-      page->WriteTag( http::Page::br );
+      page->Printf( "<span>%s = %s</span>", name, value );
+      page->Printf( "<br>" );
    }
 }
 

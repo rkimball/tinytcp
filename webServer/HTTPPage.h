@@ -199,7 +199,7 @@ public:
    int Printf( const char* format, ... );
    static void HTMLEncodef( osPrintfInterface*, const char* format, ... );
 
-   /// Puts writes the string converting all newline characters to <br/>
+   /// Puts writes the string converting all newline characters to <br>
    bool Puts( const char* string );
    bool SendString( const char* string );
    bool RawSend( const void* buffer, size_t length );
@@ -214,15 +214,6 @@ public:
    void PageNoContent();
    void PageUnauthorized();
 
-   void WriteStartTag( http::Page::TagType );
-   void WriteStartTag( const char* tag );
-   void WriteTag( http::Page::TagType, const char* value=NULL );
-   void WriteEndTag( http::Page::TagType );
-   void WriteEndTag( const char* tag );
-   void WriteAttribute( const char* name, const char* value );
-   void WriteValue( const char* value );
-   void WriteNode( const char* value );
-
    void ParseArg( char* arg, char** name, char** value );
 
    void Process( const char* htmlFile, const char* marker, MarkerContent );
@@ -230,7 +221,6 @@ public:
    void Flush();
 
    char*       Directory;
-   bool        TableBorder;
 
    char        URL[ 256 ];
    char        ContentType[ 256 ];
@@ -250,9 +240,6 @@ private:
 
    const char* TagTypeToString( TagType tag );
    void ClosePendingOpen();
-
-   int         ColumnCount;
-   bool        DataPreformatted;
 
    osThread    Thread;
 };

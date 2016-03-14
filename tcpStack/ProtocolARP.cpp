@@ -183,7 +183,7 @@ void ProtocolARP::Show( osPrintfInterface* pfunc )
          Cache[ i ].IPv4Address[ 1 ],
          Cache[ i ].IPv4Address[ 2 ],
          Cache[ i ].IPv4Address[ 3 ] );
-      for( ; length<16; length++ ) pfunc->Printf( " " );
+      for( ; length<19; length++ ) pfunc->Printf( " " );
       pfunc->Printf( " %02X:%02X:%02X:%02X:%02X:%02X ",
          Cache[ i ].MACAddress[ 0 ],
          Cache[ i ].MACAddress[ 1 ],

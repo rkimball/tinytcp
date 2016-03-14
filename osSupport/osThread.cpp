@@ -133,7 +133,6 @@ uint32_t osThread::GetThreadId()
 void osThread::Initialize()
 {
    // This is a hack to add the thread that called main() to the list
-   printf( "setup main thread\n" );
    snprintf( MainThread.Name, NAME_LENGTH_MAX, "main" );
 #ifdef _WIN32
    if( (dwTlsIndex = TlsAlloc()) == TLS_OUT_OF_INDEXES )
@@ -144,7 +143,6 @@ void osThread::Initialize()
 #endif
    pthread_key_create( &tlsKey, NULL );
    pthread_t mainThread = pthread_self();
-   printf( "pthread_self in init %lu\n", mainThread );
    for( int i = 0; i<MAX_THREADS; i++ )
    {
       if( Threads[ i ] == NULL )
