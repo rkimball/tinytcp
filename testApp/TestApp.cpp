@@ -323,6 +323,7 @@ void ProcessPageRequest
    {
       page->PageNotFound();
    }
+   printf( "url '%s' done\n", url );
 }
 
 //============================================================================

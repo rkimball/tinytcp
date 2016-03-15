@@ -90,6 +90,7 @@ DWORD WINAPI WinThreadEntry( LPVOID param )
 
    thread->Entry( thread->Param );
 
+   // Now remove self from active thread list
    for( int i = 0; i<MAX_THREADS; i++ )
    {
       if( Threads[ i ] == thread->Thread )
@@ -108,6 +109,17 @@ static void* ThreadEntry( void* param )
    pthread_setspecific( tlsKey, thread ); // Thread Local Storage points to osThread
    thread->ThreadStart.Notify();
    thread->Entry( thread->Param );
+
+   // Now remove self from active thread list
+   for( int i = 0; i<MAX_THREADS; i++ )
+   {
+      if( Threads[ i ] == thread )
+      {
+         Threads[ i ] = NULL;
+         break;
+      }
+   }
+
    return NULL;
 }
 
