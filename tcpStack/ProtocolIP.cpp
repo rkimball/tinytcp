@@ -45,7 +45,8 @@
 
 uint16_t ProtocolIP::PacketID;
 
-osQueue ProtocolIP::UnresolvedQueue;
+static void* TxBuffer[ TX_BUFFER_COUNT ];
+osQueue ProtocolIP::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
 
 // Version - 4 bits
 // Header Length - 4 bits
@@ -66,8 +67,6 @@ void ProtocolIP::Initialize()
 {
    ProtocolTCP::Initialize();
    ProtocolICMP::Initialize();
-
-   UnresolvedQueue.Initialize( TX_BUFFER_COUNT, "IP" );
 }
 
 //============================================================================

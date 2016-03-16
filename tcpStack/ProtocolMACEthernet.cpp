@@ -49,8 +49,10 @@ static int DropCount = 0;
 DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
 DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
 
-osQueue ProtocolMACEthernet::TxBufferQueue;
-osQueue ProtocolMACEthernet::RxBufferQueue;
+static void* TxBufferBuffer[ TX_BUFFER_COUNT ];
+static void* RxBufferBuffer[ RX_BUFFER_COUNT ];
+osQueue ProtocolMACEthernet::TxBufferQueue( "Tx", TX_BUFFER_COUNT, TxBufferBuffer );
+osQueue ProtocolMACEthernet::RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffer );
 
 static osEvent Event( "MACEthernet" );
 
@@ -75,12 +77,10 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
    Config.BroadcastMACAddress[ 4 ] = 0xFF;
    Config.BroadcastMACAddress[ 5 ] = 0xFF;
 
-   TxBufferQueue.Initialize( TX_BUFFER_COUNT, "Tx" );
    for( i=0; i<TX_BUFFER_COUNT; i++ )
    {
       TxBufferQueue.Put( &TxBuffer[ i ] );
    }
-   RxBufferQueue.Initialize( RX_BUFFER_COUNT, "Rx" );
    for( i=0; i<RX_BUFFER_COUNT; i++ )
    {
       RxBufferQueue.Put( &RxBuffer[ i ] );

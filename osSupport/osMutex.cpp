@@ -39,8 +39,14 @@
 
 osMutex* osMutex::MutexList[ MAX_MUTEX ];
 
+// Can't use osMutex to lock the MutexList because you can't create an osMutex
+// without locking the MutexList, so make a private mutex
+pthread_mutex_t osMutex::MutexListMutex;
+
 osMutex::osMutex( const char* name ) :
-   Name( name )
+   Name( name ),
+   OwnerFile(NULL),
+   OwnerThread(NULL)
 {
 #ifdef _WIN32
    Handle = CreateMutex( NULL, false, name );
@@ -50,6 +56,18 @@ osMutex::osMutex( const char* name ) :
    pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_RECURSIVE );
    pthread_mutex_init( &m_mutex, &attr );
 #endif
+
+   StaticInit();
+   LockListMutex();
+   for( int i = 0; i < MAX_MUTEX; i++ )
+   {
+      if( MutexList[ i ] == NULL )
+      {
+         MutexList[ i ] = this;
+         break;
+      }
+   }
+   UnlockListMutex();
 }
 
 void osMutex::Give()
@@ -58,7 +76,7 @@ void osMutex::Give()
    if( thread != OwnerThread )
    {
    }
-   OwnerFile = "";
+   OwnerFile = NULL;
    OwnerLine = 0;
    OwnerThread = NULL;
 #ifdef _WIN32
@@ -123,18 +141,50 @@ const char* osMutex::GetName()
    return Name;
 }
 
+void osMutex::StaticInit()
+{
+   static bool IsInitialized = false;
+   if( !IsInitialized )
+   {
+      IsInitialized = true;
+      pthread_mutexattr_t attr;
+      pthread_mutexattr_init( &attr );
+      pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_RECURSIVE );
+      pthread_mutex_init( &MutexListMutex, &attr );
+   }
+}
+
+void osMutex::LockListMutex()
+{
+   pthread_mutex_lock( &MutexListMutex );
+}
+
+void osMutex::UnlockListMutex()
+{
+   pthread_mutex_unlock( &MutexListMutex );
+}
+
 void osMutex::Show( osPrintfInterface* pfunc )
 {
-   pfunc->Printf( "--------------------+-------+--------------------+--------------+--------------------------\n" );
-   pfunc->Printf( " Name               | State | Owner              |  User Time   | State\n" );
-   pfunc->Printf( "--------------------+-------+--------------------+--------------+--------------------------\n" );
+   pfunc->Printf( "--------------------+-------+--------------------+------+--------------------\n" );
+   pfunc->Printf( " Name               | State | Owner              | Line | File\n" );
+   pfunc->Printf( "--------------------+-------+--------------------+------+--------------------\n" );
 
+   LockListMutex();
    for( int i = 0; i < MAX_MUTEX; i++ )
    {
       osMutex* mutex = MutexList[ i ];
       if( mutex != NULL )
       {
-         pfunc->Printf( "%-20s", mutex->Name );
+         if( mutex->OwnerFile )
+         {
+            pfunc->Printf( "%-20s|%-7s|%-20s|%-6d|%s\n", mutex->Name, "", "", mutex->OwnerLine, mutex->OwnerFile );
+         }
+         else
+         {
+            pfunc->Printf( "%-20s|%-7s|%-20s|%-6s|%s\n", mutex->Name, "", "", "", "" );
+         }
       }
    }
+   UnlockListMutex();
 }

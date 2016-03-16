@@ -38,11 +38,7 @@ class osQueue
 {
 public:
 
-   osQueue();
-
-   osQueue( int elementCount, const char* name );
-
-   void Initialize( int count, const char* name );
+   osQueue( const char* name, int count, void** dataBuffer );
 
    const char* GetName();
 
@@ -73,10 +69,10 @@ private:
    }
 
    void**      Array;
-   int         MaxElements;
    const char* Name;
    int         NextInIndex;
    int         NextOutIndex;
+   int         MaxElements;
    int         ElementCount;
    osMutex     Lock;
 };

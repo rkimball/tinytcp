@@ -45,6 +45,7 @@
 #include "osTime.h"
 #include "NetworkInterface.h"
 
+static void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];
 ProtocolTCP::Connection ProtocolTCP::ConnectionList[ TCP_MAX_CONNECTIONS ];
 uint16_t ProtocolTCP::NextPort;
 
@@ -54,11 +55,11 @@ uint16_t ProtocolTCP::NextPort;
 
 ProtocolTCP::Connection::Connection() :
    Event( "tcp connection" ),
-   HoldingQueueLock( "" )
+   HoldingQueue( "TCPHolding", TX_BUFFER_COUNT, ConnectionHoldingBuffer ),
+   HoldingQueueLock( "HoldingQueueLock" )
 {
    TxBuffer = 0;
    NewConnection = 0;
-   HoldingQueue.Initialize( TX_BUFFER_COUNT, "TCPHolding" );
    RxBufferEmpty = true;
    RxInOffset = 0;
    RxOutOffset = 0;
@@ -439,7 +440,7 @@ void ProtocolTCP::Connection::StoreRxData( DataBuffer* buffer )
 
    if( buffer->Length > CurrentWindow )
    {
-      printf( "Rx window overrun\n" );
+      printf( "Rx window overrun, buffer %d, window %d\n", buffer->Length, CurrentWindow );
       return;
    }
 

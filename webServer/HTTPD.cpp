@@ -48,7 +48,8 @@
 #endif
 
 http::Page  http::Server::PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
-osQueue     http::Server::PagePool;
+static void* PagePoolBuffer[ MAX_ACTIVE_CONNECTIONS ];
+osQueue     http::Server::PagePool( "HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer );
 PageRequestHandler http::Server::PageHandler = 0;
 ErrorMessageHandler http::Server::ErrorHandler = 0;
 
@@ -226,7 +227,6 @@ void http::Server::Initialize( uint16_t port )
 {
    int   i;
 
-   PagePool.Initialize( MAX_ACTIVE_CONNECTIONS, "HTTPPage Pool" );
    for( i=0; i<MAX_ACTIVE_CONNECTIONS; i++ )
    {
       PagePool.Put( &PagePoolPages[ i ] );

@@ -40,32 +40,14 @@ static const size_t MAX_QUEUE_COUNT = 20;
 static osQueue* QueueList[ MAX_QUEUE_COUNT ];
 osMutex QueueListLock( "queue list lock" );
 
-osQueue::osQueue() :
-   Array( 0 ),
-   Name( 0 ),
+osQueue::osQueue( const char* name, int count, void** dataBuffer ) :
+   Array( dataBuffer ),
+   Name( name ),
+   MaxElements( count ),
    ElementCount( 0 ),
    Lock( "osQueue" )
 {
-   for( int i = 0; i < MAX_QUEUE_COUNT; i++ )
-   {
-      if( QueueList[ i ] == NULL )
-      {
-         QueueList[ i ] = this;
-         break;
-      }
-   }
-}
-
-osQueue::osQueue( int elementCount, const char* name ) :
-   Array( 0 ),
-   MaxElements( elementCount ),
-   Name( name ),
-   NextInIndex( 0 ),
-   NextOutIndex( 0 ),
-   ElementCount( 0 ),
-   Lock( name )
-{
-   Array = new void*[ elementCount ];
+   // Insert 'this' into the list of queues
    for( int i = 0; i < MAX_QUEUE_COUNT; i++ )
    {
       if( QueueList[ i ] == NULL )
@@ -79,22 +61,6 @@ osQueue::osQueue( int elementCount, const char* name ) :
 const char* osQueue::GetName()
 {
    return Name;
-}
-
-void osQueue::Initialize( int elementCount, const char* name )
-{
-   MaxElements = elementCount;
-   Name = name;
-   NextInIndex = 0;
-   NextOutIndex = 0;
-   ElementCount = 0;
-
-   if( Array )
-   {
-      delete[] Array;
-   }
-
-   Array = new void*[ elementCount ];
 }
 
 void* osQueue::Peek( void )

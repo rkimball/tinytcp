@@ -398,9 +398,15 @@ void osThread::Show( osPrintfInterface* pfunc )
       "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n"
    );
   
+#ifdef WIN32
    pfunc->Printf( "----+--------------------+-------+--------------+--------------+--------------------------\n" );
    pfunc->Printf( "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n");
    pfunc->Printf( "----+--------------------+-------+--------------+--------------+--------------------------\n" );
+#elif __linux__
+   pfunc->Printf( "--------------------+------------------------------------\n" );
+   pfunc->Printf( "Thread Name         | State\n");
+   pfunc->Printf( "--------------------+------------------------------------\n" );
+#endif
 
    Mutex.Take( __FILE__, __LINE__ );
 
@@ -441,7 +447,7 @@ void osThread::Show( osPrintfInterface* pfunc )
 #elif __linux__
       pfunc->Printf
       (
-         "    |%-20s|       |              |              |",
+         "%-20s|",
          thread->Name
       );
 #endif

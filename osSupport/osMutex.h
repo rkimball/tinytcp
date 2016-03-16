@@ -64,6 +64,14 @@ private:
    pthread_mutex_t m_mutex;
 #endif
 
+   // Can't use osMutex to lock the MutexList because you can't create an osMutex
+   // without locking the MutexList, so make a private mutex
+   static pthread_mutex_t MutexListMutex;
+
+   static void StaticInit();
+   static void LockListMutex();
+   static void UnlockListMutex();
+
    bool Take();
    const char* Name;
    static osMutex* MutexList[];
