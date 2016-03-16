@@ -377,8 +377,6 @@ void http::Page::ParseArg( char* arg, char** name, char** value )
 
 void http::Page::Process( const char* htmlFile, const char* marker, MarkerContent content )
 {
-   char* path;
-   realpath( htmlFile, path );
    FILE* f = fopen( htmlFile, "r" );
    if( f )
    {
