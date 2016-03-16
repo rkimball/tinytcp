@@ -180,12 +180,81 @@ void HomePage( http::Page* page )
 //      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
 //      page->SendString( "      </form><br>\n" );
 
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowMutex( http::Page* page )
+{
+   page->Printf( "<pre>" );
+   osMutex::Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowEvent( http::Page* page )
+{
+   page->Printf( "<pre>" );
+   osEvent::Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowQueue( http::Page* page )
+{
+   page->Printf( "<pre>" );
+   osQueue::Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowThread( http::Page* page )
+{
+   page->Printf( "<pre>" );
+   osThread::Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowConfig( http::Page* page )
+{
    page->Printf( "<pre>" );
    Config.Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowARP( http::Page* page )
+{
+   page->Printf( "<pre>" );
    ProtocolARP::Show( page );
-   osThread::Show( page );
-   osEvent::Show( page );
-   osQueue::Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowTCP( http::Page* page )
+{
+   page->Printf( "<pre>" );
    ProtocolTCP::Show( page );
    page->Printf( "</pre>" );
 }
@@ -258,6 +327,34 @@ void ProcessPageRequest
       printf( "Done reading\n" );
       page->PageOK();
       page->Printf( "Upload %d bytes complete\n", page->ContentLength );
+   }
+   else if( !strcasecmp( url, "/show/config" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowConfig );
+   }
+   else if( !strcasecmp( url, "/show/arp" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowARP );
+   }
+   else if( !strcasecmp( url, "/show/tcp" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowTCP );
+   }
+   else if( !strcasecmp( url, "/show/thread" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowThread );
+   }
+   else if( !strcasecmp( url, "/show/queue" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowQueue );
+   }
+   else if( !strcasecmp( url, "/show/event" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowEvent );
+   }
+   else if( !strcasecmp( url, "/show/mutex" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", ShowMutex );
    }
    else
    {
