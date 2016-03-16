@@ -58,3 +58,22 @@ Doing something useful:
       }
    }
 ```
+## TCP Library Size
+All of the memory used is statically allocated and so an buffer such as transmit or receive will
+show up in the bss section. The transmit and receive buffers are configurable and current set to 20 each of size 512 bytes.
+These buffers are defined in ProtocolMACEthernet, which explains it's large bss.
+```
+   text	   data	    bss	    dec	    hex	filename
+   1249	      8	     48	   1305	    519	Address.cpp.o (ex build/tcpStack/libtcpStack.a)
+      0	      0	      0	      0	      0	DataBuffer.cpp.o (ex build/tcpStack/libtcpStack.a)
+    312	      0	      0	    312	    138	FCS.cpp.o (ex build/tcpStack/libtcpStack.a)
+    164	      0	      0	    164	     a4	NetworkInterface.cpp.o (ex build/tcpStack/libtcpStack.a)
+   3524	      8	    600	   4132	   1024	ProtocolARP.cpp.o (ex build/tcpStack/libtcpStack.a)
+   5018	      4	      0	   5022	   139e	ProtocolDHCP.cpp.o (ex build/tcpStack/libtcpStack.a)
+    360	      0	      0	    360	    168	ProtocolICMP.cpp.o (ex build/tcpStack/libtcpStack.a)
+   1665	      8	    320	   1993	    7c9	ProtocolIP.cpp.o (ex build/tcpStack/libtcpStack.a)
+   2176	      8	  22232	  24416	   5f60	ProtocolMACEthernet.cpp.o (ex build/tcpStack/libtcpStack.a)
+   8873	      8	   3744	  12625	   3151	ProtocolTCP.cpp.o (ex build/tcpStack/libtcpStack.a)
+    717	      0	      0	    717	    2cd	ProtocolUDP.cpp.o (ex build/tcpStack/libtcpStack.a)
+   2731	      0	     84	   2815	    aff	Utility.cpp.o (ex build/tcpStack/libtcpStack.a)
+```
