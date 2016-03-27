@@ -82,25 +82,6 @@ void* osQueue::Peek()
    return rc;
 }
 
-void* osQueue::Peek( int index )
-{
-   void*    rc;
-
-   Lock.Take( __FILE__, __LINE__ );
-
-   if( ElementCount != 0 && index < ElementCount )
-   {
-      rc = Array[(NextOutIndex+index)%MaxElements];
-   }
-   else
-   {
-      rc = 0;
-   }
-
-   Lock.Give();
-   return rc;
-}
-
 void* osQueue::Get()
 {
    void*    rc;

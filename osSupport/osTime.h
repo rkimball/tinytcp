@@ -34,8 +34,6 @@
 
 #include <inttypes.h>
 
-#define TIMESTAMP  osTime::GetTimestamp()
-
 class osTime
 {
 public:

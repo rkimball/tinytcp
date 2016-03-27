@@ -44,8 +44,6 @@ public:
 
    void* Peek();
 
-   void* Peek( int index );
-
    void* Get();
 
    bool Put( void* item );
