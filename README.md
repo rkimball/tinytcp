@@ -15,8 +15,8 @@ cd build
 cmake -G "Visual Studio 14 2015" ..\tinytcp
 ```
 This generates tinytcp.sln solution file.
-* The Windows build uses [WinPcap](http://www.winpcap.org/) that you will need to download and install before running.
-* To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
+*The Windows build uses [WinPcap](http://www.winpcap.org/) that you will need to download and install before running.
+*To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
 ```
 sending discover
 discover sent
@@ -41,6 +41,14 @@ with elevated privileges.
 ```
 sudo ./testApp
 ```
+*To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
+```
+sending discover
+discover sent
+DHCP Send type 3
+DHCP got address 192.168.1.23
+```
+so you will point your browser at http://192.168.1.23 in this example
 ##Usage
 The protocol stack has three main functions required
 
