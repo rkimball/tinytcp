@@ -63,7 +63,7 @@ const char* osQueue::GetName()
    return Name;
 }
 
-void* osQueue::Peek( void )
+void* osQueue::Peek()
 {
    void*    rc;
 
@@ -101,7 +101,7 @@ void* osQueue::Peek( int index )
    return rc;
 }
 
-void* osQueue::Get( void )
+void* osQueue::Get()
 {
    void*    rc;
 
@@ -151,7 +151,7 @@ int osQueue::GetCount()
    return ElementCount;
 }
 
-void osQueue::Flush( void )
+void osQueue::Flush()
 {
    while( Get() != 0 );
 }

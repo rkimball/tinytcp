@@ -114,7 +114,7 @@ bool osEvent::Wait( const char* file, int line, int msTimeout )
    caller->ClearState();
    return (rc) ? false : true;
 #elif __linux__
-   osThread* thread = (osThread*)pthread_getspecific( tlsKey );
+   osThread* thread = osThread::GetCurrent();
    if( thread )
    {
       thread->SetState( osThread::PENDING_EVENT, file, line, this );

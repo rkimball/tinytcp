@@ -294,7 +294,7 @@ void PacketIO::Start( pcap_handler handler )
 //
 //============================================================================
 
-void PacketIO::Stop( void )
+void PacketIO::Stop()
 {
    pcap_close( adhandle );
 }
@@ -346,7 +346,7 @@ void PacketIO::Start()
 //
 //============================================================================
 
-void PacketIO::Stop( void )
+void PacketIO::Stop()
 {
 }
 

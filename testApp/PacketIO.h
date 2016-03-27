@@ -53,7 +53,7 @@ public:
    void Start();
    void Entry( void* param );
 #endif
-   void Stop( void );
+   void Stop();
    void TxData( void* data, size_t length );
    static void GetDevice( int interfaceNumber, char* buffer, size_t buffer_size );
    static int GetMACAddress( const char* adapter, uint8_t* mac );

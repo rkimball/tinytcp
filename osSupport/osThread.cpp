@@ -50,7 +50,7 @@ static osMutex    Mutex( "Thread List" );
 #ifdef _WIN32
 static DWORD      dwTlsIndex;
 #elif __linux__
-pthread_key_t tlsKey;
+static pthread_key_t tlsKey;
 #endif
 static osThread   MainThread;
 static bool       IsInitialized = false;
@@ -302,42 +302,7 @@ osThread* osThread::GetCurrent()
 #ifdef _WIN32
    return (osThread*)TlsGetValue( dwTlsIndex );
 #elif __linux__
-#endif
-}
-
-int osThread::GetCurrentThreadId()
-{
-#ifdef _WIN32
-   return ::GetCurrentThreadId();
-#elif __linux__
-#endif
-}
-
-osThread* osThread::GetThreadById( int threadId )
-{
-#ifdef _WIN32
-   osThread* thread = 0;
-   Mutex.Take();
-   for( int i = 0; i < MAX_THREADS; i++ )
-   {
-      if( Threads[ i ] && Threads[ i ]->GetThreadId() == threadId )
-      {
-         //Found it
-         thread = Threads[ i ];
-         break;
-      }
-   }
-   Mutex.Give();
-   return thread;
-#elif __linux__
-#endif
-}
-
-void osThread::Kill()
-{
-#ifdef _WIN32
-   TerminateThread( Handle, 0 );
-#elif __linux__
+   return (osThread*)pthread_getspecific( tlsKey );
 #endif
 }
 

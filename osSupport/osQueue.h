@@ -42,17 +42,17 @@ public:
 
    const char* GetName();
 
-   void* Peek( void );
+   void* Peek();
 
    void* Peek( int index );
 
-   void* Get( void );
+   void* Get();
 
    bool Put( void* item );
 
-   int GetCount( void );
+   int GetCount();
 
-   void Flush( void );
+   void Flush();
 
    bool Contains( void* object );
 

@@ -46,7 +46,7 @@ public:
 
    const char* GetName();
 
-   void* Peek( void );
+   void* Peek();
    void Push( void* );
    void* Pop();
 

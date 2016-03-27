@@ -112,7 +112,7 @@ bool osMutex::Take( const char* file, int line )
 
    return rc == 0;
 #elif __linux__
-   osThread* thread = (osThread*)pthread_getspecific( tlsKey );
+   osThread* thread = osThread::GetCurrent();
    if( thread )
    {
       thread->SetState( osThread::PENDING_MUTEX, file, line, this );

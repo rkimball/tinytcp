@@ -74,8 +74,6 @@ public:
 
    int WaitForExit( int32_t millisecondWaitTimeout = -1 );
 
-   void Kill();
-
    static void Sleep( unsigned long ms, const char* file, int line );
    
    static void USleep( unsigned long us, const char* file, int line );
@@ -85,10 +83,6 @@ public:
    void ClearState();
    
    static osThread* GetCurrent();
-
-   static int GetCurrentThreadId();
-
-   static osThread* GetThreadById( int threadId );
 
    const char* GetName();
 
@@ -122,10 +116,6 @@ private:
    THREAD_STATE         State; 
    void*                StateObject;
 };
-
-#ifdef __linux__
-extern pthread_key_t tlsKey;
-#endif
 
 #endif
 

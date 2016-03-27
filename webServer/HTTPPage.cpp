@@ -260,7 +260,7 @@ void http::Page::DumpData( const char* buffer, size_t length )
 //
 //============================================================================
 
-void http::Page::PageNotFound( void )
+void http::Page::PageNotFound()
 {
    SendString( "HTTP/1.0 404 Not Found\r\n\r\n" );
 }
@@ -280,7 +280,7 @@ void http::Page::PageOK( const char* mimeType )
 //
 //============================================================================
 
-void http::Page::PageNoContent( void )
+void http::Page::PageNoContent()
 {
    SendString( "HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n" );
 }
@@ -289,7 +289,7 @@ void http::Page::PageNoContent( void )
 //
 //============================================================================
 
-void http::Page::PageUnauthorized( void )
+void http::Page::PageUnauthorized()
 {
    SendString( "HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n" );
 }

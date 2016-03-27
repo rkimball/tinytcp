@@ -95,7 +95,7 @@ void osStack::Initialize( int elementCount, const char* name )
    Array = new void*[ elementCount ];
 }
 
-void* osStack::Peek( void )
+void* osStack::Peek()
 {
    void* rc = NULL;
    if( Index > 0 )
