@@ -39,9 +39,11 @@
 
 osMutex* osMutex::MutexList[ MAX_MUTEX ];
 
+#ifdef __linux__
 // Can't use osMutex to lock the MutexList because you can't create an osMutex
 // without locking the MutexList, so make a private mutex
 pthread_mutex_t osMutex::MutexListMutex;
+#endif
 
 osMutex::osMutex( const char* name ) :
    Name( name ),
@@ -147,21 +149,27 @@ void osMutex::StaticInit()
    if( !IsInitialized )
    {
       IsInitialized = true;
+#ifdef __linux__
       pthread_mutexattr_t attr;
       pthread_mutexattr_init( &attr );
       pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_RECURSIVE );
       pthread_mutex_init( &MutexListMutex, &attr );
+#endif
    }
 }
 
 void osMutex::LockListMutex()
 {
+#ifdef __linux__
    pthread_mutex_lock( &MutexListMutex );
+#endif
 }
 
 void osMutex::UnlockListMutex()
 {
+#ifdef __linux__
    pthread_mutex_unlock( &MutexListMutex );
+#endif
 }
 
 void osMutex::Show( osPrintfInterface* pfunc )

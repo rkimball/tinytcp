@@ -152,9 +152,10 @@ void osThread::Initialize()
       //ErrorExit( "TlsAlloc failed" );
    }
    TlsSetValue( dwTlsIndex, &MainThread );
-#endif
+#elif __linux__
    pthread_key_create( &tlsKey, NULL );
    pthread_t mainThread = pthread_self();
+#endif
    for( int i = 0; i<MAX_THREADS; i++ )
    {
       if( Threads[ i ] == NULL )

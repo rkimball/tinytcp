@@ -62,11 +62,11 @@ private:
    void* Handle;
 #elif __linux__
    pthread_mutex_t m_mutex;
-#endif
 
    // Can't use osMutex to lock the MutexList because you can't create an osMutex
    // without locking the MutexList, so make a private mutex
    static pthread_mutex_t MutexListMutex;
+#endif
 
    static void StaticInit();
    static void LockListMutex();
