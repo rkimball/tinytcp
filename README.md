@@ -11,7 +11,8 @@ mkdir myproject
 cd myproject
 git clone https://github.com/rkimball/tinytcp.git
 mkdir build
-cd buildcmake -G "Visual Studio 14 2015" ..\tinytcp
+cd build
+cmake -G "Visual Studio 14 2015" ..\tinytcp
 ```
 This generates tinytcp.sln solution file.
 ###Linux
