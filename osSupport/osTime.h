@@ -41,9 +41,7 @@ class osTime
 public:
    static const char* GetTimestamp();
 
-   static uint64_t GetTime( void );
-
-   static uint64_t GetProcessorTime( void );
+   static uint64_t GetTime();
 };
 
 #endif

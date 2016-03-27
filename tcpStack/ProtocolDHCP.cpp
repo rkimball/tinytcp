@@ -130,7 +130,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
       {
       case 2:  // offer
       {
-         PendingXID = (uint32_t)osTime::GetProcessorTime();
+         PendingXID = (uint32_t)osTime::GetTime();
          SendRequest( 3, siaddr, yiaddr );
          break;
       }
@@ -176,7 +176,7 @@ void ProtocolDHCP::Discover()
 
    if( buffer )
    {
-      PendingXID = (uint32_t)osTime::GetProcessorTime();
+      PendingXID = (uint32_t)osTime::GetTime();
 
       buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // op
       buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // htype
@@ -239,7 +239,7 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
 
    if( buffer )
    {
-      PendingXID = (uint32_t)osTime::GetProcessorTime();
+      PendingXID = (uint32_t)osTime::GetTime();
 
       buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // op
       buffer->Length = Pack8( buffer->Packet, buffer->Length, 1 );   // htype

@@ -38,7 +38,7 @@
 
 #include "osTime.h"
 
-uint64_t osTime::GetProcessorTime( void )
+uint64_t osTime::GetTime()
 {
 #ifdef _WIN32
    FILETIME    ftime;
@@ -60,11 +60,6 @@ uint64_t osTime::GetProcessorTime( void )
 #endif
 }
 
-uint64_t osTime::GetTime( void )
-{
-   return GetProcessorTime();
-}
-
 const char* osTime::GetTimestamp()
 {
    static char    s[64];
@@ -75,7 +70,7 @@ const char* osTime::GetTimestamp()
    uint64_t            time;
 
    //printf( "The time is %.19s.%hu %s", timeline, timebuffer.millitm, &timeline[20] );
-   time = GetProcessorTime();
+   time = GetTime();
 
    seconds = (uint32_t)(time / 1000000);
 
