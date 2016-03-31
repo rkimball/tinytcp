@@ -52,18 +52,17 @@ public:
    static DataBuffer* GetTxBuffer();
    static void FreeTxBuffer( DataBuffer* );
    static void FreeRxBuffer( DataBuffer* );
-   static bool IsLocalAddress( const uint8_t* addr );
+
+   static int HeaderSize();
 
    static void Show( osPrintfInterface* pfunc );
 
-   static int HeaderSize()
-   {
-      return MAC_HEADER_SIZE;
-   }
 private:
    static osQueue TxBufferQueue;
    static osQueue RxBufferQueue;
    static NetworkInterface* DataInterface;
+
+   static bool IsLocalAddress( const uint8_t* addr );
 
    ProtocolMACEthernet( ProtocolMACEthernet& );
    ProtocolMACEthernet();

@@ -258,6 +258,15 @@ void ProtocolMACEthernet::Retransmit( DataBuffer* buffer )
 //
 //============================================================================
 
+int ProtocolMACEthernet::HeaderSize()
+{
+   return MAC_HEADER_SIZE;
+}
+
+//============================================================================
+//
+//============================================================================
+
 void ProtocolMACEthernet::Show( osPrintfInterface* out )
 {
 }
