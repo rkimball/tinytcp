@@ -58,9 +58,9 @@ DataBuffer ProtocolARP::ARPRequest;
 #define ProtocolSizeOffset 5
 #define OpOffset 6
 #define SenderHardwareAddressOffset 8
-#define SenderProtocolAddressOffset (SenderHardwareAddressOffset+MACAddressSize)
+#define SenderProtocolAddressOffset (SenderHardwareAddressOffset+ProtocolMACEthernet::GetAddressSize())
 #define TargetHardwareAddressOffset (SenderProtocolAddressOffset+IPv4AddressSize)
-#define TargetProtocolAddressOffset (TargetHardwareAddressOffset+MACAddressSize)
+#define TargetProtocolAddressOffset (TargetHardwareAddressOffset+ProtocolMACEthernet::GetAddressSize())
 
 //============================================================================
 //
@@ -87,11 +87,11 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    if( opType == 1 )
    {
       // ARP Request
-      if( packet[ HardwareSizeOffset ] == MACAddressSize &&
+      if( packet[ HardwareSizeOffset ] == ProtocolMACEthernet::GetAddressSize() &&
           packet[ ProtocolSizeOffset ] == IPv4AddressSize )
       {
          // All of the sizes match
-         targetProtocolOffset = SenderHardwareAddressOffset + MACAddressSize * 2 + IPv4AddressSize;
+         targetProtocolOffset = SenderHardwareAddressOffset + ProtocolMACEthernet::GetAddressSize() * 2 + IPv4AddressSize;
 
          if( Address::Compare( &packet[ targetProtocolOffset ], Config.IPv4.Address, IPv4AddressSize ) )
          {
@@ -103,7 +103,7 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    else if( opType == 2 )
    {
       // ARP Reply
-      Add( &packet[ SenderHardwareAddressOffset + MACAddressSize ], &packet[ SenderHardwareAddressOffset ] );
+      Add( &packet[ SenderHardwareAddressOffset + ProtocolMACEthernet::GetAddressSize() ], &packet[ SenderHardwareAddressOffset ] );
       ProtocolIP::Retry();
    }
 }
@@ -156,7 +156,7 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
       {
          Cache[ i ].IPv4Address[ j ] = protocolAddress[ j ];
       }
-      for( j = 0; j < MACAddressSize; j++ )
+      for( j = 0; j < ProtocolMACEthernet::GetAddressSize(); j++ )
       {
          Cache[ i ].MACAddress[ j ] = hardwareAddress[ j ];
       }
@@ -222,7 +222,7 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
       return;
    }
 
-   txBuffer->Length += SenderHardwareAddressOffset + MACAddressSize * 2 + IPv4AddressSize * 2;
+   txBuffer->Length += SenderHardwareAddressOffset + ProtocolMACEthernet::GetAddressSize() * 2 + IPv4AddressSize * 2;
 
    for( i = 0; i < OpOffset; i++ )
    {
@@ -234,9 +234,9 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
    txBuffer->Packet[ OpOffset + 1 ] = 2;
 
    // Copy sender address to target address
-   for( i = 0; i < MACAddressSize; i++ )
+   for( i = 0; i < ProtocolMACEthernet::GetAddressSize(); i++ )
    {
-      txBuffer->Packet[ SenderHardwareAddressOffset + i ] = Config.MACAddress[ i ];
+      txBuffer->Packet[ SenderHardwareAddressOffset + i ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
       txBuffer->Packet[ TargetHardwareAddressOffset + i ] = packet[ SenderHardwareAddressOffset + i ];
    }
 
@@ -259,30 +259,23 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
    ARPRequest.Packet += ProtocolMACEthernet::HeaderSize();
    ARPRequest.Remainder -= ProtocolMACEthernet::HeaderSize();
 
-   ARPRequest.Length += SenderHardwareAddressOffset + MACAddressSize * 2 + IPv4AddressSize * 2;
+   ARPRequest.Length += SenderHardwareAddressOffset + ProtocolMACEthernet::GetAddressSize() * 2 + IPv4AddressSize * 2;
    ARPRequest.Disposable = false;
 
-   ARPRequest.Packet[ 0 ] = 0x00;  // Hardware Type
-   ARPRequest.Packet[ 1 ] = 0x01;
-   ARPRequest.Packet[ 2 ] = 0x08;  // Protocol Type
-   ARPRequest.Packet[ 3 ] = 0x00;
-   ARPRequest.Packet[ 4 ] = 0x06;  // Hardware Size
-   ARPRequest.Packet[ 5 ] = 0x04;  // Protocol Size
-   ARPRequest.Packet[ 6 ] = 0x00;  // Op
-   ARPRequest.Packet[ 7 ] = 0x01;
+   size_t offset = 0;
+   offset = Pack16( ARPRequest.Packet, offset, 0x0001 ); // Hardware Type
+   offset = Pack16( ARPRequest.Packet, offset, 0x0800 ); // Protocol Type
+   offset = Pack8( ARPRequest.Packet, offset, 6 ); // Hardware Size
+   offset = Pack8( ARPRequest.Packet, offset, 4 ); // Protocol Size
+   offset = Pack16( ARPRequest.Packet, offset, 0x0001 ); // Op
 
-   ARPRequest.Packet[ 8 ] = Config.MACAddress[ 0 ];
-   ARPRequest.Packet[ 9 ] = Config.MACAddress[ 1 ];
-   ARPRequest.Packet[ 10 ] = Config.MACAddress[ 2 ];
-   ARPRequest.Packet[ 11 ] = Config.MACAddress[ 3 ];
-   ARPRequest.Packet[ 12 ] = Config.MACAddress[ 4 ];
-   ARPRequest.Packet[ 13 ] = Config.MACAddress[ 5 ];
+   // Sender's Hardware Address
+   offset = PackBytes( ARPRequest.Packet, offset, ProtocolMACEthernet::GetUnicastAddress(), 6 );
 
-   ARPRequest.Packet[ 14 ] = Config.IPv4.Address[ 0 ];
-   ARPRequest.Packet[ 15 ] = Config.IPv4.Address[ 1 ];
-   ARPRequest.Packet[ 16 ] = Config.IPv4.Address[ 2 ];
-   ARPRequest.Packet[ 17 ] = Config.IPv4.Address[ 3 ];
+   // Sender's Protocol Address
+   offset = PackBytes( ARPRequest.Packet, offset, Config.IPv4.Address, 4 );
 
+   // Target's Hardware Address
    ARPRequest.Packet[ 18 ] = 0;
    ARPRequest.Packet[ 19 ] = 0;
    ARPRequest.Packet[ 20 ] = 0;
@@ -290,12 +283,10 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
    ARPRequest.Packet[ 22 ] = 0;
    ARPRequest.Packet[ 23 ] = 0;
 
-   ARPRequest.Packet[ 24 ] = targetIP[ 0 ];
-   ARPRequest.Packet[ 25 ] = targetIP[ 1 ];
-   ARPRequest.Packet[ 26 ] = targetIP[ 2 ];
-   ARPRequest.Packet[ 27 ] = targetIP[ 3 ];
+   // Target's Protocol Address
+   PackBytes( ARPRequest.Packet, 24, targetIP, 4 );
 
-   ProtocolMACEthernet::Transmit( &ARPRequest, Config.BroadcastMACAddress, 0x0806 );
+   ProtocolMACEthernet::Transmit( &ARPRequest, ProtocolMACEthernet::GetBroadcastAddress(), 0x0806 );
 }
 
 //============================================================================
@@ -309,7 +300,7 @@ uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 
    if( IsBroadcast( protocolAddress ) )
    {
-      rc = Config.BroadcastMACAddress;
+      rc = ProtocolMACEthernet::GetBroadcastAddress();
    }
    else
    {

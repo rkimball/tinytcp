@@ -31,6 +31,7 @@
 
 #include "Address.h"
 #include "Utility.h"
+#include "ProtocolMACEthernet.h"
 
 AddressConfiguration Config;
 
@@ -58,7 +59,8 @@ AddressConfiguration::IPv4_t::IPv4_t() :
 void AddressConfiguration::Show( osPrintfInterface* out )
 {
    out->Printf( "Network Configuration\n" );
-   out->Printf( "Ethernet MAC Address: %s\n", macaddrtoa( MACAddress ) );
+   out->Printf( "Ethernet Unicast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetUnicastAddress() ) );
+   out->Printf( "Ethernet Broadcast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetBroadcastAddress() ) );
 
    out->Printf( "IPv4 Configuration\n" );
    out->Printf( "   Address:            %s\n", ipv4toa( IPv4.Address ) );

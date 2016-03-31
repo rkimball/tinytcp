@@ -48,8 +48,6 @@ class AddressConfiguration
 {
 public:
    //Address Address;
-   uint8_t MACAddress[ MACAddressSize ];
-   uint8_t BroadcastMACAddress[ MACAddressSize ];
 
    class IPv4_t
    {

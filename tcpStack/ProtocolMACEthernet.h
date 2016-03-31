@@ -55,12 +55,22 @@ public:
 
    static int HeaderSize();
 
+   static uint8_t* GetUnicastAddress() { return UnicastAddress; }
+   static uint8_t* GetBroadcastAddress() { return BroadcastAddress; }
+   static size_t GetAddressSize() { return MACAddressSize; }
+
+   static void SetUnicastAddress( uint8_t* addr );
+
    static void Show( osPrintfInterface* pfunc );
 
 private:
    static osQueue TxBufferQueue;
    static osQueue RxBufferQueue;
    static NetworkInterface* DataInterface;
+
+   static const int MACAddressSize = 6;
+   static uint8_t UnicastAddress[];
+   static uint8_t BroadcastAddress[];
 
    static bool IsLocalAddress( const uint8_t* addr );
 

@@ -56,6 +56,9 @@ osQueue ProtocolMACEthernet::RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffe
 
 static osEvent Event( "MACEthernet" );
 
+uint8_t ProtocolMACEthernet::UnicastAddress[ MACAddressSize ];
+uint8_t ProtocolMACEthernet::BroadcastAddress[ MACAddressSize ];
+
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes
@@ -70,12 +73,12 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
 
    DataInterface = dataInterface;
 
-   Config.BroadcastMACAddress[ 0 ] = 0xFF;
-   Config.BroadcastMACAddress[ 1 ] = 0xFF;
-   Config.BroadcastMACAddress[ 2 ] = 0xFF;
-   Config.BroadcastMACAddress[ 3 ] = 0xFF;
-   Config.BroadcastMACAddress[ 4 ] = 0xFF;
-   Config.BroadcastMACAddress[ 5 ] = 0xFF;
+   BroadcastAddress[ 0 ] = 0xFF;
+   BroadcastAddress[ 1 ] = 0xFF;
+   BroadcastAddress[ 2 ] = 0xFF;
+   BroadcastAddress[ 3 ] = 0xFF;
+   BroadcastAddress[ 4 ] = 0xFF;
+   BroadcastAddress[ 5 ] = 0xFF;
 
    for( i=0; i<TX_BUFFER_COUNT; i++ )
    {
@@ -96,8 +99,8 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
 
 bool ProtocolMACEthernet::IsLocalAddress( const uint8_t* addr )
 {
-   return Address::Compare( Config.MACAddress, addr, 6 ) ||
-      Address::Compare( Config.BroadcastMACAddress, addr, 6 );
+   return Address::Compare( UnicastAddress, addr, 6 ) ||
+      Address::Compare( BroadcastAddress, addr, 6 );
 }
 
 //============================================================================
@@ -223,7 +226,7 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC
 
    size_t offset = 0;
    offset = PackBytes( buffer->Packet, offset, targetMAC, 6 );
-   offset = PackBytes( buffer->Packet, offset, Config.MACAddress, 6 );
+   offset = PackBytes( buffer->Packet, offset, UnicastAddress, 6 );
    offset = Pack16( buffer->Packet, offset, type );
    
    offset += buffer->Length;
@@ -269,4 +272,13 @@ int ProtocolMACEthernet::HeaderSize()
 
 void ProtocolMACEthernet::Show( osPrintfInterface* out )
 {
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ProtocolMACEthernet::SetUnicastAddress( uint8_t* addr )
+{
+   for( int i=0; i<6; i++ ) { UnicastAddress[ i ] = addr[ i ]; }
 }

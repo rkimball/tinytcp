@@ -87,23 +87,9 @@ void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_ch
 
 void NetworkEntry( void* param )
 {
-   NetworkConfig& config = *(NetworkConfig*)param;
-   char device[ 256 ];
-
    // This is just a made-up MAC address to user for testing
-   Config.MACAddress[ 0 ] = 0x10;
-   Config.MACAddress[ 1 ] = 0xBF;
-   Config.MACAddress[ 2 ] = 0x48;
-   Config.MACAddress[ 3 ] = 0x44;
-   Config.MACAddress[ 4 ] = 0x55;
-   Config.MACAddress[ 5 ] = 0x66;
-
-//   Config.MACAddress[ 0 ] = 0x00;
-//   Config.MACAddress[ 1 ] = 0x15;
-//   Config.MACAddress[ 2 ] = 0x5d;
-//   Config.MACAddress[ 3 ] = 0x1c;
-//   Config.MACAddress[ 4 ] = 0xa5;
-//   Config.MACAddress[ 5 ] = 0xee;
+   uint8_t addr[] = { 0x10, 0xBF, 0x48, 0x44, 0x55, 0x66 };
+   ProtocolMACEthernet::SetUnicastAddress( addr );
 
    Config.IPv4.Address[ 0 ] = 0;
    Config.IPv4.Address[ 1 ] = 0;
@@ -111,6 +97,9 @@ void NetworkEntry( void* param )
    Config.IPv4.Address[ 3 ] = 0;
 
 #ifdef _WIN32
+   NetworkConfig& config = *(NetworkConfig*)param;
+   char device[ 256 ];
+
    PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
    printf( "using device %s\n", device );
    //PacketIO::GetMACAddress( device, Config.MACAddress );

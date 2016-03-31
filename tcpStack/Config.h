@@ -36,7 +36,6 @@
 #include <cstdio>
 
 static const size_t IPv4AddressSize = 4;
-static const uint8_t MACAddressSize = 6;
 
 #define TCP_MAX_CONNECTIONS (5)
 #define TCP_RX_WINDOW_SIZE (256)

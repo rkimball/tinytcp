@@ -37,6 +37,7 @@
 #include "ProtocolDHCP.h"
 #include "ProtocolUDP.h"
 #include "ProtocolIP.h"
+#include "ProtocolMACEthernet.h"
 #include "NetworkInterface.h"
 #include "Utility.h"
 #include "osTime.h"
@@ -189,7 +190,7 @@ void ProtocolDHCP::Discover()
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Server IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
-      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.MACAddress[ i ];
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
       for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
       for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
       for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
@@ -204,7 +205,7 @@ void ProtocolDHCP::Discover()
       buffer->Packet[ buffer->Length++ ] = 61;
       buffer->Packet[ buffer->Length++ ] = 7; // length
       buffer->Packet[ buffer->Length++ ] = 1; // type is hardware address
-      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.MACAddress[ i ];
+      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
 
       // host name
       const char* name = "tinytcp";
@@ -259,7 +260,7 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
          buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
       }
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
-      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = Config.MACAddress[ i ];
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
       for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
       for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
       for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
