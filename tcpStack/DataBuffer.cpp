@@ -31,3 +31,14 @@
 
 #include "DataBuffer.h"
 
+DataBuffer::DataBuffer()
+{
+}
+
+void DataBuffer::Initialize()
+{
+   Packet = Data;
+   Length = 0;
+   Remainder = DATA_BUFFER_PAYLOAD_SIZE;
+   Disposable = true;
+}

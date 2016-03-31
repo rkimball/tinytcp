@@ -45,6 +45,4 @@ public:
    virtual void TxData( void* data, size_t length ) = 0;
 };
 
-void NetworkRxData( void* data, size_t length );
-
 #endif

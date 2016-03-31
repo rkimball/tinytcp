@@ -132,7 +132,7 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
    }
    packet->Length = length;
 
-   type = packet->Packet[ 12 ] << 8 | packet->Packet[ 13 ];
+   type = Unpack16( packet->Packet, 12 );
 
    // Check if the MAC Address is destined for me
    if( IsLocalAddress( packet->Packet ) )

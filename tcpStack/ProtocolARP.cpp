@@ -66,6 +66,15 @@ DataBuffer ProtocolARP::ARPRequest;
 //
 //============================================================================
 
+void ProtocolARP::Initialize()
+{
+
+}
+
+//============================================================================
+//
+//============================================================================
+
 void ProtocolARP::ProcessRx( DataBuffer* buffer )
 {
    uint8_t targetProtocolOffset;

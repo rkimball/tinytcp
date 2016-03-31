@@ -47,6 +47,14 @@ bool Address::Compare( const uint8_t* a1, const uint8_t* a2, int length )
    return true;
 }
 
+AddressConfiguration::IPv4_t::IPv4_t() :
+   DataValid(false),
+   IpAddressLeaseTime(0),
+   RenewTime(0),
+   RebindTime(0)
+{
+}
+
 void AddressConfiguration::Show( osPrintfInterface* out )
 {
    out->Printf( "Network Configuration\n" );

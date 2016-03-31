@@ -54,13 +54,7 @@ public:
    class IPv4_t
    {
    public:
-      IPv4_t() :
-         DataValid(false),
-         IpAddressLeaseTime(0),
-         RenewTime(0),
-         RebindTime(0)
-      {
-      }
+      IPv4_t();
 
       bool  DataValid;
       uint8_t Address[ IPv4AddressSize ];

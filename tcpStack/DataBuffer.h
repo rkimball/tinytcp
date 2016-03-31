@@ -38,22 +38,16 @@
 class DataBuffer
 {
 public:
-   DataBuffer(){}
+   DataBuffer();
    
    uint8_t* Packet;
-   uint32_t  AcknowledgementNumber;
-   uint32_t  Time_us;
+   uint32_t AcknowledgementNumber;
+   uint32_t Time_us;
    uint16_t Length;
    uint16_t Remainder;
-   bool  Disposable;
+   bool Disposable;
 
-   void Initialize()
-   {
-      Packet = Data;
-      Length = 0;
-      Remainder = DATA_BUFFER_PAYLOAD_SIZE;
-      Disposable = true;
-   }
+   void Initialize();
 
 private:
    uint8_t    Data[ DATA_BUFFER_PAYLOAD_SIZE ];

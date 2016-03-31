@@ -105,8 +105,8 @@ private:
    TCPConnection* Parent;
 
    osEvent Event;
-   osQueue  HoldingQueue;
-   osMutex  HoldingQueueLock;
+   osQueue HoldingQueue;
+   osMutex HoldingQueueLock;
    void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];
    void Tick();
 
