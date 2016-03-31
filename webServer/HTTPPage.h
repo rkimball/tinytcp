@@ -41,20 +41,6 @@ namespace http
    class Page;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class http::Page : public osPrintfInterface
 {
    friend class Server;
@@ -63,7 +49,7 @@ public:
    static const uint32_t  BUFFER_SIZE = 512;
    typedef void(*MarkerContent)( http::Page* );
 
-   void Initialize( ProtocolTCP::Connection* );
+   void Initialize( TCPConnection* );
 
    int Printf( const char* format, ... );
    static void HTMLEncodef( osPrintfInterface*, const char* format, ... );
@@ -100,7 +86,7 @@ public:
    int         TagDepth;
    bool        StartTagOpen;
 
-   ProtocolTCP::Connection*   Connection;
+   TCPConnection*   Connection;
 
 private:
    Page( Page& );

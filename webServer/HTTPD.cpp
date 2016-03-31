@@ -59,8 +59,8 @@ bool                 http::Server::DebugFlag = false;
 
 static osThread      Thread;
 
-static ProtocolTCP::Connection*  ListenerConnection;
-static ProtocolTCP::Connection*  CurrentConnection;
+static TCPConnection*  ListenerConnection;
+static TCPConnection*  CurrentConnection;
 
 void http::Server::RegisterPageHandler( PageRequestHandler handler )
 {
@@ -87,7 +87,7 @@ void http::Server::ProcessRequest( http::Page* page )
    int            argc;
    char*          argv[ MAX_ARGV ];
    int            rc;
-   ProtocolTCP::Connection* connection = page->Connection;
+   TCPConnection* connection = page->Connection;
 
    actualSizeRead = connection->ReadLine( buffer1, sizeof(buffer1) );
    if( actualSizeRead == -1 )
@@ -247,7 +247,7 @@ void http::Server::ConnectionHandlerEntry( void* param )
 
 void http::Server::TaskEntry( void* param )
 {
-   ProtocolTCP::Connection* connection;
+   TCPConnection* connection;
    Page* page;
 
    while( 1 )

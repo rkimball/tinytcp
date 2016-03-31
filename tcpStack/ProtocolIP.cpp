@@ -79,14 +79,14 @@ bool ProtocolIP::IsLocal( const uint8_t* addr )
    uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
    if( Config.IPv4.DataValid )
    {
-      rc = Address::Compare( addr, broadcast, Config.IPv4AddressSize ) ||
-            Address::Compare( addr, Config.IPv4.Address, Config.IPv4AddressSize ) ||
-            Address::Compare( addr, Config.IPv4.BroadcastAddress, Config.IPv4AddressSize )
+      rc = Address::Compare( addr, broadcast, IPv4AddressSize ) ||
+            Address::Compare( addr, Config.IPv4.Address, IPv4AddressSize ) ||
+            Address::Compare( addr, Config.IPv4.BroadcastAddress, IPv4AddressSize )
          ;
    }
    else
    {
-      rc = Address::Compare( addr, broadcast, Config.IPv4AddressSize );
+      rc = Address::Compare( addr, broadcast, IPv4AddressSize );
    }
    return rc;
 }

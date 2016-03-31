@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,22 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef ADDRESS_H
-#define ADDRESS_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include <inttypes.h>
-#include <stddef.h>
-#include <osPrintfInterface.h>
-#include "Config.h"
+#include <cstdio>
 
-class Address
-{
-public:
+static const size_t IPv4AddressSize = 4;
+static const uint8_t MACAddressSize = 6;
 
-   static bool Compare( const uint8_t* a1, const uint8_t* a2, int length );
-};
+#define TCP_MAX_CONNECTIONS (5)
+#define TCP_RX_WINDOW_SIZE (256)
 
-class AddressConfiguration
-{
-public:
-   //Address Address;
-   uint8_t MACAddress[ MACAddressSize ];
-   uint8_t BroadcastMACAddress[ MACAddressSize ];
+#define TX_BUFFER_COUNT (20)
+#define RX_BUFFER_COUNT (20)
 
-   class IPv4_t
-   {
-   public:
-      IPv4_t() :
-         DataValid(false),
-         IpAddressLeaseTime(0),
-         RenewTime(0),
-         RebindTime(0)
-      {
-      }
+#define DATA_BUFFER_PAYLOAD_SIZE (512)
 
-      bool  DataValid;
-      uint8_t Address[ IPv4AddressSize ];
-      uint32_t IpAddressLeaseTime;
-      uint32_t RenewTime;
-      uint32_t RebindTime;
-      uint8_t SubnetMask[ IPv4AddressSize ];
-      uint8_t Gateway[ IPv4AddressSize ];
-      uint8_t DomainNameServer[ IPv4AddressSize ];
-      uint8_t BroadcastAddress[ IPv4AddressSize ];
-   } IPv4;
-
-   void Show( osPrintfInterface* out );
-};
-
-extern AddressConfiguration Config;
 
 #endif

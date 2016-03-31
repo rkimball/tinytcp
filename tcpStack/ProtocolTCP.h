@@ -40,6 +40,7 @@
 #include "osMutex.h"
 #include "DataBuffer.h"
 #include "osEvent.h"
+#include "TCPConnection.h"
 
 // SourcePort - 16 bits
 // TargetPort - 16 bits
@@ -83,96 +84,24 @@
 class ProtocolTCP
 {
 public:
-   class Connection
-   {
-   public:
-      typedef enum States
-      {
-         CLOSED = 0,
-         LISTEN,
-         SYN_SENT,
-         SYN_RECEIVED,
-         ESTABLISHED,
-         FIN_WAIT_1,
-         FIN_WAIT_2,
-         CLOSE_WAIT,
-         CLOSING,
-         LAST_ACK,
-         TIMED_WAIT,
-         TTCP_PERSIST
-      } TCP_STATES;
-
-      friend class ProtocolTCP;
-
-      States State;
-      uint16_t LocalPort;
-      uint16_t RemotePort;
-      uint8_t  RemoteAddress[ AddressConfiguration::IPv4AddressSize ];
-      uint32_t SequenceNumber;
-      uint32_t AcknowledgementNumber;
-      uint32_t LastAck;
-      uint32_t MaxSequenceTx;
-      uint32_t RTT_us;
-      uint32_t RTTDeviation;
-      uint32_t Time_us;
-
-      ~Connection();
-      void SendFlags( uint8_t flags );
-      void Close();
-      Connection* Listen();
-
-      int Read();
-      int ReadLine( char* buffer, int size );
-      void Write( const uint8_t* data, uint16_t length );
-      void Flush();
-      const char* GetStateString();
-   
-   private:
-      uint16_t RxInOffset;
-      uint16_t RxOutOffset;
-      uint16_t TxOffset;    // Offset into Data used by Write() method
-      uint16_t CurrentWindow;
-
-      DataBuffer* TxBuffer;
-      uint8_t RxBuffer[ TCP_RX_WINDOW_SIZE ];
-      bool RxBufferEmpty;
-      void StoreRxData( DataBuffer* buffer );
-
-      DataBuffer* GetTxBuffer();
-      void BuildPacket( DataBuffer*, uint8_t flags );
-      void CalculateRTT( int32_t msRTT );
-
-      // This stuff is used for Listening for incomming connections
-      Connection* NewConnection;
-      Connection* Parent;
-
-      osEvent Event;
-      osQueue  HoldingQueue;
-      osMutex  HoldingQueueLock;
-      void Tick();
-      
-      Connection();
-      Connection( Connection& );
-   };
-
-   friend class Connection;
+   friend class TCPConnection;
 
    static void Initialize();
    static void Tick();
 
-   static Connection* NewClient( const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
-   static Connection* NewServer( uint16_t port );
+   static TCPConnection* NewClient( const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
+   static TCPConnection* NewServer( uint16_t port );
    static uint16_t NewPort();
 
    static void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
    static void Show( osPrintfInterface* out );
 
 private:
-   static Connection* LocateConnection( uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort );
+   static TCPConnection* LocateConnection( uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort );
    static uint16_t ComputeChecksum( uint8_t* packet, uint16_t length, const uint8_t* sourceIP, const uint8_t* targetIP );
    static void Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress );
 
-   static Connection ConnectionList[ TCP_MAX_CONNECTIONS ];
+   static TCPConnection ConnectionList[ TCP_MAX_CONNECTIONS ];
    static uint16_t NextPort;
 
    ProtocolTCP();

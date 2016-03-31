@@ -38,6 +38,7 @@
 #include "ProtocolIP.h"
 #include "DataBuffer.h"
 #include "NetworkInterface.h"
+#include "Config.h"
 
 ARPCacheEntry ProtocolARP::Cache[ ProtocolARP::CacheSize ];
 
@@ -57,9 +58,9 @@ DataBuffer ProtocolARP::ARPRequest;
 #define ProtocolSizeOffset 5
 #define OpOffset 6
 #define SenderHardwareAddressOffset 8
-#define SenderProtocolAddressOffset (SenderHardwareAddressOffset+Config.MACAddressSize)
-#define TargetHardwareAddressOffset (SenderProtocolAddressOffset+Config.IPv4AddressSize)
-#define TargetProtocolAddressOffset (TargetHardwareAddressOffset+Config.MACAddressSize)
+#define SenderProtocolAddressOffset (SenderHardwareAddressOffset+MACAddressSize)
+#define TargetHardwareAddressOffset (SenderProtocolAddressOffset+IPv4AddressSize)
+#define TargetProtocolAddressOffset (TargetHardwareAddressOffset+MACAddressSize)
 
 //============================================================================
 //
@@ -77,13 +78,13 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    if( opType == 1 )
    {
       // ARP Request
-      if( packet[ HardwareSizeOffset ] == Config.MACAddressSize &&
-          packet[ ProtocolSizeOffset ] == Config.IPv4AddressSize )
+      if( packet[ HardwareSizeOffset ] == MACAddressSize &&
+          packet[ ProtocolSizeOffset ] == IPv4AddressSize )
       {
          // All of the sizes match
-         targetProtocolOffset = SenderHardwareAddressOffset + Config.MACAddressSize * 2 + Config.IPv4AddressSize;
+         targetProtocolOffset = SenderHardwareAddressOffset + MACAddressSize * 2 + IPv4AddressSize;
 
-         if( Address::Compare( &packet[ targetProtocolOffset ], Config.IPv4.Address, Config.IPv4AddressSize ) )
+         if( Address::Compare( &packet[ targetProtocolOffset ], Config.IPv4.Address, IPv4AddressSize ) )
          {
             // This ARP is for me
             SendReply( packet, length );
@@ -93,7 +94,7 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    else if( opType == 2 )
    {
       // ARP Reply
-      Add( &packet[ SenderHardwareAddressOffset + Config.MACAddressSize ], &packet[ SenderHardwareAddressOffset ] );
+      Add( &packet[ SenderHardwareAddressOffset + MACAddressSize ], &packet[ SenderHardwareAddressOffset ] );
       ProtocolIP::Retry();
    }
 }
@@ -142,11 +143,11 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
 
       // At this point i is the entry we want to use
       Cache[ i ].Age = 1;
-      for( j = 0; j < Config.IPv4AddressSize; j++ )
+      for( j = 0; j < IPv4AddressSize; j++ )
       {
          Cache[ i ].IPv4Address[ j ] = protocolAddress[ j ];
       }
-      for( j = 0; j < Config.MACAddressSize; j++ )
+      for( j = 0; j < MACAddressSize; j++ )
       {
          Cache[ i ].MACAddress[ j ] = hardwareAddress[ j ];
       }
@@ -212,7 +213,7 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
       return;
    }
 
-   txBuffer->Length += SenderHardwareAddressOffset + Config.MACAddressSize * 2 + Config.IPv4AddressSize * 2;
+   txBuffer->Length += SenderHardwareAddressOffset + MACAddressSize * 2 + IPv4AddressSize * 2;
 
    for( i = 0; i < OpOffset; i++ )
    {
@@ -224,13 +225,13 @@ void ProtocolARP::SendReply( uint8_t* packet, int length )
    txBuffer->Packet[ OpOffset + 1 ] = 2;
 
    // Copy sender address to target address
-   for( i = 0; i < Config.MACAddressSize; i++ )
+   for( i = 0; i < MACAddressSize; i++ )
    {
       txBuffer->Packet[ SenderHardwareAddressOffset + i ] = Config.MACAddress[ i ];
       txBuffer->Packet[ TargetHardwareAddressOffset + i ] = packet[ SenderHardwareAddressOffset + i ];
    }
 
-   for( i = 0; i < Config.IPv4AddressSize; i++ )
+   for( i = 0; i < IPv4AddressSize; i++ )
    {
       txBuffer->Packet[ SenderProtocolAddressOffset + i ] = Config.IPv4.Address[ i ];
       txBuffer->Packet[ TargetProtocolAddressOffset + i ] = packet[ SenderProtocolAddressOffset + i ];
@@ -249,7 +250,7 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
    ARPRequest.Packet += ProtocolMACEthernet::HeaderSize();
    ARPRequest.Remainder -= ProtocolMACEthernet::HeaderSize();
 
-   ARPRequest.Length += SenderHardwareAddressOffset + Config.MACAddressSize * 2 + Config.IPv4AddressSize * 2;
+   ARPRequest.Length += SenderHardwareAddressOffset + MACAddressSize * 2 + IPv4AddressSize * 2;
    ARPRequest.Disposable = false;
 
    ARPRequest.Packet[ 0 ] = 0x00;  // Hardware Type
@@ -328,7 +329,7 @@ uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 bool ProtocolARP::IsBroadcast( const uint8_t* protocolAddress )
 {
    bool rc = true;
-   for( int i = 0; i < AddressConfiguration::IPv4AddressSize; i++ )
+   for( int i = 0; i < IPv4AddressSize; i++ )
    {
       if( protocolAddress[ i ] != 0xFF )
       {
@@ -347,7 +348,7 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
 {
    int i;
 
-   for( i = 0; i < AddressConfiguration::IPv4AddressSize; i++ )
+   for( i = 0; i < IPv4AddressSize; i++ )
    {
       if
          (
@@ -359,7 +360,7 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
       }
    }
 
-   return i == AddressConfiguration::IPv4AddressSize;
+   return i == IPv4AddressSize;
 }
 
 //============================================================================
@@ -375,7 +376,7 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
    {
       // Go through the address backwards since least significant byte is most
       // likely to be unique
-      for( j = AddressConfiguration::IPv4AddressSize - 1; j >= 0; j-- )
+      for( j = IPv4AddressSize - 1; j >= 0; j-- )
       {
          if( Cache[ i ].IPv4Address[ j ] != protocolAddress[ j ] )
          {

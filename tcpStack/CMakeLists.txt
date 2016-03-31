@@ -11,7 +11,9 @@ set( SOURCE
     ProtocolMACEthernet.cpp
     ProtocolTCP.cpp
     ProtocolUDP.cpp
+    TCPConnection.cpp
     Utility.cpp
+    Config.h
     )
 add_library( ${LIB} ${SOURCE} )
 add_dependencies( ${LIB} osSupport )

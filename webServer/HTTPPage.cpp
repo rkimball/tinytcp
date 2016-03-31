@@ -53,7 +53,7 @@ http::Page::~Page()
 {
 }
 
-void http::Page::Initialize( ProtocolTCP::Connection* connection )
+void http::Page::Initialize( TCPConnection* connection )
 {
    Connection = connection;
    Busy = 0;
