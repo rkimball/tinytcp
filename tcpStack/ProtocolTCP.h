@@ -59,8 +59,6 @@
 // UrgentPointer - 16 bits
 
 #define TCP_HEADER_SIZE (20)
-#define TCP_MAX_CONNECTIONS (5)
-#define TCP_RX_WINDOW_SIZE (256)
 #if TCP_RX_WINDOW_SIZE > (DATA_BUFFER_PAYLOAD_SIZE - TCP_HEADER_SIZE - IP_HEADER_SIZE - MAC_HEADER_SIZE)
 #error Rx window size must be smaller than data payload
 #endif

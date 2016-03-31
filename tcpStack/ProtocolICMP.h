@@ -38,7 +38,7 @@
 class ProtocolICMP
 {
 public:
-   static void Initialize(){};
+   static void Initialize(){}
 
    static void ProcessRx( DataBuffer*, const uint8_t* sourceIP );
 

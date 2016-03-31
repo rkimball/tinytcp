@@ -57,7 +57,7 @@ public:
 class ProtocolARP
 {
 public:
-   static void Initialize(){};
+   static void Initialize(){}
    
    static void ProcessRx( DataBuffer* );
 

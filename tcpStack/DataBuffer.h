@@ -33,16 +33,12 @@
 #define DataBuffer_H
 
 #include <inttypes.h>
-
-#define TX_BUFFER_COUNT (20)
-#define RX_BUFFER_COUNT (20)
-
-#define DATA_BUFFER_PAYLOAD_SIZE (512)
+#include "Config.h"
 
 class DataBuffer
 {
 public:
-   DataBuffer(){};
+   DataBuffer(){}
    
    uint8_t* Packet;
    uint32_t  AcknowledgementNumber;
