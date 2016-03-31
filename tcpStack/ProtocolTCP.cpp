@@ -35,7 +35,7 @@
 #endif
 
 #include "ProtocolTCP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "Address.h"
 #include "FCS.h"
 #include "Utility.h"
@@ -238,7 +238,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                   if( (int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0 )
                   {
                      connection->CalculateRTT( (int32_t)(time_us - buffer->Time_us) );
-                     ProtocolIP::FreeTxBuffer( buffer );
+                     ProtocolIPv4::FreeTxBuffer( buffer );
                   }
                   else
                   {
@@ -268,7 +268,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                // Copy it to the application
                rxBuffer->Disposable = false;
                connection->StoreRxData( rxBuffer );
-               ProtocolIP::FreeRxBuffer( rxBuffer );
+               ProtocolIPv4::FreeRxBuffer( rxBuffer );
                connection->Event.Notify();
             }
 
@@ -295,7 +295,7 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t*
    uint16_t checksum;
    uint16_t length;
 
-   DataBuffer* buffer = ProtocolIP::GetTxBuffer();
+   DataBuffer* buffer = ProtocolIPv4::GetTxBuffer();
 
    if( buffer == 0 )
    {
@@ -327,7 +327,7 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t*
       buffer->Length += TCP_HEADER_SIZE;
       buffer->Remainder -= buffer->Length;
 
-      ProtocolIP::Transmit( buffer, 0x06, remoteAddress, Config.IPv4.Address );
+      ProtocolIPv4::Transmit( buffer, 0x06, remoteAddress, Config.IPv4.Address );
    }
 }
 

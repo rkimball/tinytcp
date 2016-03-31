@@ -36,7 +36,7 @@
 #include <string.h>
 #include "ProtocolDHCP.h"
 #include "ProtocolUDP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "ProtocolMACEthernet.h"
 #include "NetworkInterface.h"
 #include "Utility.h"

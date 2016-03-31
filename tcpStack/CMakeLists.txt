@@ -7,7 +7,7 @@ set( SOURCE
     ProtocolARP.cpp
     ProtocolDHCP.cpp
     ProtocolICMP.cpp
-    ProtocolIP.cpp
+    ProtocolIPv4.cpp
     ProtocolMACEthernet.cpp
     ProtocolTCP.cpp
     ProtocolUDP.cpp

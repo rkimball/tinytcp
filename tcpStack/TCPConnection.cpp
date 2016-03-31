@@ -31,7 +31,7 @@
 
 #include "TCPConnection.h"
 #include "ProtocolTCP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "Utility.h"
 #include "Address.h"
 #include "osTime.h"
@@ -131,7 +131,7 @@ void TCPConnection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          HoldingQueueLock.Give();
       }
 
-      ProtocolIP::Transmit( buffer, 0x06, RemoteAddress, Config.IPv4.Address );
+      ProtocolIPv4::Transmit( buffer, 0x06, RemoteAddress, Config.IPv4.Address );
    }
 }
 
@@ -143,7 +143,7 @@ DataBuffer* TCPConnection::GetTxBuffer()
 {
    DataBuffer* rc;
 
-   rc = ProtocolIP::GetTxBuffer();
+   rc = ProtocolIPv4::GetTxBuffer();
    if( rc )
    {
       rc->Packet    += TCP_HEADER_SIZE;
@@ -369,7 +369,7 @@ void TCPConnection::Tick()
       {
          printf( "TCP retransmit timeout %u, %u, delta %d\n", buffer->Time_us, timeoutTime_us, (int32_t)(buffer->Time_us - timeoutTime_us) );
          buffer->Time_us = currentTime_us;
-         ProtocolIP::Retransmit( buffer );
+         ProtocolIPv4::Retransmit( buffer );
       }
 
       HoldingQueue.Put( buffer );

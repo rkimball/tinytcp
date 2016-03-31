@@ -29,8 +29,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLIP_H
-#define PROTOCOLIP_H
+#ifndef PROTOCOLIPV4_H
+#define PROTOCOLIPV4_H
 
 #include <inttypes.h>
 #include "osQueue.h"
@@ -38,7 +38,7 @@
 
 #define IP_HEADER_SIZE (20)
 
-class ProtocolIP
+class ProtocolIPv4
 {
 public:
    static void Initialize();
@@ -61,8 +61,8 @@ private:
 
    static osQueue UnresolvedQueue;
 
-   ProtocolIP();
-   ProtocolIP( ProtocolIP& );
+   ProtocolIPv4();
+   ProtocolIPv4( ProtocolIPv4& );
 };
 
 #endif

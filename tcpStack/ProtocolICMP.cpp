@@ -32,7 +32,7 @@
 #include <stdio.h>
 
 #include "ProtocolICMP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "FCS.h"
 #include "Utility.h"
 #include "NetworkInterface.h"
@@ -66,7 +66,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP )
    switch( type )
    {
    case 8:  // echo request
-      txBuffer = ProtocolIP::GetTxBuffer();
+      txBuffer = ProtocolIPv4::GetTxBuffer();
       if( txBuffer && buffer->Length <= txBuffer->Remainder )
       {
          for( i=0; i<buffer->Length; i++ )
@@ -78,7 +78,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP )
          i = FCS::Checksum( txBuffer->Packet, buffer->Length );
          Pack16( txBuffer->Packet, 2, i ); // set the checksum
          txBuffer->Length = buffer->Length;
-         ProtocolIP::Transmit( txBuffer, 0x01, remoteIP, Config.IPv4.Address );
+         ProtocolIPv4::Transmit( txBuffer, 0x01, remoteIP, Config.IPv4.Address );
       }
       break;
    default:

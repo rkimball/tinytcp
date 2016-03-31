@@ -35,7 +35,7 @@
 #include "Utility.h"
 #include "ProtocolMACEthernet.h"
 #include "ProtocolARP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "DataBuffer.h"
 #include "NetworkInterface.h"
 #include "Config.h"
@@ -104,7 +104,7 @@ void ProtocolARP::ProcessRx( DataBuffer* buffer )
    {
       // ARP Reply
       Add( &packet[ SenderHardwareAddressOffset + ProtocolMACEthernet::GetAddressSize() ], &packet[ SenderHardwareAddressOffset ] );
-      ProtocolIP::Retry();
+      ProtocolIPv4::Retry();
    }
 }
 

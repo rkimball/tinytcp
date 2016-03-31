@@ -35,7 +35,7 @@
 #include "Address.h"
 #include "Utility.h"
 #include "ProtocolARP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "NetworkInterface.h"
 
 #include "osQueue.h"
@@ -90,7 +90,7 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
    }
 
    ProtocolARP::Initialize();
-   ProtocolIP::Initialize();
+   ProtocolIPv4::Initialize();
 }
 
 //============================================================================
@@ -155,7 +155,7 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
       switch( type )
       {
       case 0x0800:   // IP
-         ProtocolIP::ProcessRx( packet, &buffer[ 6 ] );
+         ProtocolIPv4::ProcessRx( packet, &buffer[ 6 ] );
          break;
       case 0x0806:   // ARP
          ProtocolARP::ProcessRx( packet );

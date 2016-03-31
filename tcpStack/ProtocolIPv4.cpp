@@ -33,7 +33,7 @@
 
 #include "ProtocolMACEthernet.h"
 #include "ProtocolARP.h"
-#include "ProtocolIP.h"
+#include "ProtocolIPv4.h"
 #include "ProtocolICMP.h"
 #include "ProtocolTCP.h"
 #include "ProtocolUDP.h"
@@ -43,10 +43,10 @@
 #include "NetworkInterface.h"
 #include "Utility.h"
 
-uint16_t ProtocolIP::PacketID;
+uint16_t ProtocolIPv4::PacketID;
 
 static void* TxBuffer[ TX_BUFFER_COUNT ];
-osQueue ProtocolIP::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
+osQueue ProtocolIPv4::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
 
 // Version - 4 bits
 // Header Length - 4 bits
@@ -63,7 +63,7 @@ osQueue ProtocolIP::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
 //
 //============================================================================
 
-void ProtocolIP::Initialize()
+void ProtocolIPv4::Initialize()
 {
    ProtocolTCP::Initialize();
    ProtocolICMP::Initialize();
@@ -73,7 +73,7 @@ void ProtocolIP::Initialize()
 //
 //============================================================================
 
-bool ProtocolIP::IsLocal( const uint8_t* addr )
+bool ProtocolIPv4::IsLocal( const uint8_t* addr )
 {
    bool rc;
    uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
@@ -95,7 +95,7 @@ bool ProtocolIP::IsLocal( const uint8_t* addr )
 //
 //============================================================================
 
-void ProtocolIP::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
+void ProtocolIPv4::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
 {
    uint8_t headerLength;
    uint8_t protocol;
@@ -141,7 +141,7 @@ void ProtocolIP::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
 //
 //============================================================================
 
-DataBuffer* ProtocolIP::GetTxBuffer()
+DataBuffer* ProtocolIPv4::GetTxBuffer()
 {
    DataBuffer*   buffer;
 
@@ -159,7 +159,7 @@ DataBuffer* ProtocolIP::GetTxBuffer()
 //
 //============================================================================
 
-void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP )
+void ProtocolIPv4::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP )
 {
    uint16_t checksum;
    uint8_t* targetMAC;
@@ -203,7 +203,7 @@ void ProtocolIP::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* 
 //
 //============================================================================
 
-void ProtocolIP::Retransmit( DataBuffer* buffer )
+void ProtocolIPv4::Retransmit( DataBuffer* buffer )
 {
    ProtocolMACEthernet::Retransmit( buffer );
 }
@@ -212,7 +212,7 @@ void ProtocolIP::Retransmit( DataBuffer* buffer )
 //
 //============================================================================
 
-void ProtocolIP::Retry()
+void ProtocolIPv4::Retry()
 {
    int count;
    DataBuffer* buffer;
@@ -240,7 +240,7 @@ void ProtocolIP::Retry()
 //
 //============================================================================
 
-void ProtocolIP::FreeTxBuffer( DataBuffer* buffer )
+void ProtocolIPv4::FreeTxBuffer( DataBuffer* buffer )
 {
    ProtocolMACEthernet::FreeTxBuffer( buffer );
 }
@@ -249,7 +249,7 @@ void ProtocolIP::FreeTxBuffer( DataBuffer* buffer )
 //
 //============================================================================
 
-void ProtocolIP::FreeRxBuffer( DataBuffer* buffer )
+void ProtocolIPv4::FreeRxBuffer( DataBuffer* buffer )
 {
    ProtocolMACEthernet::FreeRxBuffer( buffer );
 }
