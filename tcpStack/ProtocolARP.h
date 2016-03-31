@@ -59,7 +59,7 @@ class ProtocolARP
 public:
    static void Initialize();
    
-   static void ProcessRx( DataBuffer* );
+   static void ProcessRx( const DataBuffer* );
 
    static void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );
 
@@ -70,7 +70,20 @@ public:
    static void Show( osPrintfInterface* pfunc );
 
 private:
-   static void SendReply( uint8_t* packet, int length );
+   struct ARPInfo
+   {
+      uint16_t hardwareType;
+      uint16_t protocolType;
+      uint8_t  hardwareSize;
+      uint8_t  protocolSize;
+      uint16_t opType;
+      uint8_t* senderHardwareAddress;
+      uint8_t* senderProtocolAddress;
+      uint8_t* targetHardwareAddress;
+      uint8_t* targetProtocolAddress;
+   };
+
+   static void SendReply( const ARPInfo& info );
    static void SendRequest( const uint8_t* targetIP );
    static int LocateProtocolAddress( const uint8_t* protocolAddress );
 

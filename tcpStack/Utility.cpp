@@ -266,6 +266,19 @@ size_t PackBytes( uint8_t* p, size_t offset, const uint8_t* value, size_t count 
 //
 //============================================================================
 
+size_t PackFill( uint8_t* p, size_t offset, uint8_t value, size_t count )
+{
+   for( int i = 0; i < count; i++ )
+   {
+      p[ offset++ ] = value;
+   }
+   return offset;
+}
+
+//============================================================================
+//
+//============================================================================
+
 int ReadLine( char* buffer, size_t size, int(*ReadFunction)() )
 {
    int      i;
