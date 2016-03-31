@@ -235,3 +235,21 @@ void ProtocolIP::Retry()
       }
    }
 }
+
+//============================================================================
+//
+//============================================================================
+
+void ProtocolIP::FreeTxBuffer( DataBuffer* buffer )
+{
+   ProtocolMACEthernet::FreeTxBuffer( buffer );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ProtocolIP::FreeRxBuffer( DataBuffer* buffer )
+{
+   ProtocolMACEthernet::FreeRxBuffer( buffer );
+}

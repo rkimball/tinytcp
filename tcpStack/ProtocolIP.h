@@ -51,6 +51,8 @@ public:
    static void Retry();
    
    static DataBuffer* GetTxBuffer();
+   static void FreeTxBuffer( DataBuffer* );
+   static void FreeRxBuffer( DataBuffer* );
 
 private:
    static bool IsLocal( const uint8_t* addr );

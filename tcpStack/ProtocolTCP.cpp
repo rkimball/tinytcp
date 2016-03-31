@@ -36,7 +36,6 @@
 
 #include "ProtocolTCP.h"
 #include "ProtocolIP.h"
-#include "ProtocolMACEthernet.h"
 #include "Address.h"
 #include "FCS.h"
 #include "Utility.h"
@@ -239,7 +238,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                   if( (int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0 )
                   {
                      connection->CalculateRTT( (int32_t)(time_us - buffer->Time_us) );
-                     ProtocolMACEthernet::FreeTxBuffer( buffer );
+                     ProtocolIP::FreeTxBuffer( buffer );
                   }
                   else
                   {
@@ -269,7 +268,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                // Copy it to the application
                rxBuffer->Disposable = false;
                connection->StoreRxData( rxBuffer );
-               ProtocolMACEthernet::FreeRxBuffer( rxBuffer );
+               ProtocolIP::FreeRxBuffer( rxBuffer );
                connection->Event.Notify();
             }
 

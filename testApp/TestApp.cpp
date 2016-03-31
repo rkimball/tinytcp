@@ -164,11 +164,11 @@ void HomePage( http::Page* page )
    page->Printf( "<form action=\"/formsdemo.html\">" );
 
    page->Printf( "First name:" );
-   page->Printf( "<input type=\"text\" name=\"FirstName\" value=\"Mike\"/>" );
+   page->Printf( "<input type=\"text\" name=\"FirstName\" value=\"Robert\"/>" );
    page->Printf( "<br>" );
 
    page->Printf( "Last name:" );
-   page->Printf( "<input type=\"text\" name=\"LastName\" value=\"Easter\"/>" );
+   page->Printf( "<input type=\"text\" name=\"LastName\" value=\"Kimball\"/>" );
    page->Printf( "<br>" );
 
    page->Printf( "<input type=\"submit\" value=\"submit\" />" );
