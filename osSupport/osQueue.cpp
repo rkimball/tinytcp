@@ -164,8 +164,6 @@ bool osQueue::Contains( void* object )
 
 void osQueue::Show( osPrintfInterface* pfunc )
 {
-   int      i;
-
    QueueListLock.Take( __FILE__, __LINE__ );
    for( int i = 0; i < MAX_QUEUE_COUNT; i++ )
    {
@@ -179,7 +177,7 @@ void osQueue::Show( osPrintfInterface* pfunc )
          // can't lock the queue and tx tcp frames as it can deadlock
          // tx tcp locks queues
          // might be a better way to do this
-         for( i = 0; i<queue->GetCount(); i++ )
+         for( int j = 0; j<queue->GetCount(); j++ )
          {
             pfunc->Printf( "   Object at 0x%08X\n", queue->Array[ index ] );
             index = queue->Increment( index );
