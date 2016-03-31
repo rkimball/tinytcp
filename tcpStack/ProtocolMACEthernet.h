@@ -55,9 +55,9 @@ public:
 
    static int HeaderSize();
 
-   static uint8_t* GetUnicastAddress() { return UnicastAddress; }
-   static uint8_t* GetBroadcastAddress() { return BroadcastAddress; }
-   static size_t GetAddressSize() { return MACAddressSize; }
+   static uint8_t* GetUnicastAddress();
+   static uint8_t* GetBroadcastAddress();
+   static size_t GetAddressSize();
 
    static void SetUnicastAddress( uint8_t* addr );
 
