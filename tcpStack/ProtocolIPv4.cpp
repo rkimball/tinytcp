@@ -47,6 +47,7 @@ uint16_t ProtocolIPv4::PacketID;
 
 static void* TxBuffer[ TX_BUFFER_COUNT ];
 osQueue ProtocolIPv4::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
+ProtocolIPv4::AddressInfo ProtocolIPv4::Address;
 
 // Version - 4 bits
 // Header Length - 4 bits
@@ -65,6 +66,7 @@ osQueue ProtocolIPv4::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
 
 void ProtocolIPv4::Initialize()
 {
+   Address.DataValid = false;
    ProtocolTCP::Initialize();
    ProtocolICMP::Initialize();
 }
@@ -77,16 +79,16 @@ bool ProtocolIPv4::IsLocal( const uint8_t* addr )
 {
    bool rc;
    uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
-   if( Config.IPv4.DataValid )
+   if( Address.DataValid )
    {
-      rc = Address::Compare( addr, broadcast, IPv4AddressSize ) ||
-            Address::Compare( addr, Config.IPv4.Address, IPv4AddressSize ) ||
-            Address::Compare( addr, Config.IPv4.BroadcastAddress, IPv4AddressSize )
+      rc = Address::Compare( addr, broadcast, ProtocolIPv4::AddressSize ) ||
+            Address::Compare( addr, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::AddressSize ) ||
+            Address::Compare( addr, ProtocolIPv4::GetBroadcastAddress(), ProtocolIPv4::AddressSize )
          ;
    }
    else
    {
-      rc = Address::Compare( addr, broadcast, IPv4AddressSize );
+      rc = Address::Compare( addr, broadcast, ProtocolIPv4::AddressSize );
    }
    return rc;
 }
@@ -252,4 +254,79 @@ void ProtocolIPv4::FreeTxBuffer( DataBuffer* buffer )
 void ProtocolIPv4::FreeRxBuffer( DataBuffer* buffer )
 {
    ProtocolMACEthernet::FreeRxBuffer( buffer );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ProtocolIPv4::Show( osPrintfInterface* out )
+{
+   out->Printf( "Network Configuration\n" );
+   out->Printf( "Ethernet Unicast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetUnicastAddress() ) );
+   out->Printf( "Ethernet Broadcast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetBroadcastAddress() ) );
+
+   out->Printf( "IPv4 Configuration\n" );
+   out->Printf( "   Address:            %s\n", ipv4toa( Address.Address ) );
+   out->Printf( "   Subnet Mask:        %s\n", ipv4toa( Address.SubnetMask ) );
+   out->Printf( "   Gateway:            %s\n", ipv4toa( Address.Gateway ) );
+   out->Printf( "   Domain Name Server: %s\n", ipv4toa( Address.DomainNameServer ) );
+   out->Printf( "   Broadcast Address:  %s\n", ipv4toa( Address.BroadcastAddress ) );
+   out->Printf( "   Address Lease Time: %d seconds\n", Address.IpAddressLeaseTime );
+   out->Printf( "   RenewTime:          %d seconds\n", Address.RenewTime );
+   out->Printf( "   RebindTime:         %d seconds\n", Address.RebindTime );
+}
+
+//============================================================================
+//
+//============================================================================
+
+uint8_t* ProtocolIPv4::GetUnicastAddress()
+{
+   return Address.Address;
+}
+
+//============================================================================
+//
+//============================================================================
+
+uint8_t* ProtocolIPv4::GetBroadcastAddress()
+{
+   return Address.BroadcastAddress;
+}
+
+//============================================================================
+//
+//============================================================================
+
+uint8_t* ProtocolIPv4::GetGatewayAddress()
+{
+   return Address.Gateway;
+}
+
+//============================================================================
+//
+//============================================================================
+
+uint8_t* ProtocolIPv4::GetSubnetMask()
+{
+   return Address.SubnetMask;
+}
+
+//============================================================================
+//
+//============================================================================
+
+size_t ProtocolIPv4::GetAddressSize()
+{
+   return 4;
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ProtocolIPv4::SetAddressInfo( const AddressInfo& info )
+{
+   Address = info;
 }

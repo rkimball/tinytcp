@@ -116,7 +116,7 @@ void TCPConnection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          Event.Wait( __FILE__, __LINE__ );
       }
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, Config.IPv4.Address, RemoteAddress );
+      checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, ProtocolIPv4::GetUnicastAddress(), RemoteAddress );
 
       Pack16( packet, 16, checksum );   // checksum
 
@@ -131,7 +131,7 @@ void TCPConnection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          HoldingQueueLock.Give();
       }
 
-      ProtocolIPv4::Transmit( buffer, 0x06, RemoteAddress, Config.IPv4.Address );
+      ProtocolIPv4::Transmit( buffer, 0x06, RemoteAddress, ProtocolIPv4::GetUnicastAddress() );
    }
 }
 

@@ -320,14 +320,14 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t*
       Pack16( packet, 16, 0 );      // clear checksum
       Pack16( packet, 18, 0 );      // 2 bytes of UrgentPointer
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, Config.IPv4.Address, remoteAddress );
+      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, ProtocolIPv4::GetUnicastAddress(), remoteAddress );
 
       Pack16( packet, 16, checksum ); // checksum
 
       buffer->Length += TCP_HEADER_SIZE;
       buffer->Remainder -= buffer->Length;
 
-      ProtocolIPv4::Transmit( buffer, 0x06, remoteAddress, Config.IPv4.Address );
+      ProtocolIPv4::Transmit( buffer, 0x06, remoteAddress, ProtocolIPv4::GetUnicastAddress() );
    }
 }
 
@@ -385,7 +385,7 @@ TCPConnection* ProtocolTCP::LocateConnection
       (
          ConnectionList[ i ].LocalPort == localPort &&
          ConnectionList[ i ].RemotePort == remotePort &&
-         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, IPv4AddressSize )
+         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, ProtocolIPv4::GetAddressSize() )
       )
       {
          return &ConnectionList[ i ];
@@ -452,7 +452,7 @@ TCPConnection* ProtocolTCP::NewClient
          ConnectionList[ i ].LocalPort = localPort;
          ConnectionList[ i ].SequenceNumber = 1;
          ConnectionList[ i ].MaxSequenceTx = ConnectionList[ i ].SequenceNumber + 1024;
-         for( j=0; j<IPv4AddressSize; j++ )
+         for( j=0; j<ProtocolIPv4::AddressSize; j++ )
          {
             ConnectionList[ i ].RemoteAddress[ j ] = remoteAddress[ j ];
          }

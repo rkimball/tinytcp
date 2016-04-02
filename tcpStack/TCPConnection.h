@@ -38,6 +38,7 @@
 #include "osMutex.h"
 #include "Address.h"
 #include "Config.h"
+#include "ProtocolIPv4.h"
 
 class DataBuffer;
 
@@ -65,7 +66,7 @@ public:
    States State;
    uint16_t LocalPort;
    uint16_t RemotePort;
-   uint8_t  RemoteAddress[ IPv4AddressSize ];
+   uint8_t  RemoteAddress[ ProtocolIPv4::AddressSize ];
    uint32_t SequenceNumber;
    uint32_t AcknowledgementNumber;
    uint32_t LastAck;

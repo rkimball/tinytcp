@@ -35,8 +35,6 @@
 #include <inttypes.h>
 #include <cstdio>
 
-static const size_t IPv4AddressSize = 4;
-
 #define TCP_MAX_CONNECTIONS (5)
 #define TCP_RX_WINDOW_SIZE (256)
 

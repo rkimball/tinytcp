@@ -33,8 +33,6 @@
 #include "Utility.h"
 #include "ProtocolMACEthernet.h"
 
-AddressConfiguration Config;
-
 bool Address::Compare( const uint8_t* a1, const uint8_t* a2, int length )
 {
    for( int i=0; i<length; i++ )
@@ -46,29 +44,4 @@ bool Address::Compare( const uint8_t* a1, const uint8_t* a2, int length )
    }
 
    return true;
-}
-
-AddressConfiguration::IPv4_t::IPv4_t() :
-   DataValid(false),
-   IpAddressLeaseTime(0),
-   RenewTime(0),
-   RebindTime(0)
-{
-}
-
-void AddressConfiguration::Show( osPrintfInterface* out )
-{
-   out->Printf( "Network Configuration\n" );
-   out->Printf( "Ethernet Unicast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetUnicastAddress() ) );
-   out->Printf( "Ethernet Broadcast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetBroadcastAddress() ) );
-
-   out->Printf( "IPv4 Configuration\n" );
-   out->Printf( "   Address:            %s\n", ipv4toa( IPv4.Address ) );
-   out->Printf( "   Subnet Mask:        %s\n", ipv4toa( IPv4.SubnetMask ) );
-   out->Printf( "   Gateway:            %s\n", ipv4toa( IPv4.Gateway ) );
-   out->Printf( "   Domain Name Server: %s\n", ipv4toa( IPv4.DomainNameServer ) );
-   out->Printf( "   Broadcast Address:  %s\n", ipv4toa( IPv4.BroadcastAddress ) );
-   out->Printf( "   Address Lease Time: %d seconds\n", IPv4.IpAddressLeaseTime );
-   out->Printf( "   RenewTime:          %d seconds\n", IPv4.RenewTime );
-   out->Printf( "   RebindTime:         %d seconds\n", IPv4.RebindTime );
 }

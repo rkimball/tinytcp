@@ -83,7 +83,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    // Parse Options
    size_t offset = 240;
    uint8_t optionData[ 255 ];
-   AddressConfiguration::IPv4_t ipv4Data;
+   ProtocolIPv4::AddressInfo ipv4Data;
    uint8_t dhcpType = 0xFF;
    while( offset < buffer->Remainder )
    {
@@ -136,11 +136,14 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
          break;
       }
       case 5:  // ack
+      {
          for( int i = 0; i < 4; i++ ) ipv4Data.Address[ i ] = yiaddr[ i ];
-         memcpy( &(Config.IPv4), &ipv4Data, sizeof( AddressConfiguration::IPv4_t ) );
-         printf( "DHCP got address %d.%d.%d.%d\n", Config.IPv4.Address[ 0 ], Config.IPv4.Address[ 1 ], Config.IPv4.Address[ 2 ], Config.IPv4.Address[ 3 ] );
-         Config.IPv4.DataValid = true;
+         ipv4Data.DataValid = true;
+         ProtocolIPv4::SetAddressInfo( ipv4Data );
+         const uint8_t* addr = ProtocolIPv4::GetUnicastAddress();
+         printf( "DHCP got address %d.%d.%d.%d\n", addr[ 0 ], addr[ 1 ], addr[ 2 ], addr[ 3 ] );
          break;
+      }
       case 6:  // nak
          break;
       default:

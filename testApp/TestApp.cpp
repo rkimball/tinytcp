@@ -91,10 +91,10 @@ void NetworkEntry( void* param )
    uint8_t addr[] = { 0x10, 0xBF, 0x48, 0x44, 0x55, 0x66 };
    ProtocolMACEthernet::SetUnicastAddress( addr );
 
-   Config.IPv4.Address[ 0 ] = 0;
-   Config.IPv4.Address[ 1 ] = 0;
-   Config.IPv4.Address[ 2 ] = 0;
-   Config.IPv4.Address[ 3 ] = 0;
+//   Config.IPv4.Address[ 0 ] = 0;
+//   Config.IPv4.Address[ 1 ] = 0;
+//   Config.IPv4.Address[ 2 ] = 0;
+//   Config.IPv4.Address[ 3 ] = 0;
 
 #ifdef _WIN32
    NetworkConfig& config = *(NetworkConfig*)param;
@@ -222,7 +222,7 @@ void ShowThread( http::Page* page )
 void ShowConfig( http::Page* page )
 {
    page->Printf( "<pre>" );
-   Config.Show( page );
+   ProtocolIPv4::Show( page );
    page->Printf( "</pre>" );
 }
 

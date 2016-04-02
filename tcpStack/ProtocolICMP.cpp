@@ -78,7 +78,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP )
          i = FCS::Checksum( txBuffer->Packet, buffer->Length );
          Pack16( txBuffer->Packet, 2, i ); // set the checksum
          txBuffer->Length = buffer->Length;
-         ProtocolIPv4::Transmit( txBuffer, 0x01, remoteIP, Config.IPv4.Address );
+         ProtocolIPv4::Transmit( txBuffer, 0x01, remoteIP, ProtocolIPv4::GetUnicastAddress() );
       }
       break;
    default:

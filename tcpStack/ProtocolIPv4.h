@@ -41,6 +41,20 @@
 class ProtocolIPv4
 {
 public:
+   static const int AddressSize = 4;
+   struct AddressInfo
+   {
+      bool  DataValid;
+      uint8_t Address[ AddressSize ];
+      uint32_t IpAddressLeaseTime;
+      uint32_t RenewTime;
+      uint32_t RebindTime;
+      uint8_t SubnetMask[ AddressSize ];
+      uint8_t Gateway[ AddressSize ];
+      uint8_t DomainNameServer[ AddressSize ];
+      uint8_t BroadcastAddress[ AddressSize ];
+   };
+
    static void Initialize();
 
    static void ProcessRx( DataBuffer*, const uint8_t* hardwareAddress );
@@ -49,17 +63,27 @@ public:
    static void Retransmit( DataBuffer* );
 
    static void Retry();
+
+   static uint8_t* GetUnicastAddress();
+   static uint8_t* GetBroadcastAddress();
+   static uint8_t* GetGatewayAddress();
+   static uint8_t* GetSubnetMask();
+   static size_t GetAddressSize();
+   static void SetAddressInfo( const AddressInfo& info );
    
    static DataBuffer* GetTxBuffer();
    static void FreeTxBuffer( DataBuffer* );
    static void FreeRxBuffer( DataBuffer* );
 
+   static void Show( osPrintfInterface* out );
+
 private:
    static bool IsLocal( const uint8_t* addr );
 
    static uint16_t PacketID;
-
    static osQueue UnresolvedQueue;
+
+   static AddressInfo Address;
 
    ProtocolIPv4();
    ProtocolIPv4( ProtocolIPv4& );

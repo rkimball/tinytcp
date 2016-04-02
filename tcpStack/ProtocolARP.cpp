@@ -88,10 +88,10 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
    {
       // ARP Request
       if( info.hardwareSize == ProtocolMACEthernet::GetAddressSize() &&
-          info.protocolSize == IPv4AddressSize )
+          info.protocolSize == ProtocolIPv4::GetAddressSize() )
       {
          // All of the sizes match
-         if( Address::Compare( info.targetProtocolAddress, Config.IPv4.Address, IPv4AddressSize ) )
+         if( Address::Compare( info.targetProtocolAddress, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::GetAddressSize() ) )
          {
             // This ARP is for me
             SendReply( info );
@@ -150,7 +150,7 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
 
       // At this point i is the entry we want to use
       Cache[ i ].Age = 1;
-      for( j = 0; j < IPv4AddressSize; j++ )
+      for( j = 0; j < ProtocolIPv4::GetAddressSize(); j++ )
       {
          Cache[ i ].IPv4Address[ j ] = protocolAddress[ j ];
       }
@@ -224,7 +224,7 @@ void ProtocolARP::SendReply( const ARPInfo& info )
    offset = Pack8( txBuffer->Packet, offset, info.protocolSize );
    offset = Pack16( txBuffer->Packet, offset, 2 ); // ARP Reply
    offset = PackBytes( txBuffer->Packet, offset, ProtocolMACEthernet::GetUnicastAddress(), info.hardwareSize );
-   offset = PackBytes( txBuffer->Packet, offset, Config.IPv4.Address, info.protocolSize );
+   offset = PackBytes( txBuffer->Packet, offset, ProtocolIPv4::GetUnicastAddress(), info.protocolSize );
    offset = PackBytes( txBuffer->Packet, offset, info.senderHardwareAddress, info.hardwareSize );
    offset = PackBytes( txBuffer->Packet, offset, info.senderProtocolAddress, info.protocolSize );
    txBuffer->Length = offset;
@@ -258,7 +258,7 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
    offset = PackBytes( ARPRequest.Packet, offset, ProtocolMACEthernet::GetUnicastAddress(), 6 );
 
    // Sender's Protocol Address
-   offset = PackBytes( ARPRequest.Packet, offset, Config.IPv4.Address, 4 );
+   offset = PackBytes( ARPRequest.Packet, offset, ProtocolIPv4::GetUnicastAddress(), 4 );
 
    // Target's Hardware Address
    offset = PackFill( ARPRequest.Packet, offset, 0, 6 );
@@ -286,7 +286,7 @@ uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
    {
       if( !IsLocal( protocolAddress ) )
       {
-         protocolAddress = Config.IPv4.Gateway;
+         protocolAddress = ProtocolIPv4::GetGatewayAddress();
       }
       index = LocateProtocolAddress( protocolAddress );
 
@@ -309,7 +309,7 @@ uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 bool ProtocolARP::IsBroadcast( const uint8_t* protocolAddress )
 {
    bool rc = true;
-   for( int i = 0; i < IPv4AddressSize; i++ )
+   for( int i = 0; i < ProtocolIPv4::GetAddressSize(); i++ )
    {
       if( protocolAddress[ i ] != 0xFF )
       {
@@ -328,19 +328,19 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
 {
    int i;
 
-   for( i = 0; i < IPv4AddressSize; i++ )
+   for( i = 0; i < ProtocolIPv4::GetAddressSize(); i++ )
    {
       if
          (
-            (protocolAddress[ i ] & Config.IPv4.SubnetMask[ i ]) !=
-            (Config.IPv4.Address[ i ] & Config.IPv4.SubnetMask[ i ])
+            (protocolAddress[ i ] & ProtocolIPv4::GetSubnetMask()[ i ]) !=
+            (ProtocolIPv4::GetUnicastAddress()[ i ] & ProtocolIPv4::GetSubnetMask()[ i ])
             )
       {
          break;
       }
    }
 
-   return i == IPv4AddressSize;
+   return i == ProtocolIPv4::GetAddressSize();
 }
 
 //============================================================================
@@ -356,7 +356,7 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
    {
       // Go through the address backwards since least significant byte is most
       // likely to be unique
-      for( j = IPv4AddressSize - 1; j >= 0; j-- )
+      for( j = ProtocolIPv4::GetAddressSize() - 1; j >= 0; j-- )
       {
          if( Cache[ i ].IPv4Address[ j ] != protocolAddress[ j ] )
          {
