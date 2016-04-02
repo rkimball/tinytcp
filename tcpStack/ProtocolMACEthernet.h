@@ -55,8 +55,8 @@ public:
 
    static int HeaderSize();
 
-   static uint8_t* GetUnicastAddress();
-   static uint8_t* GetBroadcastAddress();
+   static const uint8_t* GetUnicastAddress();
+   static const uint8_t* GetBroadcastAddress();
    static const int AddressSize = 6;
 
    static void SetUnicastAddress( uint8_t* addr );

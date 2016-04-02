@@ -164,7 +164,7 @@ DataBuffer* ProtocolIPv4::GetTxBuffer()
 void ProtocolIPv4::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP )
 {
    uint16_t checksum;
-   uint8_t* targetMAC;
+   const uint8_t* targetMAC;
    uint8_t* packet;
    
    buffer->Packet -= IP_HEADER_SIZE;
@@ -218,7 +218,7 @@ void ProtocolIPv4::Retry()
 {
    int count;
    DataBuffer* buffer;
-   uint8_t* targetMAC;
+   const uint8_t* targetMAC;
 
    count = UnresolvedQueue.GetCount();
    for( int i=0; i<count; i++ )
@@ -281,7 +281,7 @@ void ProtocolIPv4::Show( osPrintfInterface* out )
 //
 //============================================================================
 
-uint8_t* ProtocolIPv4::GetUnicastAddress()
+const uint8_t* ProtocolIPv4::GetUnicastAddress()
 {
    return Address.Address;
 }
@@ -290,7 +290,7 @@ uint8_t* ProtocolIPv4::GetUnicastAddress()
 //
 //============================================================================
 
-uint8_t* ProtocolIPv4::GetBroadcastAddress()
+const uint8_t* ProtocolIPv4::GetBroadcastAddress()
 {
    return Address.BroadcastAddress;
 }
@@ -299,7 +299,7 @@ uint8_t* ProtocolIPv4::GetBroadcastAddress()
 //
 //============================================================================
 
-uint8_t* ProtocolIPv4::GetGatewayAddress()
+const uint8_t* ProtocolIPv4::GetGatewayAddress()
 {
    return Address.Gateway;
 }
@@ -308,7 +308,7 @@ uint8_t* ProtocolIPv4::GetGatewayAddress()
 //
 //============================================================================
 
-uint8_t* ProtocolIPv4::GetSubnetMask()
+const uint8_t* ProtocolIPv4::GetSubnetMask()
 {
    return Address.SubnetMask;
 }

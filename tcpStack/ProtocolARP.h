@@ -63,7 +63,7 @@ public:
 
    static void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );
 
-   static uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
+   static const uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
    static bool IsLocal( const uint8_t* protocolAddress );
    static bool IsBroadcast( const uint8_t* protocolAddress );
 

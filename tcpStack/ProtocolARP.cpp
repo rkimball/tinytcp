@@ -273,10 +273,10 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
 //
 //============================================================================
 
-uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
+const uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 {
    int index;
-   uint8_t* rc = 0;
+   const uint8_t* rc = 0;
 
    if( IsBroadcast( protocolAddress ) )
    {

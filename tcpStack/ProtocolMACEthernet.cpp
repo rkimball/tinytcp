@@ -270,7 +270,7 @@ int ProtocolMACEthernet::HeaderSize()
 //
 //============================================================================
 
-uint8_t* ProtocolMACEthernet::GetUnicastAddress()
+const uint8_t* ProtocolMACEthernet::GetUnicastAddress()
 {
    return UnicastAddress;
 }
@@ -279,7 +279,7 @@ uint8_t* ProtocolMACEthernet::GetUnicastAddress()
 //
 //============================================================================
 
-uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
+const uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
 {
    return BroadcastAddress;
 }

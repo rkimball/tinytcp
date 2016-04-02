@@ -64,10 +64,10 @@ public:
 
    static void Retry();
 
-   static uint8_t* GetUnicastAddress();
-   static uint8_t* GetBroadcastAddress();
-   static uint8_t* GetGatewayAddress();
-   static uint8_t* GetSubnetMask();
+   static const uint8_t* GetUnicastAddress();
+   static const uint8_t* GetBroadcastAddress();
+   static const uint8_t* GetGatewayAddress();
+   static const uint8_t* GetSubnetMask();
    static void SetAddressInfo( const AddressInfo& info );
    
    static DataBuffer* GetTxBuffer();
