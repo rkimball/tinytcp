@@ -87,11 +87,11 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
    if( info.opType == 1 )
    {
       // ARP Request
-      if( info.hardwareSize == ProtocolMACEthernet::GetAddressSize() &&
-          info.protocolSize == ProtocolIPv4::GetAddressSize() )
+      if( info.hardwareSize == ProtocolMACEthernet::AddressSize &&
+          info.protocolSize == ProtocolIPv4::AddressSize )
       {
          // All of the sizes match
-         if( Address::Compare( info.targetProtocolAddress, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::GetAddressSize() ) )
+         if( Address::Compare( info.targetProtocolAddress, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::AddressSize ) )
          {
             // This ARP is for me
             SendReply( info );
@@ -150,11 +150,11 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
 
       // At this point i is the entry we want to use
       Cache[ i ].Age = 1;
-      for( j = 0; j < ProtocolIPv4::GetAddressSize(); j++ )
+      for( j = 0; j < ProtocolIPv4::AddressSize; j++ )
       {
          Cache[ i ].IPv4Address[ j ] = protocolAddress[ j ];
       }
-      for( j = 0; j < ProtocolMACEthernet::GetAddressSize(); j++ )
+      for( j = 0; j < ProtocolMACEthernet::AddressSize; j++ )
       {
          Cache[ i ].MACAddress[ j ] = hardwareAddress[ j ];
       }
@@ -309,7 +309,7 @@ uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 bool ProtocolARP::IsBroadcast( const uint8_t* protocolAddress )
 {
    bool rc = true;
-   for( int i = 0; i < ProtocolIPv4::GetAddressSize(); i++ )
+   for( int i = 0; i < ProtocolIPv4::AddressSize; i++ )
    {
       if( protocolAddress[ i ] != 0xFF )
       {
@@ -328,7 +328,7 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
 {
    int i;
 
-   for( i = 0; i < ProtocolIPv4::GetAddressSize(); i++ )
+   for( i = 0; i < ProtocolIPv4::AddressSize; i++ )
    {
       if
          (
@@ -340,7 +340,7 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
       }
    }
 
-   return i == ProtocolIPv4::GetAddressSize();
+   return i == ProtocolIPv4::AddressSize;
 }
 
 //============================================================================
@@ -356,7 +356,7 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
    {
       // Go through the address backwards since least significant byte is most
       // likely to be unique
-      for( j = ProtocolIPv4::GetAddressSize() - 1; j >= 0; j-- )
+      for( j = ProtocolIPv4::AddressSize - 1; j >= 0; j-- )
       {
          if( Cache[ i ].IPv4Address[ j ] != protocolAddress[ j ] )
          {

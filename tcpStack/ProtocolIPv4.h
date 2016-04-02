@@ -68,7 +68,6 @@ public:
    static uint8_t* GetBroadcastAddress();
    static uint8_t* GetGatewayAddress();
    static uint8_t* GetSubnetMask();
-   static size_t GetAddressSize();
    static void SetAddressInfo( const AddressInfo& info );
    
    static DataBuffer* GetTxBuffer();

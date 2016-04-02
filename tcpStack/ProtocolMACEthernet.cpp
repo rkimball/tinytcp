@@ -56,8 +56,8 @@ osQueue ProtocolMACEthernet::RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffe
 
 static osEvent Event( "MACEthernet" );
 
-uint8_t ProtocolMACEthernet::UnicastAddress[ MACAddressSize ];
-uint8_t ProtocolMACEthernet::BroadcastAddress[ MACAddressSize ];
+uint8_t ProtocolMACEthernet::UnicastAddress[ ProtocolMACEthernet::AddressSize ];
+uint8_t ProtocolMACEthernet::BroadcastAddress[ ProtocolMACEthernet::AddressSize ];
 
 // Destination - 6 bytes
 // Source - 6 bytes
@@ -282,15 +282,6 @@ uint8_t* ProtocolMACEthernet::GetUnicastAddress()
 uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
 {
    return BroadcastAddress;
-}
-
-//============================================================================
-//
-//============================================================================
-
-size_t ProtocolMACEthernet::GetAddressSize()
-{
-   return MACAddressSize;
 }
 
 //============================================================================

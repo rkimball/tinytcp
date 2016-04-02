@@ -57,7 +57,7 @@ public:
 
    static uint8_t* GetUnicastAddress();
    static uint8_t* GetBroadcastAddress();
-   static size_t GetAddressSize();
+   static const int AddressSize = 6;
 
    static void SetUnicastAddress( uint8_t* addr );
 
@@ -68,7 +68,6 @@ private:
    static osQueue RxBufferQueue;
    static NetworkInterface* DataInterface;
 
-   static const int MACAddressSize = 6;
    static uint8_t UnicastAddress[];
    static uint8_t BroadcastAddress[];
 

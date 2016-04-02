@@ -385,7 +385,7 @@ TCPConnection* ProtocolTCP::LocateConnection
       (
          ConnectionList[ i ].LocalPort == localPort &&
          ConnectionList[ i ].RemotePort == remotePort &&
-         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, ProtocolIPv4::GetAddressSize() )
+         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, ProtocolIPv4::AddressSize )
       )
       {
          return &ConnectionList[ i ];
