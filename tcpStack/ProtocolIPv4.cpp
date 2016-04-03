@@ -97,7 +97,7 @@ bool ProtocolIPv4::IsLocal( const uint8_t* addr )
 //
 //============================================================================
 
-void ProtocolIPv4::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress )
+void ProtocolIPv4::ProcessRx( DataBuffer* buffer )
 {
    uint8_t headerLength;
    uint8_t protocol;
@@ -122,7 +122,7 @@ void ProtocolIPv4::ProcessRx( DataBuffer* buffer, const uint8_t* hardwareAddress
       switch( protocol )
       {
       case 0x01:  // ICMP
-         ProtocolICMP::ProcessRx( buffer, sourceIP );
+         ProtocolICMP::ProcessRx( buffer, sourceIP, targetIP );
          break;
       case 0x02:  // IGMP
          break;

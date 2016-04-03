@@ -155,7 +155,7 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
       switch( type )
       {
       case 0x0800:   // IP
-         ProtocolIPv4::ProcessRx( packet, &buffer[ 6 ] );
+         ProtocolIPv4::ProcessRx( packet );
          break;
       case 0x0806:   // ARP
          ProtocolARP::ProcessRx( packet );

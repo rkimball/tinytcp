@@ -40,7 +40,7 @@ class ProtocolICMP
 public:
    static void Initialize();
 
-   static void ProcessRx( DataBuffer*, const uint8_t* sourceIP );
+   static void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
 
 private:
    ProtocolICMP();

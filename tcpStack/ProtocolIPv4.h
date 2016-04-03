@@ -57,7 +57,7 @@ public:
 
    static void Initialize();
 
-   static void ProcessRx( DataBuffer*, const uint8_t* hardwareAddress );
+   static void ProcessRx( DataBuffer* );
 
    static void Transmit( DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP );
    static void Retransmit( DataBuffer* );

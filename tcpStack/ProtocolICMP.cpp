@@ -53,7 +53,7 @@ void ProtocolICMP::Initialize()
 //
 //============================================================================
 
-void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP )
+void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP, const uint8_t* )
 {
    uint8_t type;
    uint8_t code;
