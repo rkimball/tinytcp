@@ -40,11 +40,21 @@
 //
 //============================================================================
 
+ProtocolUDP::ProtocolUDP( ProtocolIPv4& ip, ProtocolDHCP& dhcp ) :
+   IP( ip ),
+   DHCP( dhcp )
+{
+}
+
+//============================================================================
+//
+//============================================================================
+
 DataBuffer* ProtocolUDP::GetTxBuffer()
 {
    DataBuffer*   buffer;
 
-   buffer = ProtocolIPv4::GetTxBuffer();
+   buffer = IP.GetTxBuffer();
    if( buffer != 0 )
    {
       buffer->Packet += UDP_HEADER_SIZE;
@@ -69,7 +79,7 @@ void ProtocolUDP::ProcessRx( DataBuffer* buffer, const uint8_t* sourceIP, const 
    switch( targetPort )
    {
    case 68: // DHCP Client Port
-      ProtocolDHCP::ProcessRx( buffer );
+      DHCP.ProcessRx( buffer );
       break;
    default:
       //printf( "Rx UDP target port %d\n", targetPort );
@@ -102,5 +112,5 @@ void ProtocolUDP::Transmit( DataBuffer* buffer, const uint8_t* targetIP, uint16_
    acc = FCS::ChecksumAdd( buffer->Packet, buffer->Length, acc );
    Pack16( buffer->Packet, 6, FCS::ChecksumComplete( acc ) );
 
-   ProtocolIPv4::Transmit( buffer, 0x11, targetIP, sourceIP );
+   IP.Transmit( buffer, 0x11, targetIP, sourceIP );
 }

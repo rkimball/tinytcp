@@ -35,14 +35,18 @@
 #include <inttypes.h>
 #include "DataBuffer.h"
 
+class ProtocolIPv4;
+
 class ProtocolICMP
 {
 public:
-   static void Initialize();
+   ProtocolICMP( ProtocolIPv4& ip );
 
-   static void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
+   void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
 
 private:
+   ProtocolIPv4&     IP;
+
    ProtocolICMP();
    ProtocolICMP( ProtocolICMP& );
 };

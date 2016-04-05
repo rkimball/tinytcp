@@ -41,23 +41,10 @@
 #include "osQueue.h"
 #include "osEvent.h"
 
-NetworkInterface* ProtocolMACEthernet::DataInterface;
-
 static int DropCount = 0;
 #define MAC_DROP_COUNT 20
 
-DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
-DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
-
-static void* TxBufferBuffer[ TX_BUFFER_COUNT ];
-static void* RxBufferBuffer[ RX_BUFFER_COUNT ];
-osQueue ProtocolMACEthernet::TxBufferQueue( "Tx", TX_BUFFER_COUNT, TxBufferBuffer );
-osQueue ProtocolMACEthernet::RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffer );
-
 static osEvent Event( "MACEthernet" );
-
-uint8_t ProtocolMACEthernet::UnicastAddress[ ProtocolMACEthernet::AddressSize ];
-uint8_t ProtocolMACEthernet::BroadcastAddress[ ProtocolMACEthernet::AddressSize ];
 
 // Destination - 6 bytes
 // Source - 6 bytes
@@ -67,11 +54,14 @@ uint8_t ProtocolMACEthernet::BroadcastAddress[ ProtocolMACEthernet::AddressSize 
 //
 //============================================================================
 
-void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
+ProtocolMACEthernet::ProtocolMACEthernet( ProtocolARP& arp, ProtocolIPv4& ipv4 ) :
+   TxBufferQueue( "Tx", TX_BUFFER_COUNT, TxBufferBuffer ),
+   RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffer ),
+   DataInterface( 0 ),
+   ARP( arp ),
+   IPv4( ipv4 )
 {
    int i;
-
-   DataInterface = dataInterface;
 
    BroadcastAddress[ 0 ] = 0xFF;
    BroadcastAddress[ 1 ] = 0xFF;
@@ -89,8 +79,17 @@ void ProtocolMACEthernet::Initialize( NetworkInterface* dataInterface )
       RxBufferQueue.Put( &RxBuffer[ i ] );
    }
 
-   ProtocolARP::Initialize();
-   ProtocolIPv4::Initialize();
+//   ProtocolARP::Initialize();
+//   ProtocolIPv4::Initialize();
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ProtocolMACEthernet::SetNetworkInterface( NetworkInterface* ni )
+{
+   DataInterface = ni;
 }
 
 //============================================================================
@@ -155,10 +154,10 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
       switch( type )
       {
       case 0x0800:   // IP
-         ProtocolIPv4::ProcessRx( packet );
+         IPv4.ProcessRx( packet );
          break;
       case 0x0806:   // ARP
-         ProtocolARP::ProcessRx( packet );
+         ARP.ProcessRx( packet );
          break;
       default:
          //printf( "Unsupported Unicast type 0x%04X\n", type );

@@ -109,9 +109,18 @@ private:
    osQueue HoldingQueue;
    osMutex HoldingQueueLock;
    void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];
+
+   // Bad, bad, bad!
+   // These should be references, but connections are stored in an array and thus
+   // needs a default constructor, so can't pass in these references.
+   // This will need work, but OK for now.
+   ProtocolIPv4* IP;
+   ProtocolTCP* TCP;
+
    void Tick();
 
    TCPConnection();
+   void Initialize( ProtocolIPv4&, ProtocolTCP& );
    TCPConnection( TCPConnection& );
 };
 

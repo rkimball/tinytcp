@@ -13,6 +13,7 @@ set( SOURCE
     ProtocolUDP.cpp
     TCPConnection.cpp
     Utility.cpp
+    DefaultStack.cpp
     Config.h
     )
 add_library( ${LIB} ${SOURCE} )

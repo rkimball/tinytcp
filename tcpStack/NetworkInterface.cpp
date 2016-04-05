@@ -35,5 +35,5 @@
 
 void NetworkInterface::RxData( void* data, size_t length )
 {
-   ProtocolMACEthernet::ProcessRx( (uint8_t*)data, length );
+//   ProtocolMACEthernet::ProcessRx( (uint8_t*)data, length );
 }

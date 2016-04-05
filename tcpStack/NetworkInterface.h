@@ -41,7 +41,7 @@
 class NetworkInterface
 {
 public:
-   static void RxData( void* data, size_t length );
+   void RxData( void* data, size_t length );
    virtual void TxData( void* data, size_t length ) = 0;
 };
 

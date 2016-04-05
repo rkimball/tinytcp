@@ -39,39 +39,52 @@
 
 #define MAC_HEADER_SIZE (14)
 
+class ProtocolARP;
+class ProtocolIPv4;
+
 class ProtocolMACEthernet
 {
 public:
-   static void Initialize( NetworkInterface* dataInterface );
+   ProtocolMACEthernet( ProtocolARP&, ProtocolIPv4& );
+   void SetNetworkInterface( NetworkInterface* ni );
 
-   static void ProcessRx( uint8_t* buffer, int length );
+   void ProcessRx( uint8_t* buffer, int length );
 
-   static void Transmit( DataBuffer*, const uint8_t* targetMAC, uint16_t type );
-   static void Retransmit( DataBuffer* buffer );
+   void Transmit( DataBuffer*, const uint8_t* targetMAC, uint16_t type );
+   void Retransmit( DataBuffer* buffer );
 
-   static DataBuffer* GetTxBuffer();
-   static void FreeTxBuffer( DataBuffer* );
-   static void FreeRxBuffer( DataBuffer* );
+   DataBuffer* GetTxBuffer();
+   void FreeTxBuffer( DataBuffer* );
+   void FreeRxBuffer( DataBuffer* );
 
    static int HeaderSize();
 
-   static const uint8_t* GetUnicastAddress();
-   static const uint8_t* GetBroadcastAddress();
+   const uint8_t* GetUnicastAddress();
+   const uint8_t* GetBroadcastAddress();
    static const int AddressSize = 6;
 
-   static void SetUnicastAddress( uint8_t* addr );
+   void SetUnicastAddress( uint8_t* addr );
 
-   static void Show( osPrintfInterface* pfunc );
+   void Show( osPrintfInterface* pfunc );
 
 private:
-   static osQueue TxBufferQueue;
-   static osQueue RxBufferQueue;
-   static NetworkInterface* DataInterface;
+   osQueue TxBufferQueue;
+   osQueue RxBufferQueue;
 
-   static uint8_t UnicastAddress[];
-   static uint8_t BroadcastAddress[];
+   uint8_t UnicastAddress[ AddressSize ];
+   uint8_t BroadcastAddress[ AddressSize ];
 
-   static bool IsLocalAddress( const uint8_t* addr );
+   DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
+   DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
+
+   void* TxBufferBuffer[ TX_BUFFER_COUNT ];
+   void* RxBufferBuffer[ RX_BUFFER_COUNT ];
+
+   NetworkInterface* DataInterface;
+   ProtocolARP& ARP;
+   ProtocolIPv4& IPv4;
+
+   bool IsLocalAddress( const uint8_t* addr );
 
    ProtocolMACEthernet( ProtocolMACEthernet& );
    ProtocolMACEthernet();

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,64 +29,37 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef HTTPD_H
-#define HTTPD_H
+#ifndef DEFAULTSTACK_H
+#define DEFAULTSTACK_H
 
-#include "HTTPPage.h"
+#include "ProtocolMACEthernet.h"
+#include "ProtocolIPv4.h"
+#include "ProtocolARP.h"
+#include "ProtocolDHCP.h"
+#include "ProtocolICMP.h"
+#include "ProtocolTCP.h"
+#include "ProtocolUDP.h"
 
-#define MAX_ACTIVE_CONNECTIONS 3
-#define HTTPD_PATH_LENGTH_MAX    256
-
-class ProtocolTCP;
-
-namespace http
+class DefaultStack
 {
-   class Server;
-}
-
-typedef void( *PageRequestHandler )(http::Page* page, const char* url, int argc, char** argv);
-typedef void( *ErrorMessageHandler )( const char* message );
-
-class http::Server
-{
-   friend class HTTPPage;
-
 public:
-   Server( ProtocolTCP& );
-   void RegisterPageHandler( PageRequestHandler );
-   void RegisterErrorHandler( ErrorMessageHandler );
+   DefaultStack();
+   void SetNetworkInterface( NetworkInterface* );
+   void SetMACAddress( uint8_t* addr );
+   void StartDHCP();
+   void Tick();
 
-   void Initialize( uint16_t port );
-   void SetDebug( bool );
-
-   bool Authorized( const char* username, const char* password, const char* url );
-   void ProcessRequest( Page* page );
+   void ProcessRx( uint8_t* data, size_t length );
 
 private:
-   Server( Server& );
-
-   static void ConnectionHandlerEntry( void* );
-   void ConnectionHandler( void* );
-
-   static void TaskEntry( void* param );
-   void Task();
-
-   bool          DebugFlag;
-   Page          PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
-   void*         PagePoolBuffer[ MAX_ACTIVE_CONNECTIONS ];
-   osQueue       PagePool;
-
-   osThread      Thread;
-
-   TCPConnection*  ListenerConnection;
-   TCPConnection*  CurrentConnection;
-
-
-   PageRequestHandler  PageHandler;
-   ErrorMessageHandler ErrorHandler;
-
-
-   ProtocolTCP& TCP;
+   ProtocolMACEthernet   MAC;
+   ProtocolIPv4 IP;
+   ProtocolARP ARP;
+   ProtocolDHCP DHCP;
+   ProtocolICMP ICMP;
+   ProtocolTCP TCP;
+   ProtocolUDP UDP;
 };
 
 #endif
+

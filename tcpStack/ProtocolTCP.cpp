@@ -44,9 +44,14 @@
 #include "osTime.h"
 #include "NetworkInterface.h"
 
-static void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];
-TCPConnection ProtocolTCP::ConnectionList[ TCP_MAX_CONNECTIONS ];
-uint16_t ProtocolTCP::NextPort;
+//============================================================================
+//
+//============================================================================
+
+ProtocolTCP::ProtocolTCP( ProtocolIPv4& ip ) :
+   IP( ip )
+{
+}
 
 //============================================================================
 //
@@ -238,7 +243,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                   if( (int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0 )
                   {
                      connection->CalculateRTT( (int32_t)(time_us - buffer->Time_us) );
-                     ProtocolIPv4::FreeTxBuffer( buffer );
+                     IP.FreeTxBuffer( buffer );
                   }
                   else
                   {
@@ -268,7 +273,7 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
                // Copy it to the application
                rxBuffer->Disposable = false;
                connection->StoreRxData( rxBuffer );
-               ProtocolIPv4::FreeRxBuffer( rxBuffer );
+               IP.FreeRxBuffer( rxBuffer );
                connection->Event.Notify();
             }
 
@@ -295,7 +300,7 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t*
    uint16_t checksum;
    uint16_t length;
 
-   DataBuffer* buffer = ProtocolIPv4::GetTxBuffer();
+   DataBuffer* buffer = IP.GetTxBuffer();
 
    if( buffer == 0 )
    {
@@ -320,14 +325,14 @@ void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t*
       Pack16( packet, 16, 0 );      // clear checksum
       Pack16( packet, 18, 0 );      // 2 bytes of UrgentPointer
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, ProtocolIPv4::GetUnicastAddress(), remoteAddress );
+      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, IP.GetUnicastAddress(), remoteAddress );
 
       Pack16( packet, 16, checksum ); // checksum
 
       buffer->Length += TCP_HEADER_SIZE;
       buffer->Remainder -= buffer->Length;
 
-      ProtocolIPv4::Transmit( buffer, 0x06, remoteAddress, ProtocolIPv4::GetUnicastAddress() );
+      IP.Transmit( buffer, 0x06, remoteAddress, IP.GetUnicastAddress() );
    }
 }
 
@@ -484,14 +489,6 @@ TCPConnection* ProtocolTCP::NewServer( uint16_t port )
    }
 
    return 0;
-}
-
-//============================================================================
-//
-//============================================================================
-
-void ProtocolTCP::Initialize()
-{
 }
 
 //============================================================================

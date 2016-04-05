@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,64 +29,40 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef HTTPD_H
-#define HTTPD_H
+#include "DefaultStack.h"
 
-#include "HTTPPage.h"
-
-#define MAX_ACTIVE_CONNECTIONS 3
-#define HTTPD_PATH_LENGTH_MAX    256
-
-class ProtocolTCP;
-
-namespace http
+DefaultStack::DefaultStack() :
+   MAC( ARP, IP ),
+   IP( MAC, ARP, ICMP, TCP, UDP ),
+   ARP( MAC, IP ),
+   DHCP( MAC, IP, UDP ),
+   ICMP( IP ),
+   TCP( IP ),
+   UDP( IP, DHCP )
 {
-   class Server;
 }
 
-typedef void( *PageRequestHandler )(http::Page* page, const char* url, int argc, char** argv);
-typedef void( *ErrorMessageHandler )( const char* message );
-
-class http::Server
+void DefaultStack::SetNetworkInterface( NetworkInterface* ni )
 {
-   friend class HTTPPage;
+   MAC.SetNetworkInterface( ni );
+}
 
-public:
-   Server( ProtocolTCP& );
-   void RegisterPageHandler( PageRequestHandler );
-   void RegisterErrorHandler( ErrorMessageHandler );
+void DefaultStack::SetMACAddress( uint8_t* addr )
+{
+   MAC.SetUnicastAddress( addr );
+}
 
-   void Initialize( uint16_t port );
-   void SetDebug( bool );
+void DefaultStack::StartDHCP()
+{
+   DHCP.test();
+}
 
-   bool Authorized( const char* username, const char* password, const char* url );
-   void ProcessRequest( Page* page );
+void DefaultStack::Tick()
+{
+   TCP.Tick();
+}
 
-private:
-   Server( Server& );
-
-   static void ConnectionHandlerEntry( void* );
-   void ConnectionHandler( void* );
-
-   static void TaskEntry( void* param );
-   void Task();
-
-   bool          DebugFlag;
-   Page          PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
-   void*         PagePoolBuffer[ MAX_ACTIVE_CONNECTIONS ];
-   osQueue       PagePool;
-
-   osThread      Thread;
-
-   TCPConnection*  ListenerConnection;
-   TCPConnection*  CurrentConnection;
-
-
-   PageRequestHandler  PageHandler;
-   ErrorMessageHandler ErrorHandler;
-
-
-   ProtocolTCP& TCP;
-};
-
-#endif
+void DefaultStack::ProcessRx( uint8_t* data, size_t length )
+{
+   MAC.ProcessRx( data, length );
+}

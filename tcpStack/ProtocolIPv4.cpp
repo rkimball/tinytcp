@@ -43,12 +43,6 @@
 #include "NetworkInterface.h"
 #include "Utility.h"
 
-uint16_t ProtocolIPv4::PacketID;
-
-static void* TxBuffer[ TX_BUFFER_COUNT ];
-osQueue ProtocolIPv4::UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer );
-ProtocolIPv4::AddressInfo ProtocolIPv4::Address;
-
 // Version - 4 bits
 // Header Length - 4 bits
 // Type of Service - 8 bits
@@ -64,11 +58,17 @@ ProtocolIPv4::AddressInfo ProtocolIPv4::Address;
 //
 //============================================================================
 
-void ProtocolIPv4::Initialize()
+ProtocolIPv4::ProtocolIPv4( ProtocolMACEthernet& mac, ProtocolARP& arp, ProtocolICMP& icmp, ProtocolTCP& tcp, ProtocolUDP& udp ) :
+   PacketID( 0 ),
+   UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer ),
+   Address(),
+   MAC( mac ),
+   ARP( arp ),
+   ICMP( icmp ),
+   TCP( tcp ),
+   UDP( udp )
 {
    Address.DataValid = false;
-   ProtocolTCP::Initialize();
-   ProtocolICMP::Initialize();
 }
 
 //============================================================================
@@ -122,15 +122,15 @@ void ProtocolIPv4::ProcessRx( DataBuffer* buffer )
       switch( protocol )
       {
       case 0x01:  // ICMP
-         ProtocolICMP::ProcessRx( buffer, sourceIP, targetIP );
+         ICMP.ProcessRx( buffer, sourceIP, targetIP );
          break;
       case 0x02:  // IGMP
          break;
       case 0x06:  // TCP
-         ProtocolTCP::ProcessRx( buffer, sourceIP, targetIP );
+         TCP.ProcessRx( buffer, sourceIP, targetIP );
          break;
       case 0x11:  // UDP
-         ProtocolUDP::ProcessRx( buffer, sourceIP, targetIP );
+         UDP.ProcessRx( buffer, sourceIP, targetIP );
          break;
       default:
          printf( "Unsupported IP Protocol 0x%02X\n", protocol );
@@ -147,7 +147,7 @@ DataBuffer* ProtocolIPv4::GetTxBuffer()
 {
    DataBuffer*   buffer;
 
-   buffer = ProtocolMACEthernet::GetTxBuffer();
+   buffer = MAC.GetTxBuffer();
    if( buffer != 0 )
    {
       buffer->Packet += IP_HEADER_SIZE;
@@ -189,10 +189,10 @@ void ProtocolIPv4::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t
    checksum = FCS::Checksum( packet, 20 );
    Pack16( packet, 10, checksum );
 
-   targetMAC = ProtocolARP::Protocol2Hardware( targetIP );
+   targetMAC = ARP.Protocol2Hardware( targetIP );
    if( targetMAC != 0 )
    {
-      ProtocolMACEthernet::Transmit( buffer, targetMAC, 0x0800 );
+      MAC.Transmit( buffer, targetMAC, 0x0800 );
    }
    else
    {
@@ -207,7 +207,7 @@ void ProtocolIPv4::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t
 
 void ProtocolIPv4::Retransmit( DataBuffer* buffer )
 {
-   ProtocolMACEthernet::Retransmit( buffer );
+   MAC.Retransmit( buffer );
 }
 
 //============================================================================
@@ -225,10 +225,10 @@ void ProtocolIPv4::Retry()
    {
       buffer = (DataBuffer*)UnresolvedQueue.Get();
 
-      targetMAC = ProtocolARP::Protocol2Hardware( &buffer->Packet[ 16 ] );
+      targetMAC = ARP.Protocol2Hardware( &buffer->Packet[ 16 ] );
       if( targetMAC != 0 )
       {
-         ProtocolMACEthernet::Transmit( buffer, targetMAC, 0x0800 );
+         MAC.Transmit( buffer, targetMAC, 0x0800 );
       }
       else
       {
@@ -244,7 +244,7 @@ void ProtocolIPv4::Retry()
 
 void ProtocolIPv4::FreeTxBuffer( DataBuffer* buffer )
 {
-   ProtocolMACEthernet::FreeTxBuffer( buffer );
+   MAC.FreeTxBuffer( buffer );
 }
 
 //============================================================================
@@ -253,7 +253,7 @@ void ProtocolIPv4::FreeTxBuffer( DataBuffer* buffer )
 
 void ProtocolIPv4::FreeRxBuffer( DataBuffer* buffer )
 {
-   ProtocolMACEthernet::FreeRxBuffer( buffer );
+   MAC.FreeRxBuffer( buffer );
 }
 
 //============================================================================
@@ -263,8 +263,8 @@ void ProtocolIPv4::FreeRxBuffer( DataBuffer* buffer )
 void ProtocolIPv4::Show( osPrintfInterface* out )
 {
    out->Printf( "Network Configuration\n" );
-   out->Printf( "Ethernet Unicast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetUnicastAddress() ) );
-   out->Printf( "Ethernet Broadcast MAC Address: %s\n", macaddrtoa( ProtocolMACEthernet::GetBroadcastAddress() ) );
+   out->Printf( "Ethernet Unicast MAC Address: %s\n", macaddrtoa( MAC.GetUnicastAddress() ) );
+   out->Printf( "Ethernet Broadcast MAC Address: %s\n", macaddrtoa( MAC.GetBroadcastAddress() ) );
 
    out->Printf( "IPv4 Configuration\n" );
    out->Printf( "   Address:            %s\n", ipv4toa( Address.Address ) );

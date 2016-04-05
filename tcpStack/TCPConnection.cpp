@@ -57,6 +57,16 @@ TCPConnection::TCPConnection() :
 //
 //============================================================================
 
+void TCPConnection::Initialize( ProtocolIPv4& ip, ProtocolTCP& tcp )
+{
+   IP = &ip;
+   TCP = &tcp;
+}
+
+//============================================================================
+//
+//============================================================================
+
 TCPConnection::~TCPConnection()
 {
 }
@@ -116,7 +126,7 @@ void TCPConnection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          Event.Wait( __FILE__, __LINE__ );
       }
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, ProtocolIPv4::GetUnicastAddress(), RemoteAddress );
+      checksum = ProtocolTCP::ComputeChecksum( packet, length+TCP_HEADER_SIZE, IP->GetUnicastAddress(), RemoteAddress );
 
       Pack16( packet, 16, checksum );   // checksum
 
@@ -131,7 +141,7 @@ void TCPConnection::BuildPacket( DataBuffer* buffer, uint8_t flags )
          HoldingQueueLock.Give();
       }
 
-      ProtocolIPv4::Transmit( buffer, 0x06, RemoteAddress, ProtocolIPv4::GetUnicastAddress() );
+      IP->Transmit( buffer, 0x06, RemoteAddress, IP->GetUnicastAddress() );
    }
 }
 
@@ -143,7 +153,7 @@ DataBuffer* TCPConnection::GetTxBuffer()
 {
    DataBuffer* rc;
 
-   rc = ProtocolIPv4::GetTxBuffer();
+   rc = IP->GetTxBuffer();
    if( rc )
    {
       rc->Packet    += TCP_HEADER_SIZE;
@@ -369,7 +379,7 @@ void TCPConnection::Tick()
       {
          printf( "TCP retransmit timeout %u, %u, delta %d\n", buffer->Time_us, timeoutTime_us, (int32_t)(buffer->Time_us - timeoutTime_us) );
          buffer->Time_us = currentTime_us;
-         ProtocolIPv4::Retransmit( buffer );
+         IP->Retransmit( buffer );
       }
 
       HoldingQueue.Put( buffer );
@@ -379,11 +389,11 @@ void TCPConnection::Tick()
    // Check for TIMED_WAIT timeouts
    for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
    {
-      if( ProtocolTCP::ConnectionList[ i ].State == TIMED_WAIT )
+      if( TCP->ConnectionList[ i ].State == TIMED_WAIT )
       {
-         if( currentTime_us - ProtocolTCP::ConnectionList[ i ].Time_us >= TCP_TIMED_WAIT_TIMEOUT_US  )
+         if( currentTime_us - TCP->ConnectionList[ i ].Time_us >= TCP_TIMED_WAIT_TIMEOUT_US  )
          {
-            ProtocolTCP::ConnectionList[ i ].State = CLOSED;
+            TCP->ConnectionList[ i ].State = CLOSED;
          }
       }
    }

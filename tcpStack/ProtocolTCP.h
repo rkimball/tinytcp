@@ -79,28 +79,33 @@
 #define SYN (packet[ 13 ] & FLAG_SYN)
 #define FIN (packet[ 13 ] & FLAG_FIN)
 
+class ProtocolIPv4;
+
 class ProtocolTCP
 {
 public:
    friend class TCPConnection;
 
-   static void Initialize();
-   static void Tick();
+   ProtocolTCP( ProtocolIPv4& );
+   void Tick();
 
-   static TCPConnection* NewClient( const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
-   static TCPConnection* NewServer( uint16_t port );
-   static uint16_t NewPort();
+   TCPConnection* NewClient( const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
+   TCPConnection* NewServer( uint16_t port );
+   uint16_t NewPort();
 
-   static void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
-   static void Show( osPrintfInterface* out );
+   void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
+   void Show( osPrintfInterface* out );
 
 private:
-   static TCPConnection* LocateConnection( uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort );
+   TCPConnection* LocateConnection( uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort );
    static uint16_t ComputeChecksum( uint8_t* packet, uint16_t length, const uint8_t* sourceIP, const uint8_t* targetIP );
-   static void Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress );
+   void Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress );
 
-   static TCPConnection ConnectionList[ TCP_MAX_CONNECTIONS ];
-   static uint16_t NextPort;
+   TCPConnection ConnectionList[ TCP_MAX_CONNECTIONS ];
+   void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];
+   uint16_t NextPort;
+
+   ProtocolIPv4& IP;
 
    ProtocolTCP();
    ProtocolTCP( ProtocolTCP& );

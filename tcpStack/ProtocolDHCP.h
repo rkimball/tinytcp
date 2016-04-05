@@ -36,19 +36,28 @@
 
 #include "DataBuffer.h"
 
+class ProtocolMACEthernet;
+class ProtocolIPv4;
+class ProtocolUDP;
+
 // UDP Src = 0.0.0.0 sPort = 68
 // Dest = 255.255.255.255 dPort = 67
 
 class ProtocolDHCP
 {
 public:
-   static void ProcessRx( DataBuffer* buffer );
-   static void Discover();
-   static void SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress );
-   static void test();
+   ProtocolDHCP( ProtocolMACEthernet& mac, ProtocolIPv4& ip, ProtocolUDP& udp );
+   void ProcessRx( DataBuffer* buffer );
+   void Discover();
+   void SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress );
+   void test();
 private:
-   static DataBuffer Buffer;
-   static int PendingXID;
+   DataBuffer Buffer;
+   int PendingXID;
+
+   ProtocolMACEthernet& MAC;
+   ProtocolIPv4&        IP;
+   ProtocolUDP&         UDP;
 };
 
 #endif

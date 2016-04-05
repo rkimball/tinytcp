@@ -36,10 +36,13 @@
 #include "Address.h"
 #include "DataBuffer.h"
 #include "osMutex.h"
+#include "ProtocolMACEthernet.h"
+#include "ProtocolIPv4.h"
 
 class ARPCacheEntry
 {
 public:
+   ARPCacheEntry();
    uint8_t Age;
    uint8_t IPv4Address[ 4 ];
    uint8_t MACAddress[ 6 ];
@@ -57,17 +60,18 @@ public:
 class ProtocolARP
 {
 public:
-   static void Initialize();
+   ProtocolARP( ProtocolMACEthernet& mac, ProtocolIPv4& ip );
+   void Initialize();
    
-   static void ProcessRx( const DataBuffer* );
+   void ProcessRx( const DataBuffer* );
 
-   static void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );
+   void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );
 
-   static const uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
-   static bool IsLocal( const uint8_t* protocolAddress );
-   static bool IsBroadcast( const uint8_t* protocolAddress );
+   const uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
+   bool IsLocal( const uint8_t* protocolAddress );
+   bool IsBroadcast( const uint8_t* protocolAddress );
 
-   static void Show( osPrintfInterface* pfunc );
+   void Show( osPrintfInterface* pfunc );
 
 private:
    struct ARPInfo
@@ -83,14 +87,17 @@ private:
       uint8_t* targetProtocolAddress;
    };
 
-   static void SendReply( const ARPInfo& info );
-   static void SendRequest( const uint8_t* targetIP );
-   static int LocateProtocolAddress( const uint8_t* protocolAddress );
+   void SendReply( const ARPInfo& info );
+   void SendRequest( const uint8_t* targetIP );
+   int LocateProtocolAddress( const uint8_t* protocolAddress );
 
    static const uint8_t CacheSize = 5;
-   static DataBuffer ARPRequest;
+   DataBuffer ARPRequest;
 
-   static ARPCacheEntry Cache[];
+   ARPCacheEntry Cache[ ProtocolARP::CacheSize ];
+
+   ProtocolMACEthernet& MAC;
+   ProtocolIPv4&        IP;
 
    ProtocolARP();
    ProtocolARP( ProtocolARP& );

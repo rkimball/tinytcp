@@ -39,6 +39,7 @@
 namespace http
 {
    class Page;
+   class Server;
 }
 
 class http::Page : public osPrintfInterface
@@ -96,6 +97,7 @@ private:
    void ClosePendingOpen();
 
    osThread    Thread;
+   Server*     _Server;
 };
       
 #endif

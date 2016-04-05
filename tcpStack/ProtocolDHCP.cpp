@@ -42,7 +42,6 @@
 #include "Utility.h"
 #include "osTime.h"
 
-int32_t ProtocolDHCP::PendingXID = -1;
 static const uint32_t DHCP_MAGIC = 0x63825363;
 
 void ProtocolDHCP::test()
@@ -50,6 +49,14 @@ void ProtocolDHCP::test()
    printf( "sending discover\n" );
    Discover();
    printf( "discover sent\n" );
+}
+
+ProtocolDHCP::ProtocolDHCP( ProtocolMACEthernet& mac, ProtocolIPv4& ip, ProtocolUDP& udp ) :
+   PendingXID( -1 ),
+   MAC( mac ),
+   IP( ip ),
+   UDP( udp )
+{
 }
 
 void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
@@ -139,8 +146,8 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
       {
          for( int i = 0; i < 4; i++ ) ipv4Data.Address[ i ] = yiaddr[ i ];
          ipv4Data.DataValid = true;
-         ProtocolIPv4::SetAddressInfo( ipv4Data );
-         const uint8_t* addr = ProtocolIPv4::GetUnicastAddress();
+         IP.SetAddressInfo( ipv4Data );
+         const uint8_t* addr = IP.GetUnicastAddress();
          printf( "DHCP got address %d.%d.%d.%d\n", addr[ 0 ], addr[ 1 ], addr[ 2 ], addr[ 3 ] );
          break;
       }
@@ -175,7 +182,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
 
 void ProtocolDHCP::Discover()
 {
-   DataBuffer* buffer = ProtocolUDP::GetTxBuffer();
+   DataBuffer* buffer = UDP.GetTxBuffer();
    int i;
 
    if( buffer )
@@ -193,7 +200,7 @@ void ProtocolDHCP::Discover()
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Server IP address)
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
-      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = MAC.GetUnicastAddress()[ i ];
       for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
       for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
       for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
@@ -208,7 +215,7 @@ void ProtocolDHCP::Discover()
       buffer->Packet[ buffer->Length++ ] = 61;
       buffer->Packet[ buffer->Length++ ] = 7; // length
       buffer->Packet[ buffer->Length++ ] = 1; // type is hardware address
-      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
+      for( int i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = MAC.GetUnicastAddress()[ i ];
 
       // host name
       const char* name = "tinytcp";
@@ -231,14 +238,14 @@ void ProtocolDHCP::Discover()
 
       uint8_t sourceIP[] = { 0, 0, 0, 0 };
       uint8_t targetIP[] = { 255, 255, 255, 255 };
-      ProtocolUDP::Transmit( buffer, targetIP, 67, sourceIP, 68 );
+      UDP.Transmit( buffer, targetIP, 67, sourceIP, 68 );
    }
 }
 
 void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress )
 {
    printf( "DHCP Send type %d\n", messageType );
-   DataBuffer* buffer = ProtocolUDP::GetTxBuffer();
+   DataBuffer* buffer = UDP.GetTxBuffer();
    int i;
 
    if( buffer )
@@ -263,7 +270,7 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
          buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Your IP address)
       }
       buffer->Length = Pack32( buffer->Packet, buffer->Length, 0 ); // (Gateway IP address)
-      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = ProtocolMACEthernet::GetUnicastAddress()[ i ];
+      for( i = 0; i < 6; i++ ) buffer->Packet[ buffer->Length++ ] = MAC.GetUnicastAddress()[ i ];
       for( ; i < 16; i++ ) buffer->Packet[ buffer->Length++ ] = 0;   // pad chaddr to 16 bytes
       for( i = 0; i < 64; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // sname
       for( i = 0; i < 128; i++ ) buffer->Packet[ buffer->Length++ ] = 0; // file
@@ -303,6 +310,6 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
 
       uint8_t sourceIP[] = { 0, 0, 0, 0 };
       uint8_t targetIP[] = { 255, 255, 255, 255 };
-      ProtocolUDP::Transmit( buffer, targetIP, 67, sourceIP, 68 );
+      UDP.Transmit( buffer, targetIP, 67, sourceIP, 68 );
    }
 }

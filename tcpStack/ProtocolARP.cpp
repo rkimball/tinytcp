@@ -40,10 +40,6 @@
 #include "NetworkInterface.h"
 #include "Config.h"
 
-ARPCacheEntry ProtocolARP::Cache[ ProtocolARP::CacheSize ];
-
-DataBuffer ProtocolARP::ARPRequest;
-
 // HardwareType - 2 bytes
 // ProtocolType - 2 bytes
 // HardwareSize - 1 byte, size int bytes of HardwareAddress fields
@@ -53,6 +49,25 @@ DataBuffer ProtocolARP::ARPRequest;
 // SenderProtocolAddress - IPv4AddressSize bytes
 // TargetHardwareAddress - HardwareSize bytes
 // TargetProtocolAddress - IPv4AddressSize bytes
+
+//============================================================================
+//
+//============================================================================
+
+ARPCacheEntry::ARPCacheEntry() :
+   Age( 0 )
+{
+}
+
+//============================================================================
+//
+//============================================================================
+
+ProtocolARP::ProtocolARP( ProtocolMACEthernet& mac, ProtocolIPv4& ip ) :
+   MAC( mac ),
+   IP( ip )
+{
+}
 
 //============================================================================
 //
@@ -91,7 +106,7 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
           info.protocolSize == ProtocolIPv4::AddressSize )
       {
          // All of the sizes match
-         if( Address::Compare( info.targetProtocolAddress, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::AddressSize ) )
+         if( Address::Compare( info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize ) )
          {
             // This ARP is for me
             SendReply( info );
@@ -102,7 +117,7 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
    {
       // ARP Reply
       Add( info.senderProtocolAddress, info.senderHardwareAddress );
-      ProtocolIPv4::Retry();
+      IP.Retry();
    }
 }
 
@@ -211,7 +226,7 @@ void ProtocolARP::SendReply( const ARPInfo& info )
 {
    uint8_t i;
    int offset = 0;
-   DataBuffer* txBuffer = ProtocolMACEthernet::GetTxBuffer();
+   DataBuffer* txBuffer = MAC.GetTxBuffer();
    if( txBuffer == 0 )
    {
       printf( "ARP failed to get tx buffer\n" );
@@ -223,13 +238,13 @@ void ProtocolARP::SendReply( const ARPInfo& info )
    offset = Pack8( txBuffer->Packet, offset, info.hardwareSize );
    offset = Pack8( txBuffer->Packet, offset, info.protocolSize );
    offset = Pack16( txBuffer->Packet, offset, 2 ); // ARP Reply
-   offset = PackBytes( txBuffer->Packet, offset, ProtocolMACEthernet::GetUnicastAddress(), info.hardwareSize );
-   offset = PackBytes( txBuffer->Packet, offset, ProtocolIPv4::GetUnicastAddress(), info.protocolSize );
+   offset = PackBytes( txBuffer->Packet, offset, MAC.GetUnicastAddress(), info.hardwareSize );
+   offset = PackBytes( txBuffer->Packet, offset, IP.GetUnicastAddress(), info.protocolSize );
    offset = PackBytes( txBuffer->Packet, offset, info.senderHardwareAddress, info.hardwareSize );
    offset = PackBytes( txBuffer->Packet, offset, info.senderProtocolAddress, info.protocolSize );
    txBuffer->Length = offset;
 
-   ProtocolMACEthernet::Transmit( txBuffer, info.senderHardwareAddress, 0x0806 );
+   MAC.Transmit( txBuffer, info.senderHardwareAddress, 0x0806 );
 }
 
 //============================================================================
@@ -255,10 +270,10 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
    offset = Pack16( ARPRequest.Packet, offset, 0x0001 ); // Op
 
    // Sender's Hardware Address
-   offset = PackBytes( ARPRequest.Packet, offset, ProtocolMACEthernet::GetUnicastAddress(), 6 );
+   offset = PackBytes( ARPRequest.Packet, offset, MAC.GetUnicastAddress(), 6 );
 
    // Sender's Protocol Address
-   offset = PackBytes( ARPRequest.Packet, offset, ProtocolIPv4::GetUnicastAddress(), 4 );
+   offset = PackBytes( ARPRequest.Packet, offset, IP.GetUnicastAddress(), 4 );
 
    // Target's Hardware Address
    offset = PackFill( ARPRequest.Packet, offset, 0, 6 );
@@ -266,7 +281,7 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
    // Target's Protocol Address
    ARPRequest.Length = PackBytes( ARPRequest.Packet, offset, targetIP, 4 );
 
-   ProtocolMACEthernet::Transmit( &ARPRequest, ProtocolMACEthernet::GetBroadcastAddress(), 0x0806 );
+   MAC.Transmit( &ARPRequest, MAC.GetBroadcastAddress(), 0x0806 );
 }
 
 //============================================================================
@@ -280,13 +295,13 @@ const uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 
    if( IsBroadcast( protocolAddress ) )
    {
-      rc = ProtocolMACEthernet::GetBroadcastAddress();
+      rc = MAC.GetBroadcastAddress();
    }
    else
    {
       if( !IsLocal( protocolAddress ) )
       {
-         protocolAddress = ProtocolIPv4::GetGatewayAddress();
+         protocolAddress = IP.GetGatewayAddress();
       }
       index = LocateProtocolAddress( protocolAddress );
 
@@ -332,8 +347,8 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
    {
       if
          (
-            (protocolAddress[ i ] & ProtocolIPv4::GetSubnetMask()[ i ]) !=
-            (ProtocolIPv4::GetUnicastAddress()[ i ] & ProtocolIPv4::GetSubnetMask()[ i ])
+            (protocolAddress[ i ] & IP.GetSubnetMask()[ i ]) !=
+            (IP.GetUnicastAddress()[ i ] & IP.GetSubnetMask()[ i ])
             )
       {
          break;

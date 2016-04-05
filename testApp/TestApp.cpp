@@ -50,6 +50,7 @@
 #include "HTTPD.h"
 #include "HTTPPage.h"
 #include "NetworkInterface.h"
+#include "DefaultStack.h"
 
 #ifdef WIN32
 #define strcasecmp _stricmp
@@ -60,9 +61,12 @@ PacketIO* PIO;
 static osThread NetworkThread;
 static osThread MainThread;
 static osMutex* Semaphore;
-http::Server WebServer;
 
 static osEvent StartEvent( "StartEvent" );
+
+
+DefaultStack   tcpStack;
+
 
 struct NetworkConfig
 {
@@ -85,11 +89,20 @@ void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_ch
 //
 //============================================================================
 
+void RxData( uint8_t* data, size_t length )
+{
+   tcpStack.ProcessRx( data, length );
+}
+
+//============================================================================
+//
+//============================================================================
+
 void NetworkEntry( void* param )
 {
    // This is just a made-up MAC address to user for testing
    uint8_t addr[] = { 0x10, 0xBF, 0x48, 0x44, 0x55, 0x66 };
-   ProtocolMACEthernet::SetUnicastAddress( addr );
+   tcpStack.SetMACAddress( addr );
 
 //   Config.IPv4.Address[ 0 ] = 0;
 //   Config.IPv4.Address[ 1 ] = 0;
@@ -114,9 +127,9 @@ void NetworkEntry( void* param )
    PIO->Start( packet_handler );
 #elif __linux__
    PIO = new PacketIO();
-   ProtocolMACEthernet::Initialize( PIO );
+   tcpStack.SetNetworkInterface( PIO );
    StartEvent.Notify();
-   PIO->Start();
+   PIO->Start(RxData);
 #endif
 }
 
@@ -126,16 +139,6 @@ void NetworkEntry( void* param )
 
 void MainEntry( void* config )
 {
-   NetworkThread.Create( NetworkEntry, "Network", 1024, 10, config );
-
-#ifdef _WIN32
-   Sleep( 1000 );
-#elif __linux__
-   usleep( 1000000 );
-#endif
-   StartEvent.Wait( __FILE__, __LINE__ );
-
-   WebServer.Initialize( 80 );
 }
 
 //============================================================================
@@ -222,7 +225,7 @@ void ShowThread( http::Page* page )
 void ShowConfig( http::Page* page )
 {
    page->Printf( "<pre>" );
-   ProtocolIPv4::Show( page );
+//   ProtocolIPv4::Show( page );
    page->Printf( "</pre>" );
 }
 
@@ -233,7 +236,7 @@ void ShowConfig( http::Page* page )
 void ShowARP( http::Page* page )
 {
    page->Printf( "<pre>" );
-   ProtocolARP::Show( page );
+//   ProtocolARP::Show( page );
    page->Printf( "</pre>" );
 }
 
@@ -244,7 +247,7 @@ void ShowARP( http::Page* page )
 void ShowTCP( http::Page* page )
 {
    page->Printf( "<pre>" );
-   ProtocolTCP::Show( page );
+//   ProtocolTCP::Show( page );
    page->Printf( "</pre>" );
 }
 
@@ -360,6 +363,7 @@ int main( int argc, char* argv[] )
 {
    NetworkConfig config;
    config.interfaceNumber = 1;
+//   http::Server WebServer( tcp );
 
    printf( "%d bit build\n", (sizeof(void*)==4?32:64) );
 
@@ -382,10 +386,19 @@ int main( int argc, char* argv[] )
       }
    }
 
-   http::Server::RegisterPageHandler( ProcessPageRequest );
-   MainEntry( &config );
+//   http::Server::RegisterPageHandler( ProcessPageRequest );
+   NetworkThread.Create( NetworkEntry, "Network", 1024, 10, &config );
 
-   ProtocolDHCP::test();
+#ifdef _WIN32
+   Sleep( 1000 );
+#elif __linux__
+   usleep( 1000000 );
+#endif
+   StartEvent.Wait( __FILE__, __LINE__ );
+
+//   WebServer.Initialize( 80 );
+
+   tcpStack.StartDHCP();
 
    while( 1 )
    {
@@ -394,7 +407,7 @@ int main( int argc, char* argv[] )
 #elif __linux__
       usleep( 100000 );
 #endif
-      ProtocolTCP::Tick();
+      tcpStack.Tick();
    }
 
    return 0;

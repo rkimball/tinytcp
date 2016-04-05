@@ -47,20 +47,20 @@
 #include <strings.h>
 #endif
 
-http::Page  http::Server::PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
-static void* PagePoolBuffer[ MAX_ACTIVE_CONNECTIONS ];
-osQueue     http::Server::PagePool( "HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer );
-PageRequestHandler http::Server::PageHandler = 0;
-ErrorMessageHandler http::Server::ErrorHandler = 0;
 
 #define MAX_ARGV 10
 
-bool                 http::Server::DebugFlag = false;
-
-static osThread      Thread;
-
-static TCPConnection*  ListenerConnection;
-static TCPConnection*  CurrentConnection;
+http::Server::Server( ProtocolTCP& tcp ) :
+   DebugFlag( false ),
+   PagePool( "HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer ),
+   Thread(),
+   ListenerConnection( 0 ),
+   CurrentConnection( 0 ),
+   PageHandler( 0 ),
+   ErrorHandler( 0 ),
+   TCP( tcp )
+{
+}
 
 void http::Server::RegisterPageHandler( PageRequestHandler handler )
 {
@@ -229,23 +229,30 @@ void http::Server::Initialize( uint16_t port )
 
    for( i=0; i<MAX_ACTIVE_CONNECTIONS; i++ )
    {
+      PagePoolPages[ i ]._Server = this;
       PagePool.Put( &PagePoolPages[ i ] );
    }
 
-  ListenerConnection = ProtocolTCP::NewServer( port );
-  Thread.Create( http::Server::TaskEntry, "HTTPD", 1024*32, 100, 0 );
+  ListenerConnection = TCP.NewServer( port );
+  Thread.Create( http::Server::TaskEntry, "HTTPD", 1024*32, 100, this );
 }
 
 void http::Server::ConnectionHandlerEntry( void* param )
 {
    Page* page = (Page*)param;
 
-   ProcessRequest( page );
+   page->_Server->ProcessRequest( page );
 
-   PagePool.Put( page );
+   page->_Server->PagePool.Put( page );
 }
 
 void http::Server::TaskEntry( void* param )
+{
+   Server* s = (Server*)param;
+   s->Task();
+}
+
+void http::Server::Task()
 {
    TCPConnection* connection;
    Page* page;

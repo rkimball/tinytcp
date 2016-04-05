@@ -37,14 +37,20 @@
 
 #define UDP_HEADER_SIZE (8)
 
+class ProtocolIPv4;
+class ProtocolDHCP;
+
 class ProtocolUDP
 {
 public:
-   static void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
-   static void Transmit( DataBuffer* buffer, const uint8_t* targetIP, uint16_t targetPort, const uint8_t* sourceIP, uint16_t sourcePort );
+   ProtocolUDP( ProtocolIPv4&, ProtocolDHCP& );
+   void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
+   void Transmit( DataBuffer* buffer, const uint8_t* targetIP, uint16_t targetPort, const uint8_t* sourceIP, uint16_t sourcePort );
 
-   static DataBuffer* GetTxBuffer();
+   DataBuffer* GetTxBuffer();
 private:
+   ProtocolIPv4& IP;
+   ProtocolDHCP& DHCP;
 };
 
 #endif

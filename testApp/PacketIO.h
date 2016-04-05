@@ -47,10 +47,11 @@ public:
    PacketIO();
    PacketIO( const char* name );
 
+   typedef void (*RxDataHandler)( uint8_t* data, size_t length );
 #ifdef _WIN32
    void Start( pcap_handler handler );
 #elif __linux__
-   void Start();
+   void Start(RxDataHandler);
    void Entry( void* param );
 #endif
    void Stop();

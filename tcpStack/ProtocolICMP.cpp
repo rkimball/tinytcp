@@ -45,7 +45,8 @@
 //
 //============================================================================
 
-void ProtocolICMP::Initialize()
+ProtocolICMP::ProtocolICMP( ProtocolIPv4& ip ) :
+   IP( ip )
 {
 }
 
@@ -66,7 +67,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP, const
    switch( type )
    {
    case 8:  // echo request
-      txBuffer = ProtocolIPv4::GetTxBuffer();
+      txBuffer = IP.GetTxBuffer();
       if( txBuffer && buffer->Length <= txBuffer->Remainder )
       {
          for( i=0; i<buffer->Length; i++ )
@@ -78,7 +79,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP, const
          i = FCS::Checksum( txBuffer->Packet, buffer->Length );
          Pack16( txBuffer->Packet, 2, i ); // set the checksum
          txBuffer->Length = buffer->Length;
-         ProtocolIPv4::Transmit( txBuffer, 0x01, remoteIP, ProtocolIPv4::GetUnicastAddress() );
+         IP.Transmit( txBuffer, 0x01, remoteIP, IP.GetUnicastAddress() );
       }
       break;
    default:

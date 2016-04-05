@@ -331,52 +331,7 @@ void PacketIO::DisplayDevices()
 //
 //============================================================================
 
-static void ThreadEntry( void* param )
-{
-   PacketIO* p = (PacketIO*)param;
-   p->Entry( param );
-}
-
-void PacketIO::Start()
-{
-   EthernetRxThread.Create( ThreadEntry, "EthernetRx", 2000, 0, this );
-}
-
-//============================================================================
-//
-//============================================================================
-
-void PacketIO::Stop()
-{
-}
-
-//============================================================================
-//
-//============================================================================
-
-void PacketIO::TxData( void* packet, size_t length )
-{
-//   printf( "Ethernet Tx:\n" );
-//   DumpData( packet, length, printf );
-
-   struct sockaddr_ll dest;
-
-   memset( &dest, 0, sizeof(dest) );
-   dest.sll_family = AF_PACKET;
-   dest.sll_ifindex = m_IfIndex;
-
-   int rc = sendto( m_RawSocket, packet, length, 0, (sockaddr*)&dest, sizeof(dest) );
-   if( rc < 0 )
-   {
-      printf( "tx error %s\n", strerror( errno ) );
-   }
-}
-
-//============================================================================
-//
-//============================================================================
-
-void PacketIO::Entry( void* param )
+void PacketIO::Start( RxDataHandler rxData )
 {
    m_RawSocket = socket( AF_PACKET, SOCK_RAW, htons(ETH_P_ALL) );
    if( m_RawSocket == -1 )
@@ -427,9 +382,39 @@ void PacketIO::Entry( void* param )
       while(1)
       {
          int length = recvfrom( m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, NULL, NULL );
-         ProtocolMACEthernet::ProcessRx( (uint8_t*)pkt_data, length );
+         rxData( (uint8_t*)pkt_data, length );
       }
       free( pkt_data ); // no way to get here, but ...
+   }
+}
+
+//============================================================================
+//
+//============================================================================
+
+void PacketIO::Stop()
+{
+}
+
+//============================================================================
+//
+//============================================================================
+
+void PacketIO::TxData( void* packet, size_t length )
+{
+//   printf( "Ethernet Tx:\n" );
+//   DumpData( packet, length, printf );
+
+   struct sockaddr_ll dest;
+
+   memset( &dest, 0, sizeof(dest) );
+   dest.sll_family = AF_PACKET;
+   dest.sll_ifindex = m_IfIndex;
+
+   int rc = sendto( m_RawSocket, packet, length, 0, (sockaddr*)&dest, sizeof(dest) );
+   if( rc < 0 )
+   {
+      printf( "tx error %s\n", strerror( errno ) );
    }
 }
 

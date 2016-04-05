@@ -35,8 +35,14 @@
 #include <inttypes.h>
 #include "osQueue.h"
 #include "DataBuffer.h"
+#include "ProtocolMACEthernet.h"
 
 #define IP_HEADER_SIZE (20)
+
+class ProtocolARP;
+class ProtocolICMP;
+class ProtocolTCP;
+class ProtocolUDP;
 
 class ProtocolIPv4
 {
@@ -55,34 +61,42 @@ public:
       uint8_t BroadcastAddress[ AddressSize ];
    };
 
-   static void Initialize();
+   ProtocolIPv4( ProtocolMACEthernet&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP& );
+   void Initialize();
 
-   static void ProcessRx( DataBuffer* );
+   void ProcessRx( DataBuffer* );
 
-   static void Transmit( DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP );
-   static void Retransmit( DataBuffer* );
+   void Transmit( DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP );
+   void Retransmit( DataBuffer* );
 
-   static void Retry();
+   void Retry();
 
-   static const uint8_t* GetUnicastAddress();
-   static const uint8_t* GetBroadcastAddress();
-   static const uint8_t* GetGatewayAddress();
-   static const uint8_t* GetSubnetMask();
-   static void SetAddressInfo( const AddressInfo& info );
+   const uint8_t* GetUnicastAddress();
+   const uint8_t* GetBroadcastAddress();
+   const uint8_t* GetGatewayAddress();
+   const uint8_t* GetSubnetMask();
+   void SetAddressInfo( const AddressInfo& info );
    
-   static DataBuffer* GetTxBuffer();
-   static void FreeTxBuffer( DataBuffer* );
-   static void FreeRxBuffer( DataBuffer* );
+   DataBuffer* GetTxBuffer();
+   void FreeTxBuffer( DataBuffer* );
+   void FreeRxBuffer( DataBuffer* );
 
-   static void Show( osPrintfInterface* out );
+   void Show( osPrintfInterface* out );
 
 private:
-   static bool IsLocal( const uint8_t* addr );
+   bool IsLocal( const uint8_t* addr );
 
-   static uint16_t PacketID;
-   static osQueue UnresolvedQueue;
+   uint16_t PacketID;
+   void* TxBuffer[ TX_BUFFER_COUNT ];
+   osQueue UnresolvedQueue;
 
-   static AddressInfo Address;
+   AddressInfo Address;
+
+   ProtocolMACEthernet& MAC;
+   ProtocolARP& ARP;
+   ProtocolICMP& ICMP;
+   ProtocolTCP& TCP;
+   ProtocolUDP& UDP;
 
    ProtocolIPv4();
    ProtocolIPv4( ProtocolIPv4& );
