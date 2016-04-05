@@ -42,6 +42,9 @@ osEvent*    osEvent::InstanceList[ osEvent::INSTANCE_MAX ];
 osMutex     osEvent::ListMutex( "Event List" );
 
 osEvent::osEvent( const char* name ) :
+#ifdef __linux__
+   m_test( false ),
+#endif
    pending(NULL)
 {
    if( name )

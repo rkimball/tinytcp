@@ -43,6 +43,8 @@ osMutex QueueListLock( "queue list lock" );
 osQueue::osQueue( const char* name, int count, void** dataBuffer ) :
    Array( dataBuffer ),
    Name( name ),
+   NextInIndex( 0 ),
+   NextOutIndex( 0 ),
    MaxElements( count ),
    ElementCount( 0 ),
    Lock( "osQueue" )

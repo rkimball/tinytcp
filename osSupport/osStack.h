@@ -37,12 +37,7 @@
 class osStack
 {
 public:
-
-   osStack();
-
-   osStack( int elementCount, const char* name );
-
-   void Initialize( int count, const char* name );
+   osStack( const char* name, int count, void** dataBuffer );
 
    const char* GetName();
 

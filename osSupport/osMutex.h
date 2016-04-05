@@ -79,8 +79,6 @@ private:
    const char* OwnerFile;
    int OwnerLine;
    osThread* OwnerThread;
-
-   size_t   TakeCount;
 };
 
 #endif

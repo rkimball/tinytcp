@@ -40,9 +40,11 @@ static const size_t MAX_STACK_COUNT = 20;
 static osStack* StackList[ MAX_STACK_COUNT ];
 static osMutex StackListLock( "stack list lock" );
 
-osStack::osStack() :
-   Array( 0 ),
-   Name( 0 ),
+osStack::osStack( const char* name, int count, void** dataBuffer ) :
+   Array( dataBuffer ),
+   MaxElements( count ),
+   Name( name ),
+   Index( 0 ),
    ElementCount( 0 ),
    Lock( "osStack" )
 {
@@ -56,43 +58,9 @@ osStack::osStack() :
    }
 }
 
-osStack::osStack( int elementCount, const char* name ) :
-   Array( 0 ),
-   MaxElements( elementCount ),
-   Name( name ),
-   Index( 0 ),
-   ElementCount( 0 ),
-   Lock( name )
-{
-   Array = new void*[ elementCount ];
-   for( int i = 0; i < MAX_STACK_COUNT; i++ )
-   {
-      if( StackList[ i ] == NULL )
-      {
-         StackList[ i ] = this;
-         break;
-      }
-   }
-}
-
 const char* osStack::GetName()
 {
    return Name;
-}
-
-void osStack::Initialize( int elementCount, const char* name )
-{
-   MaxElements = elementCount;
-   Name = name;
-   Index = 0;
-   ElementCount = 0;
-
-   if( Array )
-   {
-      delete[] Array;
-   }
-
-   Array = new void*[ elementCount ];
 }
 
 void* osStack::Peek()
