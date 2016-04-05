@@ -103,6 +103,7 @@ void http::Server::ProcessRequest( http::Page* page )
    int            rc;
    TCPConnection* connection = page->Connection;
 
+   page->HTTPHeaderSent = false;
    actualSizeRead = connection->ReadLine( buffer1, sizeof(buffer1) );
    if( actualSizeRead == -1 )
    {
@@ -228,7 +229,9 @@ void http::Server::ProcessRequest( http::Page* page )
       //Page.Initialize( connection );
       if( PageHandler )
       {
-         PageHandler( page, url, argc, argv );
+         page->argc = argc;
+         page->argv = argv;
+         PageHandler( page, url );
       }
 
       connection->Flush();

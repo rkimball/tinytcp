@@ -83,7 +83,7 @@ public:
    int         ContentLength;
    int         Busy;
    int         argc;
-   char*       argv[ 10 ];
+   char**      argv;
    int         TagDepth;
    bool        StartTagOpen;
 
@@ -98,6 +98,7 @@ private:
 
    osThread    Thread;
    Server*     _Server;
+   bool        HTTPHeaderSent;
 };
       
 #endif

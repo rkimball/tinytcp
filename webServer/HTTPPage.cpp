@@ -43,15 +43,27 @@
 #include <strings.h>
 #endif
 
+//============================================================================
+//
+//============================================================================
+
 http::Page::Page() :
    TagDepth(0),
    StartTagOpen(false)
 {
 }
 
+//============================================================================
+//
+//============================================================================
+
 http::Page::~Page()
 {
 }
+
+//============================================================================
+//
+//============================================================================
 
 void http::Page::Initialize( TCPConnection* connection )
 {
@@ -172,6 +184,10 @@ bool http::Page::SendString( const char* string )
 
 bool http::Page::RawSend( const void* p, size_t length )
 {
+   if( !HTTPHeaderSent )
+   {
+      PageOK();
+   }
    Connection->Write( (uint8_t*)p, length );
 
    return true;
@@ -262,6 +278,7 @@ void http::Page::DumpData( const char* buffer, size_t length )
 
 void http::Page::PageNotFound()
 {
+   HTTPHeaderSent = true;
    SendString( "HTTP/1.0 404 Not Found\r\n\r\n" );
 }
 
@@ -271,6 +288,7 @@ void http::Page::PageNotFound()
 
 void http::Page::PageOK( const char* mimeType )
 {
+   HTTPHeaderSent = true;
    SendString( "HTTP/1.0 200 OK\r\nContent-type: " );
    SendString( mimeType );
    SendString( "\r\n\r\n" );
@@ -282,6 +300,7 @@ void http::Page::PageOK( const char* mimeType )
 
 void http::Page::PageNoContent()
 {
+   HTTPHeaderSent = true;
    SendString( "HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n" );
 }
 
@@ -291,6 +310,7 @@ void http::Page::PageNoContent()
 
 void http::Page::PageUnauthorized()
 {
+   HTTPHeaderSent = true;
    SendString( "HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n" );
 }
 
@@ -300,11 +320,11 @@ void http::Page::PageUnauthorized()
 
 bool http::Page::SendFile( const char* filename )
 {
-   char     s[ BUFFER_SIZE ];
-   FILE*    f;
-   bool     rc = false;
-   unsigned char     buffer[512];
-   uint64_t      counti64;
+   char s[ BUFFER_SIZE ];
+   FILE* f;
+   bool rc = false;
+   unsigned char buffer[512];
+   uint64_t counti64;
    int count;
 
    f = fopen( filename, "rb" );

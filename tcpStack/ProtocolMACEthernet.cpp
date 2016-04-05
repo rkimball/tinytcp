@@ -289,6 +289,9 @@ const uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
 
 void ProtocolMACEthernet::Show( osPrintfInterface* out )
 {
+   out->Printf( "MAC Configuration\n" );
+   out->Printf( "   Ethernet Unicast MAC Address: %s\n", macaddrtoa( GetUnicastAddress() ) );
+   out->Printf( "   Ethernet Broadcast MAC Address: %s\n", macaddrtoa( GetBroadcastAddress() ) );
 }
 
 //============================================================================

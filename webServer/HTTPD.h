@@ -44,7 +44,7 @@ namespace http
    class Server;
 }
 
-typedef void (*PageRequestHandler)(http::Page* page, const char* url, int argc, char** argv);
+typedef void (*PageRequestHandler)( http::Page* page, const char* url );
 typedef void (*ErrorMessageHandler)( const char* message );
 typedef bool (*AuthorizationHandler)( const char* username, const char* password, const char* url );
 

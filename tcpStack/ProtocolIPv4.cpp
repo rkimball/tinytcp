@@ -262,10 +262,6 @@ void ProtocolIPv4::FreeRxBuffer( DataBuffer* buffer )
 
 void ProtocolIPv4::Show( osPrintfInterface* out )
 {
-   out->Printf( "Network Configuration\n" );
-   out->Printf( "Ethernet Unicast MAC Address: %s\n", macaddrtoa( MAC.GetUnicastAddress() ) );
-   out->Printf( "Ethernet Broadcast MAC Address: %s\n", macaddrtoa( MAC.GetBroadcastAddress() ) );
-
    out->Printf( "IPv4 Configuration\n" );
    out->Printf( "   Address:            %s\n", ipv4toa( Address.Address ) );
    out->Printf( "   Subnet Mask:        %s\n", ipv4toa( Address.SubnetMask ) );

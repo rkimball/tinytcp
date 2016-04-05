@@ -155,12 +155,12 @@ void HomePage( http::Page* page )
 
    page->Printf( "<form action=\"/formsdemo.html\">" );
 
-   page->Printf( "First name:" );
-   page->Printf( "<input type=\"text\" name=\"FirstName\" value=\"Robert\"/>" );
+   page->Printf( "<label for=\"FirstName\">First name:</label>" );
+   page->Printf( "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>" );
    page->Printf( "<br>" );
 
-   page->Printf( "Last name:" );
-   page->Printf( "<input type=\"text\" name=\"LastName\" value=\"Kimball\"/>" );
+   page->Printf( "<label for=\"LastName\">Last name:</label>" );
+   page->Printf( "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>" );
    page->Printf( "<br>" );
 
    page->Printf( "<input type=\"submit\" value=\"submit\" />" );
@@ -222,10 +222,21 @@ void ShowThread( http::Page* page )
 //
 //============================================================================
 
-void ShowConfig( http::Page* page )
+void ShowMAC( http::Page* page )
 {
    page->Printf( "<pre>" );
-//   ProtocolIPv4::Show( page );
+   tcpStack.MAC.Show( page );
+   page->Printf( "</pre>" );
+}
+
+//============================================================================
+//
+//============================================================================
+
+void ShowIP( http::Page* page )
+{
+   page->Printf( "<pre>" );
+   tcpStack.IP.Show( page );
    page->Printf( "</pre>" );
 }
 
@@ -236,7 +247,7 @@ void ShowConfig( http::Page* page )
 void ShowARP( http::Page* page )
 {
    page->Printf( "<pre>" );
-//   ProtocolARP::Show( page );
+   tcpStack.ARP.Show( page );
    page->Printf( "</pre>" );
 }
 
@@ -247,7 +258,7 @@ void ShowARP( http::Page* page )
 void ShowTCP( http::Page* page )
 {
    page->Printf( "<pre>" );
-//   ProtocolTCP::Show( page );
+   tcpStack.TCP.Show( page );
    page->Printf( "</pre>" );
 }
 
@@ -285,44 +296,40 @@ void Page404( http::Page* page )
 void ProcessPageRequest
 (
    http::Page* page,
-   const char* url,
-   int argc,
-   char** argv
+   const char* url
 )
 {
-   for( int i=0; i<argc; i++ )
-   {
-      printf( "   arg[%d] = '%s'\n", i, argv[i] );
-   }
    if( !strcasecmp( url, "/" ) )
    {
-      page->PageOK();
       page->Process( BINARY_DIR"master.html", "$content", HomePage );
    }
    else if( !strcasecmp( url, "/formsdemo.html" ) )
    {
-      page->PageOK();
       page->Process( BINARY_DIR"master.html", "$content", FormsResponse );
    }
-   else if( !strcasecmp( url, "/files/test1.zip" ) )
+//   else if( !strcasecmp( url, "/files/test1.zip" ) )
+//   {
+//      page->PageOK();
+//      page->SendFile( "c:\\test.rar" );
+//   }
+//   else if( !strcasecmp( url, "/test/uploadfile" ) )
+//   {
+//      printf( "Reading %d bytes\n", page->ContentLength );
+//      for( int i = 0; i<page->ContentLength; i++ )
+//      {
+//         page->Connection->Read();
+//      }
+//      printf( "Done reading\n" );
+//      page->PageOK();
+//      page->Printf( "Upload %d bytes complete\n", page->ContentLength );
+//   }
+   else if( !strcasecmp( url, "/show/mac" ) )
    {
-      page->PageOK();
-      page->SendFile( "c:\\test.rar" );
+      page->Process( BINARY_DIR"master.html", "$content", ShowMAC );
    }
-   else if( !strcasecmp( url, "/test/uploadfile" ) )
+   else if( !strcasecmp( url, "/show/ip" ) )
    {
-      printf( "Reading %d bytes\n", page->ContentLength );
-      for( int i = 0; i<page->ContentLength; i++ )
-      {
-         page->Connection->Read();
-      }
-      printf( "Done reading\n" );
-      page->PageOK();
-      page->Printf( "Upload %d bytes complete\n", page->ContentLength );
-   }
-   else if( !strcasecmp( url, "/show/config" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowConfig );
+      page->Process( BINARY_DIR"master.html", "$content", ShowIP );
    }
    else if( !strcasecmp( url, "/show/arp" ) )
    {
@@ -350,8 +357,7 @@ void ProcessPageRequest
    }
    else
    {
-      page->PageOK();
-      page->Process( BINARY_DIR"master.html", "$content", Page404 );
+      page->PageNotFound();
    }
 }
 
