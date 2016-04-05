@@ -363,7 +363,7 @@ int main( int argc, char* argv[] )
 {
    NetworkConfig config;
    config.interfaceNumber = 1;
-//   http::Server WebServer( tcp );
+   http::Server WebServer;
 
    printf( "%d bit build\n", (sizeof(void*)==4?32:64) );
 
@@ -386,7 +386,7 @@ int main( int argc, char* argv[] )
       }
    }
 
-//   http::Server::RegisterPageHandler( ProcessPageRequest );
+   WebServer.RegisterPageHandler( ProcessPageRequest );
    NetworkThread.Create( NetworkEntry, "Network", 1024, 10, &config );
 
 #ifdef _WIN32
@@ -396,7 +396,7 @@ int main( int argc, char* argv[] )
 #endif
    StartEvent.Wait( __FILE__, __LINE__ );
 
-//   WebServer.Initialize( 80 );
+   WebServer.Initialize( tcpStack.TCP, 80 );
 
    tcpStack.StartDHCP();
 

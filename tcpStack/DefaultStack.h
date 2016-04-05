@@ -51,8 +51,7 @@ public:
 
    void ProcessRx( uint8_t* data, size_t length );
 
-private:
-   ProtocolMACEthernet   MAC;
+   ProtocolMACEthernet MAC;
    ProtocolIPv4 IP;
    ProtocolARP ARP;
    ProtocolDHCP DHCP;

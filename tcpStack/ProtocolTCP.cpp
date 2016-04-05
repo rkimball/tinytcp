@@ -51,6 +51,10 @@
 ProtocolTCP::ProtocolTCP( ProtocolIPv4& ip ) :
    IP( ip )
 {
+   for( int i=0; i<TCP_MAX_CONNECTIONS; i++ )
+   {
+      ConnectionList[ i ].Initialize( ip, *this );
+   }
 }
 
 //============================================================================

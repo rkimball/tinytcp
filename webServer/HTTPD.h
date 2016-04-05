@@ -52,11 +52,11 @@ class http::Server
    friend class HTTPPage;
 
 public:
-   Server( ProtocolTCP& );
+   Server();
    void RegisterPageHandler( PageRequestHandler );
    void RegisterErrorHandler( ErrorMessageHandler );
 
-   void Initialize( uint16_t port );
+   void Initialize( ProtocolTCP& tcp, uint16_t port );
    void SetDebug( bool );
 
    bool Authorized( const char* username, const char* password, const char* url );
@@ -81,12 +81,8 @@ private:
    TCPConnection*  ListenerConnection;
    TCPConnection*  CurrentConnection;
 
-
    PageRequestHandler  PageHandler;
    ErrorMessageHandler ErrorHandler;
-
-
-   ProtocolTCP& TCP;
 };
 
 #endif

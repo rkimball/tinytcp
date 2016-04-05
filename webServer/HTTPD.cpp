@@ -50,15 +50,14 @@
 
 #define MAX_ARGV 10
 
-http::Server::Server( ProtocolTCP& tcp ) :
+http::Server::Server() :
    DebugFlag( false ),
    PagePool( "HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer ),
    Thread(),
    ListenerConnection( 0 ),
    CurrentConnection( 0 ),
    PageHandler( 0 ),
-   ErrorHandler( 0 ),
-   TCP( tcp )
+   ErrorHandler( 0 )
 {
 }
 
@@ -223,7 +222,7 @@ void http::Server::ProcessRequest( http::Page* page )
    }
 }
 
-void http::Server::Initialize( uint16_t port )
+void http::Server::Initialize( ProtocolTCP& tcp, uint16_t port )
 {
    int   i;
 
@@ -233,7 +232,7 @@ void http::Server::Initialize( uint16_t port )
       PagePool.Put( &PagePoolPages[ i ] );
    }
 
-  ListenerConnection = TCP.NewServer( port );
+  ListenerConnection = tcp.NewServer( port );
   Thread.Create( http::Server::TaskEntry, "HTTPD", 1024*32, 100, this );
 }
 
