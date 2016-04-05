@@ -54,13 +54,13 @@
 //============================================================================
 
 http::Server::Server() :
-   DebugFlag( false ),
    PagePool( "HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer ),
    Thread(),
    ListenerConnection( 0 ),
    CurrentConnection( 0 ),
    PageHandler( 0 ),
-   ErrorHandler( 0 )
+   ErrorHandler( 0 ),
+   AuthHandler( 0 )
 {
 }
 
@@ -116,62 +116,61 @@ void http::Server::ProcessRequest( http::Page* page )
    password[0] = 0;
    do
    {
-      char*    encryptionType;
-      char*    loginString;
+//      char*    encryptionType;
+//      char*    loginString;
       actualSizeRead = connection->ReadLine( buffer, sizeof(buffer) );
       if( buffer[0] == 0 )
       {
          break;
       }
 
-      p = strtok( buffer, ":" );
-      if( !strcasecmp( "Authorization", p ) )
-      {
-         encryptionType = strtok( 0, " " );
-         loginString = strtok( 0, " " );
-         if( !strcasecmp( encryptionType, "Basic" ) )
-         {
-            //char     s[80];
-            //char*    tmp;
+//      p = strtok( buffer, ":" );
+//      if( !strcasecmp( "Authorization", p ) )
+//      {
+//         encryptionType = strtok( 0, " " );
+//         loginString = strtok( 0, " " );
+//         if( !strcasecmp( encryptionType, "Basic" ) )
+//         {
+//            char     s[80];
+//            char*    tmp;
 
-            //// Good so far...
-            //DecodeBase64( loginString, s, sizeof(s) );
-            //tmp = tokenizer.strtok( s, ":" );
-            //if( tmp != NULL )
-            //{
-            //   strncpy( username, tmp, sizeof(username)-1 );
-            //   tmp = tokenizer.strtok( 0, ":" );
-            //   if( tmp != NULL )
-            //   {
-            //      strncpy( password, tmp, sizeof(password)-1 );
-            //   }
-            //}
-         }
-      }
-      else if( !strcasecmp( "Content-Type", p ) )
-      {
-         char* tmp = strtok( 0, "" );
-         if( tmp != NULL )
-         {
-            //strncpy( CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType) );
-         }
-      }
-      else if( !strcasecmp( "Content-Length", p ) )
-      {
-         char* tmp = strtok( 0, " " );
-         if( tmp != NULL )
-         {
-            rc = sscanf( tmp, "%d", &page->ContentLength );
-            if( rc != 1 )
-            {
-               printf( "could not get length\n" );
-            }
-            else
-            {
-               printf( "Content Length: %d\n", page->ContentLength );
-            }
-         }
-      }
+//            DecodeBase64( loginString, s, sizeof(s) );
+//            tmp = tokenizer.strtok( s, ":" );
+//            if( tmp != NULL )
+//            {
+//               strncpy( username, tmp, sizeof(username)-1 );
+//               tmp = tokenizer.strtok( 0, ":" );
+//               if( tmp != NULL )
+//               {
+//                  strncpy( password, tmp, sizeof(password)-1 );
+//               }
+//            }
+//         }
+//      }
+//      else if( !strcasecmp( "Content-Type", p ) )
+//      {
+//         char* tmp = strtok( 0, "" );
+//         if( tmp != NULL )
+//         {
+//            strncpy( CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType) );
+//         }
+//      }
+//      else if( !strcasecmp( "Content-Length", p ) )
+//      {
+//         char* tmp = strtok( 0, " " );
+//         if( tmp != NULL )
+//         {
+//            rc = sscanf( tmp, "%d", &page->ContentLength );
+//            if( rc != 1 )
+//            {
+//               printf( "could not get length\n" );
+//            }
+//            else
+//            {
+//               printf( "Content Length: %d\n", page->ContentLength );
+//            }
+//         }
+//      }
    } while( buffer[0] != 0 );
 
    if( path )
@@ -303,23 +302,5 @@ void http::Server::Task()
          printf( "Error: Out of pages\n" );
       }
    }
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Server::SetDebug( bool enable )
-{
-   DebugFlag = enable;
-}
-
-//============================================================================
-//
-//============================================================================
-
-bool http::Server::Authorized( const char* username, const char* password, const char* url )
-{
-   return true;
 }
 

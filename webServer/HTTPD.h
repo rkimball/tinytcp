@@ -44,8 +44,10 @@ namespace http
    class Server;
 }
 
-typedef void( *PageRequestHandler )(http::Page* page, const char* url, int argc, char** argv);
-typedef void( *ErrorMessageHandler )( const char* message );
+typedef void (*PageRequestHandler)(http::Page* page, const char* url, int argc, char** argv);
+typedef void (*ErrorMessageHandler)( const char* message );
+typedef bool (*AuthorizationHandler)( const char* username, const char* password, const char* url );
+
 
 class http::Server
 {
@@ -55,11 +57,10 @@ public:
    Server();
    void RegisterPageHandler( PageRequestHandler );
    void RegisterErrorHandler( ErrorMessageHandler );
+   void RegisterAuthorizationHandler( AuthorizationHandler );
 
    void Initialize( ProtocolTCP& tcp, uint16_t port );
-   void SetDebug( bool );
 
-   bool Authorized( const char* username, const char* password, const char* url );
    void ProcessRequest( Page* page );
 
 private:
@@ -71,7 +72,6 @@ private:
    static void TaskEntry( void* param );
    void Task();
 
-   bool          DebugFlag;
    Page          PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
    void*         PagePoolBuffer[ MAX_ACTIVE_CONNECTIONS ];
    osQueue       PagePool;
@@ -83,6 +83,7 @@ private:
 
    PageRequestHandler  PageHandler;
    ErrorMessageHandler ErrorHandler;
+   AuthorizationHandler AuthHandler;
 };
 
 #endif
