@@ -151,9 +151,28 @@ void HomePage( http::Page* page )
 {
    time_t t = time(0);
    struct tm* now = localtime( &t );
-   page->Printf( "Current time: %s\n", asctime( now ) );
 
-   page->Printf( "<form action=\"/formsdemo.html\">" );
+   page->Printf( "<span>Current time: %s</span>\n", asctime( now ) );
+
+   page->Printf( "<table class=\"table table-striped\">\n" );
+   page->Printf( "  <thead>\n" );
+   page->Printf( "    <th>Protocol</th>\n" );
+   page->Printf( "    <th>Size of class</th>\n" );
+   page->Printf( "  </thead>\n" );
+   page->Printf( "  <tbody>\n" );
+   page->Printf( "    <tr><td>MAC</td><td>%u</td></tr>\n", sizeof(tcpStack.MAC) );
+   page->Printf( "    <tr><td>IP</td><td>%u</td></tr>\n", sizeof(tcpStack.IP) );
+   page->Printf( "    <tr><td>TCP</td><td>%u</td></tr>\n", sizeof(tcpStack.TCP) );
+   page->Printf( "    <tr><td>ARP</td><td>%u</td></tr>\n", sizeof(tcpStack.ARP) );
+   page->Printf( "    <tr><td>ICMP</td><td>%u</td></tr>\n", sizeof(tcpStack.ICMP) );
+   page->Printf( "    <tr><td>DHCP</td><td>%u</td></tr>\n", sizeof(tcpStack.DHCP) );
+   page->Printf( "  </tbody>\n" );
+   page->Printf( "</table>\n" );
+}
+
+void FormsDemo( http::Page* page )
+{
+   page->Printf( "<form action=\"/formsresult\">" );
 
    page->Printf( "<label for=\"FirstName\">First name:</label>" );
    page->Printf( "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>" );
@@ -303,7 +322,11 @@ void ProcessPageRequest
    {
       page->Process( BINARY_DIR"master.html", "$content", HomePage );
    }
-   else if( !strcasecmp( url, "/formsdemo.html" ) )
+   else if( !strcasecmp( url, "/forms" ) )
+   {
+      page->Process( BINARY_DIR"master.html", "$content", FormsDemo );
+   }
+   else if( !strcasecmp( url, "/formsresult" ) )
    {
       page->Process( BINARY_DIR"master.html", "$content", FormsResponse );
    }
