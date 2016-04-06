@@ -43,12 +43,20 @@
 
 static const uint32_t DHCP_MAGIC = 0x63825363;
 
+//============================================================================
+//
+//============================================================================
+
 void ProtocolDHCP::test()
 {
    printf( "sending discover\n" );
    Discover();
    printf( "discover sent\n" );
 }
+
+//============================================================================
+//
+//============================================================================
 
 ProtocolDHCP::ProtocolDHCP( InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp ) :
    PendingXID( -1 ),
@@ -57,6 +65,10 @@ ProtocolDHCP::ProtocolDHCP( InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& ud
    UDP( udp )
 {
 }
+
+//============================================================================
+//
+//============================================================================
 
 void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
 {
@@ -158,26 +170,28 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
    }
 }
 
-//9.4.DHCP Message Type
+//============================================================================
+// 9.4.DHCP Message Type
 //
-//This option is used to convey the type of the DHCP message.The code
-//for this option is 53, and its length is 1.  Legal values for this
-//option are :
+// This option is used to convey the type of the DHCP message.The code
+// for this option is 53, and its length is 1.  Legal values for this
+// option are :
 //
-//Value   Message Type
-//---- - ------------
-//1     DHCPDISCOVER
-//2     DHCPOFFER
-//3     DHCPREQUEST
-//4     DHCPDECLINE
-//5     DHCPACK
-//6     DHCPNAK
-//7     DHCPRELEASE
+// Value   Message Type
+// ---- - ------------
+// 1     DHCPDISCOVER
+// 2     DHCPOFFER
+// 3     DHCPREQUEST
+// 4     DHCPDECLINE
+// 5     DHCPACK
+// 6     DHCPNAK
+// 7     DHCPRELEASE
 //
-//Code   Len  Type
-//+ ---- - +---- - +---- - +
-//| 53 | 1 | 1 - 7 |
-//+---- - +---- - +---- - +
+// Code   Len  Type
+// + ---- - +---- - +---- - +
+// | 53 | 1 | 1 - 7 |
+// +---- - +---- - +---- - +
+//============================================================================
 
 void ProtocolDHCP::Discover()
 {
@@ -240,6 +254,10 @@ void ProtocolDHCP::Discover()
       UDP.Transmit( buffer, targetIP, 67, sourceIP, 68 );
    }
 }
+
+//============================================================================
+//
+//============================================================================
 
 void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress )
 {
@@ -312,3 +330,7 @@ void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddres
       UDP.Transmit( buffer, targetIP, 67, sourceIP, 68 );
    }
 }
+
+//============================================================================
+//
+//============================================================================
