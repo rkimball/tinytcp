@@ -43,5 +43,6 @@
 
 #define DATA_BUFFER_PAYLOAD_SIZE (512)
 
+const uint8_t ARPCacheSize = 5;
 
 #endif

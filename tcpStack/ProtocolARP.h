@@ -91,10 +91,9 @@ private:
    void SendRequest( const uint8_t* targetIP );
    int LocateProtocolAddress( const uint8_t* protocolAddress );
 
-   static const uint8_t CacheSize = 5;
    DataBuffer ARPRequest;
 
-   ARPCacheEntry Cache[ ProtocolARP::CacheSize ];
+   ARPCacheEntry Cache[ ARPCacheSize ];
 
    ProtocolMACEthernet& MAC;
    ProtocolIPv4&        IP;

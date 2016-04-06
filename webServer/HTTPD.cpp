@@ -89,8 +89,8 @@ void http::Server::RegisterErrorHandler( ErrorMessageHandler handler )
 void http::Server::ProcessRequest( http::Page* page )
 {
    int            i;
-   static char    buffer1[ 512 ];
-   static char    buffer[ 256 ];
+   char           buffer1[ 512 ];
+   char           buffer[ 256 ];
    int            actualSizeRead;
    char*          p;
    char*          result;

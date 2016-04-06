@@ -41,11 +41,6 @@
 #include "osQueue.h"
 #include "osEvent.h"
 
-static int DropCount = 0;
-#define MAC_DROP_COUNT 20
-
-static osEvent Event( "MACEthernet" );
-
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes
@@ -57,6 +52,7 @@ static osEvent Event( "MACEthernet" );
 ProtocolMACEthernet::ProtocolMACEthernet( ProtocolARP& arp, ProtocolIPv4& ipv4 ) :
    TxBufferQueue( "Tx", TX_BUFFER_COUNT, TxBufferBuffer ),
    RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffer ),
+   QueueEmptyEvent( "MACEthernet" ),
    DataInterface( 0 ),
    ARP( arp ),
    IPv4( ipv4 )
@@ -78,9 +74,6 @@ ProtocolMACEthernet::ProtocolMACEthernet( ProtocolARP& arp, ProtocolIPv4& ipv4 )
    {
       RxBufferQueue.Put( &RxBuffer[ i ] );
    }
-
-//   ProtocolARP::Initialize();
-//   ProtocolIPv4::Initialize();
 }
 
 //============================================================================
@@ -181,7 +174,7 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 
    while( (buffer = (DataBuffer*)TxBufferQueue.Get()) == 0 )
    {
-      Event.Wait( __FILE__, __LINE__ );
+      QueueEmptyEvent.Wait( __FILE__, __LINE__ );
    }
    if( buffer != 0 )
    {
@@ -200,7 +193,7 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 void ProtocolMACEthernet::FreeTxBuffer( DataBuffer* buffer )
 {
    TxBufferQueue.Put( buffer );
-   Event.Notify();
+   QueueEmptyEvent.Notify();
 }
 
 //============================================================================

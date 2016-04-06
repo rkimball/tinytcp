@@ -141,7 +141,7 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
    else
    {
       // Not already in table;
-      for( i = 0; i < CacheSize; i++ )
+      for( i = 0; i < ARPCacheSize; i++ )
       {
          if( Cache[ i ].Age == 0 )
          {
@@ -149,11 +149,11 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
             break;
          }
       }
-      if( i == CacheSize )
+      if( i == ARPCacheSize )
       {
          // Table is full, steal the oldest entry
          oldest = 0;
-         for( i = 1; i<CacheSize; i++ )
+         for( i = 1; i<ARPCacheSize; i++ )
          {
             if( Cache[ i ].Age > Cache[ oldest ].Age )
             {
@@ -176,7 +176,7 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
    }
 
    // Age the list
-   for( i = 0; i < CacheSize; i++ )
+   for( i = 0; i < ARPCacheSize; i++ )
    {
       if( Cache[ i ].Age != 0 )
       {
@@ -199,7 +199,7 @@ void ProtocolARP::Show( osPrintfInterface* pfunc )
    int i;
 
    pfunc->Printf( "ARP Cache:\n" );
-   for( i = 0; i < CacheSize; i++ )
+   for( i = 0; i < ARPCacheSize; i++ )
    {
       int length = pfunc->Printf( "   %d.%d.%d.%d ",
          Cache[ i ].IPv4Address[ 0 ],
@@ -367,7 +367,7 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
    int i;
    int j;
 
-   for( i = 0; i < CacheSize; i++ )
+   for( i = 0; i < ARPCacheSize; i++ )
    {
       // Go through the address backwards since least significant byte is most
       // likely to be unique

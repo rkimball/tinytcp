@@ -35,6 +35,7 @@
 #include <inttypes.h>
 #include "DataBuffer.h"
 #include "osQueue.h"
+#include "osEvent.h"
 #include "NetworkInterface.h"
 
 #define MAC_HEADER_SIZE (14)
@@ -70,6 +71,8 @@ public:
 private:
    osQueue TxBufferQueue;
    osQueue RxBufferQueue;
+
+   osEvent QueueEmptyEvent;
 
    uint8_t UnicastAddress[ AddressSize ];
    uint8_t BroadcastAddress[ AddressSize ];
