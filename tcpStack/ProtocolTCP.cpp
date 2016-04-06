@@ -392,7 +392,7 @@ TCPConnection* ProtocolTCP::LocateConnection
       (
          ConnectionList[ i ].LocalPort == localPort &&
          ConnectionList[ i ].RemotePort == remotePort &&
-         AddressCompare( ConnectionList[ i ].RemoteAddress, remoteAddress, ProtocolIPv4::AddressSize )
+         AddressCompare( ConnectionList[ i ].RemoteAddress, remoteAddress, IP.AddressSize() )
       )
       {
          return &ConnectionList[ i ];
@@ -459,7 +459,7 @@ TCPConnection* ProtocolTCP::NewClient
          ConnectionList[ i ].LocalPort = localPort;
          ConnectionList[ i ].SequenceNumber = 1;
          ConnectionList[ i ].MaxSequenceTx = ConnectionList[ i ].SequenceNumber + 1024;
-         for( j=0; j<ProtocolIPv4::AddressSize; j++ )
+         for( j=0; j<IP.AddressSize(); j++ )
          {
             ConnectionList[ i ].RemoteAddress[ j ] = remoteAddress[ j ];
          }

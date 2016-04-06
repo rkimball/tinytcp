@@ -79,14 +79,14 @@ bool ProtocolIPv4::IsLocal( const uint8_t* addr )
    uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
    if( Address.DataValid )
    {
-      rc = AddressCompare( addr, broadcast, ProtocolIPv4::AddressSize ) ||
-            AddressCompare( addr, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::AddressSize ) ||
-            AddressCompare( addr, ProtocolIPv4::GetBroadcastAddress(), ProtocolIPv4::AddressSize )
+      rc = AddressCompare( addr, broadcast, AddressSize() ) ||
+            AddressCompare( addr, GetUnicastAddress(), AddressSize() ) ||
+            AddressCompare( addr, GetBroadcastAddress(), AddressSize() )
          ;
    }
    else
    {
-      rc = AddressCompare( addr, broadcast, ProtocolIPv4::AddressSize );
+      rc = AddressCompare( addr, broadcast, AddressSize() );
    }
    return rc;
 }
@@ -269,6 +269,15 @@ void ProtocolIPv4::Show( osPrintfInterface* out )
    out->Printf( "   Address Lease Time: %d seconds\n", Address.IpAddressLeaseTime );
    out->Printf( "   RenewTime:          %d seconds\n", Address.RenewTime );
    out->Printf( "   RebindTime:         %d seconds\n", Address.RebindTime );
+}
+
+//============================================================================
+//
+//============================================================================
+
+size_t ProtocolIPv4::AddressSize()
+{
+   return ADDRESS_SIZE;
 }
 
 //============================================================================

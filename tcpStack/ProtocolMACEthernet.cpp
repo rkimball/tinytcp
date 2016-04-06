@@ -117,7 +117,7 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
       return;
    }
 
-   packet->Initialize();
+   packet->Initialize( this );
 
    for( i=0; i<length; i++ )
    {
@@ -176,7 +176,7 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
    }
    if( buffer != 0 )
    {
-      buffer->Initialize();
+      buffer->Initialize( this );
       buffer->Packet += MAC_HEADER_SIZE;
       buffer->Remainder -= MAC_HEADER_SIZE;
    }

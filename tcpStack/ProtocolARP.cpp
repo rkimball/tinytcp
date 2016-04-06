@@ -101,10 +101,10 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
    {
       // ARP Request
       if( info.hardwareSize == MAC.AddressSize() &&
-          info.protocolSize == ProtocolIPv4::AddressSize )
+          info.protocolSize == IP.AddressSize() )
       {
          // All of the sizes match
-         if( AddressCompare( info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize ) )
+         if( AddressCompare( info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize() ) )
          {
             // This ARP is for me
             SendReply( info );
@@ -163,7 +163,7 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
 
       // At this point i is the entry we want to use
       Cache[ i ].Age = 1;
-      for( j = 0; j < ProtocolIPv4::AddressSize; j++ )
+      for( j = 0; j < IP.AddressSize(); j++ )
       {
          Cache[ i ].IPv4Address[ j ] = protocolAddress[ j ];
       }
@@ -251,7 +251,7 @@ void ProtocolARP::SendReply( const ARPInfo& info )
 
 void ProtocolARP::SendRequest( const uint8_t* targetIP )
 {
-   ARPRequest.Initialize();
+   ARPRequest.Initialize( &MAC );
 
    // This is normally done by the mac layer
    // but this buffer is reserved by arp and not allocated from the mac
@@ -322,7 +322,7 @@ const uint8_t* ProtocolARP::Protocol2Hardware( const uint8_t* protocolAddress )
 bool ProtocolARP::IsBroadcast( const uint8_t* protocolAddress )
 {
    bool rc = true;
-   for( int i = 0; i < ProtocolIPv4::AddressSize; i++ )
+   for( int i = 0; i < IP.AddressSize(); i++ )
    {
       if( protocolAddress[ i ] != 0xFF )
       {
@@ -341,7 +341,7 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
 {
    int i;
 
-   for( i = 0; i < ProtocolIPv4::AddressSize; i++ )
+   for( i = 0; i < IP.AddressSize(); i++ )
    {
       if
          (
@@ -353,7 +353,7 @@ bool ProtocolARP::IsLocal( const uint8_t* protocolAddress )
       }
    }
 
-   return i == ProtocolIPv4::AddressSize;
+   return i == IP.AddressSize();
 }
 
 //============================================================================
@@ -369,7 +369,7 @@ int ProtocolARP::LocateProtocolAddress( const uint8_t* protocolAddress )
    {
       // Go through the address backwards since least significant byte is most
       // likely to be unique
-      for( j = ProtocolIPv4::AddressSize - 1; j >= 0; j-- )
+      for( j = IP.AddressSize() - 1; j >= 0; j-- )
       {
          if( Cache[ i ].IPv4Address[ j ] != protocolAddress[ j ] )
          {

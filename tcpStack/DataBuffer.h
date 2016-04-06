@@ -34,6 +34,7 @@
 
 #include <inttypes.h>
 #include "Config.h"
+#include "InterfaceMAC.h"
 
 class DataBuffer
 {
@@ -46,8 +47,11 @@ public:
    uint16_t Length;
    uint16_t Remainder;
    bool Disposable;
+   InterfaceMAC* MAC;
 
-   void Initialize();
+   void Initialize( InterfaceMAC* );
+   void Preallocate( size_t size );
+   void ResetPreallocation( size_t size );
 
 private:
    uint8_t    Data[ DATA_BUFFER_PAYLOAD_SIZE ];

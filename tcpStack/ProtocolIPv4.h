@@ -46,19 +46,21 @@ class ProtocolUDP;
 
 class ProtocolIPv4
 {
+private:
+   friend class TCPConnection;
+   static const int ADDRESS_SIZE = 4;
 public:
-   static const int AddressSize = 4;
    struct AddressInfo
    {
       bool  DataValid;
-      uint8_t Address[ AddressSize ];
+      uint8_t Address[ ADDRESS_SIZE ];
       uint32_t IpAddressLeaseTime;
       uint32_t RenewTime;
       uint32_t RebindTime;
-      uint8_t SubnetMask[ AddressSize ];
-      uint8_t Gateway[ AddressSize ];
-      uint8_t DomainNameServer[ AddressSize ];
-      uint8_t BroadcastAddress[ AddressSize ];
+      uint8_t SubnetMask[ ADDRESS_SIZE ];
+      uint8_t Gateway[ ADDRESS_SIZE ];
+      uint8_t DomainNameServer[ ADDRESS_SIZE ];
+      uint8_t BroadcastAddress[ ADDRESS_SIZE ];
    };
 
    ProtocolIPv4( InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP& );
@@ -71,6 +73,7 @@ public:
 
    void Retry();
 
+   size_t AddressSize();
    const uint8_t* GetUnicastAddress();
    const uint8_t* GetBroadcastAddress();
    const uint8_t* GetGatewayAddress();

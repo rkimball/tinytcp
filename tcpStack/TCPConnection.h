@@ -65,7 +65,7 @@ public:
    States State;
    uint16_t LocalPort;
    uint16_t RemotePort;
-   uint8_t  RemoteAddress[ ProtocolIPv4::AddressSize ];
+   uint8_t  RemoteAddress[ ProtocolIPv4::ADDRESS_SIZE ];
    uint32_t SequenceNumber;
    uint32_t AcknowledgementNumber;
    uint32_t LastAck;
