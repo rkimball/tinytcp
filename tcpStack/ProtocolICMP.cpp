@@ -66,7 +66,7 @@ void ProtocolICMP::ProcessRx( DataBuffer* buffer, const uint8_t* remoteIP, const
    switch( type )
    {
    case 8:  // echo request
-      txBuffer = IP.GetTxBuffer();
+      txBuffer = IP.GetTxBuffer( buffer->MAC );
       if( txBuffer && buffer->Length <= txBuffer->Remainder )
       {
          for( i=0; i<buffer->Length; i++ )

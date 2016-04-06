@@ -59,7 +59,7 @@ public:
    void RegisterErrorHandler( ErrorMessageHandler );
    void RegisterAuthorizationHandler( AuthorizationHandler );
 
-   void Initialize( ProtocolTCP& tcp, uint16_t port );
+   void Initialize( InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port );
 
    void ProcessRequest( Page* page );
 

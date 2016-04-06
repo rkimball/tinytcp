@@ -141,11 +141,11 @@ void ProtocolIPv4::ProcessRx( DataBuffer* buffer )
 //
 //============================================================================
 
-DataBuffer* ProtocolIPv4::GetTxBuffer()
+DataBuffer* ProtocolIPv4::GetTxBuffer( InterfaceMAC* mac )
 {
    DataBuffer*   buffer;
 
-   buffer = MAC.GetTxBuffer();
+   buffer = mac->GetTxBuffer();
    if( buffer != 0 )
    {
       buffer->Packet += IP_HEADER_SIZE;

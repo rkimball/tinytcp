@@ -87,8 +87,8 @@ public:
    ProtocolTCP( ProtocolIPv4& );
    void Tick();
 
-   TCPConnection* NewClient( const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
-   TCPConnection* NewServer( uint16_t port );
+   TCPConnection* NewClient( InterfaceMAC*, const uint8_t* remoteAddress, uint16_t remotePort, uint16_t localPort );
+   TCPConnection* NewServer( InterfaceMAC*, uint16_t port );
    uint16_t NewPort();
 
    void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
@@ -97,7 +97,7 @@ public:
 private:
    TCPConnection* LocateConnection( uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort );
    static uint16_t ComputeChecksum( uint8_t* packet, uint16_t length, const uint8_t* sourceIP, const uint8_t* targetIP );
-   void Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress );
+   void Reset( InterfaceMAC*, uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress );
 
    TCPConnection ConnectionList[ TCP_MAX_CONNECTIONS ];
    void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];

@@ -99,6 +99,7 @@ private:
    DataBuffer* GetTxBuffer();
    void BuildPacket( DataBuffer*, uint8_t flags );
    void CalculateRTT( int32_t msRTT );
+   void SetMAC( InterfaceMAC* mac );
 
    // This stuff is used for Listening for incomming connections
    TCPConnection* NewConnection;
@@ -109,10 +110,7 @@ private:
    osMutex HoldingQueueLock;
    void* ConnectionHoldingBuffer[ TX_BUFFER_COUNT ];
 
-   // Bad, bad, bad!
-   // These should be references, but connections are stored in an array and thus
-   // needs a default constructor, so can't pass in these references.
-   // This will need work, but OK for now.
+   InterfaceMAC* MAC;
    ProtocolIPv4* IP;
    ProtocolTCP* TCP;
 

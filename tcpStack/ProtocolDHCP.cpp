@@ -195,7 +195,7 @@ void ProtocolDHCP::ProcessRx( DataBuffer* buffer )
 
 void ProtocolDHCP::Discover()
 {
-   DataBuffer* buffer = UDP.GetTxBuffer();
+   DataBuffer* buffer = UDP.GetTxBuffer( &MAC );
    int i;
 
    if( buffer )
@@ -262,7 +262,7 @@ void ProtocolDHCP::Discover()
 void ProtocolDHCP::SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress )
 {
    printf( "DHCP Send type %d\n", messageType );
-   DataBuffer* buffer = UDP.GetTxBuffer();
+   DataBuffer* buffer = UDP.GetTxBuffer( &MAC );
    int i;
 
    if( buffer )

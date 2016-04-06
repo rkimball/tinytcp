@@ -47,7 +47,7 @@ public:
    void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
    void Transmit( DataBuffer* buffer, const uint8_t* targetIP, uint16_t targetPort, const uint8_t* sourceIP, uint16_t sourcePort );
 
-   DataBuffer* GetTxBuffer();
+   DataBuffer* GetTxBuffer( InterfaceMAC* );
 private:
    ProtocolIPv4& IP;
    ProtocolDHCP& DHCP;

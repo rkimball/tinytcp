@@ -243,7 +243,7 @@ void http::Server::ProcessRequest( http::Page* page )
 //
 //============================================================================
 
-void http::Server::Initialize( ProtocolTCP& tcp, uint16_t port )
+void http::Server::Initialize( InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port )
 {
    int   i;
 
@@ -253,7 +253,7 @@ void http::Server::Initialize( ProtocolTCP& tcp, uint16_t port )
       PagePool.Put( &PagePoolPages[ i ] );
    }
 
-  ListenerConnection = tcp.NewServer( port );
+  ListenerConnection = tcp.NewServer( &mac, port );
   Thread.Create( http::Server::TaskEntry, "HTTPD", 1024*32, 100, this );
 }
 

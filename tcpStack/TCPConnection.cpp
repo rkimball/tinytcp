@@ -58,6 +58,7 @@ TCPConnection::TCPConnection() :
 
 void TCPConnection::Initialize( ProtocolIPv4& ip, ProtocolTCP& tcp )
 {
+   MAC = 0;
    IP = &ip;
    TCP = &tcp;
 }
@@ -68,6 +69,15 @@ void TCPConnection::Initialize( ProtocolIPv4& ip, ProtocolTCP& tcp )
 
 TCPConnection::~TCPConnection()
 {
+}
+
+//============================================================================
+//
+//============================================================================
+
+void TCPConnection::SetMAC( InterfaceMAC* mac )
+{
+   MAC = mac;
 }
 
 //============================================================================
@@ -152,7 +162,7 @@ DataBuffer* TCPConnection::GetTxBuffer()
 {
    DataBuffer* rc;
 
-   rc = IP->GetTxBuffer();
+   rc = IP->GetTxBuffer( MAC );
    if( rc )
    {
       rc->Packet    += TCP_HEADER_SIZE;

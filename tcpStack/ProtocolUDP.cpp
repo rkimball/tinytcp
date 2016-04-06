@@ -50,11 +50,11 @@ ProtocolUDP::ProtocolUDP( ProtocolIPv4& ip, ProtocolDHCP& dhcp ) :
 //
 //============================================================================
 
-DataBuffer* ProtocolUDP::GetTxBuffer()
+DataBuffer* ProtocolUDP::GetTxBuffer( InterfaceMAC* mac )
 {
    DataBuffer*   buffer;
 
-   buffer = IP.GetTxBuffer();
+   buffer = IP.GetTxBuffer( mac );
    if( buffer != 0 )
    {
       buffer->Packet += UDP_HEADER_SIZE;

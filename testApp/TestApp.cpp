@@ -432,7 +432,7 @@ int main( int argc, char* argv[] )
 #endif
    StartEvent.Wait( __FILE__, __LINE__ );
 
-   WebServer.Initialize( tcpStack.TCP, 80 );
+   WebServer.Initialize( tcpStack.MAC, tcpStack.TCP, 80 );
 
    tcpStack.StartDHCP();
 

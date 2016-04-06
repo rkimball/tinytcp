@@ -107,13 +107,13 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
          {
          case TCPConnection::CLOSED:
             // Do nothing
-            Reset( localPort, remotePort, sourceIP );
+            Reset( rxBuffer->MAC, localPort, remotePort, sourceIP );
             break;
          case TCPConnection::LISTEN:
             if( SYN )
             {
                // Need a closed connection to work with
-               TCPConnection* tmp = NewClient( sourceIP, remotePort, localPort );
+               TCPConnection* tmp = NewClient( rxBuffer->MAC, sourceIP, remotePort, localPort );
                if( tmp != 0 )
                {
                   tmp->Parent = connection;
@@ -296,13 +296,13 @@ void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, cons
 //
 //============================================================================
 
-void ProtocolTCP::Reset( uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress )
+void ProtocolTCP::Reset( InterfaceMAC* mac, uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress )
 {
    uint8_t* packet;
    uint16_t checksum;
    uint16_t length;
 
-   DataBuffer* buffer = IP.GetTxBuffer();
+   DataBuffer* buffer = IP.GetTxBuffer( mac );
 
    if( buffer == 0 )
    {
@@ -444,6 +444,7 @@ uint16_t ProtocolTCP::NewPort()
 
 TCPConnection* ProtocolTCP::NewClient
 (
+   InterfaceMAC* mac,
    const uint8_t* remoteAddress,
    uint16_t remotePort,
    uint16_t localPort
@@ -454,18 +455,20 @@ TCPConnection* ProtocolTCP::NewClient
 
    for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
    {
-      if( ConnectionList[ i ].State == TCPConnection::CLOSED )
+      TCPConnection& connection = ConnectionList[ i ];
+      if( connection.State == TCPConnection::CLOSED )
       {
-         ConnectionList[ i ].LocalPort = localPort;
-         ConnectionList[ i ].SequenceNumber = 1;
-         ConnectionList[ i ].MaxSequenceTx = ConnectionList[ i ].SequenceNumber + 1024;
+         connection.LocalPort = localPort;
+         connection.SequenceNumber = 1;
+         connection.MaxSequenceTx = connection.SequenceNumber + 1024;
          for( j=0; j<IP.AddressSize(); j++ )
          {
-            ConnectionList[ i ].RemoteAddress[ j ] = remoteAddress[ j ];
+            connection.RemoteAddress[ j ] = remoteAddress[ j ];
          }
-         ConnectionList[ i ].RemotePort = remotePort;
+         connection.RemotePort = remotePort;
+         connection.MAC = mac;
 
-         return &ConnectionList[ i ];
+         return &connection;
       }
    }
 
@@ -476,17 +479,19 @@ TCPConnection* ProtocolTCP::NewClient
 //
 //============================================================================
 
-TCPConnection* ProtocolTCP::NewServer( uint16_t port )
+TCPConnection* ProtocolTCP::NewServer( InterfaceMAC* mac, uint16_t port )
 {
    int i;
 
    for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
    {
-      if( ConnectionList[ i ].State == TCPConnection::CLOSED )
+      TCPConnection& connection = ConnectionList[ i ];
+      if( connection.State == TCPConnection::CLOSED )
       {
-         ConnectionList[ i ].State = TCPConnection::LISTEN;
-         ConnectionList[ i ].LocalPort = port;
-         return &ConnectionList[ i ];
+         connection.State = TCPConnection::LISTEN;
+         connection.LocalPort = port;
+         connection.MAC = mac;
+         return &connection;
       }
    }
 

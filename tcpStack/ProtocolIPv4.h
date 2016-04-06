@@ -80,7 +80,7 @@ public:
    const uint8_t* GetSubnetMask();
    void SetAddressInfo( const AddressInfo& info );
    
-   DataBuffer* GetTxBuffer();
+   DataBuffer* GetTxBuffer( InterfaceMAC* );
    void FreeTxBuffer( DataBuffer* );
    void FreeRxBuffer( DataBuffer* );
 
