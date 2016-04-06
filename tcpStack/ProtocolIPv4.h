@@ -35,7 +35,7 @@
 #include <inttypes.h>
 #include "osQueue.h"
 #include "DataBuffer.h"
-#include "ProtocolMACEthernet.h"
+#include "InterfaceMAC.h"
 
 #define IP_HEADER_SIZE (20)
 
@@ -61,7 +61,7 @@ public:
       uint8_t BroadcastAddress[ AddressSize ];
    };
 
-   ProtocolIPv4( ProtocolMACEthernet&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP& );
+   ProtocolIPv4( InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP& );
    void Initialize();
 
    void ProcessRx( DataBuffer* );
@@ -92,7 +92,7 @@ private:
 
    AddressInfo Address;
 
-   ProtocolMACEthernet& MAC;
+   InterfaceMAC& MAC;
    ProtocolARP& ARP;
    ProtocolICMP& ICMP;
    ProtocolTCP& TCP;

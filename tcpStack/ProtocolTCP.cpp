@@ -42,7 +42,6 @@
 #include "DataBuffer.h"
 #include "osMutex.h"
 #include "osTime.h"
-#include "NetworkInterface.h"
 
 //============================================================================
 //

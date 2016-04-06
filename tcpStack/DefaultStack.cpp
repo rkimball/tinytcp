@@ -42,9 +42,9 @@ DefaultStack::DefaultStack() :
 {
 }
 
-void DefaultStack::SetNetworkInterface( NetworkInterface* ni )
+void DefaultStack::RegisterDataTransmitHandler( InterfaceMAC::DataTransmitHandler handler )
 {
-   MAC.SetNetworkInterface( ni );
+   MAC.RegisterDataTransmitHandler( handler );
 }
 
 void DefaultStack::SetMACAddress( uint8_t* addr )

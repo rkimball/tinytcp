@@ -36,12 +36,11 @@
 #include <pcap.h>
 #endif
 #include <inttypes.h>
-#include "NetworkInterface.h"
 #include "osThread.h"
 
 void NetworkTxData( void* data, size_t length );
 
-class PacketIO : public NetworkInterface
+class PacketIO
 {
 public:
    PacketIO();
@@ -63,7 +62,7 @@ public:
 private:
 #ifdef _WIN32
    const char* CaptureDevice;
-   pcap_t *adhandle;
+   pcap_t* adhandle;
 #elif __linux__
    osThread    EthernetRxThread;
    int         m_RawSocket;

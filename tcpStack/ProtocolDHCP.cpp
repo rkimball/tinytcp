@@ -37,8 +37,7 @@
 #include "ProtocolDHCP.h"
 #include "ProtocolUDP.h"
 #include "ProtocolIPv4.h"
-#include "ProtocolMACEthernet.h"
-#include "NetworkInterface.h"
+#include "InterfaceMAC.h"
 #include "Utility.h"
 #include "osTime.h"
 
@@ -51,7 +50,7 @@ void ProtocolDHCP::test()
    printf( "discover sent\n" );
 }
 
-ProtocolDHCP::ProtocolDHCP( ProtocolMACEthernet& mac, ProtocolIPv4& ip, ProtocolUDP& udp ) :
+ProtocolDHCP::ProtocolDHCP( InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp ) :
    PendingXID( -1 ),
    MAC( mac ),
    IP( ip ),

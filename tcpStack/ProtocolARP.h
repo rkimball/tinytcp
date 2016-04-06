@@ -36,7 +36,7 @@
 #include "Address.h"
 #include "DataBuffer.h"
 #include "osMutex.h"
-#include "ProtocolMACEthernet.h"
+#include "InterfaceMAC.h"
 #include "ProtocolIPv4.h"
 
 class ARPCacheEntry
@@ -60,7 +60,7 @@ public:
 class ProtocolARP
 {
 public:
-   ProtocolARP( ProtocolMACEthernet& mac, ProtocolIPv4& ip );
+   ProtocolARP( InterfaceMAC& mac, ProtocolIPv4& ip );
    void Initialize();
    
    void ProcessRx( const DataBuffer* );
@@ -95,7 +95,7 @@ private:
 
    ARPCacheEntry Cache[ ARPCacheSize ];
 
-   ProtocolMACEthernet& MAC;
+   InterfaceMAC& MAC;
    ProtocolIPv4&        IP;
 
    ProtocolARP();

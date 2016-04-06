@@ -36,7 +36,7 @@
 
 #include "DataBuffer.h"
 
-class ProtocolMACEthernet;
+class InterfaceMAC;
 class ProtocolIPv4;
 class ProtocolUDP;
 
@@ -46,7 +46,7 @@ class ProtocolUDP;
 class ProtocolDHCP
 {
 public:
-   ProtocolDHCP( ProtocolMACEthernet& mac, ProtocolIPv4& ip, ProtocolUDP& udp );
+   ProtocolDHCP( InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp );
    void ProcessRx( DataBuffer* buffer );
    void Discover();
    void SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress );
@@ -55,7 +55,7 @@ private:
    DataBuffer Buffer;
    int PendingXID;
 
-   ProtocolMACEthernet& MAC;
+   InterfaceMAC& MAC;
    ProtocolIPv4&        IP;
    ProtocolUDP&         UDP;
 };

@@ -36,18 +36,18 @@
 #include "DataBuffer.h"
 #include "osQueue.h"
 #include "osEvent.h"
-#include "NetworkInterface.h"
+#include "InterfaceMAC.h"
 
 #define MAC_HEADER_SIZE (14)
 
 class ProtocolARP;
 class ProtocolIPv4;
 
-class ProtocolMACEthernet
+class ProtocolMACEthernet : public InterfaceMAC
 {
 public:
    ProtocolMACEthernet( ProtocolARP&, ProtocolIPv4& );
-   void SetNetworkInterface( NetworkInterface* ni );
+   void RegisterDataTransmitHandler( DataTransmitHandler );
 
    void ProcessRx( uint8_t* buffer, int length );
 
@@ -58,24 +58,25 @@ public:
    void FreeTxBuffer( DataBuffer* );
    void FreeRxBuffer( DataBuffer* );
 
-   static int HeaderSize();
+   size_t AddressSize();
+   size_t HeaderSize();
 
    const uint8_t* GetUnicastAddress();
    const uint8_t* GetBroadcastAddress();
-   static const int AddressSize = 6;
 
    void SetUnicastAddress( uint8_t* addr );
 
    void Show( osPrintfInterface* pfunc );
 
 private:
+   static const int ADDRESS_SIZE = 6;
    osQueue TxBufferQueue;
    osQueue RxBufferQueue;
 
    osEvent QueueEmptyEvent;
 
-   uint8_t UnicastAddress[ AddressSize ];
-   uint8_t BroadcastAddress[ AddressSize ];
+   uint8_t UnicastAddress[ ADDRESS_SIZE ];
+   uint8_t BroadcastAddress[ ADDRESS_SIZE ];
 
    DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
    DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
@@ -83,7 +84,7 @@ private:
    void* TxBufferBuffer[ TX_BUFFER_COUNT ];
    void* RxBufferBuffer[ RX_BUFFER_COUNT ];
 
-   NetworkInterface* DataInterface;
+   DataTransmitHandler  TxHandler;
    ProtocolARP& ARP;
    ProtocolIPv4& IPv4;
 

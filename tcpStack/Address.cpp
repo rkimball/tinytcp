@@ -30,8 +30,6 @@
 //----------------------------------------------------------------------------
 
 #include "Address.h"
-#include "Utility.h"
-#include "ProtocolMACEthernet.h"
 
 bool Address::Compare( const uint8_t* a1, const uint8_t* a2, int length )
 {

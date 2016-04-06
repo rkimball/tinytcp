@@ -31,7 +31,7 @@
 
 #include <stdio.h>
 
-#include "ProtocolMACEthernet.h"
+#include "InterfaceMAC.h"
 #include "ProtocolARP.h"
 #include "ProtocolIPv4.h"
 #include "ProtocolICMP.h"
@@ -40,7 +40,6 @@
 #include "Address.h"
 #include "FCS.h"
 #include "DataBuffer.h"
-#include "NetworkInterface.h"
 #include "Utility.h"
 
 // Version - 4 bits
@@ -58,7 +57,7 @@
 //
 //============================================================================
 
-ProtocolIPv4::ProtocolIPv4( ProtocolMACEthernet& mac, ProtocolARP& arp, ProtocolICMP& icmp, ProtocolTCP& tcp, ProtocolUDP& udp ) :
+ProtocolIPv4::ProtocolIPv4( InterfaceMAC& mac, ProtocolARP& arp, ProtocolICMP& icmp, ProtocolTCP& tcp, ProtocolUDP& udp ) :
    PacketID( 0 ),
    UnresolvedQueue( "IP", TX_BUFFER_COUNT, TxBuffer ),
    Address(),

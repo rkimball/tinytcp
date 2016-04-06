@@ -39,12 +39,13 @@
 #include "ProtocolICMP.h"
 #include "ProtocolTCP.h"
 #include "ProtocolUDP.h"
+#include "InterfaceMAC.h"
 
 class DefaultStack
 {
 public:
    DefaultStack();
-   void SetNetworkInterface( NetworkInterface* );
+   void RegisterDataTransmitHandler( InterfaceMAC::DataTransmitHandler );
    void SetMACAddress( uint8_t* addr );
    void StartDHCP();
    void Tick();

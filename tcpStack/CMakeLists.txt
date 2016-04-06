@@ -3,7 +3,6 @@ set( SOURCE
     Address.cpp
     DataBuffer.cpp
     FCS.cpp
-    NetworkInterface.cpp
     ProtocolARP.cpp
     ProtocolDHCP.cpp
     ProtocolICMP.cpp
@@ -13,6 +12,7 @@ set( SOURCE
     ProtocolUDP.cpp
     TCPConnection.cpp
     Utility.cpp
+    InterfaceMAC.h
     DefaultStack.cpp
     Config.h
     )

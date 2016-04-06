@@ -39,7 +39,7 @@
 #endif
 
 #include "PacketIO.h"
-#include "ProtocolMACEthernet.h"
+#include "InterfaceMAC.h"
 #include "Address.h"
 #include "ProtocolTCP.h"
 #include "ProtocolDHCP.h"
@@ -49,7 +49,6 @@
 #include "osTime.h"
 #include "HTTPD.h"
 #include "HTTPPage.h"
-#include "NetworkInterface.h"
 #include "DefaultStack.h"
 
 #ifdef WIN32
@@ -98,6 +97,15 @@ void RxData( uint8_t* data, size_t length )
 //
 //============================================================================
 
+void TxData( void* data, size_t length )
+{
+   PIO->TxData( data, length );
+}
+
+//============================================================================
+//
+//============================================================================
+
 void NetworkEntry( void* param )
 {
    // This is just a made-up MAC address to user for testing
@@ -127,7 +135,7 @@ void NetworkEntry( void* param )
    PIO->Start( packet_handler );
 #elif __linux__
    PIO = new PacketIO();
-   tcpStack.SetNetworkInterface( PIO );
+   tcpStack.RegisterDataTransmitHandler( TxData );
    StartEvent.Notify();
    PIO->Start(RxData);
 #endif

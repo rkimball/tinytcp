@@ -33,11 +33,10 @@
 
 #include "Address.h"
 #include "Utility.h"
-#include "ProtocolMACEthernet.h"
+#include "InterfaceMAC.h"
 #include "ProtocolARP.h"
 #include "ProtocolIPv4.h"
 #include "DataBuffer.h"
-#include "NetworkInterface.h"
 #include "Config.h"
 
 // HardwareType - 2 bytes
@@ -63,7 +62,7 @@ ARPCacheEntry::ARPCacheEntry() :
 //
 //============================================================================
 
-ProtocolARP::ProtocolARP( ProtocolMACEthernet& mac, ProtocolIPv4& ip ) :
+ProtocolARP::ProtocolARP( InterfaceMAC& mac, ProtocolIPv4& ip ) :
    MAC( mac ),
    IP( ip )
 {
@@ -102,7 +101,7 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
    if( info.opType == 1 )
    {
       // ARP Request
-      if( info.hardwareSize == ProtocolMACEthernet::AddressSize &&
+      if( info.hardwareSize == MAC.AddressSize() &&
           info.protocolSize == ProtocolIPv4::AddressSize )
       {
          // All of the sizes match
@@ -169,7 +168,7 @@ void ProtocolARP::Add( const uint8_t* protocolAddress, const uint8_t* hardwareAd
       {
          Cache[ i ].IPv4Address[ j ] = protocolAddress[ j ];
       }
-      for( j = 0; j < ProtocolMACEthernet::AddressSize; j++ )
+      for( j = 0; j < MAC.AddressSize(); j++ )
       {
          Cache[ i ].MACAddress[ j ] = hardwareAddress[ j ];
       }
@@ -257,8 +256,8 @@ void ProtocolARP::SendRequest( const uint8_t* targetIP )
 
    // This is normally done by the mac layer
    // but this buffer is reserved by arp and not allocated from the mac
-   ARPRequest.Packet += ProtocolMACEthernet::HeaderSize();
-   ARPRequest.Remainder -= ProtocolMACEthernet::HeaderSize();
+   ARPRequest.Packet += MAC.HeaderSize();
+   ARPRequest.Remainder -= MAC.HeaderSize();
 
    ARPRequest.Disposable = false;
 

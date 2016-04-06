@@ -35,7 +35,6 @@
 #include "ProtocolIPv4.h"
 #include "FCS.h"
 #include "Utility.h"
-#include "NetworkInterface.h"
 
 // Type - 8 bits
 // Code - 8 bits

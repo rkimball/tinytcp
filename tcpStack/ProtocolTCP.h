@@ -34,7 +34,6 @@
 
 #include <inttypes.h>
 #include "ProtocolTCP.h"
-#include "NetworkInterface.h"
 #include "Address.h"
 #include "osQueue.h"
 #include "osMutex.h"

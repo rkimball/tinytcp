@@ -36,7 +36,6 @@
 #include "Utility.h"
 #include "ProtocolARP.h"
 #include "ProtocolIPv4.h"
-#include "NetworkInterface.h"
 
 #include "osQueue.h"
 #include "osEvent.h"
@@ -53,7 +52,7 @@ ProtocolMACEthernet::ProtocolMACEthernet( ProtocolARP& arp, ProtocolIPv4& ipv4 )
    TxBufferQueue( "Tx", TX_BUFFER_COUNT, TxBufferBuffer ),
    RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffer ),
    QueueEmptyEvent( "MACEthernet" ),
-   DataInterface( 0 ),
+   TxHandler( 0 ),
    ARP( arp ),
    IPv4( ipv4 )
 {
@@ -80,9 +79,9 @@ ProtocolMACEthernet::ProtocolMACEthernet( ProtocolARP& arp, ProtocolIPv4& ipv4 )
 //
 //============================================================================
 
-void ProtocolMACEthernet::SetNetworkInterface( NetworkInterface* ni )
+void ProtocolMACEthernet::RegisterDataTransmitHandler( DataTransmitHandler handler )
 {
-   DataInterface = ni;
+   TxHandler = handler;
 }
 
 //============================================================================
@@ -227,7 +226,10 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC
       buffer->Packet[ buffer->Length++ ] = 0;
    }
 
-   DataInterface->TxData( buffer->Packet, buffer->Length );
+   if( TxHandler )
+   {
+      TxHandler( buffer->Packet, buffer->Length );
+   }
 
    if( buffer->Disposable )
    {
@@ -241,7 +243,10 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC
 
 void ProtocolMACEthernet::Retransmit( DataBuffer* buffer )
 {
-   DataInterface->TxData( buffer->Packet, buffer->Length );
+   if( TxHandler )
+   {
+      TxHandler( buffer->Packet, buffer->Length );
+   }
 
    if( buffer->Disposable )
    {
@@ -253,7 +258,16 @@ void ProtocolMACEthernet::Retransmit( DataBuffer* buffer )
 //
 //============================================================================
 
-int ProtocolMACEthernet::HeaderSize()
+size_t ProtocolMACEthernet::AddressSize()
+{
+   return ADDRESS_SIZE;
+}
+
+//============================================================================
+//
+//============================================================================
+
+size_t ProtocolMACEthernet::HeaderSize()
 {
    return MAC_HEADER_SIZE;
 }

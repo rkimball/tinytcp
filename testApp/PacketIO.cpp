@@ -49,7 +49,7 @@
 #include <cstring>
 
 #include "PacketIO.h"
-#include "ProtocolMACEthernet.h"
+#include "InterfaceMAC.h"
 #include "Utility.h"
 
 #define Max_Num_Adapter 10
