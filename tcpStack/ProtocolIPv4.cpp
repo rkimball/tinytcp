@@ -37,7 +37,6 @@
 #include "ProtocolICMP.h"
 #include "ProtocolTCP.h"
 #include "ProtocolUDP.h"
-#include "Address.h"
 #include "FCS.h"
 #include "DataBuffer.h"
 #include "Utility.h"
@@ -80,14 +79,14 @@ bool ProtocolIPv4::IsLocal( const uint8_t* addr )
    uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
    if( Address.DataValid )
    {
-      rc = Address::Compare( addr, broadcast, ProtocolIPv4::AddressSize ) ||
-            Address::Compare( addr, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::AddressSize ) ||
-            Address::Compare( addr, ProtocolIPv4::GetBroadcastAddress(), ProtocolIPv4::AddressSize )
+      rc = AddressCompare( addr, broadcast, ProtocolIPv4::AddressSize ) ||
+            AddressCompare( addr, ProtocolIPv4::GetUnicastAddress(), ProtocolIPv4::AddressSize ) ||
+            AddressCompare( addr, ProtocolIPv4::GetBroadcastAddress(), ProtocolIPv4::AddressSize )
          ;
    }
    else
    {
-      rc = Address::Compare( addr, broadcast, ProtocolIPv4::AddressSize );
+      rc = AddressCompare( addr, broadcast, ProtocolIPv4::AddressSize );
    }
    return rc;
 }

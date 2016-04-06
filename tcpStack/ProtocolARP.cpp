@@ -31,7 +31,6 @@
 
 #include <stdio.h>
 
-#include "Address.h"
 #include "Utility.h"
 #include "InterfaceMAC.h"
 #include "ProtocolARP.h"
@@ -105,7 +104,7 @@ void ProtocolARP::ProcessRx( const DataBuffer* buffer )
           info.protocolSize == ProtocolIPv4::AddressSize )
       {
          // All of the sizes match
-         if( Address::Compare( info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize ) )
+         if( AddressCompare( info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize ) )
          {
             // This ARP is for me
             SendReply( info );

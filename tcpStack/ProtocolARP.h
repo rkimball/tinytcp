@@ -33,7 +33,6 @@
 #define PROTOCOLARP_H
 
 #include <inttypes.h>
-#include "Address.h"
 #include "DataBuffer.h"
 #include "osMutex.h"
 #include "InterfaceMAC.h"

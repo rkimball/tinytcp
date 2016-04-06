@@ -32,7 +32,6 @@
 #include <stdio.h>
 
 #include "ProtocolMACEthernet.h"
-#include "Address.h"
 #include "Utility.h"
 #include "ProtocolARP.h"
 #include "ProtocolIPv4.h"
@@ -90,8 +89,8 @@ void ProtocolMACEthernet::RegisterDataTransmitHandler( DataTransmitHandler handl
 
 bool ProtocolMACEthernet::IsLocalAddress( const uint8_t* addr )
 {
-   return Address::Compare( UnicastAddress, addr, 6 ) ||
-      Address::Compare( BroadcastAddress, addr, 6 );
+   return AddressCompare( UnicastAddress, addr, 6 ) ||
+      AddressCompare( BroadcastAddress, addr, 6 );
 }
 
 //============================================================================

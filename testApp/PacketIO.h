@@ -38,8 +38,6 @@
 #include <inttypes.h>
 #include "osThread.h"
 
-void NetworkTxData( void* data, size_t length );
-
 class PacketIO
 {
 public:

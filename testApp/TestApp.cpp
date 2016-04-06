@@ -40,7 +40,6 @@
 
 #include "PacketIO.h"
 #include "InterfaceMAC.h"
-#include "Address.h"
 #include "ProtocolTCP.h"
 #include "ProtocolDHCP.h"
 #include "ProtocolARP.h"

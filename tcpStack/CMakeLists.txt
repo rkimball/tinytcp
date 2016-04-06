@@ -1,6 +1,5 @@
 set( LIB tcpStack )
 set( SOURCE
-    Address.cpp
     DataBuffer.cpp
     FCS.cpp
     ProtocolARP.cpp

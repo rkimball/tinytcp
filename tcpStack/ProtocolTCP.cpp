@@ -36,7 +36,6 @@
 
 #include "ProtocolTCP.h"
 #include "ProtocolIPv4.h"
-#include "Address.h"
 #include "FCS.h"
 #include "Utility.h"
 #include "DataBuffer.h"
@@ -393,7 +392,7 @@ TCPConnection* ProtocolTCP::LocateConnection
       (
          ConnectionList[ i ].LocalPort == localPort &&
          ConnectionList[ i ].RemotePort == remotePort &&
-         Address::Compare( ConnectionList[ i ].RemoteAddress, remoteAddress, ProtocolIPv4::AddressSize )
+         AddressCompare( ConnectionList[ i ].RemoteAddress, remoteAddress, ProtocolIPv4::AddressSize )
       )
       {
          return &ConnectionList[ i ];
