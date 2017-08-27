@@ -397,6 +397,7 @@ void ProcessPageRequest
 
 int main(int argc, char* argv[])
 {
+    printf("\n\n\nhello world\n\n\n");
     NetworkConfig config;
     config.interfaceNumber = 1;
     http::Server WebServer;
