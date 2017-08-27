@@ -29,84 +29,14 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "osStack.h"
+#pragma once
 
-#include <iostream>
-#include <stdio.h>
 #include <inttypes.h>
-using namespace std;
 
-static const size_t MAX_STACK_COUNT = 20;
-static osStack* StackList[ MAX_STACK_COUNT ];
-static osMutex StackListLock( "stack list lock" );
-
-osStack::osStack( const char* name, int count, void** dataBuffer ) :
-   Array( dataBuffer ),
-   MaxElements( count ),
-   Name( name ),
-   Index( 0 ),
-   ElementCount( 0 ),
-   Lock( "osStack" )
+class FCS
 {
-   for( int i = 0; i < MAX_STACK_COUNT; i++ )
-   {
-      if( StackList[ i ] == NULL )
-      {
-         StackList[ i ] = this;
-         break;
-      }
-   }
-}
-
-const char* osStack::GetName()
-{
-   return Name;
-}
-
-void* osStack::Peek()
-{
-   void* rc = NULL;
-   if( Index > 0 )
-   {
-      rc = Array[ Index-1 ];
-   }
-   return rc;
-}
-
-void osStack::Push( void* value )
-{
-   if( Index < MaxElements )
-   {
-      Array[ Index++ ] = value;
-   }
-}
-
-void* osStack::Pop()
-{
-   void* rc = NULL;
-   if( Index > 0 )
-   {
-      rc = Array[ --Index ];
-   }
-   return rc;
-}
-
-void osStack::Show( osPrintfInterface* pfunc )
-{
-   int      i;
-
-   StackListLock.Take( __FILE__, __LINE__ );
-   for( int i = 0; i < MAX_STACK_COUNT; i++ )
-   {
-      osStack* stack = StackList[ i ];
-      if( stack != NULL )
-      {
-         stack->Lock.Take( __FILE__, __LINE__ );
-         pfunc->Printf( "Stack %s is size %d\n", stack->GetName(), stack->MaxElements );
-         stack->Lock.Give();
-      }
-   }
-
-   StackListLock.Give();
-}
-
+public:
+    static uint16_t Checksum(const uint8_t* buffer, int length);
+    static uint32_t ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum);
+    static uint16_t ChecksumComplete(uint32_t checksum);
+};

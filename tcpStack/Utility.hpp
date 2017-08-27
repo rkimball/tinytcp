@@ -29,26 +29,35 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLICMP_H
-#define PROTOCOLICMP_H
+#ifndef UTILITY_H
+#define UTILITY_H
 
 #include <inttypes.h>
-#include "DataBuffer.h"
 
-class ProtocolIPv4;
+typedef int (*PrintfFunctionPtr)(const char* fmt, ...);
 
-class ProtocolICMP
-{
-public:
-   ProtocolICMP( ProtocolIPv4& ip );
+void DumpData(void* buffer, size_t len, PrintfFunctionPtr);
+void DumpBits(void* buffer, size_t size, PrintfFunctionPtr);
 
-   void ProcessRx( DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP );
+uint16_t ntoh16(uint16_t value);
+uint16_t hton16(uint16_t value);
+uint32_t ntoh32(uint32_t value);
+uint32_t hton32(uint32_t value);
 
-private:
-   ProtocolIPv4&     IP;
+const char* ipv4toa(uint32_t addr);
+const char* ipv4toa(const uint8_t* addr);
+const char* macaddrtoa(const uint8_t* addr);
 
-   ProtocolICMP();
-   ProtocolICMP( ProtocolICMP& );
-};
+uint8_t Unpack8(const uint8_t* p, size_t offset, size_t size = 1);
+uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size = 2);
+uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size = 4);
+size_t Pack8(uint8_t* p, size_t offset, uint8_t value);
+size_t Pack16(uint8_t* p, size_t offset, uint16_t value);
+size_t Pack32(uint8_t* p, size_t offset, uint32_t value);
+size_t PackBytes(uint8_t* p, size_t offset, const uint8_t* value, size_t count);
+size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count);
+int ReadLine(char* buffer, size_t size, int (*ReadFunction)());
+
+bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length);
 
 #endif

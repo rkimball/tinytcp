@@ -38,37 +38,35 @@
 #include <unistd.h>
 #endif
 
-#include "PacketIO.h"
-#include "InterfaceMAC.h"
-#include "ProtocolTCP.h"
-#include "ProtocolDHCP.h"
-#include "ProtocolARP.h"
-#include "osThread.h"
-#include "osMutex.h"
-#include "osTime.h"
-#include "HTTPD.h"
-#include "HTTPPage.h"
-#include "DefaultStack.h"
+#include "DefaultStack.hpp"
+#include "HTTPD.hpp"
+#include "HTTPPage.hpp"
+#include "InterfaceMAC.hpp"
+#include "PacketIO.hpp"
+#include "ProtocolARP.hpp"
+#include "ProtocolDHCP.hpp"
+#include "ProtocolTCP.hpp"
+#include "osMutex.hpp"
+#include "osThread.hpp"
+#include "osTime.hpp"
 
 #ifdef WIN32
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #endif
 
-PacketIO* PIO;
+PacketIO*       PIO;
 static osThread NetworkThread;
 static osThread MainThread;
 static osMutex* Semaphore;
 
-static osEvent StartEvent( "StartEvent" );
+static osEvent StartEvent("StartEvent");
 
-
-DefaultStack   tcpStack;
-
+DefaultStack tcpStack;
 
 struct NetworkConfig
 {
-   int interfaceNumber;
+    int interfaceNumber;
 };
 
 //============================================================================
@@ -76,9 +74,9 @@ struct NetworkConfig
 //============================================================================
 
 #ifdef _WIN32
-void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_char *pkt_data )
+void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_char* pkt_data)
 {
-   ProtocolMACEthernet::ProcessRx( (uint8_t*)pkt_data, header->len );
+    ProtocolMACEthernet::ProcessRx((uint8_t*)pkt_data, header->len);
 }
 #elif __linux__
 #endif
@@ -87,29 +85,29 @@ void packet_handler( u_char *param, const struct pcap_pkthdr *header, const u_ch
 //
 //============================================================================
 
-void RxData( uint8_t* data, size_t length )
+void RxData(uint8_t* data, size_t length)
 {
-   tcpStack.ProcessRx( data, length );
+    tcpStack.ProcessRx(data, length);
 }
 
 //============================================================================
 //
 //============================================================================
 
-void TxData( void* data, size_t length )
+void TxData(void* data, size_t length)
 {
-   PIO->TxData( data, length );
+    PIO->TxData(data, length);
 }
 
 //============================================================================
 //
 //============================================================================
 
-void NetworkEntry( void* param )
+void NetworkEntry(void* param)
 {
-   // This is just a made-up MAC address to user for testing
-   uint8_t addr[] = { 0x10, 0xBF, 0x48, 0x44, 0x55, 0x66 };
-   tcpStack.SetMACAddress( addr );
+    // This is just a made-up MAC address to user for testing
+    uint8_t addr[] = {0x10, 0xBF, 0x48, 0x44, 0x55, 0x66};
+    tcpStack.SetMACAddress(addr);
 
 //   Config.IPv4.Address[ 0 ] = 0;
 //   Config.IPv4.Address[ 1 ] = 0;
@@ -117,26 +115,26 @@ void NetworkEntry( void* param )
 //   Config.IPv4.Address[ 3 ] = 0;
 
 #ifdef _WIN32
-   NetworkConfig& config = *(NetworkConfig*)param;
-   char device[ 256 ];
+    NetworkConfig& config = *(NetworkConfig*)param;
+    char           device[256];
 
-   PacketIO::GetDevice( config.interfaceNumber, device, sizeof( device ) );
-   printf( "using device %s\n", device );
-   //PacketIO::GetMACAddress( device, Config.MACAddress );
+    PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
+    printf("using device %s\n", device);
+    //PacketIO::GetMACAddress( device, Config.MACAddress );
 
-   PIO = new PacketIO( device );
+    PIO = new PacketIO(device);
 
-   ProtocolMACEthernet::Initialize( PIO );
+    ProtocolMACEthernet::Initialize(PIO);
 
-   StartEvent.Notify();
+    StartEvent.Notify();
 
-   // This method does not return...ever
-   PIO->Start( packet_handler );
+    // This method does not return...ever
+    PIO->Start(packet_handler);
 #elif __linux__
-   PIO = new PacketIO();
-   tcpStack.RegisterDataTransmitHandler( TxData );
-   StartEvent.Notify();
-   PIO->Start(RxData);
+    PIO = new PacketIO();
+    tcpStack.RegisterDataTransmitHandler(TxData);
+    StartEvent.Notify();
+    PIO->Start(RxData);
 #endif
 }
 
@@ -144,7 +142,7 @@ void NetworkEntry( void* param )
 //
 //============================================================================
 
-void MainEntry( void* config )
+void MainEntry(void* config)
 {
 }
 
@@ -152,301 +150,296 @@ void MainEntry( void* config )
 //
 //============================================================================
 
-typedef void(*PageFunction)( http::Page* );
+typedef void (*PageFunction)(http::Page*);
 
-void HomePage( http::Page* page )
+void HomePage(http::Page* page)
 {
-   time_t t = time(0);
-   struct tm* now = localtime( &t );
+    time_t     t   = time(0);
+    struct tm* now = localtime(&t);
 
-   page->Printf( "<span>Current time: %s</span>\n", asctime( now ) );
+    page->Printf("<span>Current time: %s</span>\n", asctime(now));
 
-   page->Printf( "<table class=\"table table-striped\">\n" );
-   page->Printf( "  <thead>\n" );
-   page->Printf( "    <th>Protocol</th>\n" );
-   page->Printf( "    <th>Size of class</th>\n" );
-   page->Printf( "  </thead>\n" );
-   page->Printf( "  <tbody>\n" );
-   page->Printf( "    <tr><td>MAC</td><td>%u</td></tr>\n", sizeof(tcpStack.MAC) );
-   page->Printf( "    <tr><td>IP</td><td>%u</td></tr>\n", sizeof(tcpStack.IP) );
-   page->Printf( "    <tr><td>TCP</td><td>%u</td></tr>\n", sizeof(tcpStack.TCP) );
-   page->Printf( "    <tr><td>ARP</td><td>%u</td></tr>\n", sizeof(tcpStack.ARP) );
-   page->Printf( "    <tr><td>ICMP</td><td>%u</td></tr>\n", sizeof(tcpStack.ICMP) );
-   page->Printf( "    <tr><td>DHCP</td><td>%u</td></tr>\n", sizeof(tcpStack.DHCP) );
-   page->Printf( "  </tbody>\n" );
-   page->Printf( "</table>\n" );
+    page->Printf("<table class=\"table table-striped\">\n");
+    page->Printf("  <thead>\n");
+    page->Printf("    <th>Protocol</th>\n");
+    page->Printf("    <th>Size of class</th>\n");
+    page->Printf("  </thead>\n");
+    page->Printf("  <tbody>\n");
+    page->Printf("    <tr><td>MAC</td><td>%u</td></tr>\n", sizeof(tcpStack.MAC));
+    page->Printf("    <tr><td>IP</td><td>%u</td></tr>\n", sizeof(tcpStack.IP));
+    page->Printf("    <tr><td>TCP</td><td>%u</td></tr>\n", sizeof(tcpStack.TCP));
+    page->Printf("    <tr><td>ARP</td><td>%u</td></tr>\n", sizeof(tcpStack.ARP));
+    page->Printf("    <tr><td>ICMP</td><td>%u</td></tr>\n", sizeof(tcpStack.ICMP));
+    page->Printf("    <tr><td>DHCP</td><td>%u</td></tr>\n", sizeof(tcpStack.DHCP));
+    page->Printf("  </tbody>\n");
+    page->Printf("</table>\n");
 }
 
-void FormsDemo( http::Page* page )
+void FormsDemo(http::Page* page)
 {
-   page->Printf( "<form action=\"/formsresult\">" );
+    page->Printf("<form action=\"/formsresult\">");
 
-   page->Printf( "<label for=\"FirstName\">First name:</label>" );
-   page->Printf( "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>" );
-   page->Printf( "<br>" );
+    page->Printf("<label for=\"FirstName\">First name:</label>");
+    page->Printf(
+        "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>");
+    page->Printf("<br>");
 
-   page->Printf( "<label for=\"LastName\">Last name:</label>" );
-   page->Printf( "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>" );
-   page->Printf( "<br>" );
+    page->Printf("<label for=\"LastName\">Last name:</label>");
+    page->Printf(
+        "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>");
+    page->Printf("<br>");
 
-   page->Printf( "<input type=\"submit\" value=\"submit\" />" );
+    page->Printf("<input type=\"submit\" value=\"submit\" />");
 
-//      page->Reference( "/files/test1.zip", "test1.zip" );
-//      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
-//      page->SendString( "      enctype=\"multipart/form-data\" action=\"_URL_\">\n" );
-//      page->SendString( "File: <input type=\"file\" name=\"file\" size=\"50\"><br>\n" );
-//      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
-//      page->SendString( "      </form><br>\n" );
-
-}
-
-//============================================================================
-//
-//============================================================================
-
-void ShowMutex( http::Page* page )
-{
-   page->Printf( "<pre>" );
-   osMutex::Show( page );
-   page->Printf( "</pre>" );
+    //      page->Reference( "/files/test1.zip", "test1.zip" );
+    //      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
+    //      page->SendString( "      enctype=\"multipart/form-data\" action=\"_URL_\">\n" );
+    //      page->SendString( "File: <input type=\"file\" name=\"file\" size=\"50\"><br>\n" );
+    //      page->SendString( "      <input type=\"submit\" value=\"Upload\">\n" );
+    //      page->SendString( "      </form><br>\n" );
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowEvent( http::Page* page )
+void ShowMutex(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   osEvent::Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    osMutex::Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowQueue( http::Page* page )
+void ShowEvent(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   osQueue::Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    osEvent::Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowThread( http::Page* page )
+void ShowQueue(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   osThread::Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    osQueue::Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowMAC( http::Page* page )
+void ShowThread(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   tcpStack.MAC.Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    osThread::Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowIP( http::Page* page )
+void ShowMAC(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   tcpStack.IP.Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    tcpStack.MAC.Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowARP( http::Page* page )
+void ShowIP(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   tcpStack.ARP.Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    tcpStack.IP.Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ShowTCP( http::Page* page )
+void ShowARP(http::Page* page)
 {
-   page->Printf( "<pre>" );
-   tcpStack.TCP.Show( page );
-   page->Printf( "</pre>" );
+    page->Printf("<pre>");
+    tcpStack.ARP.Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void FormsResponse( http::Page* page )
+void ShowTCP(http::Page* page)
 {
-   for( int i=0; i<page->argc; i++ )
-   {
-      char* name;
-      char* value;
-      page->ParseArg( page->argv[i], &name, &value );
-      page->Printf( "<span>%s = %s</span>", name, value );
-      page->Printf( "<br>" );
-   }
+    page->Printf("<pre>");
+    tcpStack.TCP.Show(page);
+    page->Printf("</pre>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void Page404( http::Page* page )
+void FormsResponse(http::Page* page)
 {
-   page->Printf( "<div class=\"jumbotron>");
-   page->Printf( "<h1>Page Not Found</h1>" );
-   page->Printf( "</div>");
+    for (int i = 0; i < page->argc; i++)
+    {
+        char* name;
+        char* value;
+        page->ParseArg(page->argv[i], &name, &value);
+        page->Printf("<span>%s = %s</span>", name, value);
+        page->Printf("<br>");
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProcessPageRequest
-(
-   http::Page* page,
-   const char* url
-)
+void Page404(http::Page* page)
 {
-   if( !strcasecmp( url, "/" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", HomePage );
-   }
-   else if( !strcasecmp( url, "/forms" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", FormsDemo );
-   }
-   else if( !strcasecmp( url, "/formsresult" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", FormsResponse );
-   }
-//   else if( !strcasecmp( url, "/files/test1.zip" ) )
-//   {
-//      page->PageOK();
-//      page->SendFile( "c:\\test.rar" );
-//   }
-//   else if( !strcasecmp( url, "/test/uploadfile" ) )
-//   {
-//      printf( "Reading %d bytes\n", page->ContentLength );
-//      for( int i = 0; i<page->ContentLength; i++ )
-//      {
-//         page->Connection->Read();
-//      }
-//      printf( "Done reading\n" );
-//      page->PageOK();
-//      page->Printf( "Upload %d bytes complete\n", page->ContentLength );
-//   }
-   else if( !strcasecmp( url, "/show/mac" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowMAC );
-   }
-   else if( !strcasecmp( url, "/show/ip" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowIP );
-   }
-   else if( !strcasecmp( url, "/show/arp" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowARP );
-   }
-   else if( !strcasecmp( url, "/show/tcp" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowTCP );
-   }
-   else if( !strcasecmp( url, "/show/thread" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowThread );
-   }
-   else if( !strcasecmp( url, "/show/queue" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowQueue );
-   }
-   else if( !strcasecmp( url, "/show/event" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowEvent );
-   }
-   else if( !strcasecmp( url, "/show/mutex" ) )
-   {
-      page->Process( BINARY_DIR"master.html", "$content", ShowMutex );
-   }
-   else
-   {
-      page->PageNotFound();
-   }
+    page->Printf("<div class=\"jumbotron>");
+    page->Printf("<h1>Page Not Found</h1>");
+    page->Printf("</div>");
 }
 
 //============================================================================
 //
 //============================================================================
 
-int main( int argc, char* argv[] )
+void ProcessPageRequest(http::Page* page, const char* url)
 {
-   NetworkConfig config;
-   config.interfaceNumber = 1;
-   http::Server WebServer;
+    if (!strcasecmp(url, "/"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", HomePage);
+    }
+    else if (!strcasecmp(url, "/forms"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", FormsDemo);
+    }
+    else if (!strcasecmp(url, "/formsresult"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", FormsResponse);
+    }
+    //   else if( !strcasecmp( url, "/files/test1.zip" ) )
+    //   {
+    //      page->PageOK();
+    //      page->SendFile( "c:\\test.rar" );
+    //   }
+    //   else if( !strcasecmp( url, "/test/uploadfile" ) )
+    //   {
+    //      printf( "Reading %d bytes\n", page->ContentLength );
+    //      for( int i = 0; i<page->ContentLength; i++ )
+    //      {
+    //         page->Connection->Read();
+    //      }
+    //      printf( "Done reading\n" );
+    //      page->PageOK();
+    //      page->Printf( "Upload %d bytes complete\n", page->ContentLength );
+    //   }
+    else if (!strcasecmp(url, "/show/mac"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowMAC);
+    }
+    else if (!strcasecmp(url, "/show/ip"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowIP);
+    }
+    else if (!strcasecmp(url, "/show/arp"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowARP);
+    }
+    else if (!strcasecmp(url, "/show/tcp"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowTCP);
+    }
+    else if (!strcasecmp(url, "/show/thread"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowThread);
+    }
+    else if (!strcasecmp(url, "/show/queue"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowQueue);
+    }
+    else if (!strcasecmp(url, "/show/event"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowEvent);
+    }
+    else if (!strcasecmp(url, "/show/mutex"))
+    {
+        page->Process(BINARY_DIR "master.html", "$content", ShowMutex);
+    }
+    else
+    {
+        page->PageNotFound();
+    }
+}
 
-   printf( "%d bit build\n", (sizeof(void*)==4?32:64) );
+//============================================================================
+//
+//============================================================================
 
-   // Start at 1 to skip the file name
-   for( int i = 1; i < argc; i++ )
-   {
-      if( !strcmp( argv[ i ], "-devices" ) )
-      {
-         PacketIO::DisplayDevices();
-         return 0;
-      }
-      else if( !strcmp( argv[ i ], "-use" ) )
-      {
-         config.interfaceNumber = atoi( argv[ ++i ] );
-      }
-      else
-      {
-         printf( "unknown option '%s'\n", argv[ i ] );
-         return -1;
-      }
-   }
+int main(int argc, char* argv[])
+{
+    NetworkConfig config;
+    config.interfaceNumber = 1;
+    http::Server WebServer;
 
-   WebServer.RegisterPageHandler( ProcessPageRequest );
-   NetworkThread.Create( NetworkEntry, "Network", 1024, 10, &config );
+    printf("%d bit build\n", (sizeof(void*) == 4 ? 32 : 64));
+
+    // Start at 1 to skip the file name
+    for (int i = 1; i < argc; i++)
+    {
+        if (!strcmp(argv[i], "-devices"))
+        {
+            PacketIO::DisplayDevices();
+            return 0;
+        }
+        else if (!strcmp(argv[i], "-use"))
+        {
+            config.interfaceNumber = atoi(argv[++i]);
+        }
+        else
+        {
+            printf("unknown option '%s'\n", argv[i]);
+            return -1;
+        }
+    }
+
+    WebServer.RegisterPageHandler(ProcessPageRequest);
+    NetworkThread.Create(NetworkEntry, "Network", 1024, 10, &config);
 
 #ifdef _WIN32
-   Sleep( 1000 );
+    Sleep(1000);
 #elif __linux__
-   usleep( 1000000 );
+    usleep(1000000);
 #endif
-   StartEvent.Wait( __FILE__, __LINE__ );
+    StartEvent.Wait(__FILE__, __LINE__);
 
-   WebServer.Initialize( tcpStack.MAC, tcpStack.TCP, 80 );
+    WebServer.Initialize(tcpStack.MAC, tcpStack.TCP, 80);
 
-   tcpStack.StartDHCP();
+    tcpStack.StartDHCP();
 
-   while( 1 )
-   {
+    while (1)
+    {
 #ifdef _WIN32
-      Sleep( 100 );
+        Sleep(100);
 #elif __linux__
-      usleep( 100000 );
+        usleep(100000);
 #endif
-      tcpStack.Tick();
-   }
+        tcpStack.Tick();
+    }
 
-   return 0;
+    return 0;
 }
-
-

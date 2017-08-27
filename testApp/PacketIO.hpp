@@ -29,77 +29,41 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLARP_H
-#define PROTOCOLARP_H
+#pragma once
 
+#ifdef _WIN32
+#include <pcap.h>
+#endif
 #include <inttypes.h>
-#include "DataBuffer.h"
-#include "osMutex.h"
-#include "InterfaceMAC.h"
-#include "ProtocolIPv4.h"
+#include "osThread.hpp"
 
-class ARPCacheEntry
+class PacketIO
 {
 public:
-   ARPCacheEntry();
-   uint8_t Age;
-   uint8_t IPv4Address[ 4 ];
-   uint8_t MACAddress[ 6 ];
-};
+    PacketIO();
+    PacketIO(const char* name);
 
-// HardwareType - 2 bytes
-// ProtocolType - 2 bytes
-// HardwareSize - 1 byte, size int bytes of HardwareAddress fields
-// IPv4AddressSize - 1 byte, size int bytes of ProtocolAddress fields
-// SenderHardwareAddress - HardwareSize bytes
-// SenderProtocolAddress - IPv4AddressSize bytes
-// TargetHardwareAddress - HardwareSize bytes
-// TargetProtocolAddress - IPv4AddressSize bytes
-
-class ProtocolARP
-{
-public:
-   ProtocolARP( InterfaceMAC& mac, ProtocolIPv4& ip );
-   void Initialize();
-   
-   void ProcessRx( const DataBuffer* );
-
-   void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );
-
-   const uint8_t* Protocol2Hardware( const uint8_t* protocolAddress );
-   bool IsLocal( const uint8_t* protocolAddress );
-   bool IsBroadcast( const uint8_t* protocolAddress );
-
-   void Show( osPrintfInterface* pfunc );
+    typedef void (*RxDataHandler)(uint8_t* data, size_t length);
+#ifdef _WIN32
+    void Start(pcap_handler handler);
+#elif __linux__
+    void Start(RxDataHandler);
+    void Entry(void* param);
+#endif
+    void Stop();
+    void TxData(void* data, size_t length);
+    static void GetDevice(int interfaceNumber, char* buffer, size_t buffer_size);
+    static int GetMACAddress(const char* adapter, uint8_t* mac);
+    static void DisplayDevices();
+    static void GetInterface(char* name);
 
 private:
-   struct ARPInfo
-   {
-      uint16_t hardwareType;
-      uint16_t protocolType;
-      uint8_t  hardwareSize;
-      uint8_t  protocolSize;
-      uint16_t opType;
-      uint8_t* senderHardwareAddress;
-      uint8_t* senderProtocolAddress;
-      uint8_t* targetHardwareAddress;
-      uint8_t* targetProtocolAddress;
-   };
-
-   void SendReply( const ARPInfo& info );
-   void SendRequest( const uint8_t* targetIP );
-   int LocateProtocolAddress( const uint8_t* protocolAddress );
-
-   DataBuffer ARPRequest;
-
-   ARPCacheEntry Cache[ ARPCacheSize ];
-
-   InterfaceMAC& MAC;
-   ProtocolIPv4&        IP;
-
-   ProtocolARP();
-   ProtocolARP( ProtocolARP& );
-};
-
+#ifdef _WIN32
+    const char* CaptureDevice;
+    pcap_t*     adhandle;
+#elif __linux__
+    osThread EthernetRxThread;
+    int      m_RawSocket;
+    int      m_IfIndex;
 #endif
-
+};

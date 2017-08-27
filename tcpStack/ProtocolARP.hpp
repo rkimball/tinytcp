@@ -29,18 +29,76 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef FCS_H
-#define FCS_H
+#ifndef PROTOCOLARP_H
+#define PROTOCOLARP_H
 
 #include <inttypes.h>
+#include "DataBuffer.hpp"
+#include "InterfaceMAC.hpp"
+#include "ProtocolIPv4.hpp"
+#include "osMutex.hpp"
 
-class FCS
+class ARPCacheEntry
 {
 public:
-   static uint16_t Checksum( const uint8_t* buffer, int length );
-   static uint32_t ChecksumAdd( const uint8_t* buffer, int length, uint32_t checksum );
-   static uint16_t ChecksumComplete( uint32_t checksum );
+    ARPCacheEntry();
+    uint8_t Age;
+    uint8_t IPv4Address[4];
+    uint8_t MACAddress[6];
+};
+
+// HardwareType - 2 bytes
+// ProtocolType - 2 bytes
+// HardwareSize - 1 byte, size int bytes of HardwareAddress fields
+// IPv4AddressSize - 1 byte, size int bytes of ProtocolAddress fields
+// SenderHardwareAddress - HardwareSize bytes
+// SenderProtocolAddress - IPv4AddressSize bytes
+// TargetHardwareAddress - HardwareSize bytes
+// TargetProtocolAddress - IPv4AddressSize bytes
+
+class ProtocolARP
+{
+public:
+    ProtocolARP(InterfaceMAC& mac, ProtocolIPv4& ip);
+    void Initialize();
+
+    void ProcessRx(const DataBuffer*);
+
+    void Add(const uint8_t* protocolAddress, const uint8_t* hardwareAddress);
+
+    const uint8_t* Protocol2Hardware(const uint8_t* protocolAddress);
+    bool IsLocal(const uint8_t* protocolAddress);
+    bool IsBroadcast(const uint8_t* protocolAddress);
+
+    void Show(osPrintfInterface* pfunc);
+
+private:
+    struct ARPInfo
+    {
+        uint16_t hardwareType;
+        uint16_t protocolType;
+        uint8_t  hardwareSize;
+        uint8_t  protocolSize;
+        uint16_t opType;
+        uint8_t* senderHardwareAddress;
+        uint8_t* senderProtocolAddress;
+        uint8_t* targetHardwareAddress;
+        uint8_t* targetProtocolAddress;
+    };
+
+    void SendReply(const ARPInfo& info);
+    void SendRequest(const uint8_t* targetIP);
+    int LocateProtocolAddress(const uint8_t* protocolAddress);
+
+    DataBuffer ARPRequest;
+
+    ARPCacheEntry Cache[ARPCacheSize];
+
+    InterfaceMAC& MAC;
+    ProtocolIPv4& IP;
+
+    ProtocolARP();
+    ProtocolARP(ProtocolARP&);
 };
 
 #endif
-

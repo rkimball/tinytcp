@@ -31,13 +31,10 @@
 
 #include <stdio.h>
 
-#include "ProtocolMACEthernet.h"
-#include "Utility.h"
-#include "ProtocolARP.h"
-#include "ProtocolIPv4.h"
-
-#include "osQueue.h"
-#include "osEvent.h"
+#include "ProtocolARP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "ProtocolMACEthernet.hpp"
+#include "Utility.hpp"
 
 // Destination - 6 bytes
 // Source - 6 bytes
@@ -47,119 +44,119 @@
 //
 //============================================================================
 
-ProtocolMACEthernet::ProtocolMACEthernet( ProtocolARP& arp, ProtocolIPv4& ipv4 ) :
-   TxBufferQueue( "Tx", TX_BUFFER_COUNT, TxBufferBuffer ),
-   RxBufferQueue( "Rx", RX_BUFFER_COUNT, RxBufferBuffer ),
-   QueueEmptyEvent( "MACEthernet" ),
-   TxHandler( 0 ),
-   ARP( arp ),
-   IPv4( ipv4 )
+ProtocolMACEthernet::ProtocolMACEthernet(ProtocolARP& arp, ProtocolIPv4& ipv4)
+    : TxBufferQueue("Tx", TX_BUFFER_COUNT, TxBufferBuffer)
+    , RxBufferQueue("Rx", RX_BUFFER_COUNT, RxBufferBuffer)
+    , QueueEmptyEvent("MACEthernet")
+    , TxHandler(0)
+    , ARP(arp)
+    , IPv4(ipv4)
 {
-   int i;
+    int i;
 
-   BroadcastAddress[ 0 ] = 0xFF;
-   BroadcastAddress[ 1 ] = 0xFF;
-   BroadcastAddress[ 2 ] = 0xFF;
-   BroadcastAddress[ 3 ] = 0xFF;
-   BroadcastAddress[ 4 ] = 0xFF;
-   BroadcastAddress[ 5 ] = 0xFF;
+    BroadcastAddress[0] = 0xFF;
+    BroadcastAddress[1] = 0xFF;
+    BroadcastAddress[2] = 0xFF;
+    BroadcastAddress[3] = 0xFF;
+    BroadcastAddress[4] = 0xFF;
+    BroadcastAddress[5] = 0xFF;
 
-   for( i=0; i<TX_BUFFER_COUNT; i++ )
-   {
-      TxBufferQueue.Put( &TxBuffer[ i ] );
-   }
-   for( i=0; i<RX_BUFFER_COUNT; i++ )
-   {
-      RxBufferQueue.Put( &RxBuffer[ i ] );
-   }
+    for (i = 0; i < TX_BUFFER_COUNT; i++)
+    {
+        TxBufferQueue.Put(&TxBuffer[i]);
+    }
+    for (i = 0; i < RX_BUFFER_COUNT; i++)
+    {
+        RxBufferQueue.Put(&RxBuffer[i]);
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::RegisterDataTransmitHandler( DataTransmitHandler handler )
+void ProtocolMACEthernet::RegisterDataTransmitHandler(DataTransmitHandler handler)
 {
-   TxHandler = handler;
+    TxHandler = handler;
 }
 
 //============================================================================
 //
 //============================================================================
 
-bool ProtocolMACEthernet::IsLocalAddress( const uint8_t* addr )
+bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 {
-   return AddressCompare( UnicastAddress, addr, 6 ) ||
-      AddressCompare( BroadcastAddress, addr, 6 );
+    return AddressCompare(UnicastAddress, addr, 6) || AddressCompare(BroadcastAddress, addr, 6);
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
+void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 {
-   uint16_t   type;
-   DataBuffer* packet = (DataBuffer*)RxBufferQueue.Get();
-   int i;
-   int length = (DATA_BUFFER_PAYLOAD_SIZE < actualLength?DATA_BUFFER_PAYLOAD_SIZE:actualLength);
+    uint16_t    type;
+    DataBuffer* packet = (DataBuffer*)RxBufferQueue.Get();
+    int         i;
+    int         length =
+        (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
 
-   if( packet == 0 )
-   {
-      printf( "ProtocolMACEthernet::ProcessRx Out of receive buffers\n" );
-      return;
-   }
+    if (packet == 0)
+    {
+        printf("ProtocolMACEthernet::ProcessRx Out of receive buffers\n");
+        return;
+    }
 
-   if( length > DATA_BUFFER_PAYLOAD_SIZE )
-   {
-      //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
-      RxBufferQueue.Put( packet );
-      return;
-   }
+    if (length > DATA_BUFFER_PAYLOAD_SIZE)
+    {
+        //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
+        RxBufferQueue.Put(packet);
+        return;
+    }
 
-   packet->Initialize( this );
+    packet->Initialize(this);
 
-   for( i=0; i<length; i++ )
-   {
-      packet->Packet[ i ] = buffer[ i ];
-   }
-   packet->Length = length;
+    for (i = 0; i < length; i++)
+    {
+        packet->Packet[i] = buffer[i];
+    }
+    packet->Length = length;
 
-   type = Unpack16( packet->Packet, 12 );
+    type = Unpack16(packet->Packet, 12);
 
-   // Check if the MAC Address is destined for me
-   if( IsLocalAddress( packet->Packet ) )
-   {
-      //DumpData( buffer, length, printf );
-      if( actualLength > length )
-      {
-         //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
-         //printf( "Unicast type 0x%04X\n", type );
-         RxBufferQueue.Put( packet );
-         return;
-      }
-      // Unicast
-      packet->Packet += MAC_HEADER_SIZE;
-      packet->Length -= MAC_HEADER_SIZE;
+    // Check if the MAC Address is destined for me
+    if (IsLocalAddress(packet->Packet))
+    {
+        //DumpData( buffer, length, printf );
+        if (actualLength > length)
+        {
+            //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
+            //printf( "Unicast type 0x%04X\n", type );
+            RxBufferQueue.Put(packet);
+            return;
+        }
+        // Unicast
+        packet->Packet += MAC_HEADER_SIZE;
+        packet->Length -= MAC_HEADER_SIZE;
 
-      switch( type )
-      {
-      case 0x0800:   // IP
-         IPv4.ProcessRx( packet );
-         break;
-      case 0x0806:   // ARP
-         ARP.ProcessRx( packet );
-         break;
-      default:
-         //printf( "Unsupported Unicast type 0x%04X\n", type );
-         break;
-      }
-   }
+        switch (type)
+        {
+        case 0x0800: // IP
+            IPv4.ProcessRx(packet);
+            break;
+        case 0x0806: // ARP
+            ARP.ProcessRx(packet);
+            break;
+        default:
+            //printf( "Unsupported Unicast type 0x%04X\n", type );
+            break;
+        }
+    }
 
-   if( packet->Disposable )
-   {
-      RxBufferQueue.Put( packet );
-   }
+    if (packet->Disposable)
+    {
+        RxBufferQueue.Put(packet);
+    }
 }
 
 //============================================================================
@@ -168,89 +165,89 @@ void ProtocolMACEthernet::ProcessRx( uint8_t* buffer, int actualLength )
 
 DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 {
-   DataBuffer* buffer;
+    DataBuffer* buffer;
 
-   while( (buffer = (DataBuffer*)TxBufferQueue.Get()) == 0 )
-   {
-      QueueEmptyEvent.Wait( __FILE__, __LINE__ );
-   }
-   if( buffer != 0 )
-   {
-      buffer->Initialize( this );
-      buffer->Packet += MAC_HEADER_SIZE;
-      buffer->Remainder -= MAC_HEADER_SIZE;
-   }
+    while ((buffer = (DataBuffer*)TxBufferQueue.Get()) == 0)
+    {
+        QueueEmptyEvent.Wait(__FILE__, __LINE__);
+    }
+    if (buffer != 0)
+    {
+        buffer->Initialize(this);
+        buffer->Packet += MAC_HEADER_SIZE;
+        buffer->Remainder -= MAC_HEADER_SIZE;
+    }
 
-   return buffer;
+    return buffer;
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::FreeTxBuffer( DataBuffer* buffer )
+void ProtocolMACEthernet::FreeTxBuffer(DataBuffer* buffer)
 {
-   TxBufferQueue.Put( buffer );
-   QueueEmptyEvent.Notify();
+    TxBufferQueue.Put(buffer);
+    QueueEmptyEvent.Notify();
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::FreeRxBuffer( DataBuffer* buffer )
+void ProtocolMACEthernet::FreeRxBuffer(DataBuffer* buffer)
 {
-   RxBufferQueue.Put( buffer );
+    RxBufferQueue.Put(buffer);
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC, uint16_t type )
+void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC, uint16_t type)
 {
-   uint8_t i;
+    uint8_t i;
 
-   buffer->Packet -= MAC_HEADER_SIZE;
-   buffer->Length += MAC_HEADER_SIZE;
+    buffer->Packet -= MAC_HEADER_SIZE;
+    buffer->Length += MAC_HEADER_SIZE;
 
-   size_t offset = 0;
-   offset = PackBytes( buffer->Packet, offset, targetMAC, 6 );
-   offset = PackBytes( buffer->Packet, offset, UnicastAddress, 6 );
-   offset = Pack16( buffer->Packet, offset, type );
-   
-   offset += buffer->Length;
-   while( buffer->Length < 60 )
-   {
-      buffer->Packet[ buffer->Length++ ] = 0;
-   }
+    size_t offset = 0;
+    offset        = PackBytes(buffer->Packet, offset, targetMAC, 6);
+    offset        = PackBytes(buffer->Packet, offset, UnicastAddress, 6);
+    offset        = Pack16(buffer->Packet, offset, type);
 
-   if( TxHandler )
-   {
-      TxHandler( buffer->Packet, buffer->Length );
-   }
+    offset += buffer->Length;
+    while (buffer->Length < 60)
+    {
+        buffer->Packet[buffer->Length++] = 0;
+    }
 
-   if( buffer->Disposable )
-   {
-      TxBufferQueue.Put( buffer );
-   }
+    if (TxHandler)
+    {
+        TxHandler(buffer->Packet, buffer->Length);
+    }
+
+    if (buffer->Disposable)
+    {
+        TxBufferQueue.Put(buffer);
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::Retransmit( DataBuffer* buffer )
+void ProtocolMACEthernet::Retransmit(DataBuffer* buffer)
 {
-   if( TxHandler )
-   {
-      TxHandler( buffer->Packet, buffer->Length );
-   }
+    if (TxHandler)
+    {
+        TxHandler(buffer->Packet, buffer->Length);
+    }
 
-   if( buffer->Disposable )
-   {
-      TxBufferQueue.Put( buffer );
-   }
+    if (buffer->Disposable)
+    {
+        TxBufferQueue.Put(buffer);
+    }
 }
 
 //============================================================================
@@ -259,7 +256,7 @@ void ProtocolMACEthernet::Retransmit( DataBuffer* buffer )
 
 size_t ProtocolMACEthernet::AddressSize()
 {
-   return ADDRESS_SIZE;
+    return ADDRESS_SIZE;
 }
 
 //============================================================================
@@ -268,7 +265,7 @@ size_t ProtocolMACEthernet::AddressSize()
 
 size_t ProtocolMACEthernet::HeaderSize()
 {
-   return MAC_HEADER_SIZE;
+    return MAC_HEADER_SIZE;
 }
 
 //============================================================================
@@ -277,7 +274,7 @@ size_t ProtocolMACEthernet::HeaderSize()
 
 const uint8_t* ProtocolMACEthernet::GetUnicastAddress()
 {
-   return UnicastAddress;
+    return UnicastAddress;
 }
 
 //============================================================================
@@ -286,25 +283,28 @@ const uint8_t* ProtocolMACEthernet::GetUnicastAddress()
 
 const uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
 {
-   return BroadcastAddress;
+    return BroadcastAddress;
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::Show( osPrintfInterface* out )
+void ProtocolMACEthernet::Show(osPrintfInterface* out)
 {
-   out->Printf( "MAC Configuration\n" );
-   out->Printf( "   Ethernet Unicast MAC Address: %s\n", macaddrtoa( GetUnicastAddress() ) );
-   out->Printf( "   Ethernet Broadcast MAC Address: %s\n", macaddrtoa( GetBroadcastAddress() ) );
+    out->Printf("MAC Configuration\n");
+    out->Printf("   Ethernet Unicast MAC Address: %s\n", macaddrtoa(GetUnicastAddress()));
+    out->Printf("   Ethernet Broadcast MAC Address: %s\n", macaddrtoa(GetBroadcastAddress()));
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolMACEthernet::SetUnicastAddress( uint8_t* addr )
+void ProtocolMACEthernet::SetUnicastAddress(uint8_t* addr)
 {
-   for( int i=0; i<6; i++ ) { UnicastAddress[ i ] = addr[ i ]; }
+    for (int i = 0; i < 6; i++)
+    {
+        UnicastAddress[i] = addr[i];
+    }
 }

@@ -29,61 +29,81 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef HTTPD_H
-#define HTTPD_H
+#ifndef PROTOCOLIPV4_H
+#define PROTOCOLIPV4_H
 
-#include "HTTPPage.h"
+#include <inttypes.h>
+#include "DataBuffer.hpp"
+#include "InterfaceMAC.hpp"
+#include "osQueue.hpp"
 
-#define MAX_ACTIVE_CONNECTIONS 3
-#define HTTPD_PATH_LENGTH_MAX    256
+#define IP_HEADER_SIZE (20)
 
+class ProtocolARP;
+class ProtocolICMP;
 class ProtocolTCP;
+class ProtocolUDP;
 
-namespace http
+class ProtocolIPv4
 {
-   class Server;
-}
-
-typedef void (*PageRequestHandler)( http::Page* page, const char* url );
-typedef void (*ErrorMessageHandler)( const char* message );
-typedef bool (*AuthorizationHandler)( const char* username, const char* password, const char* url );
-
-
-class http::Server
-{
-   friend class HTTPPage;
+private:
+    friend class TCPConnection;
+    static const int ADDRESS_SIZE = 4;
 
 public:
-   Server();
-   void RegisterPageHandler( PageRequestHandler );
-   void RegisterErrorHandler( ErrorMessageHandler );
-   void RegisterAuthorizationHandler( AuthorizationHandler );
+    struct AddressInfo
+    {
+        bool     DataValid;
+        uint8_t  Address[ADDRESS_SIZE];
+        uint32_t IpAddressLeaseTime;
+        uint32_t RenewTime;
+        uint32_t RebindTime;
+        uint8_t  SubnetMask[ADDRESS_SIZE];
+        uint8_t  Gateway[ADDRESS_SIZE];
+        uint8_t  DomainNameServer[ADDRESS_SIZE];
+        uint8_t  BroadcastAddress[ADDRESS_SIZE];
+    };
 
-   void Initialize( InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port );
+    ProtocolIPv4(InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP&);
+    void Initialize();
 
-   void ProcessRequest( Page* page );
+    void ProcessRx(DataBuffer*);
+
+    void Transmit(DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP);
+    void Retransmit(DataBuffer*);
+
+    void Retry();
+
+    size_t         AddressSize();
+    const uint8_t* GetUnicastAddress();
+    const uint8_t* GetBroadcastAddress();
+    const uint8_t* GetGatewayAddress();
+    const uint8_t* GetSubnetMask();
+    void SetAddressInfo(const AddressInfo& info);
+
+    DataBuffer* GetTxBuffer(InterfaceMAC*);
+    void        FreeTxBuffer(DataBuffer*);
+    void        FreeRxBuffer(DataBuffer*);
+
+    void Show(osPrintfInterface* out);
 
 private:
-   Server( Server& );
+    bool IsLocal(const uint8_t* addr);
 
-   static void ConnectionHandlerEntry( void* );
-   void ConnectionHandler( void* );
+    uint16_t PacketID;
+    void*    TxBuffer[TX_BUFFER_COUNT];
+    osQueue  UnresolvedQueue;
 
-   static void TaskEntry( void* param );
-   void Task();
+    AddressInfo Address;
 
-   Page          PagePoolPages[ MAX_ACTIVE_CONNECTIONS ];
-   void*         PagePoolBuffer[ MAX_ACTIVE_CONNECTIONS ];
-   osQueue       PagePool;
+    InterfaceMAC& MAC;
+    ProtocolARP&  ARP;
+    ProtocolICMP& ICMP;
+    ProtocolTCP&  TCP;
+    ProtocolUDP&  UDP;
 
-   osThread      Thread;
-
-   TCPConnection*  ListenerConnection;
-   TCPConnection*  CurrentConnection;
-
-   PageRequestHandler  PageHandler;
-   ErrorMessageHandler ErrorHandler;
-   AuthorizationHandler AuthHandler;
+    ProtocolIPv4();
+    ProtocolIPv4(ProtocolIPv4&);
 };
 
 #endif

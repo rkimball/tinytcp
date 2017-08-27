@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,48 +29,33 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSEVENT_H
-#define OSEVENT_H
+#ifndef PROTOCOLUDP_H
+#define PROTOCOLUDP_H
 
 #include <inttypes.h>
+#include "DataBuffer.hpp"
 
-#ifdef __linux__
-#include "pthread.h"
-#endif
+#define UDP_HEADER_SIZE (8)
 
-#include "osPrintfInterface.h"
-#include "osMutex.h"
+class ProtocolIPv4;
+class ProtocolDHCP;
 
-class osEvent
+class ProtocolUDP
 {
 public:
-   osEvent( const char* name );
+    ProtocolUDP(ProtocolIPv4&, ProtocolDHCP&);
+    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
+    void Transmit(DataBuffer*    buffer,
+                  const uint8_t* targetIP,
+                  uint16_t       targetPort,
+                  const uint8_t* sourceIP,
+                  uint16_t       sourcePort);
 
-   ~osEvent();
-
-   void Notify();
-
-   bool Wait( const char* file, int line, int msTimeout=-1 );
-
-   const char* GetName();
-
-   static void Show( osPrintfInterface* out );
+    DataBuffer* GetTxBuffer(InterfaceMAC*);
 
 private:
-#ifdef _WIN32
-   void* Handle;
-#elif __linux__
-   pthread_mutex_t m_mutex;
-   pthread_cond_t m_condition;
-   bool m_test;
-#endif
-   static const int NAME_LENGTH_MAX = 80;
-   char Name[ NAME_LENGTH_MAX ];
-   osThread* pending;
-
-   static osMutex ListMutex;
-   static const int INSTANCE_MAX = 20;
-   static osEvent* InstanceList[];
+    ProtocolIPv4& IP;
+    ProtocolDHCP& DHCP;
 };
 
 #endif

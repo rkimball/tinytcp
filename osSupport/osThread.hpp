@@ -29,15 +29,78 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSPRINTFINTERFACE_H
-#define OSPRINTFINTERFACE_H
+#ifndef OSTHREAD_H
+#define OSTHREAD_H
 
-class osPrintfInterface
+#include <inttypes.h>
+
+#ifndef _WIN32
+#include <pthread.h>
+#include <sched.h>
+#include <setjmp.h>
+#endif
+
+#include "osEvent.hpp"
+#include "osPrintfInterface.hpp"
+
+typedef void (*ThreadEntryPtr)(void*);
+
+class osThread
 {
 public:
-   osPrintfInterface(){}
+    typedef enum { INIT, RUNNING, PENDING_MUTEX, PENDING_EVENT, SLEEPING } THREAD_STATE;
 
-   virtual int Printf( const char* format, ... ) = 0;
+    osThread();
+
+    ~osThread();
+
+    static void Initialize();
+
+    int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
+
+    int WaitForExit(int32_t millisecondWaitTimeout = -1);
+
+    static void Sleep(unsigned long ms, const char* file, int line);
+
+    static void USleep(unsigned long us, const char* file, int line);
+
+    void SetState(THREAD_STATE state, const char* file, int line, void* obj);
+
+    void ClearState();
+
+    static osThread* GetCurrent();
+
+    const char* GetName();
+
+#ifdef _WIN32
+    void* GetHandle();
+
+    uint32_t GetThreadId();
+    uint32_t ThreadId;
+
+    void* Handle;
+#elif __linux__
+    uint32_t GetHandle();
+
+    pthread_t      m_thread;
+    ThreadEntryPtr Entry;
+    void*          Param;
+#endif
+    osEvent ThreadStart;
+
+    static void Show(osPrintfInterface* pfunc);
+
+    static const int32_t STATE_LENGTH_MAX = 81;
+    int32_t              Priority;
+    unsigned long        USleepTime;
+    static const int32_t NAME_LENGTH_MAX = 32;
+
+private:
+    char         Name[NAME_LENGTH_MAX];
+    const char*  Filename;
+    int          Linenumber;
+    THREAD_STATE State;
+    void*        StateObject;
 };
 
 #endif

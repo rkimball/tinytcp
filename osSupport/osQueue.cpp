@@ -29,165 +29,168 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "osQueue.h"
+#include "osQueue.hpp"
 
+#include <inttypes.h>
 #include <iostream>
 #include <stdio.h>
-#include <inttypes.h>
 using namespace std;
 
 static const size_t MAX_QUEUE_COUNT = 20;
-static osQueue* QueueList[ MAX_QUEUE_COUNT ];
-osMutex QueueListLock( "queue list lock" );
+static osQueue*     QueueList[MAX_QUEUE_COUNT];
+osMutex             QueueListLock("queue list lock");
 
-osQueue::osQueue( const char* name, int count, void** dataBuffer ) :
-   Array( dataBuffer ),
-   Name( name ),
-   NextInIndex( 0 ),
-   NextOutIndex( 0 ),
-   MaxElements( count ),
-   ElementCount( 0 ),
-   Lock( "osQueue" )
+osQueue::osQueue(const char* name, int count, void** dataBuffer)
+    : Array(dataBuffer)
+    , Name(name)
+    , NextInIndex(0)
+    , NextOutIndex(0)
+    , MaxElements(count)
+    , ElementCount(0)
+    , Lock("osQueue")
 {
-   // Insert 'this' into the list of queues
-   for( int i = 0; i < MAX_QUEUE_COUNT; i++ )
-   {
-      if( QueueList[ i ] == NULL )
-      {
-         QueueList[ i ] = this;
-         break;
-      }
-   }
+    // Insert 'this' into the list of queues
+    for (int i = 0; i < MAX_QUEUE_COUNT; i++)
+    {
+        if (QueueList[i] == NULL)
+        {
+            QueueList[i] = this;
+            break;
+        }
+    }
 }
 
 const char* osQueue::GetName()
 {
-   return Name;
+    return Name;
 }
 
 void* osQueue::Peek()
 {
-   void*    rc;
+    void* rc;
 
-   Lock.Take( __FILE__, __LINE__ );
+    Lock.Take(__FILE__, __LINE__);
 
-   if( ElementCount != 0 )
-   {
-      rc = Array[NextOutIndex];
-   }
-   else
-   {
-      rc = 0;
-   }
+    if (ElementCount != 0)
+    {
+        rc = Array[NextOutIndex];
+    }
+    else
+    {
+        rc = 0;
+    }
 
-   Lock.Give();
-   return rc;
+    Lock.Give();
+    return rc;
 }
 
 void* osQueue::Get()
 {
-   void*    rc;
+    void* rc;
 
-   Lock.Take( __FILE__, __LINE__ );
+    Lock.Take(__FILE__, __LINE__);
 
-   if( ElementCount != 0 )
-   {
-      rc = Array[NextOutIndex];
-      NextOutIndex = Increment( NextOutIndex );
-      ElementCount--;
-   }
-   else
-   {
-      rc = 0;
-   }
+    if (ElementCount != 0)
+    {
+        rc           = Array[NextOutIndex];
+        NextOutIndex = Increment(NextOutIndex);
+        ElementCount--;
+    }
+    else
+    {
+        rc = 0;
+    }
 
-   Lock.Give();
-   return rc;
+    Lock.Give();
+    return rc;
 }
 
-bool osQueue::Put( void* item )
+bool osQueue::Put(void* item)
 {
-   int      next;
-   bool     rc = true;
+    int  next;
+    bool rc = true;
 
-   Lock.Take( __FILE__, __LINE__ );
+    Lock.Take(__FILE__, __LINE__);
 
-   next = Increment( NextInIndex );
-   if( ElementCount >= MaxElements )
-   {
-      // Queue is full, so don't add item
-      rc = false;
-   }
-   else
-   {
-      Array[NextInIndex] = item;
-      NextInIndex = next;
-      ElementCount++;
-   }
+    next = Increment(NextInIndex);
+    if (ElementCount >= MaxElements)
+    {
+        // Queue is full, so don't add item
+        rc = false;
+    }
+    else
+    {
+        Array[NextInIndex] = item;
+        NextInIndex        = next;
+        ElementCount++;
+    }
 
-   Lock.Give();
-   return rc;
+    Lock.Give();
+    return rc;
 }
 
 int osQueue::GetCount()
 {
-   return ElementCount;
+    return ElementCount;
 }
 
 void osQueue::Flush()
 {
-   while( Get() != 0 );
+    while (Get() != 0)
+        ;
 }
 
-bool osQueue::Contains( void* object )
+bool osQueue::Contains(void* object)
 {
-   bool     rc = false;
-   int      index;
-   int      i;
+    bool rc = false;
+    int  index;
+    int  i;
 
-   Lock.Take( __FILE__, __LINE__ );
+    Lock.Take(__FILE__, __LINE__);
 
-   index = NextOutIndex;
+    index = NextOutIndex;
 
-   for( i=0; i<ElementCount; i++ )
-   {
-      if( object == Array[index] )
-      {
-         rc = true;
-         break;
-      }
-      index = Increment( index );
-   }
+    for (i = 0; i < ElementCount; i++)
+    {
+        if (object == Array[index])
+        {
+            rc = true;
+            break;
+        }
+        index = Increment(index);
+    }
 
-   Lock.Give();
+    Lock.Give();
 
-   return rc;
+    return rc;
 }
 
-void osQueue::Show( osPrintfInterface* pfunc )
+void osQueue::Show(osPrintfInterface* pfunc)
 {
-   QueueListLock.Take( __FILE__, __LINE__ );
-   for( int i = 0; i < MAX_QUEUE_COUNT; i++ )
-   {
-      osQueue* queue = QueueList[ i ];
-      if( queue != NULL )
-      {
-         pfunc->Printf( "Queue %s is size %d and contains %d objects\n", queue->GetName(), queue->MaxElements, queue->GetCount() );
-         // This is hanging
-         // can't lock the queue and tx tcp frames as it can deadlock
-         // tx tcp locks queues
-         // might be a better way to do this
-//         queue->Lock.Take( __FILE__, __LINE__ );
-//         int      index = queue->NextOutIndex;
-//         for( int j = 0; j<queue->GetCount(); j++ )
-//         {
-//            pfunc->Printf( "   Object at 0x%08X\n", queue->Array[ index ] );
-//            index = queue->Increment( index );
-//         }
-//         queue->Lock.Give();
-      }
-   }
+    QueueListLock.Take(__FILE__, __LINE__);
+    for (int i = 0; i < MAX_QUEUE_COUNT; i++)
+    {
+        osQueue* queue = QueueList[i];
+        if (queue != NULL)
+        {
+            pfunc->Printf("Queue %s is size %d and contains %d objects\n",
+                          queue->GetName(),
+                          queue->MaxElements,
+                          queue->GetCount());
+            // This is hanging
+            // can't lock the queue and tx tcp frames as it can deadlock
+            // tx tcp locks queues
+            // might be a better way to do this
+            //         queue->Lock.Take( __FILE__, __LINE__ );
+            //         int      index = queue->NextOutIndex;
+            //         for( int j = 0; j<queue->GetCount(); j++ )
+            //         {
+            //            pfunc->Printf( "   Object at 0x%08X\n", queue->Array[ index ] );
+            //            index = queue->Increment( index );
+            //         }
+            //         queue->Lock.Give();
+        }
+    }
 
-   QueueListLock.Give();
+    QueueListLock.Give();
 }
-

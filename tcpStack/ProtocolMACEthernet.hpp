@@ -29,17 +29,69 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSUNITTEST_H
-#define OSUNITTEST_H
+#ifndef PROTOCOLMACETHERNET_H
+#define PROTOCOLMACETHERNET_H
 
-class osUnitTest
+#include <inttypes.h>
+#include "DataBuffer.hpp"
+#include "InterfaceMAC.hpp"
+#include "osEvent.hpp"
+#include "osQueue.hpp"
+
+#define MAC_HEADER_SIZE (14)
+
+class ProtocolARP;
+class ProtocolIPv4;
+
+class ProtocolMACEthernet : public InterfaceMAC
 {
 public:
-   static void osThreadTest();
-   static void osQueueTest();
-   static void osTimeTest();
-   static void osEventTest();
-   static void osMutexTest();
+    ProtocolMACEthernet(ProtocolARP&, ProtocolIPv4&);
+    void RegisterDataTransmitHandler(DataTransmitHandler);
+
+    void ProcessRx(uint8_t* buffer, int length);
+
+    void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type);
+    void Retransmit(DataBuffer* buffer);
+
+    DataBuffer* GetTxBuffer();
+    void        FreeTxBuffer(DataBuffer*);
+    void        FreeRxBuffer(DataBuffer*);
+
+    size_t AddressSize();
+    size_t HeaderSize();
+
+    const uint8_t* GetUnicastAddress();
+    const uint8_t* GetBroadcastAddress();
+
+    void SetUnicastAddress(uint8_t* addr);
+
+    void Show(osPrintfInterface* pfunc);
+
+private:
+    static const int ADDRESS_SIZE = 6;
+    osQueue          TxBufferQueue;
+    osQueue          RxBufferQueue;
+
+    osEvent QueueEmptyEvent;
+
+    uint8_t UnicastAddress[ADDRESS_SIZE];
+    uint8_t BroadcastAddress[ADDRESS_SIZE];
+
+    DataBuffer TxBuffer[TX_BUFFER_COUNT];
+    DataBuffer RxBuffer[RX_BUFFER_COUNT];
+
+    void* TxBufferBuffer[TX_BUFFER_COUNT];
+    void* RxBufferBuffer[RX_BUFFER_COUNT];
+
+    DataTransmitHandler TxHandler;
+    ProtocolARP&        ARP;
+    ProtocolIPv4&       IPv4;
+
+    bool IsLocalAddress(const uint8_t* addr);
+
+    ProtocolMACEthernet(ProtocolMACEthernet&);
+    ProtocolMACEthernet();
 };
 
 #endif

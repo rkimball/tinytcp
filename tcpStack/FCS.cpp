@@ -29,49 +29,49 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include "FCS.hpp"
 #include <stdio.h>
-#include "FCS.h"
 
 //============================================================================
 //
 //============================================================================
 
-uint32_t FCS::ChecksumAdd( const uint8_t* buffer, int length, uint32_t checksum )
+uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 {
-   uint16_t value;
-   int32_t i;
+    uint16_t value;
+    int32_t  i;
 
-   // Don't need to add in the checksum field so only 9x16 bit words in header
-   for( i=0; i<length/2; i++ )
-   {
-      value = (buffer[ i*2 ] << 8) | buffer[ i*2+1 ];
-      checksum += (uint32_t)value;
-   }
+    // Don't need to add in the checksum field so only 9x16 bit words in header
+    for (i = 0; i < length / 2; i++)
+    {
+        value = (buffer[i * 2] << 8) | buffer[i * 2 + 1];
+        checksum += (uint32_t)value;
+    }
 
-   return checksum;
+    return checksum;
 }
 
 //============================================================================
 //
 //============================================================================
 
-uint16_t FCS::ChecksumComplete( uint32_t checksum )
+uint16_t FCS::ChecksumComplete(uint32_t checksum)
 {
-   uint16_t sum;
-   sum  = (checksum & 0xFFFF);
-   sum += (checksum >> 16);
-   sum = ~sum;
+    uint16_t sum;
+    sum = (checksum & 0xFFFF);
+    sum += (checksum >> 16);
+    sum = ~sum;
 
-   return sum;
+    return sum;
 }
 
 //============================================================================
 //
 //============================================================================
 
-uint16_t FCS::Checksum( const uint8_t* buffer, int length )
+uint16_t FCS::Checksum(const uint8_t* buffer, int length)
 {
-   return ChecksumComplete( ChecksumAdd( buffer, length, 0 ) );
+    return ChecksumComplete(ChecksumAdd(buffer, length, 0));
 }
 
 //============================================================================

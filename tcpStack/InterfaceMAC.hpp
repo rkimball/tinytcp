@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,94 +29,26 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSTHREAD_H
-#define OSTHREAD_H
+#pragma once
 
 #include <inttypes.h>
+#include <stdlib.h>
 
-#ifndef _WIN32
-#include <pthread.h>
-#include <sched.h>
-#include <setjmp.h>
-#endif
+class DataBuffer;
 
-#include "osPrintfInterface.h"
-#include "osEvent.h"
-
-typedef void (*ThreadEntryPtr)(void *);
-
-class osThread
+class InterfaceMAC
 {
 public:
-   typedef enum
-   {
-      INIT,
-      RUNNING,
-      PENDING_MUTEX,
-      PENDING_EVENT,
-      SLEEPING
-   } THREAD_STATE;
+    typedef void (*DataTransmitHandler)(void* data, size_t length);
 
-   osThread();
-
-   ~osThread();
-
-   static void Initialize();
-
-   int Create
-   (
-      ThreadEntryPtr entry,
-      const char*    name,
-      int            stack,
-      int            priority,
-      void*          param
-   );
-
-   int WaitForExit( int32_t millisecondWaitTimeout = -1 );
-
-   static void Sleep( unsigned long ms, const char* file, int line );
-   
-   static void USleep( unsigned long us, const char* file, int line );
-   
-   void SetState( THREAD_STATE state, const char* file, int line, void* obj );
-   
-   void ClearState();
-   
-   static osThread* GetCurrent();
-
-   const char* GetName();
-
-#ifdef _WIN32
-   void* GetHandle();
-
-   uint32_t GetThreadId();
-   uint32_t ThreadId;
-
-   void* Handle;
-#elif __linux__
-   uint32_t GetHandle();
-
-   pthread_t m_thread;
-   ThreadEntryPtr Entry;
-   void*          Param;
-#endif
-   osEvent        ThreadStart;
-
-   static void Show( osPrintfInterface* pfunc );
-
-   static const int32_t    STATE_LENGTH_MAX = 81;
-   int32_t                 Priority;
-   unsigned long           USleepTime;
-   static const int32_t    NAME_LENGTH_MAX = 32;
-private:
-
-   char                 Name[ NAME_LENGTH_MAX ];
-   const char*          Filename;
-   int                  Linenumber;
-   THREAD_STATE         State; 
-   void*                StateObject;
+    virtual void           RegisterDataTransmitHandler(DataTransmitHandler) = 0;
+    virtual size_t         AddressSize()                                    = 0;
+    virtual size_t         HeaderSize()                                     = 0;
+    virtual const uint8_t* GetUnicastAddress()                              = 0;
+    virtual const uint8_t* GetBroadcastAddress()                            = 0;
+    virtual DataBuffer*    GetTxBuffer()                                    = 0;
+    virtual void           FreeTxBuffer(DataBuffer*)                        = 0;
+    virtual void           FreeRxBuffer(DataBuffer*)                        = 0;
+    virtual void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type) = 0;
+    virtual void Retransmit(DataBuffer* buffer) = 0;
 };
-
-#endif
-
-

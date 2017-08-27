@@ -34,381 +34,375 @@
 #include <windows.h>
 #endif
 
-#include "ProtocolTCP.h"
-#include "ProtocolIPv4.h"
-#include "FCS.h"
-#include "Utility.h"
-#include "DataBuffer.h"
-#include "osMutex.h"
-#include "osTime.h"
+#include "DataBuffer.hpp"
+#include "FCS.hpp"
+#include "ProtocolIPv4.hpp"
+#include "ProtocolTCP.hpp"
+#include "Utility.hpp"
+#include "osMutex.hpp"
+#include "osTime.hpp"
 
 //============================================================================
 //
 //============================================================================
 
-ProtocolTCP::ProtocolTCP( ProtocolIPv4& ip ) :
-   IP( ip )
+ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
+    : IP(ip)
 {
-   for( int i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      ConnectionList[ i ].Initialize( ip, *this );
-   }
+    for (int i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        ConnectionList[i].Initialize(ip, *this);
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolTCP::ProcessRx( DataBuffer* rxBuffer, const uint8_t* sourceIP, const uint8_t* targetIP )
+void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const uint8_t* targetIP)
 {
-   TCPConnection* connection;
-   uint16_t checksum;
-   uint16_t localPort;
-   uint16_t remotePort;
-   uint8_t headerLength;
-   uint8_t* data;
-   uint16_t dataLength;
-   int count;
-   DataBuffer* buffer;
-   uint8_t flags = 0;
-   uint8_t* packet = rxBuffer->Packet;
-   uint16_t length = rxBuffer->Length;
-   uint16_t remoteWindowSize;
-   uint32_t time_us;
+    TCPConnection* connection;
+    uint16_t       checksum;
+    uint16_t       localPort;
+    uint16_t       remotePort;
+    uint8_t        headerLength;
+    uint8_t*       data;
+    uint16_t       dataLength;
+    int            count;
+    DataBuffer*    buffer;
+    uint8_t        flags  = 0;
+    uint8_t*       packet = rxBuffer->Packet;
+    uint16_t       length = rxBuffer->Length;
+    uint16_t       remoteWindowSize;
+    uint32_t       time_us;
 
-   uint32_t SequenceNumber;
-   uint32_t AcknowledgementNumber;
+    uint32_t SequenceNumber;
+    uint32_t AcknowledgementNumber;
 
-   checksum = ComputeChecksum( packet, length, sourceIP, targetIP );
+    checksum = ComputeChecksum(packet, length, sourceIP, targetIP);
 
-   if( checksum == 0 )
-   {
-      // pass
-      remotePort            = Unpack16( packet, 0 );
-      localPort             = Unpack16( packet, 2 );
-      SequenceNumber        = Unpack32( packet, 4 );
-      AcknowledgementNumber = Unpack32( packet, 8 );
-      headerLength          = (Unpack8( packet, 12 ) >> 4) * 4;
-      remoteWindowSize      = Unpack16( packet, 14 );
+    if (checksum == 0)
+    {
+        // pass
+        remotePort            = Unpack16(packet, 0);
+        localPort             = Unpack16(packet, 2);
+        SequenceNumber        = Unpack32(packet, 4);
+        AcknowledgementNumber = Unpack32(packet, 8);
+        headerLength          = (Unpack8(packet, 12) >> 4) * 4;
+        remoteWindowSize      = Unpack16(packet, 14);
 
-      rxBuffer->Packet += headerLength;
-      rxBuffer->Length -= headerLength;
+        rxBuffer->Packet += headerLength;
+        rxBuffer->Length -= headerLength;
 
-      connection = LocateConnection( remotePort, sourceIP, localPort );
-      if( connection == 0 )
-      {
-         // No connection found
-         printf( "Connection port %d not found\n", localPort );
-      }
-      else
-      {
-         // Existing connection, process the state machine
-         switch( connection->State )
-         {
-         case TCPConnection::CLOSED:
-            // Do nothing
-            Reset( rxBuffer->MAC, localPort, remotePort, sourceIP );
-            break;
-         case TCPConnection::LISTEN:
-            if( SYN )
+        connection = LocateConnection(remotePort, sourceIP, localPort);
+        if (connection == 0)
+        {
+            // No connection found
+            printf("Connection port %d not found\n", localPort);
+        }
+        else
+        {
+            // Existing connection, process the state machine
+            switch (connection->State)
             {
-               // Need a closed connection to work with
-               TCPConnection* tmp = NewClient( rxBuffer->MAC, sourceIP, remotePort, localPort );
-               if( tmp != 0 )
-               {
-                  tmp->Parent = connection;
-                  connection = tmp;
-                  connection->State = TCPConnection::SYN_RECEIVED;
-                  connection->AcknowledgementNumber = SequenceNumber;
-                  connection->LastAck = connection->AcknowledgementNumber;
-                  connection->AcknowledgementNumber++;   // SYN flag consumes a sequence number
-                  connection->SendFlags( FLAG_SYN | FLAG_ACK );
-                  connection->SequenceNumber++; // Our SYN costs too
-               }
-               else
-               {
-                  printf( "Failed to get connection for SYN\n" );
-               }
-            }
-            break;
-         case TCPConnection::SYN_SENT:
-            if( SYN )
-            {
-               connection->AcknowledgementNumber = SequenceNumber;
-               connection->LastAck = connection->AcknowledgementNumber;
-               if( ACK )
-               {
-                  connection->State = TCPConnection::ESTABLISHED;
-                  connection->SendFlags( FLAG_ACK );
-               }
-               else
-               {
-                  // Simultaneous open
-                  connection->State = TCPConnection::SYN_RECEIVED;
-                  connection->AcknowledgementNumber++;   // SYN flag consumes a sequence number
-                  connection->SendFlags( FLAG_SYN | FLAG_ACK );
-               }
-            }
-            break;
-         case TCPConnection::SYN_RECEIVED:
-            if( ACK )
-            {
-               connection->State = TCPConnection::ESTABLISHED;
+            case TCPConnection::CLOSED:
+                // Do nothing
+                Reset(rxBuffer->MAC, localPort, remotePort, sourceIP);
+                break;
+            case TCPConnection::LISTEN:
+                if (SYN)
+                {
+                    // Need a closed connection to work with
+                    TCPConnection* tmp = NewClient(rxBuffer->MAC, sourceIP, remotePort, localPort);
+                    if (tmp != 0)
+                    {
+                        tmp->Parent                       = connection;
+                        connection                        = tmp;
+                        connection->State                 = TCPConnection::SYN_RECEIVED;
+                        connection->AcknowledgementNumber = SequenceNumber;
+                        connection->LastAck               = connection->AcknowledgementNumber;
+                        connection->AcknowledgementNumber++; // SYN flag consumes a sequence number
+                        connection->SendFlags(FLAG_SYN | FLAG_ACK);
+                        connection->SequenceNumber++; // Our SYN costs too
+                    }
+                    else
+                    {
+                        printf("Failed to get connection for SYN\n");
+                    }
+                }
+                break;
+            case TCPConnection::SYN_SENT:
+                if (SYN)
+                {
+                    connection->AcknowledgementNumber = SequenceNumber;
+                    connection->LastAck               = connection->AcknowledgementNumber;
+                    if (ACK)
+                    {
+                        connection->State = TCPConnection::ESTABLISHED;
+                        connection->SendFlags(FLAG_ACK);
+                    }
+                    else
+                    {
+                        // Simultaneous open
+                        connection->State = TCPConnection::SYN_RECEIVED;
+                        connection->AcknowledgementNumber++; // SYN flag consumes a sequence number
+                        connection->SendFlags(FLAG_SYN | FLAG_ACK);
+                    }
+                }
+                break;
+            case TCPConnection::SYN_RECEIVED:
+                if (ACK)
+                {
+                    connection->State = TCPConnection::ESTABLISHED;
 
-               if( connection->Parent->NewConnection == 0 )
-               {
-                  connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
-                  connection->Parent->NewConnection = connection;
-                  connection->Parent->Event.Notify();
-               }
-            }
-            break;
-         case TCPConnection::ESTABLISHED:
-            if( FIN )
-            {
-               connection->State = TCPConnection::CLOSE_WAIT;
-               connection->AcknowledgementNumber++;      // FIN consumes sequence number
-               connection->SendFlags( FLAG_ACK );
-            }
-            break;
-         case TCPConnection::FIN_WAIT_1:
-            if( FIN )
-            {
-               if( ACK )
-               {
-                  connection->State = TCPConnection::TIMED_WAIT;
-                  // Start TimedWait timer
-               }
-               else
-               {
-                  connection->State = TCPConnection::CLOSING;
-               }
-               connection->AcknowledgementNumber++;      // FIN consumes sequence number
-               connection->SendFlags( FLAG_ACK );
-            }
-            else if( ACK )
-            {
-               connection->State = TCPConnection::FIN_WAIT_2;
-            }
-            break;
-         case TCPConnection::FIN_WAIT_2:
-            if( FIN )
-            {
-               connection->State = TCPConnection::TIMED_WAIT;
-               // Start TimedWait timer
-               connection->AcknowledgementNumber++;      // FIN consumes sequence number
-               connection->Time_us = (int32_t)osTime::GetTime();
-               connection->SendFlags( FLAG_ACK );
-            }
-            break;
-         case TCPConnection::CLOSE_WAIT:
-            break;
-         case TCPConnection::CLOSING:
-            break;
-         case TCPConnection::LAST_ACK:
-            if( ACK )
-            {
-               connection->State = TCPConnection::CLOSED;
-            }
-            break;
-         case TCPConnection::TIMED_WAIT:
-            break;
-         default:
-            break;
-         }
-
-         // Handle any data received
-         if
-         (
-            connection &&
-            connection->State == TCPConnection::ESTABLISHED ||
-            connection->State == TCPConnection::FIN_WAIT_1 ||
-            connection->State == TCPConnection::FIN_WAIT_2 ||
-            connection->State == TCPConnection::CLOSE_WAIT
-         )
-         {
-            data = rxBuffer->Packet;
-            dataLength = rxBuffer->Length;
-
-            connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
-            connection->Event.Notify();
-
-            // Handle any ACKed data
-            if( ACK )
-            {
-               connection->HoldingQueueLock.Take( __FILE__, __LINE__ );
-               count = connection->HoldingQueue.GetCount();
-               time_us = (uint32_t)osTime::GetTime();
-               for( int i=0; i<count; i++ )
-               {
-                  buffer = (DataBuffer*)connection->HoldingQueue.Get();
-                  if( (int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0 )
-                  {
-                     connection->CalculateRTT( (int32_t)(time_us - buffer->Time_us) );
-                     IP.FreeTxBuffer( buffer );
-                  }
-                  else
-                  {
-                     connection->HoldingQueue.Put( buffer );
-                  }
-               }
-               connection->HoldingQueueLock.Give();
+                    if (connection->Parent->NewConnection == 0)
+                    {
+                        connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
+                        connection->Parent->NewConnection = connection;
+                        connection->Parent->Event.Notify();
+                    }
+                }
+                break;
+            case TCPConnection::ESTABLISHED:
+                if (FIN)
+                {
+                    connection->State = TCPConnection::CLOSE_WAIT;
+                    connection->AcknowledgementNumber++; // FIN consumes sequence number
+                    connection->SendFlags(FLAG_ACK);
+                }
+                break;
+            case TCPConnection::FIN_WAIT_1:
+                if (FIN)
+                {
+                    if (ACK)
+                    {
+                        connection->State = TCPConnection::TIMED_WAIT;
+                        // Start TimedWait timer
+                    }
+                    else
+                    {
+                        connection->State = TCPConnection::CLOSING;
+                    }
+                    connection->AcknowledgementNumber++; // FIN consumes sequence number
+                    connection->SendFlags(FLAG_ACK);
+                }
+                else if (ACK)
+                {
+                    connection->State = TCPConnection::FIN_WAIT_2;
+                }
+                break;
+            case TCPConnection::FIN_WAIT_2:
+                if (FIN)
+                {
+                    connection->State = TCPConnection::TIMED_WAIT;
+                    // Start TimedWait timer
+                    connection->AcknowledgementNumber++; // FIN consumes sequence number
+                    connection->Time_us = (int32_t)osTime::GetTime();
+                    connection->SendFlags(FLAG_ACK);
+                }
+                break;
+            case TCPConnection::CLOSE_WAIT: break;
+            case TCPConnection::CLOSING: break;
+            case TCPConnection::LAST_ACK:
+                if (ACK)
+                {
+                    connection->State = TCPConnection::CLOSED;
+                }
+                break;
+            case TCPConnection::TIMED_WAIT: break;
+            default: break;
             }
 
-            if( FIN )
+            // Handle any data received
+            if (connection && connection->State == TCPConnection::ESTABLISHED ||
+                connection->State == TCPConnection::FIN_WAIT_1 ||
+                connection->State == TCPConnection::FIN_WAIT_2 ||
+                connection->State == TCPConnection::CLOSE_WAIT)
             {
-               if( connection->State == TCPConnection::FIN_WAIT_1 )
-               {
-                  flags |= FLAG_ACK;
-                  connection->State = TCPConnection::CLOSE_WAIT;
-               }
-               else if( connection->State == TCPConnection::ESTABLISHED )
-               {
-                  connection->State = TCPConnection::CLOSE_WAIT;
-                  flags |= FLAG_ACK;
-               }
-            }
+                data       = rxBuffer->Packet;
+                dataLength = rxBuffer->Length;
 
-            // ACK the receipt of the data
-            if( dataLength > 0 )
-            {
-               // Copy it to the application
-               rxBuffer->Disposable = false;
-               connection->StoreRxData( rxBuffer );
-               IP.FreeRxBuffer( rxBuffer );
-               connection->Event.Notify();
-            }
+                connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
+                connection->Event.Notify();
 
-            if( flags != 0 )
-            {
-               connection->SendFlags( flags );
+                // Handle any ACKed data
+                if (ACK)
+                {
+                    connection->HoldingQueueLock.Take(__FILE__, __LINE__);
+                    count   = connection->HoldingQueue.GetCount();
+                    time_us = (uint32_t)osTime::GetTime();
+                    for (int i = 0; i < count; i++)
+                    {
+                        buffer = (DataBuffer*)connection->HoldingQueue.Get();
+                        if ((int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0)
+                        {
+                            connection->CalculateRTT((int32_t)(time_us - buffer->Time_us));
+                            IP.FreeTxBuffer(buffer);
+                        }
+                        else
+                        {
+                            connection->HoldingQueue.Put(buffer);
+                        }
+                    }
+                    connection->HoldingQueueLock.Give();
+                }
+
+                if (FIN)
+                {
+                    if (connection->State == TCPConnection::FIN_WAIT_1)
+                    {
+                        flags |= FLAG_ACK;
+                        connection->State = TCPConnection::CLOSE_WAIT;
+                    }
+                    else if (connection->State == TCPConnection::ESTABLISHED)
+                    {
+                        connection->State = TCPConnection::CLOSE_WAIT;
+                        flags |= FLAG_ACK;
+                    }
+                }
+
+                // ACK the receipt of the data
+                if (dataLength > 0)
+                {
+                    // Copy it to the application
+                    rxBuffer->Disposable = false;
+                    connection->StoreRxData(rxBuffer);
+                    IP.FreeRxBuffer(rxBuffer);
+                    connection->Event.Notify();
+                }
+
+                if (flags != 0)
+                {
+                    connection->SendFlags(flags);
+                }
             }
-         }
-      }
-   }
-   else
-   {
-      printf( "TCP Checksum Failure\n" );
-   }
+        }
+    }
+    else
+    {
+        printf("TCP Checksum Failure\n");
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolTCP::Reset( InterfaceMAC* mac, uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress )
+void ProtocolTCP::Reset(InterfaceMAC*  mac,
+                        uint16_t       localPort,
+                        uint16_t       remotePort,
+                        const uint8_t* remoteAddress)
 {
-   uint8_t* packet;
-   uint16_t checksum;
-   uint16_t length;
+    uint8_t* packet;
+    uint16_t checksum;
+    uint16_t length;
 
-   DataBuffer* buffer = IP.GetTxBuffer( mac );
+    DataBuffer* buffer = IP.GetTxBuffer(mac);
 
-   if( buffer == 0 )
-   {
-      return;
-   }
+    if (buffer == 0)
+    {
+        return;
+    }
 
-   buffer->Packet    += TCP_HEADER_SIZE;
-   buffer->Remainder -= TCP_HEADER_SIZE;
+    buffer->Packet += TCP_HEADER_SIZE;
+    buffer->Remainder -= TCP_HEADER_SIZE;
 
-   buffer->Packet -= TCP_HEADER_SIZE;
-   packet = buffer->Packet;
-   length = buffer->Length;
-   if( packet != 0 )
-   {
-      Pack16( packet, 0, localPort );
-      Pack16( packet, 2, remotePort );
-      Pack32( packet, 4, 0 );       // Sequence
-      Pack32( packet, 8, 0 );       // AckSequence
-      Pack8( packet, 12, 0x50 );    // Header length and reserved
-      Pack8( packet, 13, FLAG_RST );
-      Pack16( packet, 14, 0 );      // window size
-      Pack16( packet, 16, 0 );      // clear checksum
-      Pack16( packet, 18, 0 );      // 2 bytes of UrgentPointer
+    buffer->Packet -= TCP_HEADER_SIZE;
+    packet = buffer->Packet;
+    length = buffer->Length;
+    if (packet != 0)
+    {
+        Pack16(packet, 0, localPort);
+        Pack16(packet, 2, remotePort);
+        Pack32(packet, 4, 0);    // Sequence
+        Pack32(packet, 8, 0);    // AckSequence
+        Pack8(packet, 12, 0x50); // Header length and reserved
+        Pack8(packet, 13, FLAG_RST);
+        Pack16(packet, 14, 0); // window size
+        Pack16(packet, 16, 0); // clear checksum
+        Pack16(packet, 18, 0); // 2 bytes of UrgentPointer
 
-      checksum = ProtocolTCP::ComputeChecksum( packet, TCP_HEADER_SIZE, IP.GetUnicastAddress(), remoteAddress );
+        checksum = ProtocolTCP::ComputeChecksum(
+            packet, TCP_HEADER_SIZE, IP.GetUnicastAddress(), remoteAddress);
 
-      Pack16( packet, 16, checksum ); // checksum
+        Pack16(packet, 16, checksum); // checksum
 
-      buffer->Length += TCP_HEADER_SIZE;
-      buffer->Remainder -= buffer->Length;
+        buffer->Length += TCP_HEADER_SIZE;
+        buffer->Remainder -= buffer->Length;
 
-      IP.Transmit( buffer, 0x06, remoteAddress, IP.GetUnicastAddress() );
-   }
+        IP.Transmit(buffer, 0x06, remoteAddress, IP.GetUnicastAddress());
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-uint16_t ProtocolTCP::ComputeChecksum( uint8_t* packet, uint16_t length, const uint8_t* sourceIP, const uint8_t* targetIP )
+uint16_t ProtocolTCP::ComputeChecksum(uint8_t*       packet,
+                                      uint16_t       length,
+                                      const uint8_t* sourceIP,
+                                      const uint8_t* targetIP)
 {
-   uint32_t checksum;
-   uint16_t tmp;
+    uint32_t checksum;
+    uint16_t tmp;
 
-   // A whole lot o' hokum just to compute the checksum
-   checksum = FCS::ChecksumAdd( sourceIP, 4, 0 );
-   checksum = FCS::ChecksumAdd( targetIP, 4, checksum );
-   checksum += 0x06;    // protocol
-   checksum += length;
-   if( (length & 0x0001) != 0 )
-   {
-      // length is odd
-      tmp = length+1;
-      packet[ length ] = 0;
-   }
-   else
-   {
-      tmp = length;
-   }
-   checksum = FCS::ChecksumAdd( packet, tmp, checksum );
+    // A whole lot o' hokum just to compute the checksum
+    checksum = FCS::ChecksumAdd(sourceIP, 4, 0);
+    checksum = FCS::ChecksumAdd(targetIP, 4, checksum);
+    checksum += 0x06; // protocol
+    checksum += length;
+    if ((length & 0x0001) != 0)
+    {
+        // length is odd
+        tmp            = length + 1;
+        packet[length] = 0;
+    }
+    else
+    {
+        tmp = length;
+    }
+    checksum = FCS::ChecksumAdd(packet, tmp, checksum);
 
-   return FCS::ChecksumComplete( checksum );
+    return FCS::ChecksumComplete(checksum);
 }
 
 //============================================================================
 //
 //============================================================================
 
-TCPConnection* ProtocolTCP::LocateConnection
-(
-   uint16_t remotePort,
-   const uint8_t* remoteAddress,
-   uint16_t localPort
-)
+TCPConnection* ProtocolTCP::LocateConnection(uint16_t       remotePort,
+                                             const uint8_t* remoteAddress,
+                                             uint16_t       localPort)
 {
-   int i;
+    int i;
 
-   // Must do two passes:
-   // First pass to look for established connections
-   // Second pass to look for listening connections
+    // Must do two passes:
+    // First pass to look for established connections
+    // Second pass to look for listening connections
 
-   // Pass 1
-   for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      //printf( "%s %d: connection port %d, state %s\n", FindFileName( __FILE__ ), __LINE__, ConnectionList[ i ].LocalPort, ConnectionList[ i ].GetStateString() );
-      if
-      (
-         ConnectionList[ i ].LocalPort == localPort &&
-         ConnectionList[ i ].RemotePort == remotePort &&
-         AddressCompare( ConnectionList[ i ].RemoteAddress, remoteAddress, IP.AddressSize() )
-      )
-      {
-         return &ConnectionList[ i ];
-      }
-   }
+    // Pass 1
+    for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        //printf( "%s %d: connection port %d, state %s\n", FindFileName( __FILE__ ), __LINE__, ConnectionList[ i ].LocalPort, ConnectionList[ i ].GetStateString() );
+        if (ConnectionList[i].LocalPort == localPort &&
+            ConnectionList[i].RemotePort == remotePort &&
+            AddressCompare(ConnectionList[i].RemoteAddress, remoteAddress, IP.AddressSize()))
+        {
+            return &ConnectionList[i];
+        }
+    }
 
-   // Pass 2
-   for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      if( ConnectionList[ i ].LocalPort == localPort && ConnectionList[ i ].State == TCPConnection::LISTEN )
-      {
-         return &ConnectionList[ i ];
-      }
-   }
+    // Pass 2
+    for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        if (ConnectionList[i].LocalPort == localPort &&
+            ConnectionList[i].State == TCPConnection::LISTEN)
+        {
+            return &ConnectionList[i];
+        }
+    }
 
-   return 0;
+    return 0;
 }
 
 //============================================================================
@@ -417,85 +411,82 @@ TCPConnection* ProtocolTCP::LocateConnection
 
 uint16_t ProtocolTCP::NewPort()
 {
-   int i;
+    int i;
 
-   if( NextPort <= 1024 )
-   {
-      NextPort = 1024;
-   }
+    if (NextPort <= 1024)
+    {
+        NextPort = 1024;
+    }
 
-   NextPort++;
+    NextPort++;
 
-   for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      if( ConnectionList[ i ].LocalPort == NextPort )
-      {
-         NextPort++;
-         i=-1;
-      }
-   }
+    for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        if (ConnectionList[i].LocalPort == NextPort)
+        {
+            NextPort++;
+            i = -1;
+        }
+    }
 
-   return NextPort;
+    return NextPort;
 }
 
 //============================================================================
 //
 //============================================================================
 
-TCPConnection* ProtocolTCP::NewClient
-(
-   InterfaceMAC* mac,
-   const uint8_t* remoteAddress,
-   uint16_t remotePort,
-   uint16_t localPort
-)
+TCPConnection* ProtocolTCP::NewClient(InterfaceMAC*  mac,
+                                      const uint8_t* remoteAddress,
+                                      uint16_t       remotePort,
+                                      uint16_t       localPort)
 {
-   int i;
-   int j;
+    int i;
+    int j;
 
-   for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      TCPConnection& connection = ConnectionList[ i ];
-      if( connection.State == TCPConnection::CLOSED )
-      {
-         connection.LocalPort = localPort;
-         connection.SequenceNumber = 1;
-         connection.MaxSequenceTx = connection.SequenceNumber + 1024;
-         for( j=0; j<IP.AddressSize(); j++ )
-         {
-            connection.RemoteAddress[ j ] = remoteAddress[ j ];
-         }
-         connection.RemotePort = remotePort;
-         connection.MAC = mac;
+    for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        TCPConnection& connection = ConnectionList[i];
+        if (connection.State == TCPConnection::CLOSED)
+        {
+            connection.LocalPort      = localPort;
+            connection.SequenceNumber = 1;
+            connection.MaxSequenceTx  = connection.SequenceNumber + 1024;
+            for (j = 0; j < IP.AddressSize(); j++)
+            {
+                connection.RemoteAddress[j] = remoteAddress[j];
+            }
+            connection.RemotePort = remotePort;
+            connection.MAC        = mac;
 
-         return &connection;
-      }
-   }
+            return &connection;
+        }
+    }
 
-   return 0;
+    return 0;
 }
 
 //============================================================================
 //
 //============================================================================
 
-TCPConnection* ProtocolTCP::NewServer( InterfaceMAC* mac, uint16_t port )
+TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
 {
-   int i;
+    int i;
 
-   for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      TCPConnection& connection = ConnectionList[ i ];
-      if( connection.State == TCPConnection::CLOSED )
-      {
-         connection.State = TCPConnection::LISTEN;
-         connection.LocalPort = port;
-         connection.MAC = mac;
-         return &connection;
-      }
-   }
+    for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        TCPConnection& connection = ConnectionList[i];
+        if (connection.State == TCPConnection::CLOSED)
+        {
+            connection.State     = TCPConnection::LISTEN;
+            connection.LocalPort = port;
+            connection.MAC       = mac;
+            return &connection;
+        }
+    }
 
-   return 0;
+    return 0;
 }
 
 //============================================================================
@@ -504,42 +495,44 @@ TCPConnection* ProtocolTCP::NewServer( InterfaceMAC* mac, uint16_t port )
 
 void ProtocolTCP::Tick()
 {
-   int i;
+    int i;
 
-   for( i=0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      if
-      (
-         ConnectionList[ i ].State == TCPConnection::ESTABLISHED ||
-         ConnectionList[ i ].State == TCPConnection::TIMED_WAIT
-      )
-      {
-         ConnectionList[ i ].Tick();
-      }
-   }
+    for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        if (ConnectionList[i].State == TCPConnection::ESTABLISHED ||
+            ConnectionList[i].State == TCPConnection::TIMED_WAIT)
+        {
+            ConnectionList[i].Tick();
+        }
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolTCP::Show( osPrintfInterface* out )
+void ProtocolTCP::Show(osPrintfInterface* out)
 {
-   out->Printf( "TCP Information\n" );
-   for( int i = 0; i<TCP_MAX_CONNECTIONS; i++ )
-   {
-      out->Printf( "connection %s   ", ConnectionList[ i ].GetStateString() );
-      switch( ConnectionList[ i ].State )
-      {
-      case TCPConnection::LISTEN:
-         out->Printf( "     local=%d  ", ConnectionList[ i ].LocalPort );
-         break;
-      case TCPConnection::ESTABLISHED:
-         out->Printf( "local=%d  remote=%d.%d.%d.%d:%d", ConnectionList[ i ].LocalPort, ConnectionList[ i ].RemoteAddress[0], ConnectionList[ i ].RemoteAddress[ 1 ], ConnectionList[ i ].RemoteAddress[ 2 ], ConnectionList[ i ].RemoteAddress[ 3 ], ConnectionList[ i ].RemotePort );
-         break;
-      default:
-         break;
-      }
-      out->Printf( "\n" );
-   }
+    out->Printf("TCP Information\n");
+    for (int i = 0; i < TCP_MAX_CONNECTIONS; i++)
+    {
+        out->Printf("connection %s   ", ConnectionList[i].GetStateString());
+        switch (ConnectionList[i].State)
+        {
+        case TCPConnection::LISTEN:
+            out->Printf("     local=%d  ", ConnectionList[i].LocalPort);
+            break;
+        case TCPConnection::ESTABLISHED:
+            out->Printf("local=%d  remote=%d.%d.%d.%d:%d",
+                        ConnectionList[i].LocalPort,
+                        ConnectionList[i].RemoteAddress[0],
+                        ConnectionList[i].RemoteAddress[1],
+                        ConnectionList[i].RemoteAddress[2],
+                        ConnectionList[i].RemoteAddress[3],
+                        ConnectionList[i].RemotePort);
+            break;
+        default: break;
+        }
+        out->Printf("\n");
+    }
 }

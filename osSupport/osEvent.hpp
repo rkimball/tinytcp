@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2016, Robert Kimball
+// Copyright( c ) 2015, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,37 +29,48 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef DEFAULTSTACK_H
-#define DEFAULTSTACK_H
+#ifndef OSEVENT_H
+#define OSEVENT_H
 
-#include "ProtocolMACEthernet.h"
-#include "ProtocolIPv4.h"
-#include "ProtocolARP.h"
-#include "ProtocolDHCP.h"
-#include "ProtocolICMP.h"
-#include "ProtocolTCP.h"
-#include "ProtocolUDP.h"
-#include "InterfaceMAC.h"
+#include <inttypes.h>
 
-class DefaultStack
+#ifdef __linux__
+#include "pthread.h"
+#endif
+
+#include "osMutex.hpp"
+#include "osPrintfInterface.hpp"
+
+class osEvent
 {
 public:
-   DefaultStack();
-   void RegisterDataTransmitHandler( InterfaceMAC::DataTransmitHandler );
-   void SetMACAddress( uint8_t* addr );
-   void StartDHCP();
-   void Tick();
+    osEvent(const char* name);
 
-   void ProcessRx( uint8_t* data, size_t length );
+    ~osEvent();
 
-   ProtocolMACEthernet MAC;
-   ProtocolIPv4 IP;
-   ProtocolARP ARP;
-   ProtocolDHCP DHCP;
-   ProtocolICMP ICMP;
-   ProtocolTCP TCP;
-   ProtocolUDP UDP;
+    void Notify();
+
+    bool Wait(const char* file, int line, int msTimeout = -1);
+
+    const char* GetName();
+
+    static void Show(osPrintfInterface* out);
+
+private:
+#ifdef _WIN32
+    void* Handle;
+#elif __linux__
+    pthread_mutex_t m_mutex;
+    pthread_cond_t  m_condition;
+    bool            m_test;
+#endif
+    static const int NAME_LENGTH_MAX = 80;
+    char             Name[NAME_LENGTH_MAX];
+    osThread*        pending;
+
+    static osMutex   ListMutex;
+    static const int INSTANCE_MAX = 20;
+    static osEvent*  InstanceList[];
 };
 
 #endif
-

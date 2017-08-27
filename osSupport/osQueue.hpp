@@ -29,35 +29,49 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#ifndef OSQUEUE_H
+#define OSQUEUE_H
 
-#include <inttypes.h>
+#include "osMutex.hpp"
 
-typedef int (*PrintfFunctionPtr)( const char* fmt, ... );
+class osQueue
+{
+public:
+    osQueue(const char* name, int count, void** dataBuffer);
 
-void DumpData( void* buffer, size_t len, PrintfFunctionPtr );
-void DumpBits( void* buffer, size_t size, PrintfFunctionPtr );
+    const char* GetName();
 
-uint16_t ntoh16( uint16_t value );
-uint16_t hton16( uint16_t value );
-uint32_t ntoh32( uint32_t value );
-uint32_t hton32( uint32_t value );
+    void* Peek();
 
-const char* ipv4toa( uint32_t addr );
-const char* ipv4toa( const uint8_t* addr );
-const char* macaddrtoa( const uint8_t* addr );
+    void* Get();
 
-uint8_t Unpack8( const uint8_t* p, size_t offset, size_t size = 1 );
-uint16_t Unpack16( const uint8_t* p, size_t offset, size_t size = 2 );
-uint32_t Unpack32( const uint8_t* p, size_t offset, size_t size = 4 );
-size_t Pack8( uint8_t* p, size_t offset, uint8_t value );
-size_t Pack16( uint8_t* p, size_t offset, uint16_t value );
-size_t Pack32( uint8_t* p, size_t offset, uint32_t value );
-size_t PackBytes( uint8_t* p, size_t offset, const uint8_t* value, size_t count );
-size_t PackFill( uint8_t* p, size_t offset, uint8_t value, size_t count );
-int ReadLine( char* buffer, size_t size, int(*ReadFunction)() );
+    bool Put(void* item);
 
-bool AddressCompare( const uint8_t* a1, const uint8_t* a2, int length );
+    int GetCount();
+
+    void Flush();
+
+    bool Contains(void* object);
+
+    static void Show(osPrintfInterface* pfunc);
+
+private:
+    int Increment(int index)
+    {
+        if (++index >= MaxElements)
+        {
+            index = 0;
+        }
+        return index;
+    }
+
+    void**      Array;
+    const char* Name;
+    int         NextInIndex;
+    int         NextOutIndex;
+    int         MaxElements;
+    int         ElementCount;
+    osMutex     Lock;
+};
 
 #endif

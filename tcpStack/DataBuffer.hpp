@@ -29,43 +29,31 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PACKETIO_H
-#define PACKETIO_H
+#pragma once
 
-#ifdef _WIN32
-#include <pcap.h>
-#endif
 #include <inttypes.h>
-#include "osThread.h"
+#include "Config.hpp"
+#include "InterfaceMAC.hpp"
 
-class PacketIO
+class DataBuffer
 {
 public:
-   PacketIO();
-   PacketIO( const char* name );
+    DataBuffer();
 
-   typedef void (*RxDataHandler)( uint8_t* data, size_t length );
-#ifdef _WIN32
-   void Start( pcap_handler handler );
-#elif __linux__
-   void Start(RxDataHandler);
-   void Entry( void* param );
-#endif
-   void Stop();
-   void TxData( void* data, size_t length );
-   static void GetDevice( int interfaceNumber, char* buffer, size_t buffer_size );
-   static int GetMACAddress( const char* adapter, uint8_t* mac );
-   static void DisplayDevices();
+    uint8_t*      Packet;
+    uint32_t      AcknowledgementNumber;
+    uint32_t      Time_us;
+    uint16_t      Length;
+    uint16_t      Remainder;
+    bool          Disposable;
+    InterfaceMAC* MAC;
+
+    void Initialize(InterfaceMAC*);
+    void Preallocate(size_t size);
+    void ResetPreallocation(size_t size);
 
 private:
-#ifdef _WIN32
-   const char* CaptureDevice;
-   pcap_t* adhandle;
-#elif __linux__
-   osThread    EthernetRxThread;
-   int         m_RawSocket;
-   int         m_IfIndex;
-#endif
-};
+    uint8_t Data[DATA_BUFFER_PAYLOAD_SIZE];
 
-#endif
+    DataBuffer(DataBuffer&);
+};

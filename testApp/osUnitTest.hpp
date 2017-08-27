@@ -29,17 +29,14 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSTIME_H
-#define OSTIME_H
+#pragma once
 
-#include <inttypes.h>
-
-class osTime
+class osUnitTest
 {
 public:
-   static const char* GetTimestamp();
-
-   static uint64_t GetTime();
+    static void osThreadTest();
+    static void osQueueTest();
+    static void osTimeTest();
+    static void osEventTest();
+    static void osMutexTest();
 };
-
-#endif

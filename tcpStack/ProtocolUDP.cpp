@@ -29,20 +29,20 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include "ProtocolUDP.hpp"
 #include <stdio.h>
-#include "ProtocolIPv4.h"
-#include "ProtocolUDP.h"
-#include "ProtocolDHCP.h"
-#include "Utility.h"
-#include "FCS.h"
+#include "FCS.hpp"
+#include "ProtocolDHCP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "Utility.hpp"
 
 //============================================================================
 //
 //============================================================================
 
-ProtocolUDP::ProtocolUDP( ProtocolIPv4& ip, ProtocolDHCP& dhcp ) :
-   IP( ip ),
-   DHCP( dhcp )
+ProtocolUDP::ProtocolUDP(ProtocolIPv4& ip, ProtocolDHCP& dhcp)
+    : IP(ip)
+    , DHCP(dhcp)
 {
 }
 
@@ -50,67 +50,71 @@ ProtocolUDP::ProtocolUDP( ProtocolIPv4& ip, ProtocolDHCP& dhcp ) :
 //
 //============================================================================
 
-DataBuffer* ProtocolUDP::GetTxBuffer( InterfaceMAC* mac )
+DataBuffer* ProtocolUDP::GetTxBuffer(InterfaceMAC* mac)
 {
-   DataBuffer*   buffer;
+    DataBuffer* buffer;
 
-   buffer = IP.GetTxBuffer( mac );
-   if( buffer != 0 )
-   {
-      buffer->Packet += UDP_HEADER_SIZE;
-      buffer->Remainder -= UDP_HEADER_SIZE;
-   }
+    buffer = IP.GetTxBuffer(mac);
+    if (buffer != 0)
+    {
+        buffer->Packet += UDP_HEADER_SIZE;
+        buffer->Remainder -= UDP_HEADER_SIZE;
+    }
 
-   return buffer;
+    return buffer;
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolUDP::ProcessRx( DataBuffer* buffer, const uint8_t* sourceIP, const uint8_t* targetIP )
+void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const uint8_t* targetIP)
 {
-   uint16_t sourcePort = Unpack16( buffer->Packet, 0 );
-   uint16_t targetPort = Unpack16( buffer->Packet, 2 );
+    uint16_t sourcePort = Unpack16(buffer->Packet, 0);
+    uint16_t targetPort = Unpack16(buffer->Packet, 2);
 
-   buffer->Packet += UDP_HEADER_SIZE;
-   buffer->Remainder -= UDP_HEADER_SIZE;
+    buffer->Packet += UDP_HEADER_SIZE;
+    buffer->Remainder -= UDP_HEADER_SIZE;
 
-   switch( targetPort )
-   {
-   case 68: // DHCP Client Port
-      DHCP.ProcessRx( buffer );
-      break;
-   default:
-      //printf( "Rx UDP target port %d\n", targetPort );
-      break;
-   }
+    switch (targetPort)
+    {
+    case 68: // DHCP Client Port
+        DHCP.ProcessRx(buffer);
+        break;
+    default:
+        //printf( "Rx UDP target port %d\n", targetPort );
+        break;
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void ProtocolUDP::Transmit( DataBuffer* buffer, const uint8_t* targetIP, uint16_t targetPort, const uint8_t* sourceIP, uint16_t sourcePort )
+void ProtocolUDP::Transmit(DataBuffer*    buffer,
+                           const uint8_t* targetIP,
+                           uint16_t       targetPort,
+                           const uint8_t* sourceIP,
+                           uint16_t       sourcePort)
 {
-   buffer->Packet -= UDP_HEADER_SIZE;
-   buffer->Remainder += UDP_HEADER_SIZE;
+    buffer->Packet -= UDP_HEADER_SIZE;
+    buffer->Remainder += UDP_HEADER_SIZE;
 
-   Pack16( buffer->Packet, 0, sourcePort );
-   Pack16( buffer->Packet, 2, targetPort );
-   Pack16( buffer->Packet, 4, buffer->Length );
+    Pack16(buffer->Packet, 0, sourcePort);
+    Pack16(buffer->Packet, 2, targetPort);
+    Pack16(buffer->Packet, 4, buffer->Length);
 
-   // Calculate checksum
-   uint8_t pheader_tmp[ 4 ];
-   pheader_tmp[ 0 ] = 0;
-   pheader_tmp[ 1 ] = 0x11;
-   Pack16( pheader_tmp, 2, buffer->Length );
-   uint32_t acc = 0;
-   FCS::ChecksumAdd( sourceIP, 4, acc );
-   acc = FCS::ChecksumAdd( targetIP, 4, acc );
-   acc = FCS::ChecksumAdd( pheader_tmp, 4, acc );
-   acc = FCS::ChecksumAdd( buffer->Packet, buffer->Length, acc );
-   Pack16( buffer->Packet, 6, FCS::ChecksumComplete( acc ) );
+    // Calculate checksum
+    uint8_t pheader_tmp[4];
+    pheader_tmp[0] = 0;
+    pheader_tmp[1] = 0x11;
+    Pack16(pheader_tmp, 2, buffer->Length);
+    uint32_t acc = 0;
+    FCS::ChecksumAdd(sourceIP, 4, acc);
+    acc = FCS::ChecksumAdd(targetIP, 4, acc);
+    acc = FCS::ChecksumAdd(pheader_tmp, 4, acc);
+    acc = FCS::ChecksumAdd(buffer->Packet, buffer->Length, acc);
+    Pack16(buffer->Packet, 6, FCS::ChecksumComplete(acc));
 
-   IP.Transmit( buffer, 0x11, targetIP, sourceIP );
+    IP.Transmit(buffer, 0x11, targetIP, sourceIP);
 }

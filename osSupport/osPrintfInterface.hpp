@@ -29,80 +29,14 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLIPV4_H
-#define PROTOCOLIPV4_H
+#ifndef OSPRINTFINTERFACE_H
+#define OSPRINTFINTERFACE_H
 
-#include <inttypes.h>
-#include "osQueue.h"
-#include "DataBuffer.h"
-#include "InterfaceMAC.h"
-
-#define IP_HEADER_SIZE (20)
-
-class ProtocolARP;
-class ProtocolICMP;
-class ProtocolTCP;
-class ProtocolUDP;
-
-class ProtocolIPv4
+class osPrintfInterface
 {
-private:
-   friend class TCPConnection;
-   static const int ADDRESS_SIZE = 4;
 public:
-   struct AddressInfo
-   {
-      bool  DataValid;
-      uint8_t Address[ ADDRESS_SIZE ];
-      uint32_t IpAddressLeaseTime;
-      uint32_t RenewTime;
-      uint32_t RebindTime;
-      uint8_t SubnetMask[ ADDRESS_SIZE ];
-      uint8_t Gateway[ ADDRESS_SIZE ];
-      uint8_t DomainNameServer[ ADDRESS_SIZE ];
-      uint8_t BroadcastAddress[ ADDRESS_SIZE ];
-   };
-
-   ProtocolIPv4( InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP& );
-   void Initialize();
-
-   void ProcessRx( DataBuffer* );
-
-   void Transmit( DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP );
-   void Retransmit( DataBuffer* );
-
-   void Retry();
-
-   size_t AddressSize();
-   const uint8_t* GetUnicastAddress();
-   const uint8_t* GetBroadcastAddress();
-   const uint8_t* GetGatewayAddress();
-   const uint8_t* GetSubnetMask();
-   void SetAddressInfo( const AddressInfo& info );
-   
-   DataBuffer* GetTxBuffer( InterfaceMAC* );
-   void FreeTxBuffer( DataBuffer* );
-   void FreeRxBuffer( DataBuffer* );
-
-   void Show( osPrintfInterface* out );
-
-private:
-   bool IsLocal( const uint8_t* addr );
-
-   uint16_t PacketID;
-   void* TxBuffer[ TX_BUFFER_COUNT ];
-   osQueue UnresolvedQueue;
-
-   AddressInfo Address;
-
-   InterfaceMAC& MAC;
-   ProtocolARP& ARP;
-   ProtocolICMP& ICMP;
-   ProtocolTCP& TCP;
-   ProtocolUDP& UDP;
-
-   ProtocolIPv4();
-   ProtocolIPv4( ProtocolIPv4& );
+    osPrintfInterface() {}
+    virtual int Printf(const char* format, ...) = 0;
 };
 
 #endif

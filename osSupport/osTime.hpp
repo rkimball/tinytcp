@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2016, Robert Kimball
+// Copyright( c ) 2015, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,35 +29,17 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLDHCP_H
-#define PROTOCOLDHCP_H
+#ifndef OSTIME_H
+#define OSTIME_H
 
 #include <inttypes.h>
 
-#include "DataBuffer.h"
-
-class InterfaceMAC;
-class ProtocolIPv4;
-class ProtocolUDP;
-
-// UDP Src = 0.0.0.0 sPort = 68
-// Dest = 255.255.255.255 dPort = 67
-
-class ProtocolDHCP
+class osTime
 {
 public:
-   ProtocolDHCP( InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp );
-   void ProcessRx( DataBuffer* buffer );
-   void Discover();
-   void SendRequest( uint8_t messageType, const uint8_t* serverAddress, const uint8_t* requestAddress );
-   void test();
-private:
-   DataBuffer Buffer;
-   int PendingXID;
+    static const char* GetTimestamp();
 
-   InterfaceMAC& MAC;
-   ProtocolIPv4&        IP;
-   ProtocolUDP&         UDP;
+    static uint64_t GetTime();
 };
 
 #endif

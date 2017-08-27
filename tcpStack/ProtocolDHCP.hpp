@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,50 +29,38 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSQUEUE_H
-#define OSQUEUE_H
+#ifndef PROTOCOLDHCP_H
+#define PROTOCOLDHCP_H
 
-#include "osMutex.h"
+#include <inttypes.h>
 
-class osQueue
+#include "DataBuffer.hpp"
+
+class InterfaceMAC;
+class ProtocolIPv4;
+class ProtocolUDP;
+
+// UDP Src = 0.0.0.0 sPort = 68
+// Dest = 255.255.255.255 dPort = 67
+
+class ProtocolDHCP
 {
 public:
-
-   osQueue( const char* name, int count, void** dataBuffer );
-
-   const char* GetName();
-
-   void* Peek();
-
-   void* Get();
-
-   bool Put( void* item );
-
-   int GetCount();
-
-   void Flush();
-
-   bool Contains( void* object );
-
-   static void Show( osPrintfInterface* pfunc );
+    ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp);
+    void ProcessRx(DataBuffer* buffer);
+    void Discover();
+    void SendRequest(uint8_t        messageType,
+                     const uint8_t* serverAddress,
+                     const uint8_t* requestAddress);
+    void test();
 
 private:
-   int Increment( int index )
-   {
-      if( ++index >= MaxElements )
-      {
-         index = 0;
-      }
-      return index;
-   }
+    DataBuffer Buffer;
+    int        PendingXID;
 
-   void**      Array;
-   const char* Name;
-   int         NextInIndex;
-   int         NextOutIndex;
-   int         MaxElements;
-   int         ElementCount;
-   osMutex     Lock;
+    InterfaceMAC& MAC;
+    ProtocolIPv4& IP;
+    ProtocolUDP&  UDP;
 };
 
 #endif

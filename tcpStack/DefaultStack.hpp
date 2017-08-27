@@ -29,29 +29,33 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef INTERFACEMAC_H
-#define INTERFACEMAC_H
+#pragma once
 
-#include <inttypes.h>
-#include <stdlib.h>
+#include "InterfaceMAC.hpp"
+#include "ProtocolARP.hpp"
+#include "ProtocolDHCP.hpp"
+#include "ProtocolICMP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "ProtocolMACEthernet.hpp"
+#include "ProtocolTCP.hpp"
+#include "ProtocolUDP.hpp"
 
-class DataBuffer;
-
-class InterfaceMAC
+class DefaultStack
 {
 public:
-   typedef void (*DataTransmitHandler)( void* data, size_t length );
+    DefaultStack();
+    void RegisterDataTransmitHandler(InterfaceMAC::DataTransmitHandler);
+    void SetMACAddress(uint8_t* addr);
+    void StartDHCP();
+    void Tick();
 
-   virtual void RegisterDataTransmitHandler( DataTransmitHandler ) = 0;
-   virtual size_t AddressSize() = 0;
-   virtual size_t HeaderSize() = 0;
-   virtual const uint8_t* GetUnicastAddress() = 0;
-   virtual const uint8_t* GetBroadcastAddress() = 0;
-   virtual DataBuffer* GetTxBuffer() = 0;
-   virtual void FreeTxBuffer( DataBuffer* ) = 0;
-   virtual void FreeRxBuffer( DataBuffer* ) = 0;
-   virtual void Transmit( DataBuffer*, const uint8_t* targetMAC, uint16_t type ) = 0;
-   virtual void Retransmit( DataBuffer* buffer ) = 0;
+    void ProcessRx(uint8_t* data, size_t length);
+
+    ProtocolMACEthernet MAC;
+    ProtocolIPv4        IP;
+    ProtocolARP         ARP;
+    ProtocolDHCP        DHCP;
+    ProtocolICMP        ICMP;
+    ProtocolTCP         TCP;
+    ProtocolUDP         UDP;
 };
-
-#endif

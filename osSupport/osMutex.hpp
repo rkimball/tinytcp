@@ -29,76 +29,57 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef HTTPPAGE_H
-#define HTTPPAGE_H
+#ifndef OSMUTEX_H
+#define OSMUTEX_H
 
-#include "ProtocolTCP.h"
-#include "osThread.h"
-#include "osPrintfInterface.h"
+#ifdef _WIN32
+#elif __linux__
+#include <pthread.h>
+#endif
 
-namespace http
+#include "osPrintfInterface.hpp"
+
+class osThread;
+
+#define MAX_MUTEX (16)
+
+class osMutex
 {
-   class Page;
-   class Server;
-}
-
-class http::Page : public osPrintfInterface
-{
-   friend class Server;
+    friend class osThread;
 
 public:
-   static const uint32_t  BUFFER_SIZE = 512;
-   typedef void(*MarkerContent)( http::Page* );
+    osMutex(const char* name);
 
-   void Initialize( TCPConnection* );
+    void Give();
 
-   int Printf( const char* format, ... );
-   static void HTMLEncodef( osPrintfInterface*, const char* format, ... );
+    bool Take(const char* file, int line);
 
-   /// Puts writes the string converting all newline characters to <br>
-   bool Puts( const char* string );
-   bool SendString( const char* string );
-   bool RawSend( const void* buffer, size_t length );
-   /// SendASCIIString converts all non-displayable characters
-   /// to '%XX' where XX is the hex values of the character
-   void SendASCIIString( const char* string );
-   void DumpData( const char* buffer, size_t length );
-   bool SendFile( const char* filename );
+    const char* GetName();
 
-   void PageOK( const char* mimeType="text/html" );
-   void PageNotFound();
-   void PageNoContent();
-   void PageUnauthorized();
-
-   void ParseArg( char* arg, char** name, char** value );
-
-   void Process( const char* htmlFile, const char* marker, MarkerContent );
-
-   void Flush();
-
-   char*       Directory;
-
-   char        URL[ 256 ];
-   char        ContentType[ 256 ];
-   int         ContentLength;
-   int         Busy;
-   int         argc;
-   char**      argv;
-   int         TagDepth;
-   bool        StartTagOpen;
-
-   TCPConnection*   Connection;
+    static void Show(osPrintfInterface* pfunc);
 
 private:
-   Page( Page& );
-   Page();
-   ~Page();
+#ifdef _WIN32
+    void* Handle;
+#elif __linux__
+    pthread_mutex_t m_mutex;
 
-   void ClosePendingOpen();
+    // Can't use osMutex to lock the MutexList because you can't create an osMutex
+    // without locking the MutexList, so make a private mutex
+    static pthread_mutex_t MutexListMutex;
+#endif
 
-   osThread    Thread;
-   Server*     _Server;
-   bool        HTTPHeaderSent;
+    static void StaticInit();
+    static void LockListMutex();
+    static void UnlockListMutex();
+
+    bool            Take();
+    const char*     Name;
+    static osMutex* MutexList[];
+
+    const char* OwnerFile;
+    int         OwnerLine;
+    osThread*   OwnerThread;
 };
-      
+
 #endif

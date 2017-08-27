@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright( c ) 2016, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,69 +29,17 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLMACETHERNET_H
-#define PROTOCOLMACETHERNET_H
+#pragma once
 
+#include <cstdio>
 #include <inttypes.h>
-#include "DataBuffer.h"
-#include "osQueue.h"
-#include "osEvent.h"
-#include "InterfaceMAC.h"
 
-#define MAC_HEADER_SIZE (14)
+#define TCP_MAX_CONNECTIONS (5)
+#define TCP_RX_WINDOW_SIZE (256)
 
-class ProtocolARP;
-class ProtocolIPv4;
+#define TX_BUFFER_COUNT (20)
+#define RX_BUFFER_COUNT (20)
 
-class ProtocolMACEthernet : public InterfaceMAC
-{
-public:
-   ProtocolMACEthernet( ProtocolARP&, ProtocolIPv4& );
-   void RegisterDataTransmitHandler( DataTransmitHandler );
+#define DATA_BUFFER_PAYLOAD_SIZE (512)
 
-   void ProcessRx( uint8_t* buffer, int length );
-
-   void Transmit( DataBuffer*, const uint8_t* targetMAC, uint16_t type );
-   void Retransmit( DataBuffer* buffer );
-
-   DataBuffer* GetTxBuffer();
-   void FreeTxBuffer( DataBuffer* );
-   void FreeRxBuffer( DataBuffer* );
-
-   size_t AddressSize();
-   size_t HeaderSize();
-
-   const uint8_t* GetUnicastAddress();
-   const uint8_t* GetBroadcastAddress();
-
-   void SetUnicastAddress( uint8_t* addr );
-
-   void Show( osPrintfInterface* pfunc );
-
-private:
-   static const int ADDRESS_SIZE = 6;
-   osQueue TxBufferQueue;
-   osQueue RxBufferQueue;
-
-   osEvent QueueEmptyEvent;
-
-   uint8_t UnicastAddress[ ADDRESS_SIZE ];
-   uint8_t BroadcastAddress[ ADDRESS_SIZE ];
-
-   DataBuffer TxBuffer[ TX_BUFFER_COUNT ];
-   DataBuffer RxBuffer[ RX_BUFFER_COUNT ];
-
-   void* TxBufferBuffer[ TX_BUFFER_COUNT ];
-   void* RxBufferBuffer[ RX_BUFFER_COUNT ];
-
-   DataTransmitHandler  TxHandler;
-   ProtocolARP& ARP;
-   ProtocolIPv4& IPv4;
-
-   bool IsLocalAddress( const uint8_t* addr );
-
-   ProtocolMACEthernet( ProtocolMACEthernet& );
-   ProtocolMACEthernet();
-};
-
-#endif
+const uint8_t ARPCacheSize = 5;

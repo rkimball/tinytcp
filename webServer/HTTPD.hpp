@@ -29,35 +29,60 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef DataBuffer_H
-#define DataBuffer_H
+#ifndef HTTPD_H
+#define HTTPD_H
 
-#include <inttypes.h>
-#include "Config.h"
-#include "InterfaceMAC.h"
+#include "HTTPPage.hpp"
 
-class DataBuffer
+#define MAX_ACTIVE_CONNECTIONS 3
+#define HTTPD_PATH_LENGTH_MAX 256
+
+class ProtocolTCP;
+
+namespace http
 {
-public:
-   DataBuffer();
-   
-   uint8_t* Packet;
-   uint32_t AcknowledgementNumber;
-   uint32_t Time_us;
-   uint16_t Length;
-   uint16_t Remainder;
-   bool Disposable;
-   InterfaceMAC* MAC;
+    class Server;
+}
 
-   void Initialize( InterfaceMAC* );
-   void Preallocate( size_t size );
-   void ResetPreallocation( size_t size );
+typedef void (*PageRequestHandler)(http::Page* page, const char* url);
+typedef void (*ErrorMessageHandler)(const char* message);
+typedef bool (*AuthorizationHandler)(const char* username, const char* password, const char* url);
+
+class http::Server
+{
+    friend class HTTPPage;
+
+public:
+    Server();
+    void RegisterPageHandler(PageRequestHandler);
+    void RegisterErrorHandler(ErrorMessageHandler);
+    void RegisterAuthorizationHandler(AuthorizationHandler);
+
+    void Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port);
+
+    void ProcessRequest(Page* page);
 
 private:
-   uint8_t    Data[ DATA_BUFFER_PAYLOAD_SIZE ];
-   
-   DataBuffer( DataBuffer& );
+    Server(Server&);
+
+    static void ConnectionHandlerEntry(void*);
+    void        ConnectionHandler(void*);
+
+    static void TaskEntry(void* param);
+    void Task();
+
+    Page    PagePoolPages[MAX_ACTIVE_CONNECTIONS];
+    void*   PagePoolBuffer[MAX_ACTIVE_CONNECTIONS];
+    osQueue PagePool;
+
+    osThread Thread;
+
+    TCPConnection* ListenerConnection;
+    TCPConnection* CurrentConnection;
+
+    PageRequestHandler   PageHandler;
+    ErrorMessageHandler  ErrorHandler;
+    AuthorizationHandler AuthHandler;
 };
 
 #endif
-

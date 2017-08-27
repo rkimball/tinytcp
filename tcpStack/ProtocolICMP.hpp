@@ -29,40 +29,26 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSSTACK_H
-#define OSSTACK_H
+#ifndef PROTOCOLICMP_H
+#define PROTOCOLICMP_H
 
-#include "osMutex.h"
+#include <inttypes.h>
+#include "DataBuffer.hpp"
 
-class osStack
+class ProtocolIPv4;
+
+class ProtocolICMP
 {
 public:
-   osStack( const char* name, int count, void** dataBuffer );
+    ProtocolICMP(ProtocolIPv4& ip);
 
-   const char* GetName();
-
-   void* Peek();
-   void Push( void* );
-   void* Pop();
-
-   static void Show( osPrintfInterface* pfunc );
+    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
 
 private:
-   int Increment( int index )
-   {
-      if( ++index >= MaxElements )
-      {
-         index = 0;
-      }
-      return index;
-   }
+    ProtocolIPv4& IP;
 
-   void**      Array;
-   int         MaxElements;
-   const char* Name;
-   int         Index;
-   int         ElementCount;
-   osMutex     Lock;
+    ProtocolICMP();
+    ProtocolICMP(ProtocolICMP&);
 };
 
 #endif
