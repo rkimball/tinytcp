@@ -108,8 +108,6 @@ bool osMutex::Take( const char* file, int line )
       }
       OwnerFile = file;
       OwnerLine = line;
-
-      TakeCount++;
    }
 
    return rc == 0;

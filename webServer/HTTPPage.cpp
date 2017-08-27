@@ -48,8 +48,8 @@
 //============================================================================
 
 http::Page::Page() :
-   TagDepth(0),
-   StartTagOpen(false)
+    TagDepth(0),
+    StartTagOpen(false)
 {
 }
 
@@ -65,211 +65,211 @@ http::Page::~Page()
 //
 //============================================================================
 
-void http::Page::Initialize( TCPConnection* connection )
+void http::Page::Initialize(TCPConnection* connection)
 {
-   Connection = connection;
-   Busy = 0;
+    Connection = connection;
+    Busy = 0;
 }
 
 //============================================================================
 //
 //============================================================================
 
-int http::Page::Printf( const char* format, ... )
+int http::Page::Printf(const char* format, ...)
 {
-   char        buffer[ BUFFER_SIZE ];
-   int         i;
-   va_list     vlist;
-   int         rc;
+    char        buffer[BUFFER_SIZE];
+    int         i;
+    va_list     vlist;
+    int         rc;
 
-   va_start( vlist, format );
+    va_start(vlist, format);
 
-   vsnprintf( buffer, sizeof(buffer), format, vlist );
+    vsnprintf(buffer, sizeof(buffer), format, vlist);
 
-   for( i=0; buffer[i] && i<(int)(sizeof(buffer)-1); i++ )
-   {
-      RawSend( &buffer[ i ], 1 );
-   }
-   rc = i;
+    for (i = 0; buffer[i] && i < (int)(sizeof(buffer) - 1); i++)
+    {
+        RawSend(&buffer[i], 1);
+    }
+    rc = i;
 
-   return rc;
+    return rc;
 }
 
 //============================================================================
 //
 //============================================================================
 
-void http::Page::HTMLEncodef( osPrintfInterface* pfunc, const char* format, ... )
+void http::Page::HTMLEncodef(osPrintfInterface* pfunc, const char* format, ...)
 {
-   char        buffer[ 256 ];
-   char        buffer2[ sizeof(buffer)*2 ];
-   char*       p;
-   int         i;
-   va_list     vlist;
+    char        buffer[256];
+    char        buffer2[sizeof(buffer) * 2];
+    char*       p;
+    int         i;
+    va_list     vlist;
 
-   va_start( vlist, format );
+    va_start(vlist, format);
 
-   vsnprintf( buffer, sizeof(buffer), format, vlist );
+    vsnprintf(buffer, sizeof(buffer), format, vlist);
 
-   p = buffer2;
-   for( i=0; buffer[i]; i++ )
-   {
-      if( p >= &buffer2[ sizeof(buffer2)-5 ] )
-      {
-         break;
-      }
-      switch( buffer[ i ] )
-      {
-      case '<':
-         *p++ = '&';
-         *p++ = 'l';
-         *p++ = 't';
-         break;
-
-      case '>':
-         *p++ = '&';
-         *p++ = 'g';
-         *p++ = 't';
-         break;
-
-      default:
-         *p++ = buffer[ i ];
-         break;
-      }
-   }
-   *p = 0;
-
-   pfunc->Printf( buffer2 );
-}
-
-//============================================================================
-//
-//============================================================================
-
-bool http::Page::Puts( const char* string )
-{
-   int      i;
-   int      length = (int)strlen(string);
-
-   for( i=0; i<length; i++ )
-   {
-      switch( string[i] )
-      {
-      case '\n':
-         RawSend( "<br>", 5 );
-         break;
-      case '\r':
-         break;
-      default:
-         RawSend( &string[i], 1 );
-         break;
-      }
-   }
-
-   return true;
-}
-
-//============================================================================
-//
-//============================================================================
-
-bool http::Page::SendString( const char* string )
-{
-   return RawSend( string, (int)strlen(string) );
-}
-
-//============================================================================
-//
-//============================================================================
-
-bool http::Page::RawSend( const void* p, size_t length )
-{
-   if( !HTTPHeaderSent )
-   {
-      PageOK();
-   }
-   Connection->Write( (uint8_t*)p, length );
-
-   return true;
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::SendASCIIString( const char* string )
-{
-   char     buffer[4];
-
-   while( *string )
-   {
-      if( *string < 0x21 || *string > 0x7E )
-      {
-         snprintf( buffer, sizeof(buffer), "%%%02X", *string );
-         RawSend( buffer, 3 );
-      }
-      else
-      {
-         RawSend( string, 1 );
-      }
-      string++;
-   }
-}
-
-//============================================================================
-//
-//============================================================================
-
-void http::Page::DumpData( const char* buffer, size_t length )
-{
-   int   i;
-   int   j;
-
-   i = 0;
-   j = 0;
-   SendString( "<code>\n" );
-   while( i+1 <= length )
-   {
-      Printf( "%04X ", i );
-      for( j=0; j<16; j++ )
-      {
-         if( i+j < length )
-         {
-            Printf( "%02X ", buffer[i+j] );
-         }
-         else
-         {
-            Printf( "   " );
-         }
-
-         if( j == 7 )
-         {
-            Printf( "- " );
-         }
-      }
-      Printf( "  " );
-      for( j=0; j<16; j++ )
-      {
-         if( buffer[i+j] >= 0x20 && buffer[i+j] <= 0x7E )
-         {
-            Printf( "%c", buffer[i+j] );
-         }
-         else
-         {
-            Printf( "." );
-         }
-         if( i+j+1 == length )
-         {
+    p = buffer2;
+    for (i = 0; buffer[i]; i++)
+    {
+        if (p >= &buffer2[sizeof(buffer2) - 5])
+        {
             break;
-         }
-      }
+        }
+        switch (buffer[i])
+        {
+        case '<':
+            *p++ = '&';
+            *p++ = 'l';
+            *p++ = 't';
+            break;
+
+        case '>':
+            *p++ = '&';
+            *p++ = 'g';
+            *p++ = 't';
+            break;
+
+        default:
+            *p++ = buffer[i];
+            break;
+        }
+    }
+    *p = 0;
+
+    pfunc->Printf(buffer2);
+}
+
+//============================================================================
+//
+//============================================================================
+
+bool http::Page::Puts(const char* string)
+{
+    int      i;
+    int      length = (int)strlen(string);
+
+    for (i = 0; i < length; i++)
+    {
+        switch (string[i])
+        {
+        case '\n':
+            RawSend("<br>", 5);
+            break;
+        case '\r':
+            break;
+        default:
+            RawSend(&string[i], 1);
+            break;
+        }
+    }
+
+    return true;
+}
+
+//============================================================================
+//
+//============================================================================
+
+bool http::Page::SendString(const char* string)
+{
+    return RawSend(string, (int)strlen(string));
+}
+
+//============================================================================
+//
+//============================================================================
+
+bool http::Page::RawSend(const void* p, size_t length)
+{
+    if (!HTTPHeaderSent)
+    {
+        PageOK();
+    }
+    Connection->Write((uint8_t*)p, length);
+
+    return true;
+}
+
+//============================================================================
+//
+//============================================================================
+
+void http::Page::SendASCIIString(const char* string)
+{
+    char     buffer[4];
+
+    while (*string)
+    {
+        if (*string < 0x21 || *string > 0x7E)
+        {
+            snprintf(buffer, sizeof(buffer), "%%%02X", *string);
+            RawSend(buffer, 3);
+        }
+        else
+        {
+            RawSend(string, 1);
+        }
+        string++;
+    }
+}
+
+//============================================================================
+//
+//============================================================================
+
+void http::Page::DumpData(const char* buffer, size_t length)
+{
+    int   i;
+    int   j;
+
+    i = 0;
+    j = 0;
+    SendString("<code>\n");
+    while (i + 1 <= length)
+    {
+        Printf("%04X ", i);
+        for (j = 0; j < 16; j++)
+        {
+            if (i + j < length)
+            {
+                Printf("%02X ", buffer[i + j]);
+            }
+            else
+            {
+                Printf("   ");
+            }
+
+            if (j == 7)
+            {
+                Printf("- ");
+            }
+        }
+        Printf("  ");
+        for (j = 0; j < 16; j++)
+        {
+            if (buffer[i + j] >= 0x20 && buffer[i + j] <= 0x7E)
+            {
+                Printf("%c", buffer[i + j]);
+            }
+            else
+            {
+                Printf(".");
+            }
+            if (i + j + 1 == length)
+            {
+                break;
+            }
+        }
 
 
-      i += 16;
+        i += 16;
 
-      SendString( "<br>\n" );
-   }
-   SendString( "</code>\n" );
+        SendString("<br>\n");
+    }
+    SendString("</code>\n");
 }
 
 //============================================================================
@@ -278,20 +278,20 @@ void http::Page::DumpData( const char* buffer, size_t length )
 
 void http::Page::PageNotFound()
 {
-   HTTPHeaderSent = true;
-   SendString( "HTTP/1.0 404 Not Found\r\n\r\n" );
+    HTTPHeaderSent = true;
+    SendString("HTTP/1.0 404 Not Found\r\n\r\n");
 }
 
 //============================================================================
 //
 //============================================================================
 
-void http::Page::PageOK( const char* mimeType )
+void http::Page::PageOK(const char* mimeType)
 {
-   HTTPHeaderSent = true;
-   SendString( "HTTP/1.0 200 OK\r\nContent-type: " );
-   SendString( mimeType );
-   SendString( "\r\n\r\n" );
+    HTTPHeaderSent = true;
+    SendString("HTTP/1.0 200 OK\r\nContent-type: ");
+    SendString(mimeType);
+    SendString("\r\n\r\n");
 }
 
 //============================================================================
@@ -300,8 +300,8 @@ void http::Page::PageOK( const char* mimeType )
 
 void http::Page::PageNoContent()
 {
-   HTTPHeaderSent = true;
-   SendString( "HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n" );
+    HTTPHeaderSent = true;
+    SendString("HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n");
 }
 
 //============================================================================
@@ -310,57 +310,57 @@ void http::Page::PageNoContent()
 
 void http::Page::PageUnauthorized()
 {
-   HTTPHeaderSent = true;
-   SendString( "HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n" );
+    HTTPHeaderSent = true;
+    SendString("HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n");
 }
 
 //============================================================================
 //
 //============================================================================
 
-bool http::Page::SendFile( const char* filename )
+bool http::Page::SendFile(const char* filename)
 {
-   char s[ BUFFER_SIZE ];
-   FILE* f;
-   bool rc = false;
-   unsigned char buffer[512];
-   uint64_t counti64;
-   int count;
+    char s[BUFFER_SIZE];
+    FILE* f;
+    bool rc = false;
+    unsigned char buffer[512];
+    uint64_t counti64;
+    int count;
 
-   f = fopen( filename, "rb" );
-   if( f )
-   {
+    f = fopen(filename, "rb");
+    if (f)
+    {
 #ifdef _WIN32
-      _fseeki64( f, 0, SEEK_END );
-      counti64 = _ftelli64( f );
-      _fseeki64( f, 0, SEEK_SET );
+        _fseeki64(f, 0, SEEK_END);
+        counti64 = _ftelli64(f);
+        _fseeki64(f, 0, SEEK_SET);
 #elif __linux__
-      fseek( f, 0, SEEK_END );
-      counti64 = ftell( f );
-      fseek( f, 0, SEEK_SET );
+        fseek(f, 0, SEEK_END);
+        counti64 = ftell(f);
+        fseek(f, 0, SEEK_SET);
 #endif
-      SendString( "HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n" );
-      snprintf( s, sizeof(s), "Content-Length: %lud\r\n\r\n", counti64 );
-      SendString( s );
+        SendString("HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n");
+        snprintf(s, sizeof(s), "Content-Length: %lud\r\n\r\n", counti64);
+        SendString(s);
 
-      do
-      {
-         count = (int)fread( buffer, 1, sizeof(buffer), f );
+        do
+        {
+            count = (int)fread(buffer, 1, sizeof(buffer), f);
 #ifdef _WIN32
-         uint64_t offset = _ftelli64( f );
+            uint64_t offset = _ftelli64(f);
 #elif __linux__
-         uint64_t offset = ftell( f );
+            uint64_t offset = ftell(f);
 #endif
-         if( count > 0 )
-         {
-            RawSend( buffer, count );
-         }
-      } while( count > 0 );
+            if (count > 0)
+            {
+                RawSend(buffer, count);
+            }
+        } while (count > 0);
 
-      rc = true;
-   }
+        rc = true;
+    }
 
-   return rc;
+    return rc;
 }
 
 //============================================================================
@@ -369,73 +369,73 @@ bool http::Page::SendFile( const char* filename )
 
 void http::Page::Flush()
 {
-   Connection->Flush();
+    Connection->Flush();
 }
 
 //============================================================================
 //
 //============================================================================
 
-void http::Page::ParseArg( char* arg, char** name, char** value )
+void http::Page::ParseArg(char* arg, char** name, char** value)
 {
-   *name = arg;
-   while( *arg )
-   {
-      if( *arg == '=' )
-      {
-         *arg = 0;
-         *value = ++arg;
-         break;
-      }
-      arg++;
-   }
+    *name = arg;
+    while (*arg)
+    {
+        if (*arg == '=')
+        {
+            *arg = 0;
+            *value = ++arg;
+            break;
+        }
+        arg++;
+    }
 }
 
 //============================================================================
 //
 //============================================================================
 
-void http::Page::Process( const char* htmlFile, const char* marker, MarkerContent content )
+void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent content)
 {
-   FILE* f = fopen( htmlFile, "r" );
-   if( f )
-   {
-      int c;
-      int markerIndex = 0;
-      int markerLength = strlen(marker);
-      while( (c = fgetc( f )) > 0 )
-      {
-         if( c == marker[markerIndex] )
-         {
-            markerIndex++;
-            if( markerIndex == markerLength )
+    FILE* f = fopen(htmlFile, "r");
+    if (f)
+    {
+        int c;
+        int markerIndex = 0;
+        int markerLength = strlen(marker);
+        while ((c = fgetc(f)) > 0)
+        {
+            if (c == marker[markerIndex])
             {
-               // found the marker
-               markerIndex = 0;
-               SendString( "<!-- " );
-               SendString( marker );
-               SendString( " start -->" );
-               content( this );
-               SendString( "<!-- " );
-               SendString( marker );
-               SendString( " end -->" );
+                markerIndex++;
+                if (markerIndex == markerLength)
+                {
+                   // found the marker
+                    markerIndex = 0;
+                    SendString("<!-- ");
+                    SendString(marker);
+                    SendString(" start -->");
+                    content(this);
+                    SendString("<!-- ");
+                    SendString(marker);
+                    SendString(" end -->");
+                }
             }
-         }
-         else if( markerIndex > 0 )
-         {
-            // Send the part of the marker that matched so far
-            RawSend( marker, markerIndex );
-            markerIndex = 0;
-         }
-         else
-         {
-            char ch = c;
-            RawSend( &ch, 1 );
-         }
-      }
-   }
-   else
-   {
-      printf( "failed to open file '%s'\n", htmlFile );
-   }
+            else if (markerIndex > 0)
+            {
+               // Send the part of the marker that matched so far
+                RawSend(marker, markerIndex);
+                markerIndex = 0;
+            }
+            else
+            {
+                char ch = c;
+                RawSend(&ch, 1);
+            }
+        }
+    }
+    else
+    {
+        printf("failed to open file '%s'\n", htmlFile);
+    }
 }

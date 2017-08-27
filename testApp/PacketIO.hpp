@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2016, Robert Kimball
+// Copyright( c ) 2015, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,29 +29,43 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef INTERFACEMAC_H
-#define INTERFACEMAC_H
+#ifndef PACKETIO_H
+#define PACKETIO_H
 
+#ifdef _WIN32
+#include <pcap.h>
+#endif
 #include <inttypes.h>
-#include <stdlib.h>
+#include "osThread.h"
 
-class DataBuffer;
-
-class InterfaceMAC
+class PacketIO
 {
 public:
-   typedef void (*DataTransmitHandler)( void* data, size_t length );
+    PacketIO();
+    PacketIO(const char* name);
 
-   virtual void RegisterDataTransmitHandler( DataTransmitHandler ) = 0;
-   virtual size_t AddressSize() = 0;
-   virtual size_t HeaderSize() = 0;
-   virtual const uint8_t* GetUnicastAddress() = 0;
-   virtual const uint8_t* GetBroadcastAddress() = 0;
-   virtual DataBuffer* GetTxBuffer() = 0;
-   virtual void FreeTxBuffer( DataBuffer* ) = 0;
-   virtual void FreeRxBuffer( DataBuffer* ) = 0;
-   virtual void Transmit( DataBuffer*, const uint8_t* targetMAC, uint16_t type ) = 0;
-   virtual void Retransmit( DataBuffer* buffer ) = 0;
+    typedef void(*RxDataHandler)(uint8_t* data, size_t length);
+#ifdef _WIN32
+    void Start(pcap_handler handler);
+#elif __linux__
+    void Start(RxDataHandler);
+    void Entry(void* param);
+#endif
+    void Stop();
+    void TxData(void* data, size_t length);
+    static void GetDevice(int interfaceNumber, char* buffer, size_t buffer_size);
+    static int GetMACAddress(const char* adapter, uint8_t* mac);
+    static void DisplayDevices();
+
+private:
+#ifdef _WIN32
+    const char* CaptureDevice;
+    pcap_t* adhandle;
+#elif __linux__
+    osThread    EthernetRxThread;
+    int         m_RawSocket;
+    int         m_IfIndex;
+#endif
 };
 
 #endif
