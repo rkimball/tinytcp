@@ -34,12 +34,12 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "ProtocolDHCP.h"
-#include "ProtocolUDP.h"
-#include "ProtocolIPv4.h"
-#include "InterfaceMAC.h"
-#include "Utility.h"
-#include "osTime.h"
+#include "ProtocolDHCP.hpp"
+#include "ProtocolUDP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "InterfaceMAC.hpp"
+#include "Utility.hpp"
+#include "osTime.hpp"
 
 static const uint32_t DHCP_MAGIC = 0x63825363;
 

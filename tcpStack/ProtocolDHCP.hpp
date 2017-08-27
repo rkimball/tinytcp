@@ -34,7 +34,7 @@
 
 #include <inttypes.h>
 
-#include "DataBuffer.h"
+#include "DataBuffer.hpp"
 
 class InterfaceMAC;
 class ProtocolIPv4;

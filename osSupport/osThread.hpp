@@ -40,8 +40,8 @@
 #include <setjmp.h>
 #endif
 
-#include "osPrintfInterface.h"
-#include "osEvent.h"
+#include "osPrintfInterface.hpp"
+#include "osEvent.hpp"
 
 typedef void (*ThreadEntryPtr)(void *);
 
@@ -75,13 +75,13 @@ public:
    int WaitForExit( int32_t millisecondWaitTimeout = -1 );
 
    static void Sleep( unsigned long ms, const char* file, int line );
-   
+
    static void USleep( unsigned long us, const char* file, int line );
-   
+
    void SetState( THREAD_STATE state, const char* file, int line, void* obj );
-   
+
    void ClearState();
-   
+
    static osThread* GetCurrent();
 
    const char* GetName();
@@ -113,7 +113,7 @@ private:
    char                 Name[ NAME_LENGTH_MAX ];
    const char*          Filename;
    int                  Linenumber;
-   THREAD_STATE         State; 
+   THREAD_STATE         State;
    void*                StateObject;
 };
 

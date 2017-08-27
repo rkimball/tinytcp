@@ -33,10 +33,10 @@
 #define PROTOCOLMACETHERNET_H
 
 #include <inttypes.h>
-#include "DataBuffer.h"
-#include "osQueue.h"
-#include "osEvent.h"
-#include "InterfaceMAC.h"
+#include "DataBuffer.hpp"
+#include "osQueue.hpp"
+#include "osEvent.hpp"
+#include "InterfaceMAC.hpp"
 
 #define MAC_HEADER_SIZE (14)
 

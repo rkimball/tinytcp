@@ -33,8 +33,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "HTTPPage.h"
-#include "osThread.h"
+#include "HTTPPage.hpp"
+#include "osThread.hpp"
 
 #ifdef WIN32
 #define strcasecmp _stricmp

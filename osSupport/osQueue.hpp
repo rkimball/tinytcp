@@ -32,7 +32,7 @@
 #ifndef OSQUEUE_H
 #define OSQUEUE_H
 
-#include "osMutex.h"
+#include "osMutex.hpp"
 
 class osQueue
 {

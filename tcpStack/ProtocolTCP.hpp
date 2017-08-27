@@ -33,12 +33,12 @@
 #define PROTOCOLTCP_H
 
 #include <inttypes.h>
-#include "ProtocolTCP.h"
-#include "osQueue.h"
-#include "osMutex.h"
-#include "DataBuffer.h"
-#include "osEvent.h"
-#include "TCPConnection.h"
+#include "ProtocolTCP.hpp"
+#include "osQueue.hpp"
+#include "osMutex.hpp"
+#include "DataBuffer.hpp"
+#include "osEvent.hpp"
+#include "TCPConnection.hpp"
 
 // SourcePort - 16 bits
 // TargetPort - 16 bits

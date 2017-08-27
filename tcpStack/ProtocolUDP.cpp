@@ -30,11 +30,11 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
-#include "ProtocolIPv4.h"
-#include "ProtocolUDP.h"
-#include "ProtocolDHCP.h"
-#include "Utility.h"
-#include "FCS.h"
+#include "ProtocolIPv4.hpp"
+#include "ProtocolUDP.hpp"
+#include "ProtocolDHCP.hpp"
+#include "Utility.hpp"
+#include "FCS.hpp"
 
 //============================================================================
 //

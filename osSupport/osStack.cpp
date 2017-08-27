@@ -29,7 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "osStack.h"
+#include "osStack.hpp"
 
 #include <iostream>
 #include <stdio.h>

@@ -33,11 +33,11 @@
 #define TCPCONNECTION_H
 
 #include <inttypes.h>
-#include "osEvent.h"
-#include "osQueue.h"
-#include "osMutex.h"
-#include "Config.h"
-#include "ProtocolIPv4.h"
+#include "osEvent.hpp"
+#include "osQueue.hpp"
+#include "osMutex.hpp"
+#include "Config.hpp"
+#include "ProtocolIPv4.hpp"
 
 class DataBuffer;
 

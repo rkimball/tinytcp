@@ -48,9 +48,9 @@
 #include <stdio.h>
 #include <cstring>
 
-#include "PacketIO.h"
-#include "InterfaceMAC.h"
-#include "Utility.h"
+#include "PacketIO.hpp"
+#include "InterfaceMAC.hpp"
+#include "Utility.hpp"
 
 #define Max_Num_Adapter 10
 char		AdapterList[ Max_Num_Adapter ][ 1024 ];
@@ -113,7 +113,7 @@ int PacketIO::GetMACAddress( const char* adapter, uint8_t* mac )
       return -1;
    }
 
-   // 
+   //
    // Allocate a buffer to get the MAC adress
    //
 
@@ -125,7 +125,7 @@ int PacketIO::GetMACAddress( const char* adapter, uint8_t* mac )
       return -1;
    }
 
-   // 
+   //
    // Retrieve the adapter MAC querying the NIC driver
    //
 
@@ -235,7 +235,7 @@ void PacketIO::GetDevice( int interfaceNumber, char* buffer, size_t buffer_size 
    char errbuf[ PCAP_ERRBUF_SIZE ];
 
    /* Retrieve the device list from the local machine */
-   
+
    if( pcap_findalldevs( &alldevs, errbuf ) == -1 )
    {
       fprintf( stderr, "Error in pcap_findalldevs_ex: %s\n", errbuf );
@@ -269,7 +269,7 @@ PacketIO::PacketIO( const char* name ) :
    /* Open the device */
    /* Open the adapter */
    if( (adhandle= pcap_open_live(CaptureDevice,   // name of the device
-         65536,         // portion of the packet to capture. 
+         65536,         // portion of the packet to capture.
                                  // 65536 grants that the whole packet will be captured on all the MACs.
                       1,            // promiscuous mode (nonzero means promiscuous)
                       1,         // read timeout

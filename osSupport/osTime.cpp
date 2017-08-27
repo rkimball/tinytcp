@@ -36,7 +36,7 @@
 #endif
 #include <stdio.h>
 
-#include "osTime.h"
+#include "osTime.hpp"
 
 uint64_t osTime::GetTime()
 {

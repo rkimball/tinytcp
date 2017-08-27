@@ -38,17 +38,17 @@
 #include <unistd.h>
 #endif
 
-#include "PacketIO.h"
-#include "InterfaceMAC.h"
-#include "ProtocolTCP.h"
-#include "ProtocolDHCP.h"
-#include "ProtocolARP.h"
-#include "osThread.h"
-#include "osMutex.h"
-#include "osTime.h"
-#include "HTTPD.h"
-#include "HTTPPage.h"
-#include "DefaultStack.h"
+#include "PacketIO.hpp"
+#include "InterfaceMAC.hpp"
+#include "ProtocolTCP.hpp"
+#include "ProtocolDHCP.hpp"
+#include "ProtocolARP.hpp"
+#include "osThread.hpp"
+#include "osMutex.hpp"
+#include "osTime.hpp"
+#include "HTTPD.hpp"
+#include "HTTPPage.hpp"
+#include "DefaultStack.hpp"
 
 #ifdef WIN32
 #define strcasecmp _stricmp

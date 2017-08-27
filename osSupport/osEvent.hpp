@@ -38,8 +38,8 @@
 #include "pthread.h"
 #endif
 
-#include "osPrintfInterface.h"
-#include "osMutex.h"
+#include "osPrintfInterface.hpp"
+#include "osMutex.hpp"
 
 class osEvent
 {

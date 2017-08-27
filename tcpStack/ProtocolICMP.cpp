@@ -31,10 +31,10 @@
 
 #include <stdio.h>
 
-#include "ProtocolICMP.h"
-#include "ProtocolIPv4.h"
-#include "FCS.h"
-#include "Utility.h"
+#include "ProtocolICMP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "FCS.hpp"
+#include "Utility.hpp"
 
 // Type - 8 bits
 // Code - 8 bits

@@ -31,12 +31,12 @@
 
 #include <stdio.h>
 
-#include "Utility.h"
-#include "InterfaceMAC.h"
-#include "ProtocolARP.h"
-#include "ProtocolIPv4.h"
-#include "DataBuffer.h"
-#include "Config.h"
+#include "Utility.hpp"
+#include "InterfaceMAC.hpp"
+#include "ProtocolARP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "DataBuffer.hpp"
+#include "Config.hpp"
 
 // HardwareType - 2 bytes
 // ProtocolType - 2 bytes

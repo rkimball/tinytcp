@@ -37,9 +37,9 @@
 #include <cassert>
 #include <stdio.h>
 
-#include "osThread.h"
-#include "osMutex.h"
-#include "osEvent.h"
+#include "osThread.hpp"
+#include "osMutex.hpp"
+#include "osEvent.hpp"
 
 #include <iostream>
 using namespace std;
@@ -55,7 +55,7 @@ static pthread_key_t tlsKey;
 static osThread   MainThread;
 static bool       IsInitialized = false;
 
-typedef struct WinThreadParam 
+typedef struct WinThreadParam
 {
    ThreadEntryPtr Entry;
    void*          Param;
@@ -168,12 +168,12 @@ void osThread::Initialize()
 }
 
 int osThread::Create
-( 
-   ThreadEntryPtr entry, 
+(
+   ThreadEntryPtr entry,
    const char*    name,
-   int            stackSize, 
-   int            priority, 
-   void*          param 
+   int            stackSize,
+   int            priority,
+   void*          param
 )
 {
    if( !IsInitialized )
@@ -191,12 +191,12 @@ int osThread::Create
    WINTHREADPARAMPTR threadParam;
 
    // Allocate heap memory for thread parameter
-   threadParam = 
+   threadParam =
       (WINTHREADPARAMPTR)HeapAlloc
-      ( 
-         GetProcessHeap(), 
-         HEAP_ZERO_MEMORY, 
-         sizeof( WinThreadParam ) 
+      (
+         GetProcessHeap(),
+         HEAP_ZERO_MEMORY,
+         sizeof( WinThreadParam )
        );
 
    // Set thread parameter values
@@ -339,31 +339,31 @@ void osThread::Show( osPrintfInterface* pfunc )
    {
       FileTimeToSystemTime( &kernelTime, &sysTime );
       pfunc->Printf
-      ( 
-         "  Kernel Time      = %02d:%02d:%02d.%03d\n", 
-         sysTime.wHour, 
-         sysTime.wMinute, 
-         sysTime.wSecond, 
-         sysTime.wMilliseconds 
+      (
+         "  Kernel Time      = %02d:%02d:%02d.%03d\n",
+         sysTime.wHour,
+         sysTime.wMinute,
+         sysTime.wSecond,
+         sysTime.wMilliseconds
       );
 
       FileTimeToSystemTime( &userTime, &sysTime );
       pfunc->Printf
-      ( 
-         "  User Time        = %02d:%02d:%02d.%03d\n", 
-         sysTime.wHour, 
-         sysTime.wMinute, 
-         sysTime.wSecond, 
-         sysTime.wMilliseconds 
-      );   
+      (
+         "  User Time        = %02d:%02d:%02d.%03d\n",
+         sysTime.wHour,
+         sysTime.wMinute,
+         sysTime.wSecond,
+         sysTime.wMilliseconds
+      );
    }
 #endif
 
    pfunc->Printf
-   ( 
+   (
       "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n"
    );
-  
+
 #ifdef WIN32
    pfunc->Printf( "----+--------------------+-------+--------------+--------------+--------------------------\n" );
    pfunc->Printf( "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n");
@@ -398,7 +398,7 @@ void osThread::Show( osPrintfInterface* pfunc )
       GetThreadTimes( handle, &creationTime, &exitTime, &kernelTime, &userTime );
 
       pfunc->Printf
-      ( 
+      (
          "%3d |%-20s|%6u | ",
          priority,
          thread->Name,

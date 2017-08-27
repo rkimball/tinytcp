@@ -29,11 +29,11 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "TCPConnection.h"
-#include "ProtocolTCP.h"
-#include "ProtocolIPv4.h"
-#include "Utility.h"
-#include "osTime.h"
+#include "TCPConnection.hpp"
+#include "ProtocolTCP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "Utility.hpp"
+#include "osTime.hpp"
 
 //============================================================================
 //

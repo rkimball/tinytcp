@@ -1,17 +1,17 @@
 set( LIB osSupport )
 set( SOURCE
         osEvent.cpp
-        osEvent.h
+        osEvent.hpp
         osMutex.cpp
-        osMutex.h
-        osPrintfInterface.h
+        osMutex.hpp
+        osPrintfInterface.hpp
         osQueue.cpp
-        osQueue.h
+        osQueue.hpp
         osThread.cpp
-        osThread.h
+        osThread.hpp
         osTime.cpp
-        osTime.h
+        osTime.hpp
         osStack.cpp
-        osStack.h
+        osStack.hpp
     )
 add_library(${LIB} ${SOURCE})

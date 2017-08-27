@@ -31,15 +31,15 @@
 
 #include <stdio.h>
 
-#include "InterfaceMAC.h"
-#include "ProtocolARP.h"
-#include "ProtocolIPv4.h"
-#include "ProtocolICMP.h"
-#include "ProtocolTCP.h"
-#include "ProtocolUDP.h"
-#include "FCS.h"
-#include "DataBuffer.h"
-#include "Utility.h"
+#include "InterfaceMAC.hpp"
+#include "ProtocolARP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "ProtocolICMP.hpp"
+#include "ProtocolTCP.hpp"
+#include "ProtocolUDP.hpp"
+#include "FCS.hpp"
+#include "DataBuffer.hpp"
+#include "Utility.hpp"
 
 // Version - 4 bits
 // Header Length - 4 bits
@@ -151,7 +151,7 @@ DataBuffer* ProtocolIPv4::GetTxBuffer( InterfaceMAC* mac )
       buffer->Packet += IP_HEADER_SIZE;
       buffer->Remainder -= IP_HEADER_SIZE;
    }
-   
+
    return buffer;
 }
 
@@ -164,7 +164,7 @@ void ProtocolIPv4::Transmit( DataBuffer* buffer, uint8_t protocol, const uint8_t
    uint16_t checksum;
    const uint8_t* targetMAC;
    uint8_t* packet;
-   
+
    buffer->Packet -= IP_HEADER_SIZE;
    buffer->Length += IP_HEADER_SIZE;
    packet = buffer->Packet;

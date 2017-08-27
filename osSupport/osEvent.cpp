@@ -35,8 +35,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "osEvent.h"
-#include "osThread.h"
+#include "osEvent.hpp"
+#include "osThread.hpp"
 
 osEvent*    osEvent::InstanceList[ osEvent::INSTANCE_MAX ];
 osMutex     osEvent::ListMutex( "Event List" );

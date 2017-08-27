@@ -33,7 +33,7 @@
 #define PROTOCOLICMP_H
 
 #include <inttypes.h>
-#include "DataBuffer.h"
+#include "DataBuffer.hpp"
 
 class ProtocolIPv4;
 

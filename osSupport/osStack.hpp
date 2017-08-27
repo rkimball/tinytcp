@@ -32,7 +32,7 @@
 #ifndef OSSTACK_H
 #define OSSTACK_H
 
-#include "osMutex.h"
+#include "osMutex.hpp"
 
 class osStack
 {

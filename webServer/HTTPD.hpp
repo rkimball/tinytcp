@@ -32,7 +32,7 @@
 #ifndef HTTPD_H
 #define HTTPD_H
 
-#include "HTTPPage.h"
+#include "HTTPPage.hpp"
 
 #define MAX_ACTIVE_CONNECTIONS 3
 #define HTTPD_PATH_LENGTH_MAX    256

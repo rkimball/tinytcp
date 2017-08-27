@@ -33,9 +33,9 @@
 #define PROTOCOLIPV4_H
 
 #include <inttypes.h>
-#include "osQueue.h"
-#include "DataBuffer.h"
-#include "InterfaceMAC.h"
+#include "osQueue.hpp"
+#include "DataBuffer.hpp"
+#include "InterfaceMAC.hpp"
 
 #define IP_HEADER_SIZE (20)
 
@@ -79,7 +79,7 @@ public:
    const uint8_t* GetGatewayAddress();
    const uint8_t* GetSubnetMask();
    void SetAddressInfo( const AddressInfo& info );
-   
+
    DataBuffer* GetTxBuffer( InterfaceMAC* );
    void FreeTxBuffer( DataBuffer* );
    void FreeRxBuffer( DataBuffer* );

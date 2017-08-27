@@ -35,7 +35,7 @@
 #include <pcap.h>
 #endif
 #include <inttypes.h>
-#include "osThread.h"
+#include "osThread.hpp"
 
 class PacketIO
 {

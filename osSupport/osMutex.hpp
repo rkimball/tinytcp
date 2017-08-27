@@ -37,7 +37,7 @@
 #include <pthread.h>
 #endif
 
-#include "osPrintfInterface.h"
+#include "osPrintfInterface.hpp"
 
 class osThread;
 

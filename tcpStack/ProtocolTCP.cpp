@@ -34,13 +34,13 @@
 #include <windows.h>
 #endif
 
-#include "ProtocolTCP.h"
-#include "ProtocolIPv4.h"
-#include "FCS.h"
-#include "Utility.h"
-#include "DataBuffer.h"
-#include "osMutex.h"
-#include "osTime.h"
+#include "ProtocolTCP.hpp"
+#include "ProtocolIPv4.hpp"
+#include "FCS.hpp"
+#include "Utility.hpp"
+#include "DataBuffer.hpp"
+#include "osMutex.hpp"
+#include "osTime.hpp"
 
 //============================================================================
 //

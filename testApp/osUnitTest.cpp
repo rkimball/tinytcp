@@ -30,12 +30,12 @@
 //----------------------------------------------------------------------------
 
 #include <gtest/gtest.h>
-#include "osUnitTest.h"
-#include "osThread.h"
-#include "osQueue.h"
-#include "osEvent.h"
-#include "osMutex.h"
-#include "osTime.h"
+#include "osUnitTest.hpp"
+#include "osThread.hpp"
+#include "osQueue.hpp"
+#include "osEvent.hpp"
+#include "osMutex.hpp"
+#include "osTime.hpp"
 
 static void ThreadEntry_t1( void* param )
 {

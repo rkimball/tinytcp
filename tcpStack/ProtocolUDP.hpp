@@ -33,7 +33,7 @@
 #define PROTOCOLUDP_H
 
 #include <inttypes.h>
-#include "DataBuffer.h"
+#include "DataBuffer.hpp"
 
 #define UDP_HEADER_SIZE (8)
 

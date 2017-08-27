@@ -32,8 +32,8 @@
 #pragma once
 
 #include <inttypes.h>
-#include "Config.h"
-#include "InterfaceMAC.h"
+#include "Config.hpp"
+#include "InterfaceMAC.hpp"
 
 class DataBuffer
 {

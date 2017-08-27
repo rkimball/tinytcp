@@ -33,10 +33,10 @@
 #define PROTOCOLARP_H
 
 #include <inttypes.h>
-#include "DataBuffer.h"
-#include "osMutex.h"
-#include "InterfaceMAC.h"
-#include "ProtocolIPv4.h"
+#include "DataBuffer.hpp"
+#include "osMutex.hpp"
+#include "InterfaceMAC.hpp"
+#include "ProtocolIPv4.hpp"
 
 class ARPCacheEntry
 {
@@ -61,7 +61,7 @@ class ProtocolARP
 public:
    ProtocolARP( InterfaceMAC& mac, ProtocolIPv4& ip );
    void Initialize();
-   
+
    void ProcessRx( const DataBuffer* );
 
    void Add( const uint8_t* protocolAddress, const uint8_t* hardwareAddress );

@@ -32,9 +32,9 @@
 #ifndef HTTPPAGE_H
 #define HTTPPAGE_H
 
-#include "ProtocolTCP.h"
-#include "osThread.h"
-#include "osPrintfInterface.h"
+#include "ProtocolTCP.hpp"
+#include "osThread.hpp"
+#include "osPrintfInterface.hpp"
 
 namespace http
 {
@@ -100,5 +100,5 @@ private:
    Server*     _Server;
    bool        HTTPHeaderSent;
 };
-      
+
 #endif

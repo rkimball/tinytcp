@@ -31,14 +31,14 @@
 
 #pragma once
 
-#include "ProtocolMACEthernet.h"
-#include "ProtocolIPv4.h"
-#include "ProtocolARP.h"
-#include "ProtocolDHCP.h"
-#include "ProtocolICMP.h"
-#include "ProtocolTCP.h"
-#include "ProtocolUDP.h"
-#include "InterfaceMAC.h"
+#include "ProtocolMACEthernet.hpp"
+#include "ProtocolIPv4.hpp"
+#include "ProtocolARP.hpp"
+#include "ProtocolDHCP.hpp"
+#include "ProtocolICMP.hpp"
+#include "ProtocolTCP.hpp"
+#include "ProtocolUDP.hpp"
+#include "InterfaceMAC.hpp"
 
 class DefaultStack
 {

@@ -33,12 +33,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "ProtocolTCP.h"
-#include "HTTPD.h"
-#include "HTTPPage.h"
+#include "ProtocolTCP.hpp"
+#include "HTTPD.hpp"
+#include "HTTPPage.hpp"
 //#include "base64.h"
-#include "osThread.h"
-#include "osQueue.h"
+#include "osThread.hpp"
+#include "osQueue.hpp"
 
 #ifdef WIN32
 #define strcasecmp _stricmp

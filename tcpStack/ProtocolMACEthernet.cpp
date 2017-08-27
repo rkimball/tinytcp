@@ -31,13 +31,13 @@
 
 #include <stdio.h>
 
-#include "ProtocolMACEthernet.h"
-#include "Utility.h"
-#include "ProtocolARP.h"
-#include "ProtocolIPv4.h"
+#include "ProtocolMACEthernet.hpp"
+#include "Utility.hpp"
+#include "ProtocolARP.hpp"
+#include "ProtocolIPv4.hpp"
 
-#include "osQueue.h"
-#include "osEvent.h"
+#include "osQueue.hpp"
+#include "osEvent.hpp"
 
 // Destination - 6 bytes
 // Source - 6 bytes
@@ -218,7 +218,7 @@ void ProtocolMACEthernet::Transmit( DataBuffer* buffer, const uint8_t* targetMAC
    offset = PackBytes( buffer->Packet, offset, targetMAC, 6 );
    offset = PackBytes( buffer->Packet, offset, UnicastAddress, 6 );
    offset = Pack16( buffer->Packet, offset, type );
-   
+
    offset += buffer->Length;
    while( buffer->Length < 60 )
    {
