@@ -36,9 +36,6 @@
 #include "ProtocolARP.hpp"
 #include "ProtocolIPv4.hpp"
 
-#include "osQueue.hpp"
-#include "osEvent.hpp"
-
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes

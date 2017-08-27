@@ -34,10 +34,8 @@
 
 #include <inttypes.h>
 #include "ProtocolTCP.hpp"
-#include "osQueue.hpp"
 #include "osMutex.hpp"
 #include "DataBuffer.hpp"
-#include "osEvent.hpp"
 #include "TCPConnection.hpp"
 
 // SourcePort - 16 bits
