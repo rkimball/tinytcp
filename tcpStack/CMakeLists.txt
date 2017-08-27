@@ -11,9 +11,9 @@ set( SOURCE
     ProtocolUDP.cpp
     TCPConnection.cpp
     Utility.cpp
-    InterfaceMAC.h
+    InterfaceMAC.hpp
     DefaultStack.cpp
-    Config.h
+    Config.hpp
     )
 add_library( ${LIB} ${SOURCE} )
 add_dependencies( ${LIB} osSupport )

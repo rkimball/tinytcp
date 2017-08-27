@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef DEFAULTSTACK_H
-#define DEFAULTSTACK_H
+#pragma once
 
 #include "ProtocolMACEthernet.h"
 #include "ProtocolIPv4.h"
@@ -60,6 +59,3 @@ public:
    ProtocolTCP TCP;
    ProtocolUDP UDP;
 };
-
-#endif
-

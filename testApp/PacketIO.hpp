@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PACKETIO_H
-#define PACKETIO_H
+#pragma once
 
 #ifdef _WIN32
 #include <pcap.h>
@@ -67,5 +66,3 @@ private:
     int         m_IfIndex;
 #endif
 };
-
-#endif

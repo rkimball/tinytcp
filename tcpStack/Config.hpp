@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include <inttypes.h>
 #include <cstdio>
@@ -44,5 +43,3 @@
 #define DATA_BUFFER_PAYLOAD_SIZE (512)
 
 const uint8_t ARPCacheSize = 5;
-
-#endif

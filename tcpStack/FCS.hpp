@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef FCS_H
-#define FCS_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -41,6 +40,3 @@ public:
    static uint32_t ChecksumAdd( const uint8_t* buffer, int length, uint32_t checksum );
    static uint16_t ChecksumComplete( uint32_t checksum );
 };
-
-#endif
-

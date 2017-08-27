@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef DataBuffer_H
-#define DataBuffer_H
+#pragma once
 
 #include <inttypes.h>
 #include "Config.h"
@@ -40,7 +39,7 @@ class DataBuffer
 {
 public:
    DataBuffer();
-   
+
    uint8_t* Packet;
    uint32_t AcknowledgementNumber;
    uint32_t Time_us;
@@ -55,9 +54,6 @@ public:
 
 private:
    uint8_t    Data[ DATA_BUFFER_PAYLOAD_SIZE ];
-   
+
    DataBuffer( DataBuffer& );
 };
-
-#endif
-

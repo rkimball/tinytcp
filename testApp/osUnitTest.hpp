@@ -29,17 +29,14 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSUNITTEST_H
-#define OSUNITTEST_H
+#pragma once
 
 class osUnitTest
 {
 public:
-   static void osThreadTest();
-   static void osQueueTest();
-   static void osTimeTest();
-   static void osEventTest();
-   static void osMutexTest();
+    static void osThreadTest();
+    static void osQueueTest();
+    static void osTimeTest();
+    static void osEventTest();
+    static void osMutexTest();
 };
-
-#endif

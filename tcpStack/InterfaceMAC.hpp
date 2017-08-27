@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef INTERFACEMAC_H
-#define INTERFACEMAC_H
+#pragma once
 
 #include <inttypes.h>
 #include <stdlib.h>
@@ -53,5 +52,3 @@ public:
     virtual void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type) = 0;
     virtual void Retransmit(DataBuffer* buffer) = 0;
 };
-
-#endif
