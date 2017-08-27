@@ -11,7 +11,5 @@ set( SOURCE
         osThread.hpp
         osTime.cpp
         osTime.hpp
-        osStack.cpp
-        osStack.hpp
     )
 add_library(${LIB} ${SOURCE})
