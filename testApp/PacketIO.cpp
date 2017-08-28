@@ -44,6 +44,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <linux/icmp.h>
+#include <ifaddrs.h>
 #endif
 #include <stdio.h>
 #include <cstring>
@@ -331,6 +332,49 @@ void PacketIO::DisplayDevices()
 //
 //============================================================================
 
+void PacketIO::GetInterface(char* name)
+{
+    struct ifaddrs* ifaddr;
+
+    if (getifaddrs(&ifaddr) == 0)
+    {
+
+        for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        {
+            if (ifa->ifa_addr == NULL)
+            {
+                continue;
+            }
+            int family = ifa->ifa_addr->sa_family;
+
+            if (family == AF_PACKET)
+            {
+                if (strcmp(ifa->ifa_name, "lo") != 0)
+                {
+                    // yes, this is unsafe
+                    strcpy(name,ifa->ifa_name);
+                    break;
+                }
+            }
+
+            // /* Display interface name and family (including symbolic
+            //     form of the latter for the common families) */
+
+            // printf("%-8s %s (%d)\n",
+            //         ifa->ifa_name,
+            //         (family == AF_PACKET) ? "AF_PACKET" :
+            //         (family == AF_INET) ? "AF_INET" :
+            //         (family == AF_INET6) ? "AF_INET6" : "???",
+            //         family);
+        }
+        freeifaddrs(ifaddr);
+    }
+}
+
+//============================================================================
+//
+//============================================================================
+
 void PacketIO::Start( RxDataHandler rxData )
 {
    m_RawSocket = socket( AF_PACKET, SOCK_RAW, htons(ETH_P_ALL) );
@@ -349,22 +393,13 @@ void PacketIO::Start( RxDataHandler rxData )
    else
    {
       struct ifreq ifr;
-      const char* if_name = "eth0";
-      size_t if_name_len=strlen(if_name);
-      if( if_name_len<sizeof(ifr.ifr_name) )
-      {
-         memcpy(ifr.ifr_name,if_name,if_name_len);
-         ifr.ifr_name[if_name_len]=0;
-      }
-      else
-      {
-         printf("interface name is too long\n");
-      }
+      PacketIO::GetInterface(ifr.ifr_name);
+      printf("Using interface '%s'\n", ifr.ifr_name);
 
       // Find the socket index for tx later
       if( ioctl( m_RawSocket, SIOCGIFINDEX, &ifr ) == -1 )
       {
-         printf( "oh crap %s", strerror(errno) );
+         printf( "oh crap %s\n", strerror(errno) );
       }
       m_IfIndex = ifr.ifr_ifindex;
 
