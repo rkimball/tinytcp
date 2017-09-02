@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLIPV4_H
-#define PROTOCOLIPV4_H
+#pragma once
 
 #include <inttypes.h>
 #include "DataBuffer.hpp"
@@ -105,5 +104,3 @@ private:
     ProtocolIPv4();
     ProtocolIPv4(ProtocolIPv4&);
 };
-
-#endif

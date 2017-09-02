@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef HTTPD_H
-#define HTTPD_H
+#pragma once
 
 #include "HTTPPage.hpp"
 
@@ -84,5 +83,3 @@ private:
     ErrorMessageHandler  ErrorHandler;
     AuthorizationHandler AuthHandler;
 };
-
-#endif

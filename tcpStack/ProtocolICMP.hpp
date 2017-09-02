@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLICMP_H
-#define PROTOCOLICMP_H
+#pragma once
 
 #include <inttypes.h>
 #include "DataBuffer.hpp"
@@ -50,5 +49,3 @@ private:
     ProtocolICMP();
     ProtocolICMP(ProtocolICMP&);
 };
-
-#endif

@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLUDP_H
-#define PROTOCOLUDP_H
+#pragma once
 
 #include <inttypes.h>
 #include "DataBuffer.hpp"
@@ -57,5 +56,3 @@ private:
     ProtocolIPv4& IP;
     ProtocolDHCP& DHCP;
 };
-
-#endif

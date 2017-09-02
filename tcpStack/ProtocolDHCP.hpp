@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLDHCP_H
-#define PROTOCOLDHCP_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -62,5 +61,3 @@ private:
     ProtocolIPv4& IP;
     ProtocolUDP&  UDP;
 };
-
-#endif

@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSEVENT_H
-#define OSEVENT_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -72,5 +71,3 @@ private:
     static const int INSTANCE_MAX = 20;
     static osEvent*  InstanceList[];
 };
-
-#endif

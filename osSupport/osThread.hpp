@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSTHREAD_H
-#define OSTHREAD_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -102,5 +101,3 @@ private:
     THREAD_STATE State;
     void*        StateObject;
 };
-
-#endif

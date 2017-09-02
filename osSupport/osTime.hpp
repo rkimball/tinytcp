@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSTIME_H
-#define OSTIME_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -41,5 +40,3 @@ public:
 
     static uint64_t GetTime();
 };
-
-#endif

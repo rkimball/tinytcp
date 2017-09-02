@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLARP_H
-#define PROTOCOLARP_H
+#pragma once
 
 #include <inttypes.h>
 #include "DataBuffer.hpp"
@@ -100,5 +99,3 @@ private:
     ProtocolARP();
     ProtocolARP(ProtocolARP&);
 };
-
-#endif

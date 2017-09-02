@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef HTTPPAGE_H
-#define HTTPPAGE_H
+#pragma once
 
 #include "ProtocolTCP.hpp"
 #include "osPrintfInterface.hpp"
@@ -100,5 +99,3 @@ private:
     Server*  _Server;
     bool     HTTPHeaderSent;
 };
-
-#endif

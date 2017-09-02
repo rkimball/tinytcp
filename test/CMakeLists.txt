@@ -32,6 +32,8 @@ include_directories(SYSTEM "${source_dir}/googletest/include")
 
 set (SRC
     main.cpp
+    network.cpp
+    util.cpp
 )
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")

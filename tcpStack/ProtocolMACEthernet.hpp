@@ -29,10 +29,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLMACETHERNET_H
-#define PROTOCOLMACETHERNET_H
+#pragma once
 
 #include <inttypes.h>
+
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
 #include "osEvent.hpp"
@@ -93,5 +93,3 @@ private:
     ProtocolMACEthernet(ProtocolMACEthernet&);
     ProtocolMACEthernet();
 };
-
-#endif

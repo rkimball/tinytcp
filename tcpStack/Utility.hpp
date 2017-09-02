@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef UTILITY_H
-#define UTILITY_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -59,5 +58,3 @@ size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count);
 int ReadLine(char* buffer, size_t size, int (*ReadFunction)());
 
 bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length);
-
-#endif

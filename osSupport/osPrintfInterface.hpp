@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSPRINTFINTERFACE_H
-#define OSPRINTFINTERFACE_H
+#pragma once
 
 class osPrintfInterface
 {
@@ -38,5 +37,3 @@ public:
     osPrintfInterface() {}
     virtual int Printf(const char* format, ...) = 0;
 };
-
-#endif

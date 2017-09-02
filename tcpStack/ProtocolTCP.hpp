@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef PROTOCOLTCP_H
-#define PROTOCOLTCP_H
+#pragma once
 
 #include <inttypes.h>
 #include "DataBuffer.hpp"
@@ -115,5 +114,3 @@ private:
     ProtocolTCP();
     ProtocolTCP(ProtocolTCP&);
 };
-
-#endif

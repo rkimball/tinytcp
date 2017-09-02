@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSQUEUE_H
-#define OSQUEUE_H
+#pragma once
 
 #include "osMutex.hpp"
 
@@ -73,5 +72,3 @@ private:
     int         ElementCount;
     osMutex     Lock;
 };
-
-#endif

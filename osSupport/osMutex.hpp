@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef OSMUTEX_H
-#define OSMUTEX_H
+#pragma once
 
 #ifdef _WIN32
 #elif __linux__
@@ -81,5 +80,3 @@ private:
     int         OwnerLine;
     osThread*   OwnerThread;
 };
-
-#endif

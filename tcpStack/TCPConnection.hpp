@@ -29,8 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifndef TCPCONNECTION_H
-#define TCPCONNECTION_H
+#pragma once
 
 #include <inttypes.h>
 #include "Config.hpp"
@@ -119,5 +118,3 @@ private:
     void Initialize(ProtocolIPv4&, ProtocolTCP&);
     TCPConnection(TCPConnection&);
 };
-
-#endif
