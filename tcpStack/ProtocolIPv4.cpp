@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
+#include <iostream>
 
 #include "DataBuffer.hpp"
 #include "FCS.hpp"
@@ -40,6 +41,8 @@
 #include "ProtocolTCP.hpp"
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
+
+using namespace std;
 
 // Version - 4 bits
 // Header Length - 4 bits
@@ -117,6 +120,7 @@ void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
         dataLength -= headerLength;
         buffer->Length = dataLength;
 
+        cout << "ipv4 protocol 0x" << to_hex(protocol) << endl;
         switch (protocol)
         {
         case 0x01: // ICMP

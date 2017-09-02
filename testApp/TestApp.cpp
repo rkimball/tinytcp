@@ -31,6 +31,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 #ifdef _WIN32
 #include <pcap.h>
 #elif __linux__
@@ -63,6 +64,8 @@ static osMutex* Semaphore;
 static osEvent StartEvent("StartEvent");
 
 DefaultStack tcpStack;
+
+using namespace std;
 
 struct NetworkConfig
 {

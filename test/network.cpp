@@ -36,8 +36,35 @@
 
 using namespace std;
 
+//============================================================================
+//
+//============================================================================
+
+void RxData(uint8_t* data, size_t length)
+{
+    cout << "Rx " << length << endl;
+}
+
 TEST(network, raw_socket)
 {
-    cout << "Hello world" << endl;
-    PacketIO::DisplayDevices();
+#ifdef _WIN32
+    NetworkConfig& config = *(NetworkConfig*)param;
+    char           device[256];
+
+    PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
+    printf("using device %s\n", device);
+    //PacketIO::GetMACAddress( device, Config.MACAddress );
+
+    PIO = new PacketIO(device);
+
+    ProtocolMACEthernet::Initialize(PIO);
+
+    StartEvent.Notify();
+
+    // This method does not return...ever
+    PIO->Start(packet_handler);
+#elif __linux__
+    PacketIO* PIO = new PacketIO();
+    PIO->Start(RxData);
+#endif
 }

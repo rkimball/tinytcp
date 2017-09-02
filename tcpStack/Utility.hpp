@@ -32,6 +32,9 @@
 #pragma once
 
 #include <inttypes.h>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 typedef int (*PrintfFunctionPtr)(const char* fmt, ...);
 
@@ -58,3 +61,19 @@ size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count);
 int ReadLine(char* buffer, size_t size, int (*ReadFunction)());
 
 bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length);
+
+template<typename T>
+std::string to_dec(T obj, size_t width)
+{
+    std::stringstream ss;
+    ss << std::setw(width) << std::setfill('0') << obj;
+    return ss.str();
+}
+
+template<typename T>
+std::string to_hex(T obj, size_t width=sizeof(T)*2)
+{
+    std::stringstream ss;
+    ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
+    return ss.str();
+}

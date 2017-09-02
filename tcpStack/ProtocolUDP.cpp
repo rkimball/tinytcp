@@ -29,12 +29,16 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <iostream>
+
 #include "ProtocolUDP.hpp"
 #include <stdio.h>
 #include "FCS.hpp"
 #include "ProtocolDHCP.hpp"
 #include "ProtocolIPv4.hpp"
 #include "Utility.hpp"
+
+using namespace std;
 
 //============================================================================
 //
@@ -76,6 +80,7 @@ void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const u
     buffer->Packet += UDP_HEADER_SIZE;
     buffer->Remainder -= UDP_HEADER_SIZE;
 
+    cout << "udp target port " << targetPort << endl;
     switch (targetPort)
     {
     case 68: // DHCP Client Port
