@@ -78,6 +78,7 @@ public:
     TCPConnection* Listen();
 
     int Read();
+    int Read(char* buffer, int size);
     int ReadLine(char* buffer, int size);
     void Write(const uint8_t* data, uint16_t length);
     void        Flush();

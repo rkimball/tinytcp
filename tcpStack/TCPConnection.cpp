@@ -29,6 +29,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <cstring>
+
 #include "TCPConnection.hpp"
 #include "ProtocolIPv4.hpp"
 #include "ProtocolTCP.hpp"
@@ -314,6 +316,32 @@ int TCPConnection::Read()
     //}
 
     return rc;
+}
+
+//============================================================================
+//
+//============================================================================
+
+int TCPConnection::Read(char* buffer, int size)
+{
+    int bytes_to_read = std::min(size, TCP_RX_WINDOW_SIZE - RxOutOffset);
+
+    memcpy(buffer, &RxBuffer[RxOutOffset], bytes_to_read);
+
+    RxOutOffset += bytes_to_read;
+    if (RxOutOffset >= TCP_RX_WINDOW_SIZE)
+    {
+        RxOutOffset = 0;
+    }
+    AcknowledgementNumber += bytes_to_read;
+    CurrentWindow += bytes_to_read;
+
+    if (RxOutOffset == RxInOffset)
+    {
+        RxBufferEmpty = true;
+    }
+
+    return bytes_to_read;
 }
 
 //============================================================================

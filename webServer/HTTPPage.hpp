@@ -31,6 +31,9 @@
 
 #pragma once
 
+#include <iostream>
+#include <vector>
+
 #include "ProtocolTCP.hpp"
 #include "osPrintfInterface.hpp"
 #include "osThread.hpp"
@@ -41,7 +44,7 @@ namespace http
     class Server;
 }
 
-class http::Page : public osPrintfInterface
+class http::Page : public osPrintfInterface, public std::streambuf
 {
     friend class Server;
 
@@ -75,6 +78,9 @@ public:
 
     void Flush();
 
+    std::ostream& get_output_stream();
+    std::istream& get_input_stream();
+
     char* Directory;
 
     char   URL[256];
@@ -95,7 +101,16 @@ private:
 
     void ClosePendingOpen();
 
+    std::streamsize xsputn(const char* s, std::streamsize n);
+    std::streambuf::int_type overflow(std::streambuf::int_type c);
+    std::streambuf::int_type underflow();
+
     osThread Thread;
     Server*  _Server;
     bool     HTTPHeaderSent;
+
+    std::ostream      m_ostream;
+    std::istream      m_istream;
+    const std::size_t m_put_back;
+    std::vector<char> m_char_buffer;
 };

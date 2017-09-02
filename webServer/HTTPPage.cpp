@@ -32,6 +32,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <cstring>
 
 #include "HTTPPage.hpp"
 #include "osThread.hpp"
@@ -43,6 +44,8 @@
 #include <strings.h>
 #endif
 
+using namespace std;
+
 //============================================================================
 //
 //============================================================================
@@ -50,6 +53,9 @@
 http::Page::Page()
     : TagDepth(0)
     , StartTagOpen(false)
+    , m_ostream(this)
+    , m_istream(this)
+    , m_put_back(5)
 {
 }
 
@@ -430,4 +436,64 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
     {
         printf("failed to open file '%s'\n", htmlFile);
     }
+}
+
+ostream& http::Page::get_output_stream()
+{
+    return m_ostream;
+}
+
+istream& http::Page::get_input_stream()
+{
+    return m_istream;
+}
+
+streamsize http::Page::xsputn(const char* s, streamsize n)
+{
+    RawSend(s, n);
+    return n;
+}
+
+int http::Page::overflow(int c)
+{
+    char ch = c;
+    RawSend(&ch, 1);
+    return c;
+}
+
+std::streambuf::int_type http::Page::underflow()
+{
+    std::streambuf::int_type rc;
+    if (gptr() < egptr()) // buffer not exhausted
+    {
+        rc = traits_type::to_int_type(*gptr());
+    }
+    else
+    {
+        char* base  = &m_char_buffer.front();
+        char* start = base;
+
+        if (eback() == base) // true when this isn't the first fill
+        {
+            // Make arrangements for putback characters
+            std::memmove(base, egptr() - m_put_back, m_put_back);
+            start += m_put_back;
+        }
+
+        // start is now the start of the buffer, proper.
+        // Read from fptr_ in to the provided buffer
+        int n = Connection->Read(start, m_char_buffer.size() - (start - base));
+        if (n == 0)
+        {
+            rc = traits_type::eof();
+        }
+        else
+        {
+            // Set buffer pointers
+            setg(base, start, start + n);
+            rc = traits_type::to_int_type(*gptr());
+        }
+    }
+
+    return rc;
 }
