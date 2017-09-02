@@ -2,9 +2,9 @@
 tinytcp is designed primarily for use in an embedded environment. It is designed for simplicity and deterministic memory usage.
 All memory used is preallocated in static arrays.
 
-##Building
+## Building
 Building uses [CMake](https://cmake.org/) and has been tested with cmake version 3.4.0-rc3.
-###Windows
+### Windows
 Windows build has been tested on Windows 10 using the community version of [Visual Studio 2015](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx).
 ```
 mkdir myproject
@@ -15,8 +15,8 @@ cd build
 cmake -G "Visual Studio 14 2015" ..\tinytcp
 ```
 This generates tinytcp.sln solution file.
-*The Windows build uses [WinPcap](http://www.winpcap.org/) that you will need to download and install before running.
-*To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
+* The Windows build uses [WinPcap](http://www.winpcap.org/) that you will need to download and install before running.
+* To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
 ```
 sending discover
 discover sent
@@ -24,8 +24,9 @@ DHCP Send type 3
 DHCP got address 192.168.1.23
 ```
 so you will point your browser at http://192.168.1.23 in this example
-###Linux
-Linux build has been tested on Ubuntu 14.04. tinytcp does not support in-tree building.
+### Linux
+Linux build has been tested on Ubuntu 14.04 and 16.04. It works fine in a Windows Hyper-v VM
+install of Ubuntu. tinytcp does not support in-tree building.
 
 ```
 mkdir myproject
@@ -33,15 +34,15 @@ cd myproject
 git clone https://github.com/rkimball/tinytcp.git
 mkdir build
 cd build
-cmake -G "Unix Makefiles" ../tinytcp
+cmake ../tinytcp
 make
 ```
-*Because the tinytcp test app uses a promiscuous socket in order to read/write Layer 2 Ethernet frames, the test app must be run
+* Because the tinytcp test app uses a promiscuous socket in order to read/write Layer 2 Ethernet frames, the test app must be run
 with elevated privileges.
 ```
-sudo ./testApp
+sudo testApp/testApp
 ```
-*To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
+* To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this:
 ```
 sending discover
 discover sent
@@ -49,7 +50,11 @@ DHCP Send type 3
 DHCP got address 192.168.1.23
 ```
 so you will point your browser at http://192.168.1.23 in this example
-##Usage
+* To run on a windows Hyper-V ubuntu installation you need to enable MAC address spoofing on the
+VM's network adapter. To do this go to the VM's settings page, expand the *Network Adapter* node in
+the left panel, and select *Advanced Features*. Now, in the panel on the right check the
+*Enable MAC address spoofing* checkbox and select *Apply* to apply the setting.
+## Usage
 The protocol stack has three main functions required
 
 1. NetworkInterface.RxData - expects a [Layer 2 Ethernet frame](https://en.wikipedia.org/wiki/Ethernet_frame) as input
