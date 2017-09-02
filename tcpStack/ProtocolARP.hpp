@@ -32,6 +32,8 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iostream>
+
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
 #include "ProtocolIPv4.hpp"
@@ -69,7 +71,7 @@ public:
     bool IsLocal(const uint8_t* protocolAddress);
     bool IsBroadcast(const uint8_t* protocolAddress);
 
-    void Show(osPrintfInterface* pfunc);
+    friend std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj);
 
 private:
     struct ARPInfo

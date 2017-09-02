@@ -274,9 +274,10 @@ void ShowIP(http::Page* page)
 
 void ShowARP(http::Page* page)
 {
-    page->Printf("<pre>");
-    tcpStack.ARP.Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    out << tcpStack.ARP;
+    out << "</pre>";
 }
 
 //============================================================================

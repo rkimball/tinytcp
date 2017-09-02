@@ -35,5 +35,6 @@ class osPrintfInterface
 {
 public:
     osPrintfInterface() {}
+    virtual ~osPrintfInterface() {}
     virtual int Printf(const char* format, ...) = 0;
 };

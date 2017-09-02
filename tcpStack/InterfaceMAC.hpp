@@ -39,6 +39,7 @@ class DataBuffer;
 class InterfaceMAC
 {
 public:
+    virtual ~InterfaceMAC() {}
     typedef void (*DataTransmitHandler)(void* data, size_t length);
 
     virtual void           RegisterDataTransmitHandler(DataTransmitHandler) = 0;

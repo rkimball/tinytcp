@@ -35,6 +35,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 typedef int (*PrintfFunctionPtr)(const char* fmt, ...);
 

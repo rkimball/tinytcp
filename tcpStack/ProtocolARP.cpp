@@ -30,6 +30,8 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
+#include <string>
+#include <sstream>
 
 #include "Config.hpp"
 #include "DataBuffer.hpp"
@@ -191,29 +193,29 @@ void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAdd
 //
 //============================================================================
 
-void ProtocolARP::Show(osPrintfInterface* pfunc)
+std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
 {
-    int i;
-
-    pfunc->Printf("ARP Cache:\n");
-    for (i = 0; i < ARPCacheSize; i++)
+    out << "ARP Cache (ostream):\n";
+    for (int i = 0; i < ARPCacheSize; i++)
     {
-        int length = pfunc->Printf("   %d.%d.%d.%d ",
-                                   Cache[i].IPv4Address[0],
-                                   Cache[i].IPv4Address[1],
-                                   Cache[i].IPv4Address[2],
-                                   Cache[i].IPv4Address[3]);
-        for (; length < 19; length++)
-            pfunc->Printf(" ");
-        pfunc->Printf(" %02X:%02X:%02X:%02X:%02X:%02X ",
-                      Cache[i].MACAddress[0],
-                      Cache[i].MACAddress[1],
-                      Cache[i].MACAddress[2],
-                      Cache[i].MACAddress[3],
-                      Cache[i].MACAddress[4],
-                      Cache[i].MACAddress[5]);
-        pfunc->Printf("   age = %d\n", Cache[i].Age);
+        std::stringstream ss;
+        ss << (int)obj.Cache[i].IPv4Address[0] << ".";
+        ss << (int)obj.Cache[i].IPv4Address[1] << ".";
+        ss << (int)obj.Cache[i].IPv4Address[2] << ".";
+        ss << (int)obj.Cache[i].IPv4Address[3];
+        std::string s = ss.str();
+
+        out << "   " << s;
+        for (int length=s.size(); length < 19; length++) out << " ";
+        out << to_hex(obj.Cache[i].MACAddress[0]) << ":";
+        out << to_hex(obj.Cache[i].MACAddress[1]) << ":";
+        out << to_hex(obj.Cache[i].MACAddress[2]) << ":";
+        out << to_hex(obj.Cache[i].MACAddress[3]) << ":";
+        out << to_hex(obj.Cache[i].MACAddress[4]) << ":";
+        out << to_hex(obj.Cache[i].MACAddress[5]);
+        out << "   age = " << (int)obj.Cache[i].Age << "\n";
     }
+    return out;
 }
 
 //============================================================================
