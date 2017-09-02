@@ -93,7 +93,7 @@ public:
     uint16_t NewPort();
 
     void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
-    void Show(osPrintfInterface* out);
+    friend std::ostream& operator<<(std::ostream&, const ProtocolTCP&);
 
 private:
     TCPConnection*

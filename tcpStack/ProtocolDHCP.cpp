@@ -272,7 +272,6 @@ void ProtocolDHCP::SendRequest(uint8_t        messageType,
                                const uint8_t* serverAddress,
                                const uint8_t* requestAddress)
 {
-    printf("DHCP Send type %d\n", messageType);
     DataBuffer* buffer = UDP.GetTxBuffer(&MAC);
     int         i;
 

@@ -262,17 +262,18 @@ void ProtocolIPv4::FreeRxBuffer(DataBuffer* buffer)
 //
 //============================================================================
 
-void ProtocolIPv4::Show(osPrintfInterface* out)
+ostream& operator<<(ostream& out, const ProtocolIPv4& obj)
 {
-    out->Printf("IPv4 Configuration\n");
-    out->Printf("   Address:            %s\n", ipv4toa(Address.Address));
-    out->Printf("   Subnet Mask:        %s\n", ipv4toa(Address.SubnetMask));
-    out->Printf("   Gateway:            %s\n", ipv4toa(Address.Gateway));
-    out->Printf("   Domain Name Server: %s\n", ipv4toa(Address.DomainNameServer));
-    out->Printf("   Broadcast Address:  %s\n", ipv4toa(Address.BroadcastAddress));
-    out->Printf("   Address Lease Time: %d seconds\n", Address.IpAddressLeaseTime);
-    out->Printf("   RenewTime:          %d seconds\n", Address.RenewTime);
-    out->Printf("   RebindTime:         %d seconds\n", Address.RebindTime);
+    out << "IPv4 Configuration\n";
+    out << "   Address:            " << ipv4toa(obj.Address.Address) << "\n";
+    out << "   Subnet Mask:        " << ipv4toa(obj.Address.SubnetMask) << "\n";
+    out << "   Gateway:            " << ipv4toa(obj.Address.Gateway) << "\n";
+    out << "   Domain Name Server: " << ipv4toa(obj.Address.DomainNameServer) << "\n";
+    out << "   Broadcast Address:  " << ipv4toa(obj.Address.BroadcastAddress) << "\n";
+    out << "   Address Lease Time: " << obj.Address.IpAddressLeaseTime << " seconds\n";
+    out << "   RenewTime:          " << obj.Address.RenewTime << " seconds\n";
+    out << "   RebindTime:         " << obj.Address.RebindTime << " seconds\n";
+    return out;
 }
 
 //============================================================================

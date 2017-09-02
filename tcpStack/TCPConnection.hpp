@@ -82,7 +82,7 @@ public:
     int ReadLine(char* buffer, int size);
     void Write(const uint8_t* data, uint16_t length);
     void        Flush();
-    const char* GetStateString();
+    const char* GetStateString() const;
 
 private:
     uint16_t RxInOffset;

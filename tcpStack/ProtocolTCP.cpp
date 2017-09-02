@@ -511,28 +511,29 @@ void ProtocolTCP::Tick()
 //
 //============================================================================
 
-void ProtocolTCP::Show(osPrintfInterface* out)
+std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
 {
-    out->Printf("TCP Information\n");
+    out << "TCP Information\n";
     for (int i = 0; i < TCP_MAX_CONNECTIONS; i++)
     {
-        out->Printf("connection %s   ", ConnectionList[i].GetStateString());
-        switch (ConnectionList[i].State)
+        out << "connection " << obj.ConnectionList[i].GetStateString() << "   ";
+        switch (obj.ConnectionList[i].State)
         {
         case TCPConnection::LISTEN:
-            out->Printf("     local=%d  ", ConnectionList[i].LocalPort);
+            out << "     local=" << obj.ConnectionList[i].LocalPort << "  ";
             break;
         case TCPConnection::ESTABLISHED:
-            out->Printf("local=%d  remote=%d.%d.%d.%d:%d",
-                        ConnectionList[i].LocalPort,
-                        ConnectionList[i].RemoteAddress[0],
-                        ConnectionList[i].RemoteAddress[1],
-                        ConnectionList[i].RemoteAddress[2],
-                        ConnectionList[i].RemoteAddress[3],
-                        ConnectionList[i].RemotePort);
+            out << "local=" << obj.ConnectionList[i].LocalPort;
+            out << "  remote=";
+            out << (int)obj.ConnectionList[i].RemoteAddress[0] << ".";
+            out << (int)obj.ConnectionList[i].RemoteAddress[1] << ".";
+            out << (int)obj.ConnectionList[i].RemoteAddress[2] << ".";
+            out << (int)obj.ConnectionList[i].RemoteAddress[3] << ":";
+            out << obj.ConnectionList[i].RemotePort;
             break;
         default: break;
         }
-        out->Printf("\n");
+        out << "\n";
     }
+    return out;
 }

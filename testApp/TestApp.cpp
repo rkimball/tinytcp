@@ -252,9 +252,10 @@ void ShowThread(http::Page* page)
 
 void ShowMAC(http::Page* page)
 {
-    page->Printf("<pre>");
-    tcpStack.MAC.Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    out << tcpStack.MAC;
+    out << "</pre>";
 }
 
 //============================================================================
@@ -263,9 +264,10 @@ void ShowMAC(http::Page* page)
 
 void ShowIP(http::Page* page)
 {
-    page->Printf("<pre>");
-    tcpStack.IP.Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    out << tcpStack.IP;
+    out << "</pre>";
 }
 
 //============================================================================
@@ -286,9 +288,10 @@ void ShowARP(http::Page* page)
 
 void ShowTCP(http::Page* page)
 {
-    page->Printf("<pre>");
-    tcpStack.TCP.Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    out << tcpStack.TCP;
+    out << "</pre>";
 }
 
 //============================================================================

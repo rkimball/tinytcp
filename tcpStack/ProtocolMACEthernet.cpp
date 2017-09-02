@@ -257,7 +257,7 @@ void ProtocolMACEthernet::Retransmit(DataBuffer* buffer)
 //
 //============================================================================
 
-size_t ProtocolMACEthernet::AddressSize()
+size_t ProtocolMACEthernet::AddressSize() const
 {
     return ADDRESS_SIZE;
 }
@@ -266,7 +266,7 @@ size_t ProtocolMACEthernet::AddressSize()
 //
 //============================================================================
 
-size_t ProtocolMACEthernet::HeaderSize()
+size_t ProtocolMACEthernet::HeaderSize() const
 {
     return MAC_HEADER_SIZE;
 }
@@ -275,7 +275,7 @@ size_t ProtocolMACEthernet::HeaderSize()
 //
 //============================================================================
 
-const uint8_t* ProtocolMACEthernet::GetUnicastAddress()
+const uint8_t* ProtocolMACEthernet::GetUnicastAddress() const
 {
     return UnicastAddress;
 }
@@ -284,7 +284,7 @@ const uint8_t* ProtocolMACEthernet::GetUnicastAddress()
 //
 //============================================================================
 
-const uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
+const uint8_t* ProtocolMACEthernet::GetBroadcastAddress() const
 {
     return BroadcastAddress;
 }
@@ -293,11 +293,12 @@ const uint8_t* ProtocolMACEthernet::GetBroadcastAddress()
 //
 //============================================================================
 
-void ProtocolMACEthernet::Show(osPrintfInterface* out)
+std::ostream& operator<<(std::ostream& out, const ProtocolMACEthernet& obj)
 {
-    out->Printf("MAC Configuration\n");
-    out->Printf("   Ethernet Unicast MAC Address: %s\n", macaddrtoa(GetUnicastAddress()));
-    out->Printf("   Ethernet Broadcast MAC Address: %s\n", macaddrtoa(GetBroadcastAddress()));
+    out << "MAC Configuration\n";
+    out << "   Ethernet Unicast MAC Address: " << macaddrtoa(obj.GetUnicastAddress()) << "\n";
+    out << "   Ethernet Broadcast MAC Address: " << macaddrtoa(obj.GetBroadcastAddress()) << "\n";
+    return out;
 }
 
 //============================================================================

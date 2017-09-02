@@ -32,6 +32,8 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iostream>
+
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
 #include "osQueue.hpp"
@@ -84,7 +86,7 @@ public:
     void        FreeTxBuffer(DataBuffer*);
     void        FreeRxBuffer(DataBuffer*);
 
-    void Show(osPrintfInterface* out);
+    friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
 
 private:
     bool IsLocal(const uint8_t* addr);

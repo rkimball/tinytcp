@@ -58,15 +58,15 @@ public:
     void        FreeTxBuffer(DataBuffer*);
     void        FreeRxBuffer(DataBuffer*);
 
-    size_t AddressSize();
-    size_t HeaderSize();
+    size_t AddressSize() const;
+    size_t HeaderSize() const;
 
-    const uint8_t* GetUnicastAddress();
-    const uint8_t* GetBroadcastAddress();
+    const uint8_t* GetUnicastAddress() const;
+    const uint8_t* GetBroadcastAddress() const;
 
     void SetUnicastAddress(uint8_t* addr);
 
-    void Show(osPrintfInterface* pfunc);
+    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
 
 private:
     static const int ADDRESS_SIZE = 6;

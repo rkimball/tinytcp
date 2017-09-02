@@ -43,10 +43,10 @@ public:
     typedef void (*DataTransmitHandler)(void* data, size_t length);
 
     virtual void           RegisterDataTransmitHandler(DataTransmitHandler) = 0;
-    virtual size_t         AddressSize()                                    = 0;
-    virtual size_t         HeaderSize()                                     = 0;
-    virtual const uint8_t* GetUnicastAddress()                              = 0;
-    virtual const uint8_t* GetBroadcastAddress()                            = 0;
+    virtual size_t         AddressSize() const                              = 0;
+    virtual size_t         HeaderSize() const                               = 0;
+    virtual const uint8_t* GetUnicastAddress() const                        = 0;
+    virtual const uint8_t* GetBroadcastAddress() const                      = 0;
     virtual DataBuffer*    GetTxBuffer()                                    = 0;
     virtual void           FreeTxBuffer(DataBuffer*)                        = 0;
     virtual void           FreeRxBuffer(DataBuffer*)                        = 0;

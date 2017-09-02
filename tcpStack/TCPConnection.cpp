@@ -491,7 +491,7 @@ void TCPConnection::StoreRxData(DataBuffer* buffer)
 //
 //============================================================================
 
-const char* TCPConnection::GetStateString()
+const char* TCPConnection::GetStateString() const
 {
     const char* rc;
     switch (State)
