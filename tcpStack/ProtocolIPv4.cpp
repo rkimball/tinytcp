@@ -120,7 +120,6 @@ void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
         dataLength -= headerLength;
         buffer->Length = dataLength;
 
-        cout << "ipv4 protocol 0x" << to_hex(protocol) << endl;
         switch (protocol)
         {
         case 0x01: // ICMP

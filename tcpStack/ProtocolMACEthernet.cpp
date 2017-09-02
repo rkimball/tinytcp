@@ -130,7 +130,6 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     // Check if the MAC Address is destined for me
     if (IsLocalAddress(packet->Packet))
     {
-        cout << "Is local address" << endl;
         //DumpData( buffer, length, printf );
         if (actualLength > length)
         {
@@ -143,7 +142,6 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
         packet->Packet += MAC_HEADER_SIZE;
         packet->Length -= MAC_HEADER_SIZE;
 
-        cout << "type 0x" << to_hex(type) << endl;
         switch (type)
         {
         case 0x0800: // IP

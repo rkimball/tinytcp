@@ -80,7 +80,6 @@ void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const u
     buffer->Packet += UDP_HEADER_SIZE;
     buffer->Remainder -= UDP_HEADER_SIZE;
 
-    cout << "udp target port " << targetPort << endl;
     switch (targetPort)
     {
     case 68: // DHCP Client Port
