@@ -29,8 +29,15 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <iostream>
+
 #include "gtest/gtest.h"
+#include "PacketIO.hpp"
+
+using namespace std;
 
 TEST(network, raw_socket)
 {
+    cout << "Hello world" << endl;
+    PacketIO::DisplayDevices();
 }
