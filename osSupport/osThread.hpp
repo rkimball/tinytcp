@@ -58,7 +58,7 @@ public:
 
     int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
 
-    int WaitForExit(int32_t millisecondWaitTimeout = -1);
+    void WaitForExit(int32_t millisecondWaitTimeout = -1);
 
     static void Sleep(unsigned long ms, const char* file, int line);
 

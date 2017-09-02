@@ -88,7 +88,7 @@ void osMutex::Give()
 #endif
 }
 
-bool osMutex::Take(const char* file, int line)
+void osMutex::Take(const char* file, int line)
 {
 #ifdef _WIN32
     DWORD rc = -1;
@@ -109,8 +109,6 @@ bool osMutex::Take(const char* file, int line)
         OwnerFile = file;
         OwnerLine = line;
     }
-
-    return rc == 0;
 #elif __linux__
     osThread* thread = osThread::GetCurrent();
     if (thread)
@@ -127,10 +125,10 @@ bool osMutex::Take(const char* file, int line)
 #endif
 }
 
-bool osMutex::Take()
+void osMutex::Take()
 {
 #ifdef _WIN32
-    return WaitForSingleObject(Handle, INFINITE) == 0;
+    WaitForSingleObject(Handle, INFINITE) == 0;
 #elif __linux__
     pthread_mutex_lock(&m_mutex);
 #endif

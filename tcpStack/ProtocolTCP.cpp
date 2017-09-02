@@ -214,10 +214,10 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
             }
 
             // Handle any data received
-            if (connection && connection->State == TCPConnection::ESTABLISHED ||
+            if (connection && (connection->State == TCPConnection::ESTABLISHED ||
                 connection->State == TCPConnection::FIN_WAIT_1 ||
                 connection->State == TCPConnection::FIN_WAIT_2 ||
-                connection->State == TCPConnection::CLOSE_WAIT)
+                connection->State == TCPConnection::CLOSE_WAIT))
             {
                 data       = rxBuffer->Packet;
                 dataLength = rxBuffer->Length;

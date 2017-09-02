@@ -221,14 +221,14 @@ int osThread::Create(
     return rc;
 }
 
-int osThread::WaitForExit(int32_t millisecondWaitTimeout)
+void osThread::WaitForExit(int32_t millisecondWaitTimeout)
 {
 #ifdef _WIN32
     if (millisecondWaitTimeout < 0)
     {
         millisecondWaitTimeout = INFINITE;
     }
-    return WaitForSingleObject(Handle, millisecondWaitTimeout);
+    WaitForSingleObject(Handle, millisecondWaitTimeout);
 #elif __linux__
 #endif
 }

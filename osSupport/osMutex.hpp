@@ -52,7 +52,7 @@ public:
 
     void Give();
 
-    bool Take(const char* file, int line);
+    void Take(const char* file, int line);
 
     const char* GetName();
 
@@ -73,7 +73,7 @@ private:
     static void LockListMutex();
     static void UnlockListMutex();
 
-    bool            Take();
+    void            Take();
     const char*     Name;
     static osMutex* MutexList[];
 
