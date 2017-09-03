@@ -193,7 +193,6 @@ void osMutex::dump_info(std::ostream& out)
                 line = mutex->OwnerLine;
                 file = mutex->OwnerFile;
             }
-            // pfunc->Printf("%-20s|%-7s|%-20s|%-6s|%s\n", mutex->Name, "", "", "", "");
             out << setw(20) << name << setw(0) << "|";
             out << setw( 7) << state << setw(0) << "|";
             out << setw(20) << owner << setw(0) << "|";

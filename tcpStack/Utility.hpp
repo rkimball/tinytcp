@@ -37,10 +37,8 @@
 #include <iomanip>
 #include <iostream>
 
-typedef int (*PrintfFunctionPtr)(const char* fmt, ...);
-
-void DumpData(void* buffer, size_t len, PrintfFunctionPtr);
-void DumpBits(void* buffer, size_t size, PrintfFunctionPtr);
+void DumpData(std::ostream& out, void* buffer, size_t len);
+void DumpBits(std::ostream& out, void* buffer, size_t size);
 
 uint16_t ntoh16(uint16_t value);
 uint16_t hton16(uint16_t value);

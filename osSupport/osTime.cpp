@@ -69,7 +69,6 @@ const char* osTime::GetTimestamp()
     uint32_t    hour;
     uint64_t    time;
 
-    //printf( "The time is %.19s.%hu %s", timeline, timebuffer.millitm, &timeline[20] );
     time = GetTime();
 
     seconds = (uint32_t)(time / 1000000);

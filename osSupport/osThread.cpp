@@ -382,7 +382,6 @@ void osThread::dump_info(std::ostream& out)
         }
         GetThreadTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
 
-        // pfunc->Printf("%3d |%-20s|%6u | ", priority, thread->Name, handle);
         out << setw(3) << priority << " |"
         out  << setw(20) << left << thread->Name<< "|" ;
         out << setw(6) << handle << " | ";

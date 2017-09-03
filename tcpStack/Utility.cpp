@@ -37,103 +37,73 @@
 //
 //============================================================================
 
-void DumpData(void* buffer, size_t len, PrintfFunctionPtr pfunc)
+void DumpData(std::ostream &out, void *buffer, size_t len)
 {
-    size_t   i, j;
-    uint8_t* buf = (uint8_t*)buffer;
-    char     tmpBuf[90];
-    size_t   tmpIndex = 0;
-    size_t   size     = sizeof(tmpBuf);
-    size_t   count;
-
-    if (buf == 0)
+    std::ios_base::fmtflags flags = out.flags();
+    const uint8_t *data = reinterpret_cast<const uint8_t *>(buffer);
+    size_t index = 0;
+    while (index < len)
     {
-        return;
-    }
-
-    i = 0;
-    j = 0;
-    while (i + 1 <= len)
-    {
-        count = snprintf(&tmpBuf[tmpIndex], size, "%04X ", (uint16_t)i);
-        tmpIndex += count;
-        size -= count;
-        for (j = 0; j < 16; j++)
+        out << std::hex << std::setw(8) << std::setfill('0') << index;
+        for (int i = 0; i < 8; i++)
         {
-            if (i + j < len)
+            if (index + i < len)
             {
-                count = snprintf(&tmpBuf[tmpIndex], size, "%02X ", buf[i + j]);
-                tmpIndex += count;
-                size -= count;
+                out << " " << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)data[i];
             }
             else
             {
-                count = snprintf(&tmpBuf[tmpIndex], size, "   ");
-                tmpIndex += count;
-                size -= count;
-            }
-
-            if (j == 7)
-            {
-                count = snprintf(&tmpBuf[tmpIndex], size, "- ");
-                tmpIndex += count;
-                size -= count;
+                out << "   ";
             }
         }
-        count = snprintf(&tmpBuf[tmpIndex], size, "  ");
-        tmpIndex += count;
-        size -= count;
-        for (j = 0; j < 16; j++)
+        out << "  ";
+        for (int i = 8; i < 16; i++)
         {
-            if (buf[i + j] >= 0x20 && buf[i + j] <= 0x7E)
+            if (index + i < len)
             {
-                count = snprintf(&tmpBuf[tmpIndex], size, "%c", buf[i + j]);
-                tmpIndex += count;
-                size -= count;
+                out << " " << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)data[i];
             }
             else
             {
-                count = snprintf(&tmpBuf[tmpIndex], size, ".");
-                tmpIndex += count;
-                size -= count;
-            }
-            if (i + j + 1 == len)
-            {
-                break;
+                out << "   ";
             }
         }
-
-        i += 16;
-
-        pfunc("%s\n", tmpBuf);
-        tmpIndex = 0;
-        size     = sizeof(tmpBuf);
+        out << "  ";
+        for (int i = 0; i < 16; i++)
+        {
+            char ch = (index + i < len ? data[i] : ' ');
+            out << ((ch < 32) ? '.' : ch);
+        }
+        out << "\n";
+        data += 16;
+        index += 16;
     }
+    out.flags(flags);
 }
 
 //============================================================================
 //
 //============================================================================
 
-void DumpBits(void* buf, size_t size, PrintfFunctionPtr pfunc)
+void DumpBits(std::ostream &out, void *buf, size_t size)
 {
-    uint8_t* buffer = (uint8_t*)buf;
+    uint8_t *buffer = (uint8_t *)buf;
 
     for (size_t i = 0; i < size; i++)
     {
-        pfunc("%3d - ", i);
+        out << std::setw(3) << i << " - ";
         for (uint8_t bitIndex = 0x80; bitIndex != 0; bitIndex >>= 1)
         {
             if (buffer[i] & bitIndex)
             {
-                pfunc("1");
+                out << "1";
             }
             else
             {
-                pfunc("0");
+                out << "0";
             }
         }
-        pfunc("\n");
+        out << "\n";
     }
 }
 
@@ -141,7 +111,7 @@ void DumpBits(void* buf, size_t size, PrintfFunctionPtr pfunc)
 //
 //============================================================================
 
-const char* ipv4toa(uint32_t addr)
+const char *ipv4toa(uint32_t addr)
 {
     static char rc[20];
     sprintf(rc,
@@ -157,7 +127,7 @@ const char* ipv4toa(uint32_t addr)
 //
 //============================================================================
 
-const char* ipv4toa(const uint8_t* addr)
+const char *ipv4toa(const uint8_t *addr)
 {
     static char rc[20];
     sprintf(rc, "%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
@@ -168,7 +138,7 @@ const char* ipv4toa(const uint8_t* addr)
 //
 //============================================================================
 
-const char* macaddrtoa(const uint8_t* addr)
+const char *macaddrtoa(const uint8_t *addr)
 {
     static char rc[20];
     sprintf(
@@ -180,7 +150,7 @@ const char* macaddrtoa(const uint8_t* addr)
 //
 //============================================================================
 
-uint8_t Unpack8(const uint8_t* p, size_t offset, size_t size)
+uint8_t Unpack8(const uint8_t *p, size_t offset, size_t size)
 {
     return p[offset];
 }
@@ -189,7 +159,7 @@ uint8_t Unpack8(const uint8_t* p, size_t offset, size_t size)
 //
 //============================================================================
 
-uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size)
+uint16_t Unpack16(const uint8_t *p, size_t offset, size_t size)
 {
     uint16_t rc = 0;
     for (int i = 0; i < size; i++)
@@ -204,7 +174,7 @@ uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size)
 //
 //============================================================================
 
-uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size)
+uint32_t Unpack32(const uint8_t *p, size_t offset, size_t size)
 {
     uint32_t rc = 0;
     for (int i = 0; i < size; i++)
@@ -219,7 +189,7 @@ uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size)
 //
 //============================================================================
 
-size_t Pack8(uint8_t* p, size_t offset, uint8_t value)
+size_t Pack8(uint8_t *p, size_t offset, uint8_t value)
 {
     p[offset++] = value;
     return offset;
@@ -229,7 +199,7 @@ size_t Pack8(uint8_t* p, size_t offset, uint8_t value)
 //
 //============================================================================
 
-size_t Pack16(uint8_t* p, size_t offset, uint16_t value)
+size_t Pack16(uint8_t *p, size_t offset, uint16_t value)
 {
     p[offset++] = (value >> 8) & 0xFF;
     p[offset++] = value & 0xFF;
@@ -240,7 +210,7 @@ size_t Pack16(uint8_t* p, size_t offset, uint16_t value)
 //
 //============================================================================
 
-size_t Pack32(uint8_t* p, size_t offset, uint32_t value)
+size_t Pack32(uint8_t *p, size_t offset, uint32_t value)
 {
     p[offset++] = (value >> 24) & 0xFF;
     p[offset++] = (value >> 16) & 0xFF;
@@ -253,7 +223,7 @@ size_t Pack32(uint8_t* p, size_t offset, uint32_t value)
 //
 //============================================================================
 
-size_t PackBytes(uint8_t* p, size_t offset, const uint8_t* value, size_t count)
+size_t PackBytes(uint8_t *p, size_t offset, const uint8_t *value, size_t count)
 {
     for (int i = 0; i < count; i++)
     {
@@ -266,7 +236,7 @@ size_t PackBytes(uint8_t* p, size_t offset, const uint8_t* value, size_t count)
 //
 //============================================================================
 
-size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count)
+size_t PackFill(uint8_t *p, size_t offset, uint8_t value, size_t count)
 {
     for (int i = 0; i < count; i++)
     {
@@ -279,12 +249,12 @@ size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count)
 //
 //============================================================================
 
-int ReadLine(char* buffer, size_t size, int (*ReadFunction)())
+int ReadLine(char *buffer, size_t size, int (*ReadFunction)())
 {
-    int  i;
+    int i;
     char c;
-    bool done           = false;
-    int  bytesProcessed = 0;
+    bool done = false;
+    int bytesProcessed = 0;
 
     while (!done)
     {
@@ -298,12 +268,16 @@ int ReadLine(char* buffer, size_t size, int (*ReadFunction)())
         bytesProcessed++;
         switch (c)
         {
-        case '\r': *buffer++ = 0; break;
+        case '\r':
+            *buffer++ = 0;
+            break;
         case '\n':
             *buffer++ = 0;
-            done      = true;
+            done = true;
             break;
-        default: *buffer++ = c; break;
+        default:
+            *buffer++ = c;
+            break;
         }
 
         if (bytesProcessed == size)
@@ -320,7 +294,7 @@ int ReadLine(char* buffer, size_t size, int (*ReadFunction)())
 //
 //============================================================================
 
-bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length)
+bool AddressCompare(const uint8_t *a1, const uint8_t *a2, int length)
 {
     for (int i = 0; i < length; i++)
     {
