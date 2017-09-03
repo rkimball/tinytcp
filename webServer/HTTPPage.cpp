@@ -108,9 +108,6 @@ int http::Page::Printf(const char* format, ...)
 
 string http::Page::HTMLEncode(const string& str)
 {
-    char*   p;
-    int     i;
-
     string rc;
     stringstream ss;
     for (int i=0; i<str.size(); i++)
@@ -118,11 +115,11 @@ string http::Page::HTMLEncode(const string& str)
         switch (str[i])
         {
         case '<':
-            ss << '&lt';
+            ss << "&lt";
             break;
 
         case '>':
-            ss << '&gt';
+            ss << "&gt";
             break;
 
         default:
@@ -331,11 +328,6 @@ bool http::Page::SendFile(const char* filename)
         do
         {
             count = (int)fread(buffer, 1, sizeof(buffer), f);
-#ifdef _WIN32
-            uint64_t offset = _ftelli64(f);
-#elif __linux__
-            uint64_t offset = ftell(f);
-#endif
             if (count > 0)
             {
                 RawSend(buffer, count);

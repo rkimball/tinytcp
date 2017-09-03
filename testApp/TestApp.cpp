@@ -59,7 +59,6 @@
 PacketIO*       PIO;
 static osThread NetworkThread;
 static osThread MainThread;
-static osMutex* Semaphore;
 
 static osEvent StartEvent("StartEvent");
 

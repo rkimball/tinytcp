@@ -224,7 +224,6 @@ std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
 
 void ProtocolARP::SendReply(const ARPInfo& info)
 {
-    uint8_t     i;
     int         offset   = 0;
     DataBuffer* txBuffer = MAC.GetTxBuffer();
     if (txBuffer == 0)

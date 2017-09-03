@@ -209,8 +209,6 @@ void ProtocolMACEthernet::FreeRxBuffer(DataBuffer* buffer)
 
 void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC, uint16_t type)
 {
-    uint8_t i;
-
     buffer->Packet -= MAC_HEADER_SIZE;
     buffer->Length += MAC_HEADER_SIZE;
 

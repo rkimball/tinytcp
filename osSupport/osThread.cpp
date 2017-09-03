@@ -156,7 +156,6 @@ void osThread::Initialize()
     TlsSetValue(dwTlsIndex, &MainThread);
 #elif __linux__
     pthread_key_create(&tlsKey, NULL);
-    pthread_t mainThread = pthread_self();
 #endif
     for (int i = 0; i < MAX_THREADS; i++)
     {
@@ -177,7 +176,6 @@ int osThread::Create(
         Initialize();
     }
     int i;
-    int j;
     int rc = 0;
 
     snprintf(Name, NAME_LENGTH_MAX, "%s", name);

@@ -186,7 +186,7 @@ void osMutex::dump_info(std::ostream& out)
             string name = mutex->Name;
             string state;
             string owner;
-            int    line;
+            int    line = -1;
             string file;
             if (mutex->OwnerFile)
             {

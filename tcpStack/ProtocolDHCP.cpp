@@ -85,6 +85,20 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
     uint8_t* giaddr = &buffer->Packet[24]; // (Gateway IP address)
     uint32_t magic  = Unpack32(buffer->Packet, 236);
 
+    (void)op    ;
+    (void)htype ;
+    (void)hlen  ;
+    (void)hops  ;
+    (void)xid   ;
+    (void)secs  ;
+    (void)flags ;
+    (void)ciaddr;
+    (void)yiaddr;
+    (void)siaddr;
+    (void)giaddr;
+    (void)magic ;
+
+
     //   printf( "op = %d\n", op );
     //   printf( "htype = %d\n", htype );
     //   printf( "hlen = %d\n", hlen );
@@ -234,14 +248,14 @@ void ProtocolDHCP::Discover()
         buffer->Packet[buffer->Length++] = 61;
         buffer->Packet[buffer->Length++] = 7; // length
         buffer->Packet[buffer->Length++] = 1; // type is hardware address
-        for (int i                           = 0; i < 6; i++)
+        for (i                              = 0; i < 6; i++)
             buffer->Packet[buffer->Length++] = MAC.GetUnicastAddress()[i];
 
         // host name
         const char* name                 = "tinytcp";
         buffer->Packet[buffer->Length++] = 12;
         buffer->Packet[buffer->Length++] = strlen(name);
-        for (int i                           = 0; i < strlen(name); i++)
+        for (i                               = 0; i < strlen(name); i++)
             buffer->Packet[buffer->Length++] = name[i];
 
         // parameter request list
@@ -255,7 +269,7 @@ void ProtocolDHCP::Discover()
         buffer->Packet[buffer->Length++] = 255; // End options
 
         int pad = 8;
-        for (int i                           = 0; i < pad; i++)
+        for (i                               = 0; i < pad; i++)
             buffer->Packet[buffer->Length++] = 0;
 
         uint8_t sourceIP[] = {0, 0, 0, 0};
@@ -290,7 +304,7 @@ void ProtocolDHCP::SendRequest(uint8_t        messageType,
         buffer->Length = Pack32(buffer->Packet, buffer->Length, 0);          // (Your IP address)
         if (serverAddress != NULL)
         {
-            for (int i                           = 0; i < 4; i++)
+            for (i                               = 0; i < 4; i++)
                 buffer->Packet[buffer->Length++] = serverAddress[i]; // (Server IP address)
         }
         else
@@ -324,7 +338,7 @@ void ProtocolDHCP::SendRequest(uint8_t        messageType,
         {
             buffer->Packet[buffer->Length++] = 50;
             buffer->Packet[buffer->Length++] = 4; // length
-            for (int i                           = 0; i < 4; i++)
+            for (i                               = 0; i < 4; i++)
                 buffer->Packet[buffer->Length++] = requestAddress[i];
         }
 
@@ -333,14 +347,14 @@ void ProtocolDHCP::SendRequest(uint8_t        messageType,
             // server address
             buffer->Packet[buffer->Length++] = 54;
             buffer->Packet[buffer->Length++] = 5; // length
-            for (int i                           = 0; i < 4; i++)
+            for (i                               = 0; i < 4; i++)
                 buffer->Packet[buffer->Length++] = serverAddress[i]; // (Server IP address)
         }
 
         buffer->Packet[buffer->Length++] = 255; // End options
 
         int pad = 8;
-        for (int i                           = 0; i < pad; i++)
+        for (i                               = 0; i < pad; i++)
             buffer->Packet[buffer->Length++] = 0;
 
         uint8_t sourceIP[] = {0, 0, 0, 0};

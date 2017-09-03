@@ -210,7 +210,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 }
                 break;
             case TCPConnection::TIMED_WAIT: break;
-            default: break;
+            case TCPConnection::TTCP_PERSIST: break;
             }
 
             // Handle any data received
@@ -531,7 +531,16 @@ std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
             out << (int)obj.ConnectionList[i].RemoteAddress[3] << ":";
             out << obj.ConnectionList[i].RemotePort;
             break;
-        default: break;
+        case TCPConnection::CLOSED: break;
+        case TCPConnection::SYN_SENT: break;
+        case TCPConnection::SYN_RECEIVED: break;
+        case TCPConnection::FIN_WAIT_1: break;
+        case TCPConnection::FIN_WAIT_2: break;
+        case TCPConnection::CLOSE_WAIT: break;
+        case TCPConnection::CLOSING: break;
+        case TCPConnection::LAST_ACK: break;
+        case TCPConnection::TIMED_WAIT: break;
+        case TCPConnection::TTCP_PERSIST: break;
         }
         out << "\n";
     }

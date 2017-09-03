@@ -42,15 +42,20 @@
 //============================================================================
 
 TCPConnection::TCPConnection()
-    : TxBuffer(0)
-    , NewConnection(0)
-    , RxBufferEmpty(true)
-    , RxInOffset(0)
+    : RxInOffset(0)
     , RxOutOffset(0)
+    , TxOffset(0)
     , CurrentWindow(TCP_RX_WINDOW_SIZE)
+    , TxBuffer(0)
+    , RxBufferEmpty(true)
+    , NewConnection(0)
+    , Parent(0)
     , Event("tcp connection")
     , HoldingQueue("TCPHolding", TX_BUFFER_COUNT, ConnectionHoldingBuffer)
     , HoldingQueueLock("HoldingQueueLock")
+    , MAC(0)
+    , IP(0)
+    , TCP(0)
 {
 }
 
@@ -257,7 +262,20 @@ void TCPConnection::Close()
         SequenceNumber++; // FIN consumes a sequence number
         State = LAST_ACK;
         break;
-    default: break;
+    case CLOSED:
+        break;
+    case FIN_WAIT_1:
+        break;
+    case FIN_WAIT_2:
+        break;
+    case CLOSING:
+        break;
+    case LAST_ACK:
+        break;
+    case TIMED_WAIT:
+        break;
+    case TTCP_PERSIST:
+        break;
     }
 }
 
