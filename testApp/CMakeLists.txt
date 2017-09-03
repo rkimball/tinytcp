@@ -12,7 +12,7 @@ set( LIBS
    osSupport
    packet_io )
 if( UNIX )
-	set( LIBS ${LIBS} pthread )
+	set( LIBS ${LIBS})
 elseif(WIN32)
 	set( LIBS ${LIBS} Packet.lib wpcap.lib Ws2_32.lib )
 endif()
@@ -29,7 +29,7 @@ link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/WinPcap/Lib )
 add_executable(${PROJECT_NAME} ${SOURCE} )
 
 target_link_libraries(${PROJECT_NAME} ${LIBS} )
-add_dependencies( ${PROJECT_NAME} ${LIBS} ${HTML} packet_io )
+add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
 include_directories( ../webServer ../tcpStack ../osSupport )
 if( WIN32 )
     include_directories( WinPcap/include )

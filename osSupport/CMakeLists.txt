@@ -4,4 +4,5 @@ add_library (osSupport
     osQueue.cpp
     osThread.cpp
     osTime.cpp
+    osUtil.cpp
 )
