@@ -149,8 +149,8 @@ DataBuffer* ProtocolIPv4::GetTxBuffer(InterfaceMAC* mac)
     buffer = mac->GetTxBuffer();
     if (buffer != 0)
     {
-        buffer->Packet += IP_HEADER_SIZE;
-        buffer->Remainder -= IP_HEADER_SIZE;
+        buffer->Packet += header_size();
+        buffer->Remainder -= header_size();
     }
 
     return buffer;
@@ -169,8 +169,8 @@ void ProtocolIPv4::Transmit(DataBuffer*    buffer,
     const uint8_t* targetMAC;
     uint8_t*       packet;
 
-    buffer->Packet -= IP_HEADER_SIZE;
-    buffer->Length += IP_HEADER_SIZE;
+    buffer->Packet -= header_size();
+    buffer->Length += header_size();
     packet = buffer->Packet;
 
     packet[0] = 0x45; // Version and HeaderSize

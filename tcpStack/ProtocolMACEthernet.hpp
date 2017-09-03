@@ -38,8 +38,6 @@
 #include "osEvent.hpp"
 #include "osQueue.hpp"
 
-#define MAC_HEADER_SIZE (14)
-
 class ProtocolARP;
 class ProtocolIPv4;
 
@@ -65,6 +63,7 @@ public:
     const uint8_t* GetBroadcastAddress() const;
 
     void SetUnicastAddress(uint8_t* addr);
+    static size_t header_size() { return 14; }
 
     friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
 

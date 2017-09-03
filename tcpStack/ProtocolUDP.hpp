@@ -34,8 +34,6 @@
 #include <inttypes.h>
 #include "DataBuffer.hpp"
 
-#define UDP_HEADER_SIZE (8)
-
 class ProtocolIPv4;
 class ProtocolDHCP;
 
@@ -51,6 +49,7 @@ public:
                   uint16_t       sourcePort);
 
     DataBuffer* GetTxBuffer(InterfaceMAC*);
+    static size_t header_size() { return 8; }
 
 private:
     ProtocolIPv4& IP;

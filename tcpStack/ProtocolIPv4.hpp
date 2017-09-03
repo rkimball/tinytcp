@@ -38,8 +38,6 @@
 #include "InterfaceMAC.hpp"
 #include "osQueue.hpp"
 
-#define IP_HEADER_SIZE (20)
-
 class ProtocolARP;
 class ProtocolICMP;
 class ProtocolTCP;
@@ -85,6 +83,8 @@ public:
     DataBuffer* GetTxBuffer(InterfaceMAC*);
     void        FreeTxBuffer(DataBuffer*);
     void        FreeRxBuffer(DataBuffer*);
+
+    static size_t header_size() { return 20; }
 
     friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
 

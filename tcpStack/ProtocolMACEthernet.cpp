@@ -139,8 +139,8 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
             return;
         }
         // Unicast
-        packet->Packet += MAC_HEADER_SIZE;
-        packet->Length -= MAC_HEADER_SIZE;
+        packet->Packet += header_size();
+        packet->Length -= header_size();
 
         switch (type)
         {
@@ -177,8 +177,8 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
     if (buffer != 0)
     {
         buffer->Initialize(this);
-        buffer->Packet += MAC_HEADER_SIZE;
-        buffer->Remainder -= MAC_HEADER_SIZE;
+        buffer->Packet += header_size();
+        buffer->Remainder -= header_size();
     }
 
     return buffer;
@@ -209,8 +209,8 @@ void ProtocolMACEthernet::FreeRxBuffer(DataBuffer* buffer)
 
 void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC, uint16_t type)
 {
-    buffer->Packet -= MAC_HEADER_SIZE;
-    buffer->Length += MAC_HEADER_SIZE;
+    buffer->Packet -= header_size();
+    buffer->Length += header_size();
 
     size_t offset = 0;
     offset        = PackBytes(buffer->Packet, offset, targetMAC, 6);
@@ -266,7 +266,7 @@ size_t ProtocolMACEthernet::AddressSize() const
 
 size_t ProtocolMACEthernet::HeaderSize() const
 {
-    return MAC_HEADER_SIZE;
+    return header_size();
 }
 
 //============================================================================
