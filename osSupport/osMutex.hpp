@@ -36,7 +36,7 @@
 #include <pthread.h>
 #endif
 
-#include "osPrintfInterface.hpp"
+#include <iostream>
 
 class osThread;
 
@@ -55,7 +55,7 @@ public:
 
     const char* GetName();
 
-    static void Show(osPrintfInterface* pfunc);
+    static void dump_info(std::ostream&);
 
 private:
 #ifdef _WIN32

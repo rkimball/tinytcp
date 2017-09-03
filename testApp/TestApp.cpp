@@ -208,9 +208,10 @@ void FormsDemo(http::Page* page)
 
 void ShowMutex(http::Page* page)
 {
-    page->Printf("<pre>");
-    osMutex::Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    osMutex::dump_info(out);
+    out << "</pre>";
 }
 
 //============================================================================
@@ -219,9 +220,10 @@ void ShowMutex(http::Page* page)
 
 void ShowEvent(http::Page* page)
 {
-    page->Printf("<pre>");
-    osEvent::Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    osEvent::dump_info(out);
+    out << "</pre>";
 }
 
 //============================================================================
@@ -230,9 +232,10 @@ void ShowEvent(http::Page* page)
 
 void ShowQueue(http::Page* page)
 {
-    page->Printf("<pre>");
-    osQueue::Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    osQueue::dump_info(out);
+    out << "</pre>";
 }
 
 //============================================================================
@@ -241,9 +244,10 @@ void ShowQueue(http::Page* page)
 
 void ShowThread(http::Page* page)
 {
-    page->Printf("<pre>");
-    osThread::Show(page);
-    page->Printf("</pre>");
+    ostream& out = page->get_output_stream();
+    out << "<pre>";
+    osThread::dump_info(out);
+    out << "</pre>";
 }
 
 //============================================================================

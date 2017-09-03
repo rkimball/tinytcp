@@ -34,9 +34,12 @@
 #endif
 #include <stdio.h>
 #include <string.h>
+#include <iomanip>
 
 #include "osEvent.hpp"
 #include "osThread.hpp"
+
+using namespace std;
 
 osEvent* osEvent::InstanceList[osEvent::INSTANCE_MAX];
 osMutex  osEvent::ListMutex("Event List");
@@ -147,25 +150,28 @@ const char* osEvent::GetName()
     return Name;
 }
 
-void osEvent::Show(osPrintfInterface* out)
+void osEvent::dump_info(std::ostream& out)
 {
     uint32_t i;
 
-    out->Printf("Event                         |Thread Name         |State\n");
-    out->Printf("------------------------------+--------------------+------------\n");
+    out << "Event                         |Thread Name         |State\n";
+    out << "------------------------------+--------------------+------------\n";
     for (i = 0; i < INSTANCE_MAX; i++)
     {
         osEvent* e = InstanceList[i];
         if (e)
         {
             osThread* thread = e->pending;
+            out << setw(30) << left << e->GetName() << setw(0) << "|";
             if (thread)
             {
-                out->Printf("%-30s|%-20s|%-10s\n", e->GetName(), thread->GetName(), "");
+                out << setw(20) << left << thread->GetName() << setw(0) << "|";
+                out << setw(10) << left << "" << setw(0) << "\n";
             }
             else
             {
-                out->Printf("%-30s|%-20s|%-10s\n", e->GetName(), "", "");
+                out << setw(20) << left << "" << setw(0) << "|";
+                out << setw(10) << left << "" << setw(0) << "\n";
             }
         }
     }

@@ -29,11 +29,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "osQueue.hpp"
-
 #include <inttypes.h>
 #include <iostream>
 #include <stdio.h>
+#include <iomanip>
+
+#include "osQueue.hpp"
+
 using namespace std;
 
 static const size_t MAX_QUEUE_COUNT = 20;
@@ -165,7 +167,7 @@ bool osQueue::Contains(void* object)
     return rc;
 }
 
-void osQueue::Show(osPrintfInterface* pfunc)
+void osQueue::dump_info(std::ostream& out)
 {
     QueueListLock.Take(__FILE__, __LINE__);
     for (int i = 0; i < MAX_QUEUE_COUNT; i++)
@@ -173,10 +175,9 @@ void osQueue::Show(osPrintfInterface* pfunc)
         osQueue* queue = QueueList[i];
         if (queue != NULL)
         {
-            pfunc->Printf("Queue %s is size %d and contains %d objects\n",
-                          queue->GetName(),
-                          queue->MaxElements,
-                          queue->GetCount());
+           out << "Queue " << queue->GetName();
+           out << " is size " << queue->MaxElements;
+           out  << " and contains " << queue->GetCount() << " objects\n";
             // This is hanging
             // can't lock the queue and tx tcp frames as it can deadlock
             // tx tcp locks queues

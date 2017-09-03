@@ -31,6 +31,8 @@
 
 #pragma once
 
+#include <iostream>
+
 #include "osMutex.hpp"
 
 class osQueue
@@ -52,7 +54,7 @@ public:
 
     bool Contains(void* object);
 
-    static void Show(osPrintfInterface* pfunc);
+    static void dump_info(std::ostream&);
 
 private:
     int Increment(int index)

@@ -36,13 +36,15 @@
 #endif
 #include <cassert>
 #include <stdio.h>
+#include <iomanip>
+#include <iostream>
 
 #include "osEvent.hpp"
 #include "osMutex.hpp"
 #include "osThread.hpp"
 
-#include <iostream>
 using namespace std;
+
 static const int MAX_THREADS = 48;
 static osThread* Threads[MAX_THREADS];
 
@@ -312,7 +314,7 @@ void osThread::ClearState()
     Linenumber  = 0;
 }
 
-void osThread::Show(osPrintfInterface* pfunc)
+void osThread::dump_info(std::ostream& out)
 {
 #ifdef WIN32
     FILETIME   creationTime;
@@ -323,40 +325,40 @@ void osThread::Show(osPrintfInterface* pfunc)
     HANDLE     handle;
 
     handle = GetCurrentProcess();
-    pfunc->Printf("Process Priority   = 0x%X\n", GetPriorityClass(handle));
+    out << "Process Priority   = 0x" << to_hex(GetPriorityClass(handle)) << "\n";
     if (GetProcessTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime))
     {
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        pfunc->Printf("  Kernel Time      = %02d:%02d:%02d.%03d\n",
-                      sysTime.wHour,
-                      sysTime.wMinute,
-                      sysTime.wSecond,
-                      sysTime.wMilliseconds);
+        out << "  Kernel Time      = ",
+        out << setw(2) << setfill('0') << sysTime.wHour << ":";
+        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
+        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        pfunc->Printf("  User Time        = %02d:%02d:%02d.%03d\n",
-                      sysTime.wHour,
-                      sysTime.wMinute,
-                      sysTime.wSecond,
-                      sysTime.wMilliseconds);
+        out << "  User Time        = ",
+        out << setw(2) << setfill('0') << sysTime.wHour << ":";
+        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
+        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
     }
 #endif
 
-    pfunc->Printf(
-        "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n");
+    out <<
+        "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n";
 
 #ifdef WIN32
-    pfunc->Printf(
+    out <<
         "----+--------------------+-------+--------------+--------------+--------------------------"
         "\n");
-    pfunc->Printf("Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n");
-    pfunc->Printf(
+    out << "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n";
+    out <<
         "----+--------------------+-------+--------------+--------------+--------------------------"
         "\n");
 #elif __linux__
-    pfunc->Printf("--------------------+------------------------------------\n");
-    pfunc->Printf("Thread Name         | State\n");
-    pfunc->Printf("--------------------+------------------------------------\n");
+    out << "--------------------+------------------------------------\n";
+    out << "Thread Name         | State\n";
+    out << "--------------------+------------------------------------\n";
 #endif
 
     Mutex.Take(__FILE__, __LINE__);
@@ -382,40 +384,42 @@ void osThread::Show(osPrintfInterface* pfunc)
         }
         GetThreadTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
 
-        pfunc->Printf("%3d |%-20s|%6u | ", priority, thread->Name, handle);
+        // pfunc->Printf("%3d |%-20s|%6u | ", priority, thread->Name, handle);
+        out << setw(3) << priority << " |"
+        out  << setw(20) << left << thread->Name<< "|" ;
+        out << setw(6) << handle << " | ";
 
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        pfunc->Printf("%2d:%02d:%02d.%03d | ",
-                      sysTime.wHour,
-                      sysTime.wMinute,
-                      sysTime.wSecond,
-                      sysTime.wMilliseconds);
+        out << setw(2) << setfill('0') << sysTime.wHour << ":";
+        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
+        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wMilliseconds << " | ";
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        pfunc->Printf("%2d:%02d:%02d.%03d | ",
-                      sysTime.wHour,
-                      sysTime.wMinute,
-                      sysTime.wSecond,
-                      sysTime.wMilliseconds);
+        out << setw(2) << setfill('0') << sysTime.wHour << ":";
+        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
+        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wMilliseconds << " | ";
+
 #elif __linux__
-        pfunc->Printf("%-20s|", thread->Name);
+        out << setw(20) << left << thread->Name << "|";
 #endif
 
         // Find out what this thread is doing
         switch (thread->State)
         {
-        case INIT: pfunc->Printf("init\n"); break;
-        case RUNNING: pfunc->Printf("running\n"); break;
+        case INIT: out << "init\n"; break;
+        case RUNNING: out << "running\n"; break;
         case PENDING_MUTEX:
         {
             osMutex* obj = (osMutex*)(thread->StateObject);
             if (obj != NULL)
             {
-                pfunc->Printf("pending on mutex \"%s\"\n", obj->GetName());
+                out << "pending on mutex \"" << obj->GetName() << "\"\n";
             }
             else
             {
-                pfunc->Printf("pending on mutex \"UNKNOWN\"\n");
+                out << "pending on mutex \"UNKNOWN\"\n";
             }
             break;
         }
@@ -424,19 +428,17 @@ void osThread::Show(osPrintfInterface* pfunc)
             osEvent* obj = (osEvent*)(thread->StateObject);
             if (obj != NULL)
             {
-                pfunc->Printf("pending event \"%s\"\n", obj->GetName());
+                out << "pending event \"" << obj->GetName() << "\"\n";
             }
             else
             {
-                pfunc->Printf("pending event \"UNKNOWN\"\n");
+                out << "pending event \"UNKNOWN\"\n";
             }
             break;
         }
         case SLEEPING:
-            pfunc->Printf("sleeping %luus at %s %d\n",
-                          thread->USleepTime,
-                          thread->Filename,
-                          thread->Linenumber);
+            out << "sleeping " << thread->USleepTime;
+            out << " at " << thread->Filename << " " << thread->Linenumber;
             break;
         }
     }

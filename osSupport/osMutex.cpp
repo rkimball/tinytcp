@@ -33,9 +33,12 @@
 #include <Windows.h>
 #endif
 #include <stdio.h>
+#include <iomanip>
 
 #include "osMutex.hpp"
 #include "osThread.hpp"
+
+using namespace std;
 
 osMutex* osMutex::MutexList[MAX_MUTEX];
 
@@ -168,13 +171,11 @@ void osMutex::UnlockListMutex()
 #endif
 }
 
-void osMutex::Show(osPrintfInterface* pfunc)
+void osMutex::dump_info(std::ostream& out)
 {
-    pfunc->Printf(
-        "--------------------+-------+--------------------+------+--------------------\n");
-    pfunc->Printf(" Name               | State | Owner              | Line | File\n");
-    pfunc->Printf(
-        "--------------------+-------+--------------------+------+--------------------\n");
+    out << "--------------------+-------+--------------------+------+--------------------\n";
+    out << " Name               | State | Owner              | Line | File\n";
+    out << "--------------------+-------+--------------------+------+--------------------\n";
 
     LockListMutex();
     for (int i = 0; i < MAX_MUTEX; i++)
@@ -182,19 +183,22 @@ void osMutex::Show(osPrintfInterface* pfunc)
         osMutex* mutex = MutexList[i];
         if (mutex != NULL)
         {
+            string name = mutex->Name;
+            string state;
+            string owner;
+            int    line;
+            string file;
             if (mutex->OwnerFile)
             {
-                pfunc->Printf("%-20s|%-7s|%-20s|%-6d|%s\n",
-                              mutex->Name,
-                              "",
-                              "",
-                              mutex->OwnerLine,
-                              mutex->OwnerFile);
+                line = mutex->OwnerLine;
+                file = mutex->OwnerFile;
             }
-            else
-            {
-                pfunc->Printf("%-20s|%-7s|%-20s|%-6s|%s\n", mutex->Name, "", "", "", "");
-            }
+            // pfunc->Printf("%-20s|%-7s|%-20s|%-6s|%s\n", mutex->Name, "", "", "", "");
+            out << setw(20) << name << setw(0) << "|";
+            out << setw( 7) << state << setw(0) << "|";
+            out << setw(20) << owner << setw(0) << "|";
+            out << setw( 6) << line << setw(0) << "|";
+            out << setw( 0) << file << setw(0) << "\n";
         }
     }
     UnlockListMutex();

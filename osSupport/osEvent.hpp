@@ -32,13 +32,13 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iostream>
 
 #ifdef __linux__
 #include "pthread.h"
 #endif
 
 #include "osMutex.hpp"
-#include "osPrintfInterface.hpp"
 
 class osEvent
 {
@@ -53,7 +53,7 @@ public:
 
     const char* GetName();
 
-    static void Show(osPrintfInterface* out);
+    static void dump_info(std::ostream&);
 
 private:
 #ifdef _WIN32

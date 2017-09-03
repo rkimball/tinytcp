@@ -32,6 +32,7 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iostream>
 
 #ifndef _WIN32
 #include <pthread.h>
@@ -40,7 +41,6 @@
 #endif
 
 #include "osEvent.hpp"
-#include "osPrintfInterface.hpp"
 
 typedef void (*ThreadEntryPtr)(void*);
 
@@ -87,7 +87,7 @@ public:
 #endif
     osEvent ThreadStart;
 
-    static void Show(osPrintfInterface* pfunc);
+    static void dump_info(std::ostream&);
 
     static const int32_t STATE_LENGTH_MAX = 81;
     int32_t              Priority;
