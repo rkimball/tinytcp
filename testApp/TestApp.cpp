@@ -152,46 +152,46 @@ void MainEntry(void* config)
 //
 //============================================================================
 
-typedef void (*PageFunction)(http::Page*);
-
 void HomePage(http::Page* page)
 {
     time_t     t   = time(0);
     struct tm* now = localtime(&t);
+    ostream& out = page->get_output_stream();
 
-    page->Printf("<span>Current time: %s</span>\n", asctime(now));
+    out << "<span>Current time: " << asctime(now) << "</span>\n";
 
-    page->Printf("<table class=\"table table-striped\">\n");
-    page->Printf("  <thead>\n");
-    page->Printf("    <th>Protocol</th>\n");
-    page->Printf("    <th>Size of class</th>\n");
-    page->Printf("  </thead>\n");
-    page->Printf("  <tbody>\n");
-    page->Printf("    <tr><td>MAC</td><td>%u</td></tr>\n", sizeof(tcpStack.MAC));
-    page->Printf("    <tr><td>IP</td><td>%u</td></tr>\n", sizeof(tcpStack.IP));
-    page->Printf("    <tr><td>TCP</td><td>%u</td></tr>\n", sizeof(tcpStack.TCP));
-    page->Printf("    <tr><td>ARP</td><td>%u</td></tr>\n", sizeof(tcpStack.ARP));
-    page->Printf("    <tr><td>ICMP</td><td>%u</td></tr>\n", sizeof(tcpStack.ICMP));
-    page->Printf("    <tr><td>DHCP</td><td>%u</td></tr>\n", sizeof(tcpStack.DHCP));
-    page->Printf("  </tbody>\n");
-    page->Printf("</table>\n");
+    out << "<table class=\"table table-striped\">\n";
+    out << "  <thead>\n";
+    out << "    <th>Protocol</th>\n";
+    out << "    <th>Size of class</th>\n";
+    out << "  </thead>\n";
+    out << "  <tbody>\n";
+    out << "    <tr><td>MAC</td><td>" << sizeof(tcpStack.MAC) << "</td></tr>\n";
+    out << "     <tr><td>IP</td><td>" << sizeof(tcpStack.IP) << "</td></tr>\n";
+    out << "    <tr><td>TCP</td><td>" << sizeof(tcpStack.TCP) << "</td></tr>\n";
+    out << "    <tr><td>ARP</td><td>" << sizeof(tcpStack.ARP) << "</td></tr>\n";
+    out << "   <tr><td>ICMP</td><td>" << sizeof(tcpStack.ICMP) << "</td></tr>\n";
+    out << "   <tr><td>DHCP</td><td>" << sizeof(tcpStack.DHCP) << "</td></tr>\n";
+    out << "  </tbody>\n";
+    out << "</table>\n";
 }
 
 void FormsDemo(http::Page* page)
 {
-    page->Printf("<form action=\"/formsresult\">");
+    ostream& out = page->get_output_stream();
+    out << "<form action=\"/formsresult\">";
 
-    page->Printf("<label for=\"FirstName\">First name:</label>");
-    page->Printf(
-        "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>");
-    page->Printf("<br>");
+    out << "<label for=\"FirstName\">First name:</label>";
+    out <<
+        "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>";
+    out << "<br>";
 
-    page->Printf("<label for=\"LastName\">Last name:</label>");
-    page->Printf(
-        "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>");
-    page->Printf("<br>");
+    out << "<label for=\"LastName\">Last name:</label>";
+    out <<
+        "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>";
+    out << "<br>";
 
-    page->Printf("<input type=\"submit\" value=\"submit\" />");
+    out << "<input type=\"submit\" value=\"submit\" />";
 
     //      page->Reference( "/files/test1.zip", "test1.zip" );
     //      page->SendString( "      <form action=\"/test/uploadfile\" method=\"POST\" " );
