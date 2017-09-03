@@ -33,9 +33,9 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "ProtocolTCP.hpp"
-#include "osPrintfInterface.hpp"
 #include "osThread.hpp"
 
 namespace http
@@ -44,7 +44,7 @@ namespace http
     class Server;
 }
 
-class http::Page : public osPrintfInterface, public std::streambuf
+class http::Page : public std::streambuf
 {
     friend class Server;
 
@@ -55,7 +55,7 @@ public:
     void Initialize(TCPConnection*);
 
     int Printf(const char* format, ...);
-    static void HTMLEncodef(osPrintfInterface*, const char* format, ...);
+    static std::string HTMLEncode(const std::string&);
 
     /// Puts writes the string converting all newline characters to <br>
     bool Puts(const char* string);

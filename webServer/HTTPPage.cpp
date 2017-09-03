@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <cstring>
+#include <sstream>
 
 #include "HTTPPage.hpp"
 #include "osThread.hpp"
@@ -105,45 +106,31 @@ int http::Page::Printf(const char* format, ...)
 //
 //============================================================================
 
-void http::Page::HTMLEncodef(osPrintfInterface* pfunc, const char* format, ...)
+string http::Page::HTMLEncode(const string& str)
 {
-    char    buffer[256];
-    char    buffer2[sizeof(buffer) * 2];
     char*   p;
     int     i;
-    va_list vlist;
 
-    va_start(vlist, format);
-
-    vsnprintf(buffer, sizeof(buffer), format, vlist);
-
-    p = buffer2;
-    for (i = 0; buffer[i]; i++)
+    string rc;
+    stringstream ss;
+    for (int i=0; i<str.size(); i++)
     {
-        if (p >= &buffer2[sizeof(buffer2) - 5])
-        {
-            break;
-        }
-        switch (buffer[i])
+        switch (str[i])
         {
         case '<':
-            *p++ = '&';
-            *p++ = 'l';
-            *p++ = 't';
+            ss << '&lt';
             break;
 
         case '>':
-            *p++ = '&';
-            *p++ = 'g';
-            *p++ = 't';
+            ss << '&gt';
             break;
 
-        default: *p++ = buffer[i]; break;
+        default:
+            ss << str[i];
+            break;
         }
     }
-    *p = 0;
-
-    pfunc->Printf(buffer2);
+    return ss.str();
 }
 
 //============================================================================
