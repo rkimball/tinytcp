@@ -35,7 +35,7 @@
 #include <inttypes.h>
 
 #define TCP_MAX_CONNECTIONS (5)
-#define TCP_RX_WINDOW_SIZE (2560)
+#define TCP_RX_WINDOW_SIZE (1024)
 
 #define TX_BUFFER_COUNT (20)
 #define RX_BUFFER_COUNT (20)

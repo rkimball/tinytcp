@@ -87,6 +87,7 @@ public:
     TCPConnection* NewServer(InterfaceMAC*, uint16_t port);
     uint16_t NewPort();
     static size_t header_size() { return 20; }
+    size_t rx_window_size() const { return 512; }
 
     void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
     friend std::ostream& operator<<(std::ostream&, const ProtocolTCP&);
