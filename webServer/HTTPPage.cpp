@@ -336,8 +336,8 @@ bool http::Page::SendFile(const char* filename)
         counti64 = ftell(f);
         fseek(f, 0, SEEK_SET);
 #endif
-        SendString("HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n");
-        snprintf(s, sizeof(s), "Content-Length: %lud\r\n\r\n", counti64);
+        out << "HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n";
+        out << "Content-Length: " << counti64 << "\r\n\r\n";
         SendString(s);
 
         do
@@ -395,6 +395,7 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
         int c;
         int markerIndex  = 0;
         int markerLength = strlen(marker);
+        ostream& out = get_output_stream();
         while ((c = fgetc(f)) > 0)
         {
             if (c == marker[markerIndex])
@@ -404,25 +405,25 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
                 {
                     // found the marker
                     markerIndex = 0;
-                    SendString("<!-- ");
-                    SendString(marker);
-                    SendString(" start -->");
+                    out << "<!-- ";
+                    out << marker;
+                    out << " start -->";
                     content(this);
-                    SendString("<!-- ");
-                    SendString(marker);
-                    SendString(" end -->");
+                    out << "<!-- ";
+                    out << marker;
+                    out << " end -->";
                 }
             }
             else if (markerIndex > 0)
             {
                 // Send the part of the marker that matched so far
-                RawSend(marker, markerIndex);
+                out.write(marker, markerIndex);
                 markerIndex = 0;
             }
             else
             {
                 char ch = c;
-                RawSend(&ch, 1);
+                out << ch;
             }
         }
     }
@@ -444,14 +445,14 @@ istream& http::Page::get_input_stream()
 
 streamsize http::Page::xsputn(const char* s, streamsize n)
 {
-    RawSend(s, n);
+    Connection->Write((uint8_t*)s, n);
     return n;
 }
 
 int http::Page::overflow(int c)
 {
-    char ch = c;
-    RawSend(&ch, 1);
+    uint8_t ch = c;
+    Connection->Write(&ch, 1);
     return c;
 }
 
