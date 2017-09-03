@@ -28,7 +28,7 @@ add_definitions( "-DBINARY_DIR=\"${CMAKE_CURRENT_BINARY_DIR}/\"" )
 link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/WinPcap/Lib )
 add_executable(${PROJECT_NAME} ${SOURCE} )
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} )
+target_link_libraries(${PROJECT_NAME} ${LIBS} pthread)
 add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
 include_directories( ../webServer ../tcpStack ../osSupport )
 if( WIN32 )
