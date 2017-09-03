@@ -53,11 +53,6 @@
 // Checksum - 16 bits
 // UrgentPointer - 16 bits
 
-#define TCP_HEADER_SIZE (20)
-#if TCP_RX_WINDOW_SIZE >                                                                           \
-    (DATA_BUFFER_PAYLOAD_SIZE - TCP_HEADER_SIZE - IP_HEADER_SIZE - MAC_HEADER_SIZE)
-#error Rx window size must be smaller than data payload
-#endif
 #define TCP_RETRANSMIT_TIMEOUT_US 100000
 #define TCP_TIMED_WAIT_TIMEOUT_US 1000000
 
@@ -91,6 +86,7 @@ public:
                              uint16_t       localPort);
     TCPConnection* NewServer(InterfaceMAC*, uint16_t port);
     uint16_t NewPort();
+    static size_t header_size() { return 20; }
 
     void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
     friend std::ostream& operator<<(std::ostream&, const ProtocolTCP&);

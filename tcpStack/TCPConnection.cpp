@@ -113,7 +113,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
 
     flags |= FLAG_ACK;
 
-    buffer->Packet -= TCP_HEADER_SIZE;
+    buffer->Packet -= ProtocolTCP::header_size();
     packet = buffer->Packet;
     length = buffer->Length;
     if (packet != 0)
@@ -143,11 +143,11 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         }
 
         checksum = ProtocolTCP::ComputeChecksum(
-            packet, length + TCP_HEADER_SIZE, IP->GetUnicastAddress(), RemoteAddress);
+            packet, length + ProtocolTCP::header_size(), IP->GetUnicastAddress(), RemoteAddress);
 
         Pack16(packet, 16, checksum); // checksum
 
-        buffer->Length += TCP_HEADER_SIZE;
+        buffer->Length += ProtocolTCP::header_size();
 
         if (length > 0 || (flags & (FLAG_SYN | FLAG_FIN)))
         {
@@ -173,8 +173,8 @@ DataBuffer* TCPConnection::GetTxBuffer()
     rc = IP->GetTxBuffer(MAC);
     if (rc)
     {
-        rc->Packet += TCP_HEADER_SIZE;
-        rc->Remainder -= TCP_HEADER_SIZE;
+        rc->Packet += ProtocolTCP::header_size();
+        rc->Remainder -= ProtocolTCP::header_size();
     }
 
     return rc;

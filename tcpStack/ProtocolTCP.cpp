@@ -304,10 +304,10 @@ void ProtocolTCP::Reset(InterfaceMAC*  mac,
         return;
     }
 
-    buffer->Packet += TCP_HEADER_SIZE;
-    buffer->Remainder -= TCP_HEADER_SIZE;
+    buffer->Packet += header_size();
+    buffer->Remainder -= header_size();
 
-    buffer->Packet -= TCP_HEADER_SIZE;
+    buffer->Packet -= header_size();
     packet = buffer->Packet;
     length = buffer->Length;
     if (packet != 0)
@@ -323,11 +323,11 @@ void ProtocolTCP::Reset(InterfaceMAC*  mac,
         Pack16(packet, 18, 0); // 2 bytes of UrgentPointer
 
         checksum = ProtocolTCP::ComputeChecksum(
-            packet, TCP_HEADER_SIZE, IP.GetUnicastAddress(), remoteAddress);
+            packet, header_size(), IP.GetUnicastAddress(), remoteAddress);
 
         Pack16(packet, 16, checksum); // checksum
 
-        buffer->Length += TCP_HEADER_SIZE;
+        buffer->Length += header_size();
         buffer->Remainder -= buffer->Length;
 
         IP.Transmit(buffer, 0x06, remoteAddress, IP.GetUnicastAddress());
