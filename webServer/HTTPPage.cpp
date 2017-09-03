@@ -34,6 +34,7 @@
 #include <string.h>
 #include <cstring>
 #include <sstream>
+#include <iomanip>
 
 #include "HTTPPage.hpp"
 #include "osThread.hpp"
@@ -46,6 +47,14 @@
 #endif
 
 using namespace std;
+
+template<typename T>
+std::string to_hex(T obj, size_t width=sizeof(T)*2)
+{
+    std::stringstream ss;
+    ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
+    return ss.str();
+}
 
 //============================================================================
 //
@@ -207,39 +216,40 @@ void http::Page::DumpData(const char* buffer, size_t length)
 {
     int i;
     int j;
+    ostream& out = get_output_stream();
 
     i = 0;
     j = 0;
-    SendString("<code>\n");
+    out << "<code>\n";
     while (i + 1 <= length)
     {
-        Printf("%04X ", i);
+        out << to_hex((uint16_t)i) << " ";
         for (j = 0; j < 16; j++)
         {
             if (i + j < length)
             {
-                Printf("%02X ", buffer[i + j]);
+                out << to_hex(buffer[i + j]) << " ";
             }
             else
             {
-                Printf("   ");
+                out << "   ";
             }
 
             if (j == 7)
             {
-                Printf("- ");
+                out << "- ";
             }
         }
-        Printf("  ");
+        out << "  ";
         for (j = 0; j < 16; j++)
         {
             if (buffer[i + j] >= 0x20 && buffer[i + j] <= 0x7E)
             {
-                Printf("%c", buffer[i + j]);
+                out << buffer[i + j];
             }
             else
             {
-                Printf(".");
+                out << ".";
             }
             if (i + j + 1 == length)
             {
@@ -249,9 +259,9 @@ void http::Page::DumpData(const char* buffer, size_t length)
 
         i += 16;
 
-        SendString("<br>\n");
+        out << "<br>\n";
     }
-    SendString("</code>\n");
+    out << "</code>\n";
 }
 
 //============================================================================
@@ -261,7 +271,8 @@ void http::Page::DumpData(const char* buffer, size_t length)
 void http::Page::PageNotFound()
 {
     HTTPHeaderSent = true;
-    SendString("HTTP/1.0 404 Not Found\r\n\r\n");
+    ostream& out = get_output_stream();
+    out << "HTTP/1.0 404 Not Found\r\n\r\n";
 }
 
 //============================================================================
@@ -271,9 +282,10 @@ void http::Page::PageNotFound()
 void http::Page::PageOK(const char* mimeType)
 {
     HTTPHeaderSent = true;
-    SendString("HTTP/1.0 200 OK\r\nContent-type: ");
-    SendString(mimeType);
-    SendString("\r\n\r\n");
+    ostream& out = get_output_stream();
+    out << "HTTP/1.0 200 OK\r\nContent-type: ";
+    out << mimeType;
+    out << "\r\n\r\n";
 }
 
 //============================================================================
@@ -283,7 +295,8 @@ void http::Page::PageOK(const char* mimeType)
 void http::Page::PageNoContent()
 {
     HTTPHeaderSent = true;
-    SendString("HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n");
+    ostream& out = get_output_stream();
+    out << "HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n";
 }
 
 //============================================================================
@@ -293,7 +306,8 @@ void http::Page::PageNoContent()
 void http::Page::PageUnauthorized()
 {
     HTTPHeaderSent = true;
-    SendString("HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n");
+    ostream& out = get_output_stream();
+    out << "HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n";
 }
 
 //============================================================================
@@ -308,6 +322,7 @@ bool http::Page::SendFile(const char* filename)
     unsigned char buffer[512];
     uint64_t      counti64;
     int           count;
+    ostream& out = get_output_stream();
 
     f = fopen(filename, "rb");
     if (f)
