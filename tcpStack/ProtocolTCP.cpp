@@ -116,6 +116,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                     TCPConnection* tmp = NewClient(rxBuffer->MAC, sourceIP, remotePort, localPort);
                     if (tmp != 0)
                     {
+                        tmp->Allocate(rxBuffer->MAC);
                         tmp->Parent                       = connection;
                         connection                        = tmp;
                         connection->State                 = TCPConnection::SYN_RECEIVED;
@@ -449,6 +450,7 @@ TCPConnection* ProtocolTCP::NewClient(InterfaceMAC*  mac,
         TCPConnection& connection = ConnectionList[i];
         if (connection.State == TCPConnection::CLOSED)
         {
+            connection.Allocate(mac);
             connection.LocalPort      = localPort;
             connection.SequenceNumber = 1;
             connection.MaxSequenceTx  = connection.SequenceNumber + 1024;
@@ -457,7 +459,6 @@ TCPConnection* ProtocolTCP::NewClient(InterfaceMAC*  mac,
                 connection.RemoteAddress[j] = remoteAddress[j];
             }
             connection.RemotePort = remotePort;
-            connection.MAC        = mac;
 
             return &connection;
         }
@@ -479,9 +480,9 @@ TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
         TCPConnection& connection = ConnectionList[i];
         if (connection.State == TCPConnection::CLOSED)
         {
+            connection.Allocate(mac);
             connection.State     = TCPConnection::LISTEN;
             connection.LocalPort = port;
-            connection.MAC       = mac;
             return &connection;
         }
     }

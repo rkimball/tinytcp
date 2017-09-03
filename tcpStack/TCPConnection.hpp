@@ -98,7 +98,7 @@ private:
     DataBuffer* GetTxBuffer();
     void BuildPacket(DataBuffer*, uint8_t flags);
     void CalculateRTT(int32_t msRTT);
-    void SetMAC(InterfaceMAC* mac);
+    void Allocate(InterfaceMAC* mac);
 
     // This stuff is used for Listening for incomming connections
     TCPConnection* NewConnection;

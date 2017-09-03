@@ -65,7 +65,6 @@ TCPConnection::TCPConnection()
 
 void TCPConnection::Initialize(ProtocolIPv4& ip, ProtocolTCP& tcp)
 {
-    MAC = 0;
     IP  = &ip;
     TCP = &tcp;
 }
@@ -74,17 +73,26 @@ void TCPConnection::Initialize(ProtocolIPv4& ip, ProtocolTCP& tcp)
 //
 //============================================================================
 
-TCPConnection::~TCPConnection()
+void TCPConnection::Allocate(InterfaceMAC* mac)
 {
+    RxInOffset = 0;
+    RxOutOffset = 0;
+    TxOffset = 0;
+    CurrentWindow = TCP_RX_WINDOW_SIZE;
+    TxBuffer = 0;
+    RxBufferEmpty = true;
+    NewConnection = 0;
+    Parent = 0;
+
+    MAC = mac;
 }
 
 //============================================================================
 //
 //============================================================================
 
-void TCPConnection::SetMAC(InterfaceMAC* mac)
+TCPConnection::~TCPConnection()
 {
-    MAC = mac;
 }
 
 //============================================================================
