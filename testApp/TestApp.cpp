@@ -32,9 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#ifdef _WIN32
-#include <pcap.h>
-#elif __linux__
+#ifdef __linux__
 #include <strings.h>
 #include <unistd.h>
 #endif
@@ -72,18 +70,6 @@ struct NetworkConfig
 };
 
 //============================================================================
-// Callback function invoked by libpcap for every incoming packet
-//============================================================================
-
-#ifdef _WIN32
-void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_char* pkt_data)
-{
-    ProtocolMACEthernet::ProcessRx((uint8_t*)pkt_data, header->len);
-}
-#elif __linux__
-#endif
-
-//============================================================================
 //
 //============================================================================
 
@@ -117,27 +103,27 @@ void NetworkEntry(void* param)
 //   Config.IPv4.Address[ 3 ] = 0;
 
 #ifdef _WIN32
-    NetworkConfig& config = *(NetworkConfig*)param;
-    char           device[256];
+    //NetworkConfig& config = *(NetworkConfig*)param;
+    //char           device[256];
 
-    PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
-    printf("using device %s\n", device);
-    //PacketIO::GetMACAddress( device, Config.MACAddress );
+    //PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
+    //printf("using device %s\n", device);
+    ////PacketIO::GetMACAddress( device, Config.MACAddress );
 
-    PIO = new PacketIO(device);
+    //PIO = new PacketIO(device);
 
-    ProtocolMACEthernet::Initialize(PIO);
+    //ProtocolMACEthernet::Initialize(PIO);
 
-    StartEvent.Notify();
+    //StartEvent.Notify();
 
-    // This method does not return...ever
-    PIO->Start(packet_handler);
+    //// This method does not return...ever
+    //PIO->Start(packet_handler);
 #elif __linux__
+#endif
     PIO = new PacketIO();
     tcpStack.RegisterDataTransmitHandler(TxData);
     StartEvent.Notify();
     PIO->Start(RxData);
-#endif
 }
 
 //============================================================================

@@ -44,16 +44,14 @@ public:
     PacketIO(const char* name);
 
     typedef void (*RxDataHandler)(uint8_t* data, size_t length);
-#ifdef _WIN32
-    void Start(pcap_handler handler);
-#elif __linux__
     void Start(RxDataHandler);
+#ifdef __linux__
     void Entry(void* param);
 #endif
     void Stop();
     void TxData(void* data, size_t length);
     static void GetDevice(int interfaceNumber, char* buffer, size_t buffer_size);
-    static int GetMACAddress(const char* adapter, uint8_t* mac);
+    //static int GetMACAddress(const char* adapter, uint8_t* mac);
     static void DisplayDevices();
     static void GetInterface(char* name);
 

@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 
 #include <cstring>
+#include <algorithm>
 
 #include "TCPConnection.hpp"
 #include "ProtocolIPv4.hpp"

@@ -48,21 +48,21 @@ void RxData(uint8_t* data, size_t length)
 TEST(network, raw_socket)
 {
 #ifdef _WIN32
-    NetworkConfig& config = *(NetworkConfig*)param;
-    char           device[256];
+    //NetworkConfig& config = *(NetworkConfig*)param;
+    //char           device[256];
 
-    PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
-    printf("using device %s\n", device);
-    //PacketIO::GetMACAddress( device, Config.MACAddress );
+    //PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
+    //printf("using device %s\n", device);
+    ////PacketIO::GetMACAddress( device, Config.MACAddress );
 
-    PIO = new PacketIO(device);
+    //PIO = new PacketIO(device);
 
-    ProtocolMACEthernet::Initialize(PIO);
+    //ProtocolMACEthernet::Initialize(PIO);
 
-    StartEvent.Notify();
+    //StartEvent.Notify();
 
-    // This method does not return...ever
-    PIO->Start(packet_handler);
+    //// This method does not return...ever
+    //PIO->Start(packet_handler);
 #elif __linux__
     PacketIO* PIO = new PacketIO();
     PIO->Start(RxData);

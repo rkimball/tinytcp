@@ -53,8 +53,11 @@ add_subdirectory (osSupport)
 add_subdirectory (tcpStack)
 include_directories(tcpStack osSupport)
 add_subdirectory (webServer)
+
+include_directories(packet_io/WinPcap/Include)
+
 add_subdirectory (packet_io)
 include_directories (packet_io)
 add_subdirectory (testApp)
-add_subdirectory (test)
+# add_subdirectory (test)
 

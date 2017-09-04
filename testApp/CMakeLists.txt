@@ -12,25 +12,24 @@ set( LIBS
    osSupport
    packet_io )
 if( UNIX )
-	set( LIBS ${LIBS})
+	set(LIBS ${LIBS} pthread)
 elseif(WIN32)
-	set( LIBS ${LIBS} Packet.lib wpcap.lib Ws2_32.lib )
+	set(LIBS ${LIBS} wpcap.lib Ws2_32.lib)
 endif()
 
-foreach( file ${HTML} )
-    configure_file( ${file} ${CMAKE_CURRENT_BINARY_DIR}/${file} @ONLY )
-endforeach( file )
-#file( COPY ${HTML} DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+foreach(file ${HTML})
+    configure_file(${file} ${CMAKE_CURRENT_BINARY_DIR}/${file} @ONLY)
+endforeach(file)
+#file(COPY ${HTML} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_definitions( "-DBINARY_DIR=\"${CMAKE_CURRENT_BINARY_DIR}/\"" )
 
-
-link_directories( ${CMAKE_CURRENT_SOURCE_DIR}/WinPcap/Lib )
+link_directories( ${CMAKE_SOURCE_DIR}/packet_io/WinPcap/Lib )
 add_executable(${PROJECT_NAME} ${SOURCE} )
 
-target_link_libraries(${PROJECT_NAME} ${LIBS} pthread)
-add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
-include_directories( ../webServer ../tcpStack ../osSupport )
+target_link_libraries(${PROJECT_NAME} ${LIBS})
+add_dependencies( ${PROJECT_NAME} packet_io)
+include_directories(../webServer ../tcpStack ../osSupport)
 if( WIN32 )
     include_directories( WinPcap/include )
 endif( WIN32 )

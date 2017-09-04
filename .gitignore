@@ -1,6 +1,10 @@
 .vscode/
 html/
 latex/
+*.vcproj
+*.dsp
+*.dsw
+*.sln
 
 CMakeLists.txt.user*
 *.autosave
