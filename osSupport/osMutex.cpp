@@ -34,6 +34,7 @@
 #endif
 #include <stdio.h>
 #include <iomanip>
+#include <string>
 
 #include "osMutex.hpp"
 #include "osThread.hpp"

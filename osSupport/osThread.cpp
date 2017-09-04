@@ -38,10 +38,12 @@
 #include <stdio.h>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include "osEvent.hpp"
 #include "osMutex.hpp"
 #include "osThread.hpp"
+#include "osUtil.hpp"
 
 using namespace std;
 
@@ -330,14 +332,14 @@ void osThread::dump_info(std::ostream& out)
         out << "  Kernel Time      = ",
         out << setw(2) << setfill('0') << sysTime.wHour << ":";
         out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
         out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
 
         FileTimeToSystemTime(&userTime, &sysTime);
         out << "  User Time        = ",
         out << setw(2) << setfill('0') << sysTime.wHour << ":";
         out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
         out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
     }
 #endif
@@ -348,11 +350,11 @@ void osThread::dump_info(std::ostream& out)
 #ifdef WIN32
     out <<
         "----+--------------------+-------+--------------+--------------+--------------------------"
-        "\n");
+        "\n";
     out << "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n";
     out <<
         "----+--------------------+-------+--------------+--------------+--------------------------"
-        "\n");
+        "\n";
 #elif __linux__
     out << "--------------------+------------------------------------\n";
     out << "Thread Name         | State\n";
@@ -382,20 +384,20 @@ void osThread::dump_info(std::ostream& out)
         }
         GetThreadTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
 
-        out << setw(3) << priority << " |"
+        out << setw(3) << priority << " |";
         out  << setw(20) << left << thread->Name<< "|" ;
         out << setw(6) << handle << " | ";
 
         FileTimeToSystemTime(&kernelTime, &sysTime);
         out << setw(2) << setfill('0') << sysTime.wHour << ":";
         out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
         out << setw(2) << setfill('0') << sysTime.wMilliseconds << " | ";
 
         FileTimeToSystemTime(&userTime, &sysTime);
         out << setw(2) << setfill('0') << sysTime.wHour << ":";
         out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << "."
+        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
         out << setw(2) << setfill('0') << sysTime.wMilliseconds << " | ";
 
 #elif __linux__
