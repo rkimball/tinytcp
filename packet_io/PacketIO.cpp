@@ -247,8 +247,14 @@ void PacketIO::GetDevice(int interfaceNumber, char* buffer, size_t buffer_size)
 
     /* Print the list */
     d = alldevs;
+    while (d)
+    {
+        printf("device %s\n", d->name);
+        d = d->next;
+    }
     for (int i = 0; i < interfaceNumber - 1; i++)
     {
+        printf("here\n");
         if (d)
         {
             d = d->next;
@@ -265,8 +271,28 @@ void PacketIO::GetDevice(int interfaceNumber, char* buffer, size_t buffer_size)
 }
 
 
+struct NetworkConfig
+{
+    int interfaceNumber;
+};
+
 PacketIO::PacketIO()
 {
+    NetworkConfig config;
+    config.interfaceNumber = 1;
+    char           device[256];
+
+    PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
+    printf("using device %s\n", device);
+
+    //PIO = new PacketIO(device);
+
+    //ProtocolMACEthernet::Initialize(PIO);
+
+    //StartEvent.Notify();
+
+    //// This method does not return...ever
+    //PIO->Start(packet_handler);
 }
 
 PacketIO::PacketIO(const char* name)
@@ -297,6 +323,7 @@ PacketIO::PacketIO(const char* name)
 
 void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_char* pkt_data)
 {
+    printf("hello from receive\n");
     PacketIO::RxDataHandler rxData = (PacketIO::RxDataHandler)param;
     rxData((uint8_t*)pkt_data, header->len);
 }
