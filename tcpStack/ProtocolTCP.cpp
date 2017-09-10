@@ -517,33 +517,7 @@ std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
     out << "TCP Information\n";
     for (int i = 0; i < TCP_MAX_CONNECTIONS; i++)
     {
-        out << "connection " << obj.ConnectionList[i].GetStateString() << "   ";
-        switch (obj.ConnectionList[i].State)
-        {
-        case TCPConnection::LISTEN:
-            out << "     local=" << obj.ConnectionList[i].LocalPort << "  ";
-            break;
-        case TCPConnection::ESTABLISHED:
-            out << "local=" << obj.ConnectionList[i].LocalPort;
-            out << "  remote=";
-            out << (int)obj.ConnectionList[i].RemoteAddress[0] << ".";
-            out << (int)obj.ConnectionList[i].RemoteAddress[1] << ".";
-            out << (int)obj.ConnectionList[i].RemoteAddress[2] << ".";
-            out << (int)obj.ConnectionList[i].RemoteAddress[3] << ":";
-            out << obj.ConnectionList[i].RemotePort;
-            break;
-        case TCPConnection::CLOSED: break;
-        case TCPConnection::SYN_SENT: break;
-        case TCPConnection::SYN_RECEIVED: break;
-        case TCPConnection::FIN_WAIT_1: break;
-        case TCPConnection::FIN_WAIT_2: break;
-        case TCPConnection::CLOSE_WAIT: break;
-        case TCPConnection::CLOSING: break;
-        case TCPConnection::LAST_ACK: break;
-        case TCPConnection::TIMED_WAIT: break;
-        case TCPConnection::TTCP_PERSIST: break;
-        }
-        out << "\n";
+        out << obj.ConnectionList[i];
     }
     return out;
 }

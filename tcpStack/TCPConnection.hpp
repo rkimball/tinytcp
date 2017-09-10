@@ -84,6 +84,8 @@ public:
     void        Flush();
     const char* GetStateString() const;
 
+    friend std::ostream& operator<<(std::ostream&, const TCPConnection&);
+
 private:
     uint16_t RxInOffset;
     uint16_t RxOutOffset;

@@ -537,3 +537,36 @@ const char* TCPConnection::GetStateString() const
     }
     return rc;
 }
+
+//============================================================================
+//
+//============================================================================
+
+std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
+{
+    out << "connection " << obj.GetStateString() << "   ";
+    switch (obj.State)
+    {
+    case TCPConnection::LISTEN:
+        out << "     local=" << obj.LocalPort << "\n";
+        break;
+    case TCPConnection::ESTABLISHED:
+        out << "local=" << obj.LocalPort;
+        out << "  remote=";
+        out << (int)obj.RemoteAddress[0] << ".";
+        out << (int)obj.RemoteAddress[1] << ".";
+        out << (int)obj.RemoteAddress[2] << ".";
+        out << (int)obj.RemoteAddress[3] << ":";
+        out << obj.RemotePort;
+        out << "\n";
+        out << "    " << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
+        out << "    " << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
+        out << "    " << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
+        out << "    " << "CurrentWindow " << obj.CurrentWindow << "\n";
+        break;
+    default:
+        out << "\n";
+    }
+
+    return out;
+}
