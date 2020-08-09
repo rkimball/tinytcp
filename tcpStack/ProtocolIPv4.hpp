@@ -52,15 +52,15 @@ private:
 public:
     struct AddressInfo
     {
-        bool     DataValid;
-        uint8_t  Address[ADDRESS_SIZE];
+        bool DataValid;
+        uint8_t Address[ADDRESS_SIZE];
         uint32_t IpAddressLeaseTime;
         uint32_t RenewTime;
         uint32_t RebindTime;
-        uint8_t  SubnetMask[ADDRESS_SIZE];
-        uint8_t  Gateway[ADDRESS_SIZE];
-        uint8_t  DomainNameServer[ADDRESS_SIZE];
-        uint8_t  BroadcastAddress[ADDRESS_SIZE];
+        uint8_t SubnetMask[ADDRESS_SIZE];
+        uint8_t Gateway[ADDRESS_SIZE];
+        uint8_t DomainNameServer[ADDRESS_SIZE];
+        uint8_t BroadcastAddress[ADDRESS_SIZE];
     };
 
     ProtocolIPv4(InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP&);
@@ -73,7 +73,7 @@ public:
 
     void Retry();
 
-    size_t         AddressSize();
+    size_t AddressSize();
     const uint8_t* GetUnicastAddress();
     const uint8_t* GetBroadcastAddress();
     const uint8_t* GetGatewayAddress();
@@ -81,8 +81,8 @@ public:
     void SetAddressInfo(const AddressInfo& info);
 
     DataBuffer* GetTxBuffer(InterfaceMAC*);
-    void        FreeTxBuffer(DataBuffer*);
-    void        FreeRxBuffer(DataBuffer*);
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
 
     static size_t header_size() { return 20; }
 
@@ -92,16 +92,16 @@ private:
     bool IsLocal(const uint8_t* addr);
 
     uint16_t PacketID;
-    void*    TxBuffer[TX_BUFFER_COUNT];
-    osQueue  UnresolvedQueue;
+    void* TxBuffer[TX_BUFFER_COUNT];
+    osQueue UnresolvedQueue;
 
     AddressInfo Address;
 
     InterfaceMAC& MAC;
-    ProtocolARP&  ARP;
+    ProtocolARP& ARP;
     ProtocolICMP& ICMP;
-    ProtocolTCP&  TCP;
-    ProtocolUDP&  UDP;
+    ProtocolTCP& TCP;
+    ProtocolUDP& UDP;
 
     ProtocolIPv4();
     ProtocolIPv4(ProtocolIPv4&);

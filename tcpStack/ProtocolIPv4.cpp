@@ -29,8 +29,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 
 #include "DataBuffer.hpp"
 #include "FCS.hpp"
@@ -79,7 +79,7 @@ ProtocolIPv4::ProtocolIPv4(
 
 bool ProtocolIPv4::IsLocal(const uint8_t* addr)
 {
-    bool    rc;
+    bool rc;
     uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
     if (Address.DataValid)
     {
@@ -100,8 +100,8 @@ bool ProtocolIPv4::IsLocal(const uint8_t* addr)
 
 void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
 {
-    uint8_t  headerLength;
-    uint8_t  protocol;
+    uint8_t headerLength;
+    uint8_t protocol;
     uint8_t* sourceIP;
     uint8_t* targetIP;
     uint8_t* packet = buffer->Packet;
@@ -109,10 +109,10 @@ void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
     uint16_t dataLength;
 
     headerLength = (packet[0] & 0x0F) * 4;
-    dataLength   = Unpack16(packet, 2);
-    protocol     = packet[9];
-    sourceIP     = &packet[12];
-    targetIP     = &packet[16];
+    dataLength = Unpack16(packet, 2);
+    protocol = packet[9];
+    sourceIP = &packet[12];
+    targetIP = &packet[16];
 
     if (IsLocal(targetIP))
     {
@@ -160,14 +160,14 @@ DataBuffer* ProtocolIPv4::GetTxBuffer(InterfaceMAC* mac)
 //
 //============================================================================
 
-void ProtocolIPv4::Transmit(DataBuffer*    buffer,
-                            uint8_t        protocol,
+void ProtocolIPv4::Transmit(DataBuffer* buffer,
+                            uint8_t protocol,
                             const uint8_t* targetIP,
                             const uint8_t* sourceIP)
 {
-    uint16_t       checksum;
+    uint16_t checksum;
     const uint8_t* targetMAC;
-    uint8_t*       packet;
+    uint8_t* packet;
 
     buffer->Packet -= header_size();
     buffer->Length += header_size();
@@ -218,8 +218,8 @@ void ProtocolIPv4::Retransmit(DataBuffer* buffer)
 
 void ProtocolIPv4::Retry()
 {
-    int            count;
-    DataBuffer*    buffer;
+    int count;
+    DataBuffer* buffer;
     const uint8_t* targetMAC;
 
     count = UnresolvedQueue.GetCount();

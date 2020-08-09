@@ -32,8 +32,8 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include <stdio.h>
 #include <iomanip>
+#include <stdio.h>
 #include <string>
 
 #include "osMutex.hpp"
@@ -79,11 +79,9 @@ osMutex::osMutex(const char* name)
 void osMutex::Give()
 {
     osThread* thread = osThread::GetCurrent();
-    if (thread != OwnerThread)
-    {
-    }
-    OwnerFile   = NULL;
-    OwnerLine   = 0;
+    if (thread != OwnerThread) {}
+    OwnerFile = NULL;
+    OwnerLine = 0;
     OwnerThread = NULL;
 #ifdef _WIN32
     ReleaseMutex(Handle);
@@ -187,7 +185,7 @@ void osMutex::dump_info(std::ostream& out)
             string name = mutex->Name;
             string state;
             string owner;
-            int    line = -1;
+            int line = -1;
             string file;
             if (mutex->OwnerFile)
             {
@@ -195,10 +193,10 @@ void osMutex::dump_info(std::ostream& out)
                 file = mutex->OwnerFile;
             }
             out << setw(20) << name << setw(0) << "|";
-            out << setw( 7) << state << setw(0) << "|";
+            out << setw(7) << state << setw(0) << "|";
             out << setw(20) << owner << setw(0) << "|";
-            out << setw( 6) << line << setw(0) << "|";
-            out << setw( 0) << file << setw(0) << "\n";
+            out << setw(6) << line << setw(0) << "|";
+            out << setw(0) << file << setw(0) << "\n";
         }
     }
     UnlockListMutex();

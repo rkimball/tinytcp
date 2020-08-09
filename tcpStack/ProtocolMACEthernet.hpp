@@ -53,8 +53,8 @@ public:
     void Retransmit(DataBuffer* buffer);
 
     DataBuffer* GetTxBuffer();
-    void        FreeTxBuffer(DataBuffer*);
-    void        FreeRxBuffer(DataBuffer*);
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
 
     size_t AddressSize() const;
     size_t HeaderSize() const;
@@ -69,8 +69,8 @@ public:
 
 private:
     static const int ADDRESS_SIZE = 6;
-    osQueue          TxBufferQueue;
-    osQueue          RxBufferQueue;
+    osQueue TxBufferQueue;
+    osQueue RxBufferQueue;
 
     osEvent QueueEmptyEvent;
 
@@ -84,8 +84,8 @@ private:
     void* RxBufferBuffer[RX_BUFFER_COUNT];
 
     DataTransmitHandler TxHandler;
-    ProtocolARP&        ARP;
-    ProtocolIPv4&       IPv4;
+    ProtocolARP& ARP;
+    ProtocolIPv4& IPv4;
 
     bool IsLocalAddress(const uint8_t* addr);
 

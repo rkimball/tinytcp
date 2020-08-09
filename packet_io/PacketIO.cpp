@@ -59,11 +59,11 @@ char AdapterList[Max_Num_Adapter][1024];
 #define IPTOSBUFFERS 12
 char* iptos(u_long in)
 {
-    static char  output[IPTOSBUFFERS][3 * 4 + 3 + 1];
+    static char output[IPTOSBUFFERS][3 * 4 + 3 + 1];
     static short which;
-    u_char*      p;
+    u_char* p;
 
-    p     = (u_char*)&in;
+    p = (u_char*)&in;
     which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
     snprintf(output[which], sizeof(output[which]), "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
     return output[which];
@@ -88,15 +88,15 @@ char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen)
 #ifdef _WIN32
 int PacketIO::GetMACAddress(const char* adapter, uint8_t* mac)
 {
-    LPADAPTER        lpAdapter = 0;
-    int              i;
-    DWORD            dwErrorCode;
-    char             AdapterName[8192];
-    char *           temp, *temp1;
-    int              AdapterNum = 0, Open;
-    ULONG            AdapterLength;
+    LPADAPTER lpAdapter = 0;
+    int i;
+    DWORD dwErrorCode;
+    char AdapterName[8192];
+    char *temp, *temp1;
+    int AdapterNum = 0, Open;
+    ULONG AdapterLength;
     PPACKET_OID_DATA OidData;
-    BOOLEAN          Status;
+    BOOLEAN Status;
 
     lpAdapter = PacketOpenAdapter((char*)adapter);
 
@@ -158,12 +158,12 @@ int PacketIO::GetMACAddress(const char* adapter, uint8_t* mac)
 
 void PacketIO::DisplayDevices()
 {
-    pcap_if_t*   alldevs;
-    pcap_if_t*   d;
+    pcap_if_t* alldevs;
+    pcap_if_t* d;
     pcap_addr_t* a;
-    int          i = 0;
-    char         errbuf[PCAP_ERRBUF_SIZE];
-    char         ip6str[128];
+    int i = 0;
+    char errbuf[PCAP_ERRBUF_SIZE];
+    char ip6str[128];
 
     /* Retrieve the device list from the local machine */
 
@@ -233,8 +233,8 @@ void PacketIO::GetDevice(int interfaceNumber, char* buffer, size_t buffer_size)
 {
     pcap_if_t* alldevs;
     pcap_if_t* d;
-    int        i = 0;
-    char       errbuf[PCAP_ERRBUF_SIZE];
+    int i = 0;
+    char errbuf[PCAP_ERRBUF_SIZE];
 
     /* Retrieve the device list from the local machine */
 
@@ -320,9 +320,7 @@ void PacketIO::TxData(void* packet, size_t length)
 }
 #elif __linux__
 
-PacketIO::PacketIO()
-{
-}
+PacketIO::PacketIO() {}
 
 //============================================================================
 //
@@ -332,29 +330,30 @@ void PacketIO::DisplayDevices()
 {
     struct ifaddrs* ifaddr;
 
-        if (getifaddrs(&ifaddr) == 0)
+    if (getifaddrs(&ifaddr) == 0)
+    {
+        for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
         {
-            for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+            if (ifa->ifa_addr == NULL)
             {
-                if (ifa->ifa_addr == NULL)
-                {
-                    continue;
-                }
-                int family = ifa->ifa_addr->sa_family;
-
-                /* Display interface name and family (including symbolic
-                    form of the latter for the common families) */
-
-                printf("%-8s %s (%d)\n",
-                        ifa->ifa_name,
-                        (family == AF_PACKET) ? "AF_PACKET" :
-                        (family == AF_INET) ? "AF_INET" :
-                        (family == AF_INET6) ? "AF_INET6" : "???",
-                        family);
+                continue;
             }
-            freeifaddrs(ifaddr);
+            int family = ifa->ifa_addr->sa_family;
+
+            /* Display interface name and family (including symbolic
+                form of the latter for the common families) */
+
+            printf("%-8s %s (%d)\n",
+                   ifa->ifa_name,
+                   (family == AF_PACKET)
+                       ? "AF_PACKET"
+                       : (family == AF_INET) ? "AF_INET"
+                                             : (family == AF_INET6) ? "AF_INET6" : "???",
+                   family);
         }
+        freeifaddrs(ifaddr);
     }
+}
 
 //============================================================================
 //
@@ -433,8 +432,8 @@ void PacketIO::Start(RxDataHandler rxData)
         // Set socket to promiscuous mode
         struct packet_mreq mreq;
         mreq.mr_ifindex = ifr.ifr_ifindex;
-        mreq.mr_type    = PACKET_MR_PROMISC;
-        mreq.mr_alen    = 6;
+        mreq.mr_type = PACKET_MR_PROMISC;
+        mreq.mr_alen = 6;
         if (setsockopt(
                 m_RawSocket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, (socklen_t)sizeof(mreq)) < 0)
         {
@@ -455,9 +454,7 @@ void PacketIO::Start(RxDataHandler rxData)
 //
 //============================================================================
 
-void PacketIO::Stop()
-{
-}
+void PacketIO::Stop() {}
 
 //============================================================================
 //
@@ -471,7 +468,7 @@ void PacketIO::TxData(void* packet, size_t length)
     struct sockaddr_ll dest;
 
     memset(&dest, 0, sizeof(dest));
-    dest.sll_family  = AF_PACKET;
+    dest.sll_family = AF_PACKET;
     dest.sll_ifindex = m_IfIndex;
 
     int rc = sendto(m_RawSocket, packet, length, 0, (sockaddr*)&dest, sizeof(dest));

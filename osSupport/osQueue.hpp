@@ -66,11 +66,11 @@ private:
         return index;
     }
 
-    void**      Array;
+    void** Array;
     const char* Name;
-    int         NextInIndex;
-    int         NextOutIndex;
-    int         MaxElements;
-    int         ElementCount;
-    osMutex     Lock;
+    int NextInIndex;
+    int NextOutIndex;
+    int MaxElements;
+    int ElementCount;
+    osMutex Lock;
 };

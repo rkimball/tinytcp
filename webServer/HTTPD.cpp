@@ -88,23 +88,23 @@ void http::Server::RegisterErrorHandler(ErrorMessageHandler handler)
 
 void http::Server::ProcessRequest(http::Page* page)
 {
-    int            i;
-    char           buffer1[512];
-    char           buffer[256];
-    int            actualSizeRead;
-    char*          p;
-    char*          result;
-    char*          path;
-    const char*    url = "";
-    char           username[20];
-    char           password[20];
-    int            argc;
-    char*          argv[MAX_ARGV];
-    int            rc;
+    int i;
+    char buffer1[512];
+    char buffer[256];
+    int actualSizeRead;
+    char* p;
+    char* result;
+    char* path;
+    const char* url = "";
+    char username[20];
+    char password[20];
+    int argc;
+    char* argv[MAX_ARGV];
+    int rc;
     TCPConnection* connection = page->Connection;
 
     page->HTTPHeaderSent = false;
-    actualSizeRead       = connection->ReadLine(buffer1, sizeof(buffer1));
+    actualSizeRead = connection->ReadLine(buffer1, sizeof(buffer1));
     if (actualSizeRead == -1)
     {
         return;
@@ -196,7 +196,7 @@ void http::Server::ProcessRequest(http::Page* page)
                 argLength = strlen(argv[i]) + 1;
 
                 // Translate any escaped characters in the argument
-                p      = argv[i];
+                p = argv[i];
                 result = p;
                 for (j = 0; j < argLength; j++)
                 {
@@ -287,7 +287,7 @@ void http::Server::TaskEntry(void* param)
 void http::Server::Task()
 {
     TCPConnection* connection;
-    Page*          page;
+    Page* page;
 
     while (1)
     {

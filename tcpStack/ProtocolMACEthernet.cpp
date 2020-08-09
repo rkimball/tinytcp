@@ -29,8 +29,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 
 #include "ProtocolARP.hpp"
 #include "ProtocolIPv4.hpp"
@@ -98,10 +98,10 @@ bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 
 void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 {
-    uint16_t    type;
+    uint16_t type;
     DataBuffer* packet = (DataBuffer*)RxBufferQueue.Get();
-    int         i;
-    int         length =
+    int i;
+    int length =
         (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
 
     if (packet == 0)
@@ -213,9 +213,9 @@ void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC,
     buffer->Length += header_size();
 
     size_t offset = 0;
-    offset        = PackBytes(buffer->Packet, offset, targetMAC, 6);
-    offset        = PackBytes(buffer->Packet, offset, UnicastAddress, 6);
-    offset        = Pack16(buffer->Packet, offset, type);
+    offset = PackBytes(buffer->Packet, offset, targetMAC, 6);
+    offset = PackBytes(buffer->Packet, offset, UnicastAddress, 6);
+    offset = Pack16(buffer->Packet, offset, type);
 
     offset += buffer->Length;
     while (buffer->Length < 60)

@@ -35,9 +35,9 @@
 #include <unistd.h>
 #endif
 #include <cassert>
-#include <stdio.h>
 #include <iomanip>
 #include <iostream>
+#include <stdio.h>
 #include <string>
 
 #include "osEvent.hpp"
@@ -57,32 +57,30 @@ static DWORD dwTlsIndex;
 static pthread_key_t tlsKey;
 #endif
 static osThread MainThread;
-static bool     IsInitialized = false;
+static bool IsInitialized = false;
 
 typedef struct WinThreadParam
 {
     ThreadEntryPtr Entry;
-    void*          Param;
-    osThread*      Thread;
+    void* Param;
+    osThread* Thread;
 } * WINTHREADPARAMPTR;
 
 osThread::osThread()
     : ThreadStart("ThreadStart")
 {
     USleepTime = 0;
-    State      = INIT;
-    Filename   = "";
+    State = INIT;
+    Filename = "";
     Linenumber = 0;
 #ifdef _WIN32
-    Handle   = 0;
+    Handle = 0;
     ThreadId = 0;
 #elif __linux__
 #endif
 }
 
-osThread::~osThread()
-{
-}
+osThread::~osThread() {}
 
 #ifdef _WIN32
 DWORD WINAPI WinThreadEntry(LPVOID param)
@@ -191,14 +189,14 @@ int osThread::Create(
         (WINTHREADPARAMPTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WinThreadParam));
 
     // Set thread parameter values
-    threadParam->Entry  = entry;
-    threadParam->Param  = param;
+    threadParam->Entry = entry;
+    threadParam->Param = param;
     threadParam->Thread = this;
 
     DWORD tid;
 
     // Create thread
-    Handle   = CreateThread(NULL, 0, WinThreadEntry, threadParam, 0, &tid);
+    Handle = CreateThread(NULL, 0, WinThreadEntry, threadParam, 0, &tid);
     ThreadId = tid;
 #elif __linux__
 
@@ -241,7 +239,7 @@ void osThread::Sleep(unsigned long ms, const char* file, int line)
 
     if (thread != 0)
     {
-        thread->Filename   = file;
+        thread->Filename = file;
         thread->Linenumber = line;
 
         thread->USleepTime = ms * 1000;
@@ -268,7 +266,7 @@ void osThread::USleep(unsigned long us, const char* file, int line)
 
     if (thread != 0)
     {
-        thread->Filename   = file;
+        thread->Filename = file;
         thread->Linenumber = line;
 
         thread->USleepTime = us;
@@ -300,61 +298,58 @@ osThread* osThread::GetCurrent()
 
 void osThread::SetState(THREAD_STATE state, const char* file, int line, void* obj)
 {
-    State       = state;
+    State = state;
     StateObject = obj;
-    Filename    = file;
-    Linenumber  = line;
+    Filename = file;
+    Linenumber = line;
 }
 
 void osThread::ClearState()
 {
-    State       = RUNNING;
+    State = RUNNING;
     StateObject = NULL;
-    Filename    = "";
-    Linenumber  = 0;
+    Filename = "";
+    Linenumber = 0;
 }
 
 void osThread::dump_info(std::ostream& out)
 {
 #ifdef WIN32
-    FILETIME   creationTime;
-    FILETIME   exitTime;
-    FILETIME   kernelTime;
-    FILETIME   userTime;
+    FILETIME creationTime;
+    FILETIME exitTime;
+    FILETIME kernelTime;
+    FILETIME userTime;
     SYSTEMTIME sysTime;
-    HANDLE     handle;
+    HANDLE handle;
 
     handle = GetCurrentProcess();
     out << "Process Priority   = 0x" << to_hex(GetPriorityClass(handle)) << "\n";
     if (GetProcessTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime))
     {
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        out << "  Kernel Time      = ",
-        out << setw(2) << setfill('0') << sysTime.wHour << ":";
+        out << "  Kernel Time      = ", out << setw(2) << setfill('0') << sysTime.wHour << ":";
         out << setw(2) << setfill('0') << sysTime.wMinute << ":";
         out << setw(2) << setfill('0') << sysTime.wSecond << ".";
         out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        out << "  User Time        = ",
-        out << setw(2) << setfill('0') << sysTime.wHour << ":";
+        out << "  User Time        = ", out << setw(2) << setfill('0') << sysTime.wHour << ":";
         out << setw(2) << setfill('0') << sysTime.wMinute << ":";
         out << setw(2) << setfill('0') << sysTime.wSecond << ".";
         out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
     }
 #endif
 
-    out <<
-        "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n";
+    out << "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n";
 
 #ifdef WIN32
-    out <<
-        "----+--------------------+-------+--------------+--------------+--------------------------"
-        "\n";
+    out << "----+--------------------+-------+--------------+--------------+-----------------------"
+           "---"
+           "\n";
     out << "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n";
-    out <<
-        "----+--------------------+-------+--------------+--------------+--------------------------"
-        "\n";
+    out << "----+--------------------+-------+--------------+--------------+-----------------------"
+           "---"
+           "\n";
 #elif __linux__
     out << "--------------------+------------------------------------\n";
     out << "Thread Name         | State\n";
@@ -385,7 +380,7 @@ void osThread::dump_info(std::ostream& out)
         GetThreadTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
 
         out << setw(3) << priority << " |";
-        out  << setw(20) << left << thread->Name<< "|" ;
+        out << setw(20) << left << thread->Name << "|";
         out << setw(6) << handle << " | ";
 
         FileTimeToSystemTime(&kernelTime, &sysTime);

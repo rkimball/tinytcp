@@ -29,12 +29,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <cstring>
+#include <iomanip>
+#include <sstream>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <cstring>
-#include <sstream>
-#include <iomanip>
 
 #include "HTTPPage.hpp"
 #include "osThread.hpp"
@@ -48,8 +48,8 @@
 
 using namespace std;
 
-template<typename T>
-std::string to_hex(T obj, size_t width=sizeof(T)*2)
+template <typename T>
+std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
     std::stringstream ss;
     ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
@@ -73,9 +73,7 @@ http::Page::Page()
 //
 //============================================================================
 
-http::Page::~Page()
-{
-}
+http::Page::~Page() {}
 
 //============================================================================
 //
@@ -84,7 +82,7 @@ http::Page::~Page()
 void http::Page::Initialize(TCPConnection* connection)
 {
     Connection = connection;
-    Busy       = 0;
+    Busy = 0;
 }
 
 //============================================================================
@@ -93,10 +91,10 @@ void http::Page::Initialize(TCPConnection* connection)
 
 int http::Page::Printf(const char* format, ...)
 {
-    char    buffer[BUFFER_SIZE];
-    int     i;
+    char buffer[BUFFER_SIZE];
+    int i;
     va_list vlist;
-    int     rc;
+    int rc;
 
     va_start(vlist, format);
 
@@ -119,21 +117,15 @@ string http::Page::HTMLEncode(const string& str)
 {
     string rc;
     stringstream ss;
-    for (int i=0; i<str.size(); i++)
+    for (int i = 0; i < str.size(); i++)
     {
         switch (str[i])
         {
-        case '<':
-            ss << "&lt";
-            break;
+        case '<': ss << "&lt"; break;
 
-        case '>':
-            ss << "&gt";
-            break;
+        case '>': ss << "&gt"; break;
 
-        default:
-            ss << str[i];
-            break;
+        default: ss << str[i]; break;
         }
     }
     return ss.str();
@@ -316,12 +308,12 @@ void http::Page::PageUnauthorized()
 
 bool http::Page::SendFile(const char* filename)
 {
-    char          s[BUFFER_SIZE];
-    FILE*         f;
-    bool          rc = false;
+    char s[BUFFER_SIZE];
+    FILE* f;
+    bool rc = false;
     unsigned char buffer[512];
-    uint64_t      counti64;
-    int           count;
+    uint64_t counti64;
+    int count;
     ostream& out = get_output_stream();
 
     f = fopen(filename, "rb");
@@ -375,7 +367,7 @@ void http::Page::ParseArg(char* arg, char** name, char** value)
     {
         if (*arg == '=')
         {
-            *arg   = 0;
+            *arg = 0;
             *value = ++arg;
             break;
         }
@@ -393,7 +385,7 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
     if (f)
     {
         int c;
-        int markerIndex  = 0;
+        int markerIndex = 0;
         int markerLength = strlen(marker);
         ostream& out = get_output_stream();
         while ((c = fgetc(f)) > 0)
@@ -465,7 +457,7 @@ std::streambuf::int_type http::Page::underflow()
     }
     else
     {
-        char* base  = &m_char_buffer.front();
+        char* base = &m_char_buffer.front();
         char* start = base;
 
         if (eback() == base) // true when this isn't the first fill

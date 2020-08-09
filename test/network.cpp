@@ -31,8 +31,8 @@
 
 #include <iostream>
 
-#include "gtest/gtest.h"
 #include "PacketIO.hpp"
+#include "gtest/gtest.h"
 
 using namespace std;
 
@@ -49,7 +49,7 @@ TEST(network, raw_socket)
 {
 #ifdef _WIN32
     NetworkConfig& config = *(NetworkConfig*)param;
-    char           device[256];
+    char device[256];
 
     PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
     printf("using device %s\n", device);

@@ -48,16 +48,16 @@ public:
     ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp);
     void ProcessRx(DataBuffer* buffer);
     void Discover();
-    void SendRequest(uint8_t        messageType,
+    void SendRequest(uint8_t messageType,
                      const uint8_t* serverAddress,
                      const uint8_t* requestAddress);
     void test();
 
 private:
     DataBuffer Buffer;
-    int        PendingXID;
+    int PendingXID;
 
     InterfaceMAC& MAC;
     ProtocolIPv4& IP;
-    ProtocolUDP&  UDP;
+    ProtocolUDP& UDP;
 };

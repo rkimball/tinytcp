@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-template<typename T>
+template <typename T>
 std::string to_dec(T obj, size_t width)
 {
     std::stringstream ss;
@@ -41,8 +41,8 @@ std::string to_dec(T obj, size_t width)
     return ss.str();
 }
 
-template<typename T>
-std::string to_hex(T obj, size_t width=sizeof(T)*2)
+template <typename T>
+std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
     std::stringstream ss;
     ss << std::hex << std::setw(width) << std::setfill('0') << obj;

@@ -35,9 +35,7 @@
 //
 //============================================================================
 
-DataBuffer::DataBuffer()
-{
-}
+DataBuffer::DataBuffer() {}
 
 //============================================================================
 //
@@ -45,11 +43,11 @@ DataBuffer::DataBuffer()
 
 void DataBuffer::Initialize(InterfaceMAC* mac)
 {
-    Packet     = Data;
-    Length     = 0;
-    Remainder  = DATA_BUFFER_PAYLOAD_SIZE;
+    Packet = Data;
+    Length = 0;
+    Remainder = DATA_BUFFER_PAYLOAD_SIZE;
     Disposable = true;
-    MAC        = mac;
+    MAC = mac;
 }
 
 //============================================================================

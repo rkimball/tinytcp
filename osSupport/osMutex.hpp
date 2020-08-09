@@ -72,11 +72,11 @@ private:
     static void LockListMutex();
     static void UnlockListMutex();
 
-    void            Take();
-    const char*     Name;
+    void Take();
+    const char* Name;
     static osMutex* MutexList[];
 
     const char* OwnerFile;
-    int         OwnerLine;
-    osThread*   OwnerThread;
+    int OwnerLine;
+    osThread* OwnerThread;
 };

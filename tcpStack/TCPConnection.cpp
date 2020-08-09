@@ -31,9 +31,9 @@
 
 #include <cstring>
 
-#include "TCPConnection.hpp"
 #include "ProtocolIPv4.hpp"
 #include "ProtocolTCP.hpp"
+#include "TCPConnection.hpp"
 #include "Utility.hpp"
 #include "osTime.hpp"
 
@@ -65,7 +65,7 @@ TCPConnection::TCPConnection()
 
 void TCPConnection::Initialize(ProtocolIPv4& ip, ProtocolTCP& tcp)
 {
-    IP  = &ip;
+    IP = &ip;
     TCP = &tcp;
 }
 
@@ -91,9 +91,7 @@ void TCPConnection::Allocate(InterfaceMAC* mac)
 //
 //============================================================================
 
-TCPConnection::~TCPConnection()
-{
-}
+TCPConnection::~TCPConnection() {}
 
 //============================================================================
 //
@@ -160,7 +158,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         if (length > 0 || (flags & (FLAG_SYN | FLAG_FIN)))
         {
             buffer->Disposable = false;
-            buffer->Time_us    = (uint32_t)osTime::GetTime();
+            buffer->Time_us = (uint32_t)osTime::GetTime();
             HoldingQueueLock.Take(__FILE__, __LINE__);
             HoldingQueue.Put(buffer);
             HoldingQueueLock.Give();
@@ -270,20 +268,13 @@ void TCPConnection::Close()
         SequenceNumber++; // FIN consumes a sequence number
         State = LAST_ACK;
         break;
-    case CLOSED:
-        break;
-    case FIN_WAIT_1:
-        break;
-    case FIN_WAIT_2:
-        break;
-    case CLOSING:
-        break;
-    case LAST_ACK:
-        break;
-    case TIMED_WAIT:
-        break;
-    case TTCP_PERSIST:
-        break;
+    case CLOSED: break;
+    case FIN_WAIT_1: break;
+    case FIN_WAIT_2: break;
+    case CLOSING: break;
+    case LAST_ACK: break;
+    case TIMED_WAIT: break;
+    case TTCP_PERSIST: break;
     }
 }
 
@@ -299,7 +290,7 @@ TCPConnection* TCPConnection::Listen()
     {
         Event.Wait(__FILE__, __LINE__);
     }
-    connection    = NewConnection;
+    connection = NewConnection;
     NewConnection = 0;
 
     return connection;
@@ -376,10 +367,10 @@ int TCPConnection::Read(char* buffer, int size)
 
 int TCPConnection::ReadLine(char* buffer, int size)
 {
-    int  i;
+    int i;
     char c;
-    bool done           = false;
-    int  bytesProcessed = 0;
+    bool done = false;
+    int bytesProcessed = 0;
 
     while (!done)
     {
@@ -396,7 +387,7 @@ int TCPConnection::ReadLine(char* buffer, int size)
         case '\r': *buffer++ = 0; break;
         case '\n':
             *buffer++ = 0;
-            done      = true;
+            done = true;
             break;
         default: *buffer++ = c; break;
         }
@@ -417,14 +408,14 @@ int TCPConnection::ReadLine(char* buffer, int size)
 
 void TCPConnection::Tick()
 {
-    int         count;
-    int         i;
+    int count;
+    int i;
     DataBuffer* buffer;
-    uint32_t    currentTime_us;
-    uint32_t    timeoutTime_us;
+    uint32_t currentTime_us;
+    uint32_t timeoutTime_us;
 
     HoldingQueueLock.Take(__FILE__, __LINE__);
-    count          = HoldingQueue.GetCount();
+    count = HoldingQueue.GetCount();
     currentTime_us = (int32_t)osTime::GetTime();
 
     // Check for retransmit timeout
@@ -522,17 +513,17 @@ const char* TCPConnection::GetStateString() const
     const char* rc;
     switch (State)
     {
-    case TCPConnection::CLOSED: rc       = "CLOSED"; break;
-    case TCPConnection::LISTEN: rc       = "LISTEN"; break;
-    case TCPConnection::SYN_SENT: rc     = "SYN_SENT"; break;
+    case TCPConnection::CLOSED: rc = "CLOSED"; break;
+    case TCPConnection::LISTEN: rc = "LISTEN"; break;
+    case TCPConnection::SYN_SENT: rc = "SYN_SENT"; break;
     case TCPConnection::SYN_RECEIVED: rc = "SYN_RECEIVED"; break;
-    case TCPConnection::ESTABLISHED: rc  = "ESTABLISHED"; break;
-    case TCPConnection::FIN_WAIT_1: rc   = "FIN_WAIT_1"; break;
-    case TCPConnection::FIN_WAIT_2: rc   = "FIN_WAIT_2"; break;
-    case TCPConnection::CLOSE_WAIT: rc   = "CLOSE_WAIT"; break;
-    case TCPConnection::CLOSING: rc      = "CLOSING"; break;
-    case TCPConnection::LAST_ACK: rc     = "LAST_ACK"; break;
-    case TCPConnection::TIMED_WAIT: rc   = "TIMED_WAIT"; break;
+    case TCPConnection::ESTABLISHED: rc = "ESTABLISHED"; break;
+    case TCPConnection::FIN_WAIT_1: rc = "FIN_WAIT_1"; break;
+    case TCPConnection::FIN_WAIT_2: rc = "FIN_WAIT_2"; break;
+    case TCPConnection::CLOSE_WAIT: rc = "CLOSE_WAIT"; break;
+    case TCPConnection::CLOSING: rc = "CLOSING"; break;
+    case TCPConnection::LAST_ACK: rc = "LAST_ACK"; break;
+    case TCPConnection::TIMED_WAIT: rc = "TIMED_WAIT"; break;
     case TCPConnection::TTCP_PERSIST: rc = "TTCP_PERSIST"; break;
     }
     return rc;
@@ -547,9 +538,7 @@ std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
     out << "connection " << obj.GetStateString() << "   ";
     switch (obj.State)
     {
-    case TCPConnection::LISTEN:
-        out << "     local=" << obj.LocalPort << "\n";
-        break;
+    case TCPConnection::LISTEN: out << "     local=" << obj.LocalPort << "\n"; break;
     case TCPConnection::ESTABLISHED:
         out << "local=" << obj.LocalPort;
         out << "  remote=";
@@ -559,13 +548,16 @@ std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
         out << (int)obj.RemoteAddress[3] << ":";
         out << obj.RemotePort;
         out << "\n";
-        out << "    " << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
-        out << "    " << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
-        out << "    " << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
-        out << "    " << "CurrentWindow " << obj.CurrentWindow << "\n";
+        out << "    "
+            << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
+        out << "    "
+            << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
+        out << "    "
+            << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
+        out << "    "
+            << "CurrentWindow " << obj.CurrentWindow << "\n";
         break;
-    default:
-        out << "\n";
+    default: out << "\n";
     }
 
     return out;

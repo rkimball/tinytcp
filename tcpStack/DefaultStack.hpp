@@ -52,10 +52,10 @@ public:
     void ProcessRx(uint8_t* data, size_t length);
 
     ProtocolMACEthernet MAC;
-    ProtocolIPv4        IP;
-    ProtocolARP         ARP;
-    ProtocolDHCP        DHCP;
-    ProtocolICMP        ICMP;
-    ProtocolTCP         TCP;
-    ProtocolUDP         UDP;
+    ProtocolIPv4 IP;
+    ProtocolARP ARP;
+    ProtocolDHCP DHCP;
+    ProtocolICMP ICMP;
+    ProtocolTCP TCP;
+    ProtocolUDP UDP;
 };

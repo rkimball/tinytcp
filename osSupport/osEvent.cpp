@@ -32,9 +32,9 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#include <iomanip>
 #include <stdio.h>
 #include <string.h>
-#include <iomanip>
 
 #include "osEvent.hpp"
 #include "osThread.hpp"
@@ -42,7 +42,7 @@
 using namespace std;
 
 osEvent* osEvent::InstanceList[osEvent::INSTANCE_MAX];
-osMutex  osEvent::ListMutex("Event List");
+osMutex osEvent::ListMutex("Event List");
 
 osEvent::osEvent(const char* name)
     :
@@ -108,7 +108,7 @@ void osEvent::Notify()
 bool osEvent::Wait(const char* file, int line, int msTimeout)
 {
 #ifdef _WIN32
-    uint32_t  rc     = 0;
+    uint32_t rc = 0;
     osThread* caller = osThread::GetCurrent();
     caller->SetState(osThread::THREAD_STATE::PENDING_EVENT, file, line, this);
     if (msTimeout == -1)

@@ -60,10 +60,10 @@ public:
 private:
 #ifdef _WIN32
     const char* CaptureDevice;
-    pcap_t*     adhandle;
+    pcap_t* adhandle;
 #elif __linux__
     osThread EthernetRxThread;
-    int      m_RawSocket;
-    int      m_IfIndex;
+    int m_RawSocket;
+    int m_IfIndex;
 #endif
 };

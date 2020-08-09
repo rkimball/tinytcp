@@ -31,11 +31,11 @@
 
 #include <iostream>
 
-#include "ProtocolUDP.hpp"
 #include <stdio.h>
 #include "FCS.hpp"
 #include "ProtocolDHCP.hpp"
 #include "ProtocolIPv4.hpp"
+#include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
 using namespace std;
@@ -95,11 +95,11 @@ void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const u
 //
 //============================================================================
 
-void ProtocolUDP::Transmit(DataBuffer*    buffer,
+void ProtocolUDP::Transmit(DataBuffer* buffer,
                            const uint8_t* targetIP,
-                           uint16_t       targetPort,
+                           uint16_t targetPort,
                            const uint8_t* sourceIP,
-                           uint16_t       sourcePort)
+                           uint16_t sourcePort)
 {
     buffer->Packet -= header_size();
     buffer->Remainder += header_size();

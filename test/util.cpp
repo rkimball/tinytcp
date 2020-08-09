@@ -31,6 +31,4 @@
 
 #include "gtest/gtest.h"
 
-TEST(util, to_string)
-{
-}
+TEST(util, to_string) {}

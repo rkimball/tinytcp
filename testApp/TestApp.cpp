@@ -29,9 +29,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
 #ifdef _WIN32
 #include <pcap.h>
 #elif __linux__
@@ -56,7 +56,7 @@
 #define strncasecmp _strnicmp
 #endif
 
-PacketIO*       PIO;
+PacketIO* PIO;
 static osThread NetworkThread;
 static osThread MainThread;
 
@@ -111,14 +111,14 @@ void NetworkEntry(void* param)
     uint8_t addr[] = {0x10, 0xBF, 0x48, 0x44, 0x55, 0x66};
     tcpStack.SetMACAddress(addr);
 
-//   Config.IPv4.Address[ 0 ] = 0;
-//   Config.IPv4.Address[ 1 ] = 0;
-//   Config.IPv4.Address[ 2 ] = 0;
-//   Config.IPv4.Address[ 3 ] = 0;
+    //   Config.IPv4.Address[ 0 ] = 0;
+    //   Config.IPv4.Address[ 1 ] = 0;
+    //   Config.IPv4.Address[ 2 ] = 0;
+    //   Config.IPv4.Address[ 3 ] = 0;
 
 #ifdef _WIN32
     NetworkConfig& config = *(NetworkConfig*)param;
-    char           device[256];
+    char device[256];
 
     PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
     printf("using device %s\n", device);
@@ -144,9 +144,7 @@ void NetworkEntry(void* param)
 //
 //============================================================================
 
-void MainEntry(void* config)
-{
-}
+void MainEntry(void* config) {}
 
 //============================================================================
 //
@@ -154,7 +152,7 @@ void MainEntry(void* config)
 
 void HomePage(http::Page* page)
 {
-    time_t     t   = time(0);
+    time_t t = time(0);
     struct tm* now = localtime(&t);
     ostream& out = page->get_output_stream();
 
@@ -182,13 +180,11 @@ void FormsDemo(http::Page* page)
     out << "<form action=\"/formsresult\">";
 
     out << "<label for=\"FirstName\">First name:</label>";
-    out <<
-        "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>";
+    out << "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>";
     out << "<br>";
 
     out << "<label for=\"LastName\">Last name:</label>";
-    out <<
-        "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>";
+    out << "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>";
     out << "<br>";
 
     out << "<input type=\"submit\" value=\"submit\" />";

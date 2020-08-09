@@ -62,19 +62,19 @@ ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
 void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const uint8_t* targetIP)
 {
     TCPConnection* connection;
-    uint16_t       checksum;
-    uint16_t       localPort;
-    uint16_t       remotePort;
-    uint8_t        headerLength;
-    uint8_t*       data;
-    uint16_t       dataLength;
-    int            count;
-    DataBuffer*    buffer;
-    uint8_t        flags  = 0;
-    uint8_t*       packet = rxBuffer->Packet;
-    uint16_t       length = rxBuffer->Length;
-    uint16_t       remoteWindowSize;
-    uint32_t       time_us;
+    uint16_t checksum;
+    uint16_t localPort;
+    uint16_t remotePort;
+    uint8_t headerLength;
+    uint8_t* data;
+    uint16_t dataLength;
+    int count;
+    DataBuffer* buffer;
+    uint8_t flags = 0;
+    uint8_t* packet = rxBuffer->Packet;
+    uint16_t length = rxBuffer->Length;
+    uint16_t remoteWindowSize;
+    uint32_t time_us;
 
     uint32_t SequenceNumber;
     uint32_t AcknowledgementNumber;
@@ -84,12 +84,12 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
     if (checksum == 0)
     {
         // pass
-        remotePort            = Unpack16(packet, 0);
-        localPort             = Unpack16(packet, 2);
-        SequenceNumber        = Unpack32(packet, 4);
+        remotePort = Unpack16(packet, 0);
+        localPort = Unpack16(packet, 2);
+        SequenceNumber = Unpack32(packet, 4);
         AcknowledgementNumber = Unpack32(packet, 8);
-        headerLength          = (Unpack8(packet, 12) >> 4) * 4;
-        remoteWindowSize      = Unpack16(packet, 14);
+        headerLength = (Unpack8(packet, 12) >> 4) * 4;
+        remoteWindowSize = Unpack16(packet, 14);
 
         rxBuffer->Packet += headerLength;
         rxBuffer->Length -= headerLength;
@@ -117,11 +117,11 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                     if (tmp != 0)
                     {
                         tmp->Allocate(rxBuffer->MAC);
-                        tmp->Parent                       = connection;
-                        connection                        = tmp;
-                        connection->State                 = TCPConnection::SYN_RECEIVED;
+                        tmp->Parent = connection;
+                        connection = tmp;
+                        connection->State = TCPConnection::SYN_RECEIVED;
                         connection->AcknowledgementNumber = SequenceNumber;
-                        connection->LastAck               = connection->AcknowledgementNumber;
+                        connection->LastAck = connection->AcknowledgementNumber;
                         connection->AcknowledgementNumber++; // SYN flag consumes a sequence number
                         connection->SendFlags(FLAG_SYN | FLAG_ACK);
                         connection->SequenceNumber++; // Our SYN costs too
@@ -136,7 +136,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 if (SYN)
                 {
                     connection->AcknowledgementNumber = SequenceNumber;
-                    connection->LastAck               = connection->AcknowledgementNumber;
+                    connection->LastAck = connection->AcknowledgementNumber;
                     if (ACK)
                     {
                         connection->State = TCPConnection::ESTABLISHED;
@@ -216,11 +216,11 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
 
             // Handle any data received
             if (connection && (connection->State == TCPConnection::ESTABLISHED ||
-                connection->State == TCPConnection::FIN_WAIT_1 ||
-                connection->State == TCPConnection::FIN_WAIT_2 ||
-                connection->State == TCPConnection::CLOSE_WAIT))
+                               connection->State == TCPConnection::FIN_WAIT_1 ||
+                               connection->State == TCPConnection::FIN_WAIT_2 ||
+                               connection->State == TCPConnection::CLOSE_WAIT))
             {
-                data       = rxBuffer->Packet;
+                data = rxBuffer->Packet;
                 dataLength = rxBuffer->Length;
 
                 connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
@@ -230,7 +230,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 if (ACK)
                 {
                     connection->HoldingQueueLock.Take(__FILE__, __LINE__);
-                    count   = connection->HoldingQueue.GetCount();
+                    count = connection->HoldingQueue.GetCount();
                     time_us = (uint32_t)osTime::GetTime();
                     for (int i = 0; i < count; i++)
                     {
@@ -289,9 +289,9 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
 //
 //============================================================================
 
-void ProtocolTCP::Reset(InterfaceMAC*  mac,
-                        uint16_t       localPort,
-                        uint16_t       remotePort,
+void ProtocolTCP::Reset(InterfaceMAC* mac,
+                        uint16_t localPort,
+                        uint16_t remotePort,
                         const uint8_t* remoteAddress)
 {
     uint8_t* packet;
@@ -339,8 +339,8 @@ void ProtocolTCP::Reset(InterfaceMAC*  mac,
 //
 //============================================================================
 
-uint16_t ProtocolTCP::ComputeChecksum(uint8_t*       packet,
-                                      uint16_t       length,
+uint16_t ProtocolTCP::ComputeChecksum(uint8_t* packet,
+                                      uint16_t length,
                                       const uint8_t* sourceIP,
                                       const uint8_t* targetIP)
 {
@@ -355,7 +355,7 @@ uint16_t ProtocolTCP::ComputeChecksum(uint8_t*       packet,
     if ((length & 0x0001) != 0)
     {
         // length is odd
-        tmp            = length + 1;
+        tmp = length + 1;
         packet[length] = 0;
     }
     else
@@ -371,9 +371,9 @@ uint16_t ProtocolTCP::ComputeChecksum(uint8_t*       packet,
 //
 //============================================================================
 
-TCPConnection* ProtocolTCP::LocateConnection(uint16_t       remotePort,
+TCPConnection* ProtocolTCP::LocateConnection(uint16_t remotePort,
                                              const uint8_t* remoteAddress,
-                                             uint16_t       localPort)
+                                             uint16_t localPort)
 {
     int i;
 
@@ -437,10 +437,10 @@ uint16_t ProtocolTCP::NewPort()
 //
 //============================================================================
 
-TCPConnection* ProtocolTCP::NewClient(InterfaceMAC*  mac,
+TCPConnection* ProtocolTCP::NewClient(InterfaceMAC* mac,
                                       const uint8_t* remoteAddress,
-                                      uint16_t       remotePort,
-                                      uint16_t       localPort)
+                                      uint16_t remotePort,
+                                      uint16_t localPort)
 {
     int i;
     int j;
@@ -451,9 +451,9 @@ TCPConnection* ProtocolTCP::NewClient(InterfaceMAC*  mac,
         if (connection.State == TCPConnection::CLOSED)
         {
             connection.Allocate(mac);
-            connection.LocalPort      = localPort;
+            connection.LocalPort = localPort;
             connection.SequenceNumber = 1;
-            connection.MaxSequenceTx  = connection.SequenceNumber + 1024;
+            connection.MaxSequenceTx = connection.SequenceNumber + 1024;
             for (j = 0; j < IP.AddressSize(); j++)
             {
                 connection.RemoteAddress[j] = remoteAddress[j];
@@ -481,7 +481,7 @@ TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
         if (connection.State == TCPConnection::CLOSED)
         {
             connection.Allocate(mac);
-            connection.State     = TCPConnection::LISTEN;
+            connection.State = TCPConnection::LISTEN;
             connection.LocalPort = port;
             return &connection;
         }

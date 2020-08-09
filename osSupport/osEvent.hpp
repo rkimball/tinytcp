@@ -60,14 +60,14 @@ private:
     void* Handle;
 #elif __linux__
     pthread_mutex_t m_mutex;
-    pthread_cond_t  m_condition;
-    bool            m_test;
+    pthread_cond_t m_condition;
+    bool m_test;
 #endif
     static const int NAME_LENGTH_MAX = 80;
-    char             Name[NAME_LENGTH_MAX];
-    osThread*        pending;
+    char Name[NAME_LENGTH_MAX];
+    osThread* pending;
 
-    static osMutex   ListMutex;
+    static osMutex ListMutex;
     static const int INSTANCE_MAX = 20;
-    static osEvent*  InstanceList[];
+    static osEvent* InstanceList[];
 };

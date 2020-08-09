@@ -63,11 +63,11 @@ uint64_t osTime::GetTime()
 const char* osTime::GetTimestamp()
 {
     static char s[64];
-    uint32_t    seconds;
-    uint32_t    sec;
-    uint32_t    min;
-    uint32_t    hour;
-    uint64_t    time;
+    uint32_t seconds;
+    uint32_t sec;
+    uint32_t min;
+    uint32_t hour;
+    uint64_t time;
 
     time = GetTime();
 

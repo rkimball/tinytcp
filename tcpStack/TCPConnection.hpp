@@ -43,7 +43,8 @@ class DataBuffer;
 class TCPConnection
 {
 public:
-    typedef enum States {
+    typedef enum States
+    {
         CLOSED = 0,
         LISTEN,
         SYN_SENT,
@@ -60,10 +61,10 @@ public:
 
     friend class ProtocolTCP;
 
-    States   State;
+    States State;
     uint16_t LocalPort;
     uint16_t RemotePort;
-    uint8_t  RemoteAddress[ProtocolIPv4::ADDRESS_SIZE];
+    uint8_t RemoteAddress[ProtocolIPv4::ADDRESS_SIZE];
     uint32_t SequenceNumber;
     uint32_t AcknowledgementNumber;
     uint32_t LastAck;
@@ -74,14 +75,14 @@ public:
 
     ~TCPConnection();
     void SendFlags(uint8_t flags);
-    void           Close();
+    void Close();
     TCPConnection* Listen();
 
     int Read();
     int Read(char* buffer, int size);
     int ReadLine(char* buffer, int size);
     void Write(const uint8_t* data, uint16_t length);
-    void        Flush();
+    void Flush();
     const char* GetStateString() const;
 
     friend std::ostream& operator<<(std::ostream&, const TCPConnection&);
@@ -93,8 +94,8 @@ private:
     uint16_t CurrentWindow;
 
     DataBuffer* TxBuffer;
-    uint8_t     RxBuffer[TCP_RX_WINDOW_SIZE];
-    bool        RxBufferEmpty;
+    uint8_t RxBuffer[TCP_RX_WINDOW_SIZE];
+    bool RxBufferEmpty;
     void StoreRxData(DataBuffer* buffer);
 
     DataBuffer* GetTxBuffer();
@@ -109,11 +110,11 @@ private:
     osEvent Event;
     osQueue HoldingQueue;
     osMutex HoldingQueueLock;
-    void*   ConnectionHoldingBuffer[TX_BUFFER_COUNT];
+    void* ConnectionHoldingBuffer[TX_BUFFER_COUNT];
 
     InterfaceMAC* MAC;
     ProtocolIPv4* IP;
-    ProtocolTCP*  TCP;
+    ProtocolTCP* TCP;
 
     void Tick();
 
