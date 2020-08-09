@@ -40,19 +40,11 @@
 
 using namespace std;
 
-//============================================================================
-//
-//============================================================================
-
 ProtocolUDP::ProtocolUDP(ProtocolIPv4& ip, ProtocolDHCP& dhcp)
     : IP(ip)
     , DHCP(dhcp)
 {
 }
-
-//============================================================================
-//
-//============================================================================
 
 DataBuffer* ProtocolUDP::GetTxBuffer(InterfaceMAC* mac)
 {
@@ -67,10 +59,6 @@ DataBuffer* ProtocolUDP::GetTxBuffer(InterfaceMAC* mac)
 
     return buffer;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const uint8_t* targetIP)
 {
@@ -90,10 +78,6 @@ void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const u
         break;
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolUDP::Transmit(DataBuffer* buffer,
                            const uint8_t* targetIP,

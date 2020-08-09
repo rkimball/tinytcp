@@ -33,10 +33,6 @@
 
 #include "Utility.hpp"
 
-//============================================================================
-//
-//============================================================================
-
 void DumpData(std::ostream& out, void* buffer, size_t len)
 {
     std::ios_base::fmtflags flags = out.flags();
@@ -81,10 +77,6 @@ void DumpData(std::ostream& out, void* buffer, size_t len)
     out.flags(flags);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void DumpBits(std::ostream& out, void* buf, size_t size)
 {
     uint8_t* buffer = (uint8_t*)buf;
@@ -107,10 +99,6 @@ void DumpBits(std::ostream& out, void* buf, size_t size)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 const char* ipv4toa(uint32_t addr)
 {
     static char rc[20];
@@ -123,20 +111,12 @@ const char* ipv4toa(uint32_t addr)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 const char* ipv4toa(const uint8_t* addr)
 {
     static char rc[20];
     sprintf(rc, "%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
     return rc;
 }
-
-//============================================================================
-//
-//============================================================================
 
 const char* macaddrtoa(const uint8_t* addr)
 {
@@ -146,18 +126,10 @@ const char* macaddrtoa(const uint8_t* addr)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint8_t Unpack8(const uint8_t* p, size_t offset, size_t size)
 {
     return p[offset];
 }
-
-//============================================================================
-//
-//============================================================================
 
 uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size)
 {
@@ -170,10 +142,6 @@ uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size)
 {
     uint32_t rc = 0;
@@ -185,19 +153,11 @@ uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 size_t Pack8(uint8_t* p, size_t offset, uint8_t value)
 {
     p[offset++] = value;
     return offset;
 }
-
-//============================================================================
-//
-//============================================================================
 
 size_t Pack16(uint8_t* p, size_t offset, uint16_t value)
 {
@@ -205,10 +165,6 @@ size_t Pack16(uint8_t* p, size_t offset, uint16_t value)
     p[offset++] = value & 0xFF;
     return offset;
 }
-
-//============================================================================
-//
-//============================================================================
 
 size_t Pack32(uint8_t* p, size_t offset, uint32_t value)
 {
@@ -219,10 +175,6 @@ size_t Pack32(uint8_t* p, size_t offset, uint32_t value)
     return offset;
 }
 
-//============================================================================
-//
-//============================================================================
-
 size_t PackBytes(uint8_t* p, size_t offset, const uint8_t* value, size_t count)
 {
     for (int i = 0; i < count; i++)
@@ -232,10 +184,6 @@ size_t PackBytes(uint8_t* p, size_t offset, const uint8_t* value, size_t count)
     return offset;
 }
 
-//============================================================================
-//
-//============================================================================
-
 size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count)
 {
     for (int i = 0; i < count; i++)
@@ -244,10 +192,6 @@ size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count)
     }
     return offset;
 }
-
-//============================================================================
-//
-//============================================================================
 
 int ReadLine(char* buffer, size_t size, int (*ReadFunction)())
 {
@@ -286,10 +230,6 @@ int ReadLine(char* buffer, size_t size, int (*ReadFunction)())
     return bytesProcessed;
 }
 
-//============================================================================
-//
-//============================================================================
-
 bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length)
 {
     for (int i = 0; i < length; i++)
@@ -302,7 +242,3 @@ bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length)
 
     return true;
 }
-
-//============================================================================
-//
-//============================================================================

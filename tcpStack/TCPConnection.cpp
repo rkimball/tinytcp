@@ -37,10 +37,6 @@
 #include "Utility.hpp"
 #include "osTime.hpp"
 
-//============================================================================
-//
-//============================================================================
-
 TCPConnection::TCPConnection()
     : RxInOffset(0)
     , RxOutOffset(0)
@@ -59,19 +55,11 @@ TCPConnection::TCPConnection()
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::Initialize(ProtocolIPv4& ip, ProtocolTCP& tcp)
 {
     IP = &ip;
     TCP = &tcp;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Allocate(InterfaceMAC* mac)
 {
@@ -87,15 +75,7 @@ void TCPConnection::Allocate(InterfaceMAC* mac)
     MAC = mac;
 }
 
-//============================================================================
-//
-//============================================================================
-
 TCPConnection::~TCPConnection() {}
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::SendFlags(uint8_t flags)
 {
@@ -106,10 +86,6 @@ void TCPConnection::SendFlags(uint8_t flags)
         BuildPacket(buffer, flags);
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
 {
@@ -168,10 +144,6 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 DataBuffer* TCPConnection::GetTxBuffer()
 {
     DataBuffer* rc;
@@ -185,10 +157,6 @@ DataBuffer* TCPConnection::GetTxBuffer()
 
     return rc;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Write(const uint8_t* data, uint16_t length)
 {
@@ -234,10 +202,6 @@ void TCPConnection::Write(const uint8_t* data, uint16_t length)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::Flush()
 {
     if (TxBuffer != 0)
@@ -246,10 +210,6 @@ void TCPConnection::Flush()
         TxBuffer = 0;
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Close()
 {
@@ -278,10 +238,6 @@ void TCPConnection::Close()
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 TCPConnection* TCPConnection::Listen()
 {
     TCPConnection* connection;
@@ -295,10 +251,6 @@ TCPConnection* TCPConnection::Listen()
 
     return connection;
 }
-
-//============================================================================
-//
-//============================================================================
 
 int TCPConnection::Read()
 {
@@ -335,10 +287,6 @@ int TCPConnection::Read()
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 int TCPConnection::Read(char* buffer, int size)
 {
     int bytes_to_read = std::min(size, TCP_RX_WINDOW_SIZE - RxOutOffset);
@@ -360,10 +308,6 @@ int TCPConnection::Read(char* buffer, int size)
 
     return bytes_to_read;
 }
-
-//============================================================================
-//
-//============================================================================
 
 int TCPConnection::ReadLine(char* buffer, int size)
 {
@@ -401,10 +345,6 @@ int TCPConnection::ReadLine(char* buffer, int size)
     *buffer = 0;
     return bytesProcessed;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Tick()
 {
@@ -456,10 +396,6 @@ void TCPConnection::Tick()
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::CalculateRTT(int32_t M)
 {
     int32_t err;
@@ -477,10 +413,6 @@ void TCPConnection::CalculateRTT(int32_t M)
     // Gain is 0.250
     RTTDeviation = RTTDeviation + (250 * (err - RTTDeviation)) / 1000;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::StoreRxData(DataBuffer* buffer)
 {
@@ -504,10 +436,6 @@ void TCPConnection::StoreRxData(DataBuffer* buffer)
     RxBufferEmpty = false;
 }
 
-//============================================================================
-//
-//============================================================================
-
 const char* TCPConnection::GetStateString() const
 {
     const char* rc;
@@ -528,10 +456,6 @@ const char* TCPConnection::GetStateString() const
     }
     return rc;
 }
-
-//============================================================================
-//
-//============================================================================
 
 std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
 {

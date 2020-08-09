@@ -42,10 +42,6 @@
 #include "osMutex.hpp"
 #include "osTime.hpp"
 
-//============================================================================
-//
-//============================================================================
-
 ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
     : IP(ip)
 {
@@ -54,10 +50,6 @@ ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
         ConnectionList[i].Initialize(ip, *this);
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const uint8_t* targetIP)
 {
@@ -285,10 +277,6 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolTCP::Reset(InterfaceMAC* mac,
                         uint16_t localPort,
                         uint16_t remotePort,
@@ -335,10 +323,6 @@ void ProtocolTCP::Reset(InterfaceMAC* mac,
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint16_t ProtocolTCP::ComputeChecksum(uint8_t* packet,
                                       uint16_t length,
                                       const uint8_t* sourceIP,
@@ -366,10 +350,6 @@ uint16_t ProtocolTCP::ComputeChecksum(uint8_t* packet,
 
     return FCS::ChecksumComplete(checksum);
 }
-
-//============================================================================
-//
-//============================================================================
 
 TCPConnection* ProtocolTCP::LocateConnection(uint16_t remotePort,
                                              const uint8_t* remoteAddress,
@@ -406,10 +386,6 @@ TCPConnection* ProtocolTCP::LocateConnection(uint16_t remotePort,
     return 0;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint16_t ProtocolTCP::NewPort()
 {
     int i;
@@ -432,10 +408,6 @@ uint16_t ProtocolTCP::NewPort()
 
     return NextPort;
 }
-
-//============================================================================
-//
-//============================================================================
 
 TCPConnection* ProtocolTCP::NewClient(InterfaceMAC* mac,
                                       const uint8_t* remoteAddress,
@@ -467,10 +439,6 @@ TCPConnection* ProtocolTCP::NewClient(InterfaceMAC* mac,
     return 0;
 }
 
-//============================================================================
-//
-//============================================================================
-
 TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
 {
     int i;
@@ -490,10 +458,6 @@ TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
     return 0;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolTCP::Tick()
 {
     int i;
@@ -507,10 +471,6 @@ void ProtocolTCP::Tick()
         }
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
 {

@@ -43,20 +43,12 @@
 
 static const uint32_t DHCP_MAGIC = 0x63825363;
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolDHCP::test()
 {
     printf("sending discover\n");
     Discover();
     printf("discover sent\n");
 }
-
-//============================================================================
-//
-//============================================================================
 
 ProtocolDHCP::ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp)
     : PendingXID(-1)
@@ -65,10 +57,6 @@ ProtocolDHCP::ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp
     , UDP(udp)
 {
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
 {
@@ -277,10 +265,6 @@ void ProtocolDHCP::Discover()
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolDHCP::SendRequest(uint8_t messageType,
                                const uint8_t* serverAddress,
                                const uint8_t* requestAddress)
@@ -361,7 +345,3 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         UDP.Transmit(buffer, targetIP, 67, sourceIP, 68);
     }
 }
-
-//============================================================================
-//
-//============================================================================

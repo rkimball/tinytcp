@@ -50,18 +50,10 @@
 // TargetHardwareAddress - HardwareSize bytes
 // TargetProtocolAddress - IPv4AddressSize bytes
 
-//============================================================================
-//
-//============================================================================
-
 ARPCacheEntry::ARPCacheEntry()
     : Age(0)
 {
 }
-
-//============================================================================
-//
-//============================================================================
 
 ProtocolARP::ProtocolARP(InterfaceMAC& mac, ProtocolIPv4& ip)
     : MAC(mac)
@@ -69,15 +61,7 @@ ProtocolARP::ProtocolARP(InterfaceMAC& mac, ProtocolIPv4& ip)
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolARP::Initialize() {}
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolARP::ProcessRx(const DataBuffer* buffer)
 {
@@ -117,10 +101,6 @@ void ProtocolARP::ProcessRx(const DataBuffer* buffer)
         IP.Retry();
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAddress)
 {
@@ -187,10 +167,6 @@ void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAdd
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
 {
     out << "ARP Cache (ostream):\n";
@@ -217,10 +193,6 @@ std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
     return out;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolARP::SendReply(const ARPInfo& info)
 {
     int offset = 0;
@@ -244,10 +216,6 @@ void ProtocolARP::SendReply(const ARPInfo& info)
 
     MAC.Transmit(txBuffer, info.senderHardwareAddress, 0x0806);
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolARP::SendRequest(const uint8_t* targetIP)
 {
@@ -282,10 +250,6 @@ void ProtocolARP::SendRequest(const uint8_t* targetIP)
     MAC.Transmit(&ARPRequest, MAC.GetBroadcastAddress(), 0x0806);
 }
 
-//============================================================================
-//
-//============================================================================
-
 const uint8_t* ProtocolARP::Protocol2Hardware(const uint8_t* protocolAddress)
 {
     int index;
@@ -315,10 +279,6 @@ const uint8_t* ProtocolARP::Protocol2Hardware(const uint8_t* protocolAddress)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 bool ProtocolARP::IsBroadcast(const uint8_t* protocolAddress)
 {
     bool rc = true;
@@ -332,10 +292,6 @@ bool ProtocolARP::IsBroadcast(const uint8_t* protocolAddress)
     }
     return rc;
 }
-
-//============================================================================
-//
-//============================================================================
 
 bool ProtocolARP::IsLocal(const uint8_t* protocolAddress)
 {
@@ -352,10 +308,6 @@ bool ProtocolARP::IsLocal(const uint8_t* protocolAddress)
 
     return i == IP.AddressSize();
 }
-
-//============================================================================
-//
-//============================================================================
 
 int ProtocolARP::LocateProtocolAddress(const uint8_t* protocolAddress)
 {

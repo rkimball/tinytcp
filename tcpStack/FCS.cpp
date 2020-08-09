@@ -32,10 +32,6 @@
 #include "FCS.hpp"
 #include <stdio.h>
 
-//============================================================================
-//
-//============================================================================
-
 uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 {
     uint16_t value;
@@ -51,10 +47,6 @@ uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
     return checksum;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint16_t FCS::ChecksumComplete(uint32_t checksum)
 {
     uint16_t sum;
@@ -65,15 +57,7 @@ uint16_t FCS::ChecksumComplete(uint32_t checksum)
     return sum;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint16_t FCS::Checksum(const uint8_t* buffer, int length)
 {
     return ChecksumComplete(ChecksumAdd(buffer, length, 0));
 }
-
-//============================================================================
-//
-//============================================================================
