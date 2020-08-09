@@ -49,10 +49,6 @@
 
 #define MAX_ARGV 10
 
-//============================================================================
-//
-//============================================================================
-
 http::Server::Server()
     : PagePool("HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer)
     , Thread()
@@ -64,27 +60,15 @@ http::Server::Server()
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::RegisterPageHandler(PageRequestHandler handler)
 {
     PageHandler = handler;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::RegisterErrorHandler(ErrorMessageHandler handler)
 {
     ErrorHandler = handler;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Server::ProcessRequest(http::Page* page)
 {
@@ -239,10 +223,6 @@ void http::Server::ProcessRequest(http::Page* page)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port)
 {
     int i;
@@ -257,10 +237,6 @@ void http::Server::Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port
     Thread.Create(http::Server::TaskEntry, "HTTPD", 1024 * 32, 100, this);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::ConnectionHandlerEntry(void* param)
 {
     Page* page = (Page*)param;
@@ -270,19 +246,11 @@ void http::Server::ConnectionHandlerEntry(void* param)
     page->_Server->PagePool.Put(page);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::TaskEntry(void* param)
 {
     Server* s = (Server*)param;
     s->Task();
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Server::Task()
 {
