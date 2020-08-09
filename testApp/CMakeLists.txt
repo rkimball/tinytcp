@@ -13,9 +13,9 @@ set( LIBS
    tcpStack
    osSupport )
 if( UNIX )
-	set( LIBS ${LIBS} pthread )
+    set( LIBS ${LIBS} pthread )
 elseif(WIN32)
-	set( LIBS ${LIBS} Packet.lib wpcap.lib Ws2_32.lib )
+    set( LIBS ${LIBS} Packet.lib wpcap.lib Ws2_32.lib )
 endif()
 
 
