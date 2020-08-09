@@ -50,17 +50,17 @@ osEvent::osEvent(const char* name)
     m_test(false)
     ,
 #endif
-    pending(NULL)
+    pending(nullptr)
 {
     if (name)
     {
         strncpy(Name, name, NAME_LENGTH_MAX - 1);
     }
 #ifdef _WIN32
-    Handle = CreateEvent(NULL, true, false, name);
+    Handle = CreateEvent(nullptr, true, false, name);
 #elif __linux__
-    pthread_mutex_init(&m_mutex, NULL);
-    pthread_cond_init(&m_condition, NULL);
+    pthread_mutex_init(&m_mutex, nullptr);
+    pthread_cond_init(&m_condition, nullptr);
 #endif
     ListMutex.Take(__FILE__, __LINE__);
     for (int i = 0; i < INSTANCE_MAX; i++)
@@ -138,7 +138,7 @@ bool osEvent::Wait(const char* file, int line, int msTimeout)
     if (thread)
     {
         thread->ClearState();
-        pending = NULL;
+        pending = nullptr;
     }
     pthread_mutex_unlock(&m_mutex);
     return true;

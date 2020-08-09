@@ -54,7 +54,7 @@ osQueue::osQueue(const char* name, int count, void** dataBuffer)
     // Insert 'this' into the list of queues
     for (int i = 0; i < MAX_QUEUE_COUNT; i++)
     {
-        if (QueueList[i] == NULL)
+        if (QueueList[i] == nullptr)
         {
             QueueList[i] = this;
             break;
@@ -173,7 +173,7 @@ void osQueue::dump_info(std::ostream& out)
     for (int i = 0; i < MAX_QUEUE_COUNT; i++)
     {
         osQueue* queue = QueueList[i];
-        if (queue != NULL)
+        if (queue != nullptr)
         {
             out << "Queue " << queue->GetName();
             out << " is size " << queue->MaxElements;

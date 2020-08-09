@@ -79,8 +79,8 @@ char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen)
     sockaddrlen = sizeof(struct sockaddr_storage);
 #endif
 
-    if (getnameinfo(sockaddr, sockaddrlen, address, addrlen, NULL, 0, NI_NUMERICHOST) != 0)
-        address = NULL;
+    if (getnameinfo(sockaddr, sockaddrlen, address, addrlen, nullptr, 0, NI_NUMERICHOST) != 0)
+        address = nullptr;
 
     return address;
 }
@@ -113,7 +113,7 @@ int PacketIO::GetMACAddress(const char* adapter, uint8_t* mac)
     //
 
     OidData = (PACKET_OID_DATA*)malloc(6 + sizeof(PACKET_OID_DATA));
-    if (OidData == NULL)
+    if (OidData == nullptr)
     {
         printf("error allocating memory!\n");
         PacketCloseAdapter(lpAdapter);
@@ -174,7 +174,7 @@ void PacketIO::DisplayDevices()
     }
 
     /* Print the list */
-    for (d = alldevs; d != NULL; d = d->next)
+    for (d = alldevs; d != nullptr; d = d->next)
     {
         printf("%d. %s", ++i, d->name);
         if (d->description)
@@ -277,7 +277,7 @@ PacketIO::PacketIO(const char* name)
                             1,     // promiscuous mode (nonzero means promiscuous)
                             1,     // read timeout
                             errbuf // error buffer
-                            )) == NULL)
+                            )) == nullptr)
     {
         fprintf(stderr,
                 "\nUnable to open the adapter. %s is not supported by WinPcap\n",
@@ -288,7 +288,7 @@ PacketIO::PacketIO(const char* name)
 void PacketIO::Start(pcap_handler handler)
 {
     /* start the capture */
-    pcap_loop(adhandle, 0, handler, NULL);
+    pcap_loop(adhandle, 0, handler, nullptr);
 }
 
 void PacketIO::Stop()
@@ -316,9 +316,9 @@ void PacketIO::DisplayDevices()
 
     if (getifaddrs(&ifaddr) == 0)
     {
-        for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
         {
-            if (ifa->ifa_addr == NULL)
+            if (ifa->ifa_addr == nullptr)
             {
                 continue;
             }
@@ -345,9 +345,9 @@ void PacketIO::GetInterface(char* name)
 
     if (getifaddrs(&ifaddr) == 0)
     {
-        for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
         {
-            if (ifa->ifa_addr == NULL)
+            if (ifa->ifa_addr == nullptr)
             {
                 continue;
             }
@@ -419,7 +419,7 @@ void PacketIO::Start(RxDataHandler rxData)
         void* pkt_data = (void*)malloc(ETH_FRAME_LEN);
         while (1)
         {
-            int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, NULL, NULL);
+            int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, nullptr, nullptr);
             rxData((uint8_t*)pkt_data, length);
         }
         free(pkt_data); // no way to get here, but ...

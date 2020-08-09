@@ -285,7 +285,7 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         buffer->Length = Pack16(buffer->Packet, buffer->Length, 0x8000);     // flags
         buffer->Length = Pack32(buffer->Packet, buffer->Length, 0);          // (Client IP address)
         buffer->Length = Pack32(buffer->Packet, buffer->Length, 0);          // (Your IP address)
-        if (serverAddress != NULL)
+        if (serverAddress != nullptr)
         {
             for (i = 0; i < 4; i++)
                 buffer->Packet[buffer->Length++] = serverAddress[i]; // (Server IP address)
@@ -317,7 +317,7 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         buffer->Packet[buffer->Length++] = 1;
         buffer->Packet[buffer->Length++] = messageType;
 
-        if (requestAddress != NULL)
+        if (requestAddress != nullptr)
         {
             buffer->Packet[buffer->Length++] = 50;
             buffer->Packet[buffer->Length++] = 4; // length
@@ -325,7 +325,7 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
                 buffer->Packet[buffer->Length++] = requestAddress[i];
         }
 
-        if (serverAddress != NULL)
+        if (serverAddress != nullptr)
         {
             // server address
             buffer->Packet[buffer->Length++] = 54;

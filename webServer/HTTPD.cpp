@@ -101,61 +101,61 @@ void http::Server::ProcessRequest(http::Page* page)
     password[0] = 0;
     do
     {
-        //      char*    encryptionType;
-        //      char*    loginString;
+        // char* encryptionType;
+        // char* loginString;
         actualSizeRead = connection->ReadLine(buffer, sizeof(buffer));
         if (buffer[0] == 0)
         {
             break;
         }
 
-        //      p = strtok( buffer, ":" );
-        //      if( !strcasecmp( "Authorization", p ) )
-        //      {
-        //         encryptionType = strtok( 0, " " );
-        //         loginString = strtok( 0, " " );
-        //         if( !strcasecmp( encryptionType, "Basic" ) )
-        //         {
-        //            char     s[80];
-        //            char*    tmp;
+        // p = strtok(buffer, ":");
+        // if (!strcasecmp("Authorization", p))
+        // {
+        //     encryptionType = strtok(0, " ");
+        //     loginString = strtok(0, " ");
+        //     if (!strcasecmp(encryptionType, "Basic"))
+        //     {
+        //         char s[80];
+        //         char* tmp;
 
-        //            DecodeBase64( loginString, s, sizeof(s) );
-        //            tmp = tokenizer.strtok( s, ":" );
-        //            if( tmp != NULL )
-        //            {
-        //               strncpy( username, tmp, sizeof(username)-1 );
-        //               tmp = tokenizer.strtok( 0, ":" );
-        //               if( tmp != NULL )
-        //               {
-        //                  strncpy( password, tmp, sizeof(password)-1 );
-        //               }
-        //            }
-        //         }
-        //      }
-        //      else if( !strcasecmp( "Content-Type", p ) )
-        //      {
-        //         char* tmp = strtok( 0, "" );
-        //         if( tmp != NULL )
+        //         DecodeBase64(loginString, s, sizeof(s));
+        //         tmp = tokenizer.strtok(s, ":");
+        //         if (tmp != nullptr)
         //         {
-        //            strncpy( CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType) );
+        //             strncpy(username, tmp, sizeof(username) - 1);
+        //             tmp = tokenizer.strtok(0, ":");
+        //             if (tmp != nullptr)
+        //             {
+        //                 strncpy(password, tmp, sizeof(password) - 1);
+        //             }
         //         }
-        //      }
-        //      else if( !strcasecmp( "Content-Length", p ) )
-        //      {
-        //         char* tmp = strtok( 0, " " );
-        //         if( tmp != NULL )
+        //     }
+        // }
+        // else if (!strcasecmp("Content-Type", p))
+        // {
+        //     char* tmp = strtok(0, "");
+        //     if (tmp != nullptr)
+        //     {
+        //         strncpy(CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType));
+        //     }
+        // }
+        // else if (!strcasecmp("Content-Length", p))
+        // {
+        //     char* tmp = strtok(0, " ");
+        //     if (tmp != nullptr)
+        //     {
+        //         rc = sscanf(tmp, "%d", &page->ContentLength);
+        //         if (rc != 1)
         //         {
-        //            rc = sscanf( tmp, "%d", &page->ContentLength );
-        //            if( rc != 1 )
-        //            {
-        //               printf( "could not get length\n" );
-        //            }
-        //            else
-        //            {
-        //               printf( "Content Length: %d\n", page->ContentLength );
-        //            }
+        //             printf("could not get length\n");
         //         }
-        //      }
+        //         else
+        //         {
+        //             printf("Content Length: %d\n", page->ContentLength);
+        //         }
+        //     }
+        // }
     } while (buffer[0] != 0);
 
     if (path)

@@ -51,11 +51,11 @@ pthread_mutex_t osMutex::MutexListMutex;
 
 osMutex::osMutex(const char* name)
     : Name(name)
-    , OwnerFile(NULL)
-    , OwnerThread(NULL)
+    , OwnerFile(nullptr)
+    , OwnerThread(nullptr)
 {
 #ifdef _WIN32
-    Handle = CreateMutex(NULL, false, name);
+    Handle = CreateMutex(nullptr, false, name);
 #elif __linux__
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -67,7 +67,7 @@ osMutex::osMutex(const char* name)
     LockListMutex();
     for (int i = 0; i < MAX_MUTEX; i++)
     {
-        if (MutexList[i] == NULL)
+        if (MutexList[i] == nullptr)
         {
             MutexList[i] = this;
             break;
@@ -80,9 +80,9 @@ void osMutex::Give()
 {
     osThread* thread = osThread::GetCurrent();
     if (thread != OwnerThread) {}
-    OwnerFile = NULL;
+    OwnerFile = nullptr;
     OwnerLine = 0;
-    OwnerThread = NULL;
+    OwnerThread = nullptr;
 #ifdef _WIN32
     ReleaseMutex(Handle);
 #elif __linux__
@@ -180,7 +180,7 @@ void osMutex::dump_info(std::ostream& out)
     for (int i = 0; i < MAX_MUTEX; i++)
     {
         osMutex* mutex = MutexList[i];
-        if (mutex != NULL)
+        if (mutex != nullptr)
         {
             string name = mutex->Name;
             string state;

@@ -97,7 +97,7 @@ DWORD WINAPI WinThreadEntry(LPVOID param)
     {
         if (Threads[i] == thread->Thread)
         {
-            Threads[i] = NULL;
+            Threads[i] = nullptr;
             break;
         }
     }
@@ -117,12 +117,12 @@ static void* ThreadEntry(void* param)
     {
         if (Threads[i] == thread)
         {
-            Threads[i] = NULL;
+            Threads[i] = nullptr;
             break;
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 #endif
@@ -155,11 +155,11 @@ void osThread::Initialize()
     }
     TlsSetValue(dwTlsIndex, &MainThread);
 #elif __linux__
-    pthread_key_create(&tlsKey, NULL);
+    pthread_key_create(&tlsKey, nullptr);
 #endif
     for (int i = 0; i < MAX_THREADS; i++)
     {
-        if (Threads[i] == NULL)
+        if (Threads[i] == nullptr)
         {
             Threads[i] = &MainThread;
             break;
@@ -196,21 +196,21 @@ int osThread::Create(
     DWORD tid;
 
     // Create thread
-    Handle = CreateThread(NULL, 0, WinThreadEntry, threadParam, 0, &tid);
+    Handle = CreateThread(nullptr, 0, WinThreadEntry, threadParam, 0, &tid);
     ThreadId = tid;
 #elif __linux__
 
     // Set thread parameter values
     Entry = entry;
     Param = param;
-    pthread_create(&m_thread, NULL, ThreadEntry, this);
+    pthread_create(&m_thread, nullptr, ThreadEntry, this);
     ThreadStart.Wait(__FILE__, __LINE__);
 #endif
 
     Mutex.Take(__FILE__, __LINE__);
     for (i = 0; i < MAX_THREADS; i++)
     {
-        if (Threads[i] == NULL)
+        if (Threads[i] == nullptr)
         {
             Threads[i] = this;
             break;
@@ -307,7 +307,7 @@ void osThread::SetState(THREAD_STATE state, const char* file, int line, void* ob
 void osThread::ClearState()
 {
     State = RUNNING;
-    StateObject = NULL;
+    StateObject = nullptr;
     Filename = "";
     Linenumber = 0;
 }
@@ -407,7 +407,7 @@ void osThread::dump_info(std::ostream& out)
         case PENDING_MUTEX:
         {
             osMutex* obj = (osMutex*)(thread->StateObject);
-            if (obj != NULL)
+            if (obj != nullptr)
             {
                 out << "pending on mutex \"" << obj->GetName() << "\"\n";
             }
@@ -420,7 +420,7 @@ void osThread::dump_info(std::ostream& out)
         case PENDING_EVENT:
         {
             osEvent* obj = (osEvent*)(thread->StateObject);
-            if (obj != NULL)
+            if (obj != nullptr)
             {
                 out << "pending event \"" << obj->GetName() << "\"\n";
             }
