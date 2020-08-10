@@ -34,7 +34,7 @@
 #ifdef _WIN32
 #include <pcap.h>
 #endif
-#include <inttypes.h>
+
 #include "osThread.hpp"
 
 class PacketIO

@@ -195,7 +195,7 @@ std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
 
 void ProtocolARP::SendReply(const ARPInfo& info)
 {
-    int offset = 0;
+    size_t offset = 0;
     DataBuffer* txBuffer = MAC.GetTxBuffer();
     if (txBuffer == 0)
     {
@@ -311,8 +311,8 @@ bool ProtocolARP::IsLocal(const uint8_t* protocolAddress)
 
 int ProtocolARP::LocateProtocolAddress(const uint8_t* protocolAddress)
 {
-    int i;
-    int j;
+    size_t i;
+    size_t j;
 
     for (i = 0; i < ARPCacheSize; i++)
     {

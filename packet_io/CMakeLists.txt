@@ -1,1 +1,6 @@
-add_library (packet_io PacketIO.cpp)
+add_library (packet_io STATIC PacketIO.cpp)
+if(WIN32)
+    target_link_libraries(packet_io PUBLIC wpcap.lib Ws2_32.lib)
+    target_include_directories(packet_io PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/WinPcap/include)
+    message(STATUS "*********** ${CMAKE_CURRENT_SOURCE_DIR}/WinPcap/include")
+endif()
