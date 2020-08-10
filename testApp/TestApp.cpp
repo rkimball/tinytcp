@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#ifdef __linux__
+#ifdef _WIN32
+#include <pcap.h>
+#elif __linux__
 #include <strings.h>
 #include <unistd.h>
 #endif
@@ -54,7 +57,7 @@
 #define strncasecmp _strnicmp
 #endif
 
-PacketIO*       PIO;
+PacketIO* PIO;
 static osThread NetworkThread;
 static osThread MainThread;
 
@@ -69,27 +72,15 @@ struct NetworkConfig
     int interfaceNumber;
 };
 
-//============================================================================
-//
-//============================================================================
-
 void RxData(uint8_t* data, size_t length)
 {
     tcpStack.ProcessRx(data, length);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TxData(void* data, size_t length)
 {
     PIO->TxData(data, length);
 }
-
-//============================================================================
-//
-//============================================================================
 
 void NetworkEntry(void* param)
 {
@@ -97,14 +88,14 @@ void NetworkEntry(void* param)
     uint8_t addr[] = {0x10, 0xBF, 0x48, 0x44, 0x55, 0x66};
     tcpStack.SetMACAddress(addr);
 
-//   Config.IPv4.Address[ 0 ] = 0;
-//   Config.IPv4.Address[ 1 ] = 0;
-//   Config.IPv4.Address[ 2 ] = 0;
-//   Config.IPv4.Address[ 3 ] = 0;
+    //   Config.IPv4.Address[ 0 ] = 0;
+    //   Config.IPv4.Address[ 1 ] = 0;
+    //   Config.IPv4.Address[ 2 ] = 0;
+    //   Config.IPv4.Address[ 3 ] = 0;
 
 #ifdef _WIN32
-    //NetworkConfig& config = *(NetworkConfig*)param;
-    //char           device[256];
+    NetworkConfig& config = *(NetworkConfig*)param;
+    char device[256];
 
     //PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
     //printf("using device %s\n", device);
@@ -126,21 +117,11 @@ void NetworkEntry(void* param)
     PIO->Start(RxData);
 }
 
-//============================================================================
-//
-//============================================================================
-
-void MainEntry(void* config)
-{
-}
-
-//============================================================================
-//
-//============================================================================
+void MainEntry(void* config) {}
 
 void HomePage(http::Page* page)
 {
-    time_t     t   = time(0);
+    time_t t = time(0);
     struct tm* now = localtime(&t);
     ostream& out = page->get_output_stream();
 
@@ -168,13 +149,11 @@ void FormsDemo(http::Page* page)
     out << "<form action=\"/formsresult\">";
 
     out << "<label for=\"FirstName\">First name:</label>";
-    out <<
-        "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>";
+    out << "<input type=\"text\" name=\"FirstName\" class=\"form-control\" value=\"Robert\"/>";
     out << "<br>";
 
     out << "<label for=\"LastName\">Last name:</label>";
-    out <<
-        "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>";
+    out << "<input type=\"text\" name=\"LastName\" class=\"form-control\" value=\"Kimball\"/>";
     out << "<br>";
 
     out << "<input type=\"submit\" value=\"submit\" />";
@@ -187,10 +166,6 @@ void FormsDemo(http::Page* page)
     //      page->SendString( "      </form><br>\n" );
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ShowMutex(http::Page* page)
 {
     ostream& out = page->get_output_stream();
@@ -198,10 +173,6 @@ void ShowMutex(http::Page* page)
     osMutex::dump_info(out);
     out << "</pre>";
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ShowEvent(http::Page* page)
 {
@@ -211,10 +182,6 @@ void ShowEvent(http::Page* page)
     out << "</pre>";
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ShowQueue(http::Page* page)
 {
     ostream& out = page->get_output_stream();
@@ -222,10 +189,6 @@ void ShowQueue(http::Page* page)
     osQueue::dump_info(out);
     out << "</pre>";
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ShowThread(http::Page* page)
 {
@@ -235,10 +198,6 @@ void ShowThread(http::Page* page)
     out << "</pre>";
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ShowMAC(http::Page* page)
 {
     ostream& out = page->get_output_stream();
@@ -246,10 +205,6 @@ void ShowMAC(http::Page* page)
     out << tcpStack.MAC;
     out << "</pre>";
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ShowIP(http::Page* page)
 {
@@ -259,10 +214,6 @@ void ShowIP(http::Page* page)
     out << "</pre>";
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ShowARP(http::Page* page)
 {
     ostream& out = page->get_output_stream();
@@ -271,10 +222,6 @@ void ShowARP(http::Page* page)
     out << "</pre>";
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ShowTCP(http::Page* page)
 {
     ostream& out = page->get_output_stream();
@@ -282,10 +229,6 @@ void ShowTCP(http::Page* page)
     out << tcpStack.TCP;
     out << "</pre>";
 }
-
-//============================================================================
-//
-//============================================================================
 
 void FormsResponse(http::Page* page)
 {
@@ -299,20 +242,12 @@ void FormsResponse(http::Page* page)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void Page404(http::Page* page)
 {
     page->Printf("<div class=\"jumbotron>");
     page->Printf("<h1>Page Not Found</h1>");
     page->Printf("</div>");
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProcessPageRequest(http::Page* page, const char* url)
 {
@@ -381,10 +316,6 @@ void ProcessPageRequest(http::Page* page, const char* url)
         page->PageNotFound();
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 int main(int argc, char* argv[])
 {

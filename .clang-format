@@ -6,8 +6,8 @@ Standard: Cpp11
 
 AccessModifierOffset: -4
 
-AlignConsecutiveDeclarations: true
-AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: false
 AlignTrailingComments: true
 
 AllowShortBlocksOnASingleLine: true
@@ -51,3 +51,22 @@ IncludeCategories:
   - Regex:           '^<.*'
     Priority:        2
 SortIncludes: true
+
+# Added for clang-format-6.0
+FixNamespaceComments: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterFunction: true
+  AfterExternBlock: false
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true

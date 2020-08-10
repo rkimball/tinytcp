@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,6 @@
 
 #define MAX_ARGV 10
 
-//============================================================================
-//
-//============================================================================
-
 http::Server::Server()
     : PagePool("HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer)
     , Thread()
@@ -64,47 +60,35 @@ http::Server::Server()
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::RegisterPageHandler(PageRequestHandler handler)
 {
     PageHandler = handler;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Server::RegisterErrorHandler(ErrorMessageHandler handler)
 {
     ErrorHandler = handler;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::ProcessRequest(http::Page* page)
 {
-    int            i;
-    char           buffer1[512];
-    char           buffer[256];
-    int            actualSizeRead;
-    char*          p;
-    char*          result;
-    char*          path;
-    const char*    url = "";
-    char           username[20];
-    char           password[20];
-    int            argc;
-    char*          argv[MAX_ARGV];
-    int            rc;
+    int i;
+    char buffer1[512];
+    char buffer[256];
+    int actualSizeRead;
+    char* p;
+    char* result;
+    char* path;
+    const char* url = "";
+    char username[20];
+    char password[20];
+    int argc;
+    char* argv[MAX_ARGV];
+    int rc;
     TCPConnection* connection = page->Connection;
 
     page->HTTPHeaderSent = false;
-    actualSizeRead       = connection->ReadLine(buffer1, sizeof(buffer1));
+    actualSizeRead = connection->ReadLine(buffer1, sizeof(buffer1));
     if (actualSizeRead == -1)
     {
         return;
@@ -117,61 +101,61 @@ void http::Server::ProcessRequest(http::Page* page)
     password[0] = 0;
     do
     {
-        //      char*    encryptionType;
-        //      char*    loginString;
+        // char* encryptionType;
+        // char* loginString;
         actualSizeRead = connection->ReadLine(buffer, sizeof(buffer));
         if (buffer[0] == 0)
         {
             break;
         }
 
-        //      p = strtok( buffer, ":" );
-        //      if( !strcasecmp( "Authorization", p ) )
-        //      {
-        //         encryptionType = strtok( 0, " " );
-        //         loginString = strtok( 0, " " );
-        //         if( !strcasecmp( encryptionType, "Basic" ) )
-        //         {
-        //            char     s[80];
-        //            char*    tmp;
+        // p = strtok(buffer, ":");
+        // if (!strcasecmp("Authorization", p))
+        // {
+        //     encryptionType = strtok(0, " ");
+        //     loginString = strtok(0, " ");
+        //     if (!strcasecmp(encryptionType, "Basic"))
+        //     {
+        //         char s[80];
+        //         char* tmp;
 
-        //            DecodeBase64( loginString, s, sizeof(s) );
-        //            tmp = tokenizer.strtok( s, ":" );
-        //            if( tmp != NULL )
-        //            {
-        //               strncpy( username, tmp, sizeof(username)-1 );
-        //               tmp = tokenizer.strtok( 0, ":" );
-        //               if( tmp != NULL )
-        //               {
-        //                  strncpy( password, tmp, sizeof(password)-1 );
-        //               }
-        //            }
-        //         }
-        //      }
-        //      else if( !strcasecmp( "Content-Type", p ) )
-        //      {
-        //         char* tmp = strtok( 0, "" );
-        //         if( tmp != NULL )
+        //         DecodeBase64(loginString, s, sizeof(s));
+        //         tmp = tokenizer.strtok(s, ":");
+        //         if (tmp != nullptr)
         //         {
-        //            strncpy( CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType) );
+        //             strncpy(username, tmp, sizeof(username) - 1);
+        //             tmp = tokenizer.strtok(0, ":");
+        //             if (tmp != nullptr)
+        //             {
+        //                 strncpy(password, tmp, sizeof(password) - 1);
+        //             }
         //         }
-        //      }
-        //      else if( !strcasecmp( "Content-Length", p ) )
-        //      {
-        //         char* tmp = strtok( 0, " " );
-        //         if( tmp != NULL )
+        //     }
+        // }
+        // else if (!strcasecmp("Content-Type", p))
+        // {
+        //     char* tmp = strtok(0, "");
+        //     if (tmp != nullptr)
+        //     {
+        //         strncpy(CurrentPage->ContentType, tmp, sizeof(CurrentPage->ContentType));
+        //     }
+        // }
+        // else if (!strcasecmp("Content-Length", p))
+        // {
+        //     char* tmp = strtok(0, " ");
+        //     if (tmp != nullptr)
+        //     {
+        //         rc = sscanf(tmp, "%d", &page->ContentLength);
+        //         if (rc != 1)
         //         {
-        //            rc = sscanf( tmp, "%d", &page->ContentLength );
-        //            if( rc != 1 )
-        //            {
-        //               printf( "could not get length\n" );
-        //            }
-        //            else
-        //            {
-        //               printf( "Content Length: %d\n", page->ContentLength );
-        //            }
+        //             printf("could not get length\n");
         //         }
-        //      }
+        //         else
+        //         {
+        //             printf("Content Length: %d\n", page->ContentLength);
+        //         }
+        //     }
+        // }
     } while (buffer[0] != 0);
 
     if (path)
@@ -196,7 +180,7 @@ void http::Server::ProcessRequest(http::Page* page)
                 argLength = strlen(argv[i]) + 1;
 
                 // Translate any escaped characters in the argument
-                p      = argv[i];
+                p = argv[i];
                 result = p;
                 for (j = 0; j < argLength; j++)
                 {
@@ -239,10 +223,6 @@ void http::Server::ProcessRequest(http::Page* page)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port)
 {
     int i;
@@ -257,10 +237,6 @@ void http::Server::Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port
     Thread.Create(http::Server::TaskEntry, "HTTPD", 1024 * 32, 100, this);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::ConnectionHandlerEntry(void* param)
 {
     Page* page = (Page*)param;
@@ -270,24 +246,16 @@ void http::Server::ConnectionHandlerEntry(void* param)
     page->_Server->PagePool.Put(page);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::TaskEntry(void* param)
 {
     Server* s = (Server*)param;
     s->Task();
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Server::Task()
 {
     TCPConnection* connection;
-    Page*          page;
+    Page* page;
 
     while (1)
     {

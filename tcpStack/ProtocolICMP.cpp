@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,25 +40,17 @@
 // Code - 8 bits
 // Checksum - 16 bits
 
-//============================================================================
-//
-//============================================================================
-
 ProtocolICMP::ProtocolICMP(ProtocolIPv4& ip)
     : IP(ip)
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolICMP::ProcessRx(DataBuffer* buffer, const uint8_t* remoteIP, const uint8_t*)
 {
-    uint8_t     type;
-    uint8_t     code;
+    uint8_t type;
+    uint8_t code;
     DataBuffer* txBuffer;
-    uint16_t    i;
+    uint16_t i;
 
     type = buffer->Packet[0];
     code = buffer->Packet[1];

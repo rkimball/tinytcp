@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -60,11 +60,11 @@ char AdapterList[Max_Num_Adapter][1024];
 #define IPTOSBUFFERS 12
 char* iptos(u_long in)
 {
-    static char  output[IPTOSBUFFERS][3 * 4 + 3 + 1];
+    static char output[IPTOSBUFFERS][3 * 4 + 3 + 1];
     static short which;
-    u_char*      p;
+    u_char* p;
 
-    p     = (u_char*)&in;
+    p = (u_char*)&in;
     which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
     snprintf(output[which], sizeof(output[which]), "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
     return output[which];
@@ -80,8 +80,8 @@ char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen)
     sockaddrlen = sizeof(struct sockaddr_storage);
 #endif
 
-    if (getnameinfo(sockaddr, sockaddrlen, address, addrlen, NULL, 0, NI_NUMERICHOST) != 0)
-        address = NULL;
+    if (getnameinfo(sockaddr, sockaddrlen, address, addrlen, nullptr, 0, NI_NUMERICHOST) != 0)
+        address = nullptr;
 
     return address;
 }
@@ -159,12 +159,12 @@ char* ip6tos(struct sockaddr* sockaddr, char* address, int addrlen)
 
 void PacketIO::DisplayDevices()
 {
-    pcap_if_t*   alldevs;
-    pcap_if_t*   d;
+    pcap_if_t* alldevs;
+    pcap_if_t* d;
     pcap_addr_t* a;
-    int          i = 0;
-    char         errbuf[PCAP_ERRBUF_SIZE];
-    char         ip6str[128];
+    int i = 0;
+    char errbuf[PCAP_ERRBUF_SIZE];
+    char ip6str[128];
 
     /* Retrieve the device list from the local machine */
 
@@ -175,7 +175,7 @@ void PacketIO::DisplayDevices()
     }
 
     /* Print the list */
-    for (d = alldevs; d != NULL; d = d->next)
+    for (d = alldevs; d != nullptr; d = d->next)
     {
         printf("%d. %s", ++i, d->name);
         if (d->description)
@@ -234,8 +234,8 @@ void PacketIO::GetDevice(int interfaceNumber, char* buffer, size_t buffer_size)
 {
     pcap_if_t* alldevs;
     pcap_if_t* d;
-    int        i = 0;
-    char       errbuf[PCAP_ERRBUF_SIZE];
+    int i = 0;
+    char errbuf[PCAP_ERRBUF_SIZE];
 
     /* Retrieve the device list from the local machine */
 
@@ -309,17 +309,13 @@ PacketIO::PacketIO(const char* name)
                             1,     // promiscuous mode (nonzero means promiscuous)
                             1,     // read timeout
                             errbuf // error buffer
-                            )) == NULL)
+                            )) == nullptr)
     {
         fprintf(stderr,
                 "\nUnable to open the adapter. %s is not supported by WinPcap\n",
                 CaptureDevice);
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_char* pkt_data)
 {
@@ -334,18 +330,10 @@ void PacketIO::Start(RxDataHandler rxData)
     pcap_loop(adhandle, 0, packet_handler, (u_char*)rxData);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void PacketIO::Stop()
 {
     pcap_close(adhandle);
 }
-
-//============================================================================
-//
-//============================================================================
 
 void PacketIO::TxData(void* packet, size_t length)
 {
@@ -359,45 +347,36 @@ void PacketIO::TxData(void* packet, size_t length)
 }
 #elif __linux__
 
-PacketIO::PacketIO()
-{
-}
-
-//============================================================================
-//
-//============================================================================
+PacketIO::PacketIO() {}
 
 void PacketIO::DisplayDevices()
 {
     struct ifaddrs* ifaddr;
 
-        if (getifaddrs(&ifaddr) == 0)
+    if (getifaddrs(&ifaddr) == 0)
+    {
+        for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
         {
-            for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+            if (ifa->ifa_addr == nullptr)
             {
-                if (ifa->ifa_addr == NULL)
-                {
-                    continue;
-                }
-                int family = ifa->ifa_addr->sa_family;
-
-                /* Display interface name and family (including symbolic
-                    form of the latter for the common families) */
-
-                printf("%-8s %s (%d)\n",
-                        ifa->ifa_name,
-                        (family == AF_PACKET) ? "AF_PACKET" :
-                        (family == AF_INET) ? "AF_INET" :
-                        (family == AF_INET6) ? "AF_INET6" : "???",
-                        family);
+                continue;
             }
-            freeifaddrs(ifaddr);
-        }
-    }
+            int family = ifa->ifa_addr->sa_family;
 
-//============================================================================
-//
-//============================================================================
+            /* Display interface name and family (including symbolic
+                form of the latter for the common families) */
+
+            printf("%-8s %s (%d)\n",
+                   ifa->ifa_name,
+                   (family == AF_PACKET)
+                       ? "AF_PACKET"
+                       : (family == AF_INET) ? "AF_INET"
+                                             : (family == AF_INET6) ? "AF_INET6" : "???",
+                   family);
+        }
+        freeifaddrs(ifaddr);
+    }
+}
 
 void PacketIO::GetInterface(char* name)
 {
@@ -405,9 +384,9 @@ void PacketIO::GetInterface(char* name)
 
     if (getifaddrs(&ifaddr) == 0)
     {
-        for (struct ifaddrs* ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+        for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
         {
-            if (ifa->ifa_addr == NULL)
+            if (ifa->ifa_addr == nullptr)
             {
                 continue;
             }
@@ -436,10 +415,6 @@ void PacketIO::GetInterface(char* name)
         freeifaddrs(ifaddr);
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void PacketIO::Start(RxDataHandler rxData)
 {
@@ -472,8 +447,8 @@ void PacketIO::Start(RxDataHandler rxData)
         // Set socket to promiscuous mode
         struct packet_mreq mreq;
         mreq.mr_ifindex = ifr.ifr_ifindex;
-        mreq.mr_type    = PACKET_MR_PROMISC;
-        mreq.mr_alen    = 6;
+        mreq.mr_type = PACKET_MR_PROMISC;
+        mreq.mr_alen = 6;
         if (setsockopt(
                 m_RawSocket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, (socklen_t)sizeof(mreq)) < 0)
         {
@@ -483,24 +458,14 @@ void PacketIO::Start(RxDataHandler rxData)
         void* pkt_data = (void*)malloc(ETH_FRAME_LEN);
         while (1)
         {
-            int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, NULL, NULL);
+            int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, nullptr, nullptr);
             rxData((uint8_t*)pkt_data, length);
         }
         free(pkt_data); // no way to get here, but ...
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
-void PacketIO::Stop()
-{
-}
-
-//============================================================================
-//
-//============================================================================
+void PacketIO::Stop() {}
 
 void PacketIO::TxData(void* packet, size_t length)
 {
@@ -510,7 +475,7 @@ void PacketIO::TxData(void* packet, size_t length)
     struct sockaddr_ll dest;
 
     memset(&dest, 0, sizeof(dest));
-    dest.sll_family  = AF_PACKET;
+    dest.sll_family = AF_PACKET;
     dest.sll_ifindex = m_IfIndex;
 
     int rc = sendto(m_RawSocket, packet, length, 0, (sockaddr*)&dest, sizeof(dest));

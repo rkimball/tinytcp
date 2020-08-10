@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,8 @@ private:
     {
         uint16_t hardwareType;
         uint16_t protocolType;
-        uint8_t  hardwareSize;
-        uint8_t  protocolSize;
+        uint8_t hardwareSize;
+        uint8_t protocolSize;
         uint16_t opType;
         uint8_t* senderHardwareAddress;
         uint8_t* senderProtocolAddress;

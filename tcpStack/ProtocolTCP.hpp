@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -82,8 +82,8 @@ public:
 
     TCPConnection* NewClient(InterfaceMAC*,
                              const uint8_t* remoteAddress,
-                             uint16_t       remotePort,
-                             uint16_t       localPort);
+                             uint16_t remotePort,
+                             uint16_t localPort);
     TCPConnection* NewServer(InterfaceMAC*, uint16_t port);
     uint16_t NewPort();
     static size_t header_size() { return 20; }
@@ -95,16 +95,16 @@ public:
 private:
     TCPConnection*
         LocateConnection(uint16_t remotePort, const uint8_t* remoteAddress, uint16_t localPort);
-    static uint16_t ComputeChecksum(uint8_t*       packet,
-                                    uint16_t       length,
+    static uint16_t ComputeChecksum(uint8_t* packet,
+                                    uint16_t length,
                                     const uint8_t* sourceIP,
                                     const uint8_t* targetIP);
     void
         Reset(InterfaceMAC*, uint16_t localPort, uint16_t remotePort, const uint8_t* remoteAddress);
 
     TCPConnection ConnectionList[TCP_MAX_CONNECTIONS];
-    void*         ConnectionHoldingBuffer[TX_BUFFER_COUNT];
-    uint16_t      NextPort;
+    void* ConnectionHoldingBuffer[TX_BUFFER_COUNT];
+    uint16_t NextPort;
 
     ProtocolIPv4& IP;
 

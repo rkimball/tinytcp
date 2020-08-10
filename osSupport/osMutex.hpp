@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -72,11 +72,11 @@ private:
     static void LockListMutex();
     static void UnlockListMutex();
 
-    void            Take();
-    const char*     Name;
+    void Take();
+    const char* Name;
     static osMutex* MutexList[];
 
     const char* OwnerFile;
-    int         OwnerLine;
-    osThread*   OwnerThread;
+    int OwnerLine;
+    osThread* OwnerThread;
 };

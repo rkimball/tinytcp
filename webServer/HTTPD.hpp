@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -65,13 +65,13 @@ private:
     Server(Server&);
 
     static void ConnectionHandlerEntry(void*);
-    void        ConnectionHandler(void*);
+    void ConnectionHandler(void*);
 
     static void TaskEntry(void* param);
     void Task();
 
-    Page    PagePoolPages[MAX_ACTIVE_CONNECTIONS];
-    void*   PagePoolBuffer[MAX_ACTIVE_CONNECTIONS];
+    Page PagePoolPages[MAX_ACTIVE_CONNECTIONS];
+    void* PagePoolBuffer[MAX_ACTIVE_CONNECTIONS];
     osQueue PagePool;
 
     osThread Thread;
@@ -79,7 +79,7 @@ private:
     TCPConnection* ListenerConnection;
     TCPConnection* CurrentConnection;
 
-    PageRequestHandler   PageHandler;
-    ErrorMessageHandler  ErrorHandler;
+    PageRequestHandler PageHandler;
+    ErrorMessageHandler ErrorHandler;
     AuthorizationHandler AuthHandler;
 };

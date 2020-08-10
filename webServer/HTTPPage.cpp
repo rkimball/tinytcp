@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#include <cstring>
+#include <iomanip>
+#include <sstream>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <cstring>
-#include <sstream>
-#include <iomanip>
 
 #include "HTTPPage.hpp"
 #include "osThread.hpp"
@@ -48,17 +48,13 @@
 
 using namespace std;
 
-template<typename T>
-std::string to_hex(T obj, size_t width=sizeof(T)*2)
+template <typename T>
+std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
     std::stringstream ss;
     ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
     return ss.str();
 }
-
-//============================================================================
-//
-//============================================================================
 
 http::Page::Page()
     : TagDepth(0)
@@ -69,34 +65,20 @@ http::Page::Page()
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
-http::Page::~Page()
-{
-}
-
-//============================================================================
-//
-//============================================================================
+http::Page::~Page() {}
 
 void http::Page::Initialize(TCPConnection* connection)
 {
     Connection = connection;
-    Busy       = 0;
+    Busy = 0;
 }
-
-//============================================================================
-//
-//============================================================================
 
 int http::Page::Printf(const char* format, ...)
 {
-    char    buffer[BUFFER_SIZE];
-    int     i;
+    char buffer[BUFFER_SIZE];
+    int i;
     va_list vlist;
-    int     rc;
+    int rc;
 
     va_start(vlist, format);
 
@@ -111,37 +93,23 @@ int http::Page::Printf(const char* format, ...)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 string http::Page::HTMLEncode(const string& str)
 {
     string rc;
     stringstream ss;
-    for (int i=0; i<str.size(); i++)
+    for (int i = 0; i < str.size(); i++)
     {
         switch (str[i])
         {
-        case '<':
-            ss << "&lt";
-            break;
+        case '<': ss << "&lt"; break;
 
-        case '>':
-            ss << "&gt";
-            break;
+        case '>': ss << "&gt"; break;
 
-        default:
-            ss << str[i];
-            break;
+        default: ss << str[i]; break;
         }
     }
     return ss.str();
 }
-
-//============================================================================
-//
-//============================================================================
 
 bool http::Page::Puts(const char* string)
 {
@@ -161,18 +129,10 @@ bool http::Page::Puts(const char* string)
     return true;
 }
 
-//============================================================================
-//
-//============================================================================
-
 bool http::Page::SendString(const char* string)
 {
     return RawSend(string, (int)strlen(string));
 }
-
-//============================================================================
-//
-//============================================================================
 
 bool http::Page::RawSend(const void* p, size_t length)
 {
@@ -184,10 +144,6 @@ bool http::Page::RawSend(const void* p, size_t length)
 
     return true;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Page::SendASCIIString(const char* string)
 {
@@ -207,10 +163,6 @@ void http::Page::SendASCIIString(const char* string)
         string++;
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Page::DumpData(const char* buffer, size_t length)
 {
@@ -264,20 +216,12 @@ void http::Page::DumpData(const char* buffer, size_t length)
     out << "</code>\n";
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Page::PageNotFound()
 {
     HTTPHeaderSent = true;
     ostream& out = get_output_stream();
     out << "HTTP/1.0 404 Not Found\r\n\r\n";
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Page::PageOK(const char* mimeType)
 {
@@ -288,20 +232,12 @@ void http::Page::PageOK(const char* mimeType)
     out << "\r\n\r\n";
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Page::PageNoContent()
 {
     HTTPHeaderSent = true;
     ostream& out = get_output_stream();
     out << "HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n";
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Page::PageUnauthorized()
 {
@@ -310,18 +246,14 @@ void http::Page::PageUnauthorized()
     out << "HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n";
 }
 
-//============================================================================
-//
-//============================================================================
-
 bool http::Page::SendFile(const char* filename)
 {
-    char          s[BUFFER_SIZE];
-    FILE*         f;
-    bool          rc = false;
+    char s[BUFFER_SIZE];
+    FILE* f;
+    bool rc = false;
     unsigned char buffer[512];
-    uint64_t      counti64;
-    int           count;
+    uint64_t counti64;
+    int count;
     ostream& out = get_output_stream();
 
     f = fopen(filename, "rb");
@@ -355,18 +287,10 @@ bool http::Page::SendFile(const char* filename)
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Page::Flush()
 {
     Connection->Flush();
 }
-
-//============================================================================
-//
-//============================================================================
 
 void http::Page::ParseArg(char* arg, char** name, char** value)
 {
@@ -375,7 +299,7 @@ void http::Page::ParseArg(char* arg, char** name, char** value)
     {
         if (*arg == '=')
         {
-            *arg   = 0;
+            *arg = 0;
             *value = ++arg;
             break;
         }
@@ -383,17 +307,13 @@ void http::Page::ParseArg(char* arg, char** name, char** value)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent content)
 {
     FILE* f = fopen(htmlFile, "r");
     if (f)
     {
         int c;
-        int markerIndex  = 0;
+        int markerIndex = 0;
         int markerLength = strlen(marker);
         ostream& out = get_output_stream();
         while ((c = fgetc(f)) > 0)
@@ -465,7 +385,7 @@ std::streambuf::int_type http::Page::underflow()
     }
     else
     {
-        char* base  = &m_char_buffer.front();
+        char* base = &m_char_buffer.front();
         char* start = base;
 
         if (eback() == base) // true when this isn't the first fill

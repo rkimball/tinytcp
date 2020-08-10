@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -63,11 +63,11 @@ uint64_t osTime::GetTime()
 const char* osTime::GetTimestamp()
 {
     static char s[64];
-    uint32_t    seconds;
-    uint32_t    sec;
-    uint32_t    min;
-    uint32_t    hour;
-    uint64_t    time;
+    uint32_t seconds;
+    uint32_t sec;
+    uint32_t min;
+    uint32_t hour;
+    uint64_t time;
 
     time = GetTime();
 

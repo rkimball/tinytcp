@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2016, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -42,14 +42,14 @@ public:
     virtual ~InterfaceMAC() {}
     typedef void (*DataTransmitHandler)(void* data, size_t length);
 
-    virtual void           RegisterDataTransmitHandler(DataTransmitHandler) = 0;
-    virtual size_t         AddressSize() const                              = 0;
-    virtual size_t         HeaderSize() const                               = 0;
-    virtual const uint8_t* GetUnicastAddress() const                        = 0;
-    virtual const uint8_t* GetBroadcastAddress() const                      = 0;
-    virtual DataBuffer*    GetTxBuffer()                                    = 0;
-    virtual void           FreeTxBuffer(DataBuffer*)                        = 0;
-    virtual void           FreeRxBuffer(DataBuffer*)                        = 0;
+    virtual void RegisterDataTransmitHandler(DataTransmitHandler) = 0;
+    virtual size_t AddressSize() const = 0;
+    virtual size_t HeaderSize() const = 0;
+    virtual const uint8_t* GetUnicastAddress() const = 0;
+    virtual const uint8_t* GetBroadcastAddress() const = 0;
+    virtual DataBuffer* GetTxBuffer() = 0;
+    virtual void FreeTxBuffer(DataBuffer*) = 0;
+    virtual void FreeRxBuffer(DataBuffer*) = 0;
     virtual void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type) = 0;
     virtual void Retransmit(DataBuffer* buffer) = 0;
 };

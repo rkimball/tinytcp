@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,12 +40,12 @@ class DataBuffer
 public:
     DataBuffer();
 
-    uint8_t*      Packet;
-    uint32_t      AcknowledgementNumber;
-    uint32_t      Time_us;
-    uint16_t      Length;
-    uint16_t      Remainder;
-    bool          Disposable;
+    uint8_t* Packet;
+    uint32_t AcknowledgementNumber;
+    uint32_t Time_us;
+    uint16_t Length;
+    uint16_t Remainder;
+    bool Disposable;
     InterfaceMAC* MAC;
 
     void Initialize(InterfaceMAC*);

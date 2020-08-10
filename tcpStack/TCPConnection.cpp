@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2016, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,11 @@
 #include <cstring>
 #include <algorithm>
 
-#include "TCPConnection.hpp"
 #include "ProtocolIPv4.hpp"
 #include "ProtocolTCP.hpp"
+#include "TCPConnection.hpp"
 #include "Utility.hpp"
 #include "osTime.hpp"
-
-//============================================================================
-//
-//============================================================================
 
 TCPConnection::TCPConnection()
     : RxInOffset(0)
@@ -60,19 +56,11 @@ TCPConnection::TCPConnection()
 {
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::Initialize(ProtocolIPv4& ip, ProtocolTCP& tcp)
 {
-    IP  = &ip;
+    IP = &ip;
     TCP = &tcp;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Allocate(InterfaceMAC* mac)
 {
@@ -88,17 +76,7 @@ void TCPConnection::Allocate(InterfaceMAC* mac)
     MAC = mac;
 }
 
-//============================================================================
-//
-//============================================================================
-
-TCPConnection::~TCPConnection()
-{
-}
-
-//============================================================================
-//
-//============================================================================
+TCPConnection::~TCPConnection() {}
 
 void TCPConnection::SendFlags(uint8_t flags)
 {
@@ -109,10 +87,6 @@ void TCPConnection::SendFlags(uint8_t flags)
         BuildPacket(buffer, flags);
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
 {
@@ -161,7 +135,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         if (length > 0 || (flags & (FLAG_SYN | FLAG_FIN)))
         {
             buffer->Disposable = false;
-            buffer->Time_us    = (uint32_t)osTime::GetTime();
+            buffer->Time_us = (uint32_t)osTime::GetTime();
             HoldingQueueLock.Take(__FILE__, __LINE__);
             HoldingQueue.Put(buffer);
             HoldingQueueLock.Give();
@@ -170,10 +144,6 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         IP->Transmit(buffer, 0x06, RemoteAddress, IP->GetUnicastAddress());
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 DataBuffer* TCPConnection::GetTxBuffer()
 {
@@ -188,10 +158,6 @@ DataBuffer* TCPConnection::GetTxBuffer()
 
     return rc;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Write(const uint8_t* data, uint16_t length)
 {
@@ -237,10 +203,6 @@ void TCPConnection::Write(const uint8_t* data, uint16_t length)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::Flush()
 {
     if (TxBuffer != 0)
@@ -249,10 +211,6 @@ void TCPConnection::Flush()
         TxBuffer = 0;
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::Close()
 {
@@ -271,26 +229,15 @@ void TCPConnection::Close()
         SequenceNumber++; // FIN consumes a sequence number
         State = LAST_ACK;
         break;
-    case CLOSED:
-        break;
-    case FIN_WAIT_1:
-        break;
-    case FIN_WAIT_2:
-        break;
-    case CLOSING:
-        break;
-    case LAST_ACK:
-        break;
-    case TIMED_WAIT:
-        break;
-    case TTCP_PERSIST:
-        break;
+    case CLOSED: break;
+    case FIN_WAIT_1: break;
+    case FIN_WAIT_2: break;
+    case CLOSING: break;
+    case LAST_ACK: break;
+    case TIMED_WAIT: break;
+    case TTCP_PERSIST: break;
     }
 }
-
-//============================================================================
-//
-//============================================================================
 
 TCPConnection* TCPConnection::Listen()
 {
@@ -300,15 +247,11 @@ TCPConnection* TCPConnection::Listen()
     {
         Event.Wait(__FILE__, __LINE__);
     }
-    connection    = NewConnection;
+    connection = NewConnection;
     NewConnection = 0;
 
     return connection;
 }
-
-//============================================================================
-//
-//============================================================================
 
 int TCPConnection::Read()
 {
@@ -345,10 +288,6 @@ int TCPConnection::Read()
     return rc;
 }
 
-//============================================================================
-//
-//============================================================================
-
 int TCPConnection::Read(char* buffer, int size)
 {
     int bytes_to_read = std::min(size, TCP_RX_WINDOW_SIZE - RxOutOffset);
@@ -371,16 +310,12 @@ int TCPConnection::Read(char* buffer, int size)
     return bytes_to_read;
 }
 
-//============================================================================
-//
-//============================================================================
-
 int TCPConnection::ReadLine(char* buffer, int size)
 {
-    int  i;
+    int i;
     char c;
-    bool done           = false;
-    int  bytesProcessed = 0;
+    bool done = false;
+    int bytesProcessed = 0;
 
     while (!done)
     {
@@ -397,7 +332,7 @@ int TCPConnection::ReadLine(char* buffer, int size)
         case '\r': *buffer++ = 0; break;
         case '\n':
             *buffer++ = 0;
-            done      = true;
+            done = true;
             break;
         default: *buffer++ = c; break;
         }
@@ -412,20 +347,16 @@ int TCPConnection::ReadLine(char* buffer, int size)
     return bytesProcessed;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::Tick()
 {
-    int         count;
-    int         i;
+    int count;
+    int i;
     DataBuffer* buffer;
-    uint32_t    currentTime_us;
-    uint32_t    timeoutTime_us;
+    uint32_t currentTime_us;
+    uint32_t timeoutTime_us;
 
     HoldingQueueLock.Take(__FILE__, __LINE__);
-    count          = HoldingQueue.GetCount();
+    count = HoldingQueue.GetCount();
     currentTime_us = (int32_t)osTime::GetTime();
 
     // Check for retransmit timeout
@@ -466,10 +397,6 @@ void TCPConnection::Tick()
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void TCPConnection::CalculateRTT(int32_t M)
 {
     int32_t err;
@@ -487,10 +414,6 @@ void TCPConnection::CalculateRTT(int32_t M)
     // Gain is 0.250
     RTTDeviation = RTTDeviation + (250 * (err - RTTDeviation)) / 1000;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void TCPConnection::StoreRxData(DataBuffer* buffer)
 {
@@ -514,27 +437,53 @@ void TCPConnection::StoreRxData(DataBuffer* buffer)
     RxBufferEmpty = false;
 }
 
-//============================================================================
-//
-//============================================================================
-
 const char* TCPConnection::GetStateString() const
 {
     const char* rc;
     switch (State)
     {
-    case TCPConnection::CLOSED: rc       = "CLOSED"; break;
-    case TCPConnection::LISTEN: rc       = "LISTEN"; break;
-    case TCPConnection::SYN_SENT: rc     = "SYN_SENT"; break;
+    case TCPConnection::CLOSED: rc = "CLOSED"; break;
+    case TCPConnection::LISTEN: rc = "LISTEN"; break;
+    case TCPConnection::SYN_SENT: rc = "SYN_SENT"; break;
     case TCPConnection::SYN_RECEIVED: rc = "SYN_RECEIVED"; break;
-    case TCPConnection::ESTABLISHED: rc  = "ESTABLISHED"; break;
-    case TCPConnection::FIN_WAIT_1: rc   = "FIN_WAIT_1"; break;
-    case TCPConnection::FIN_WAIT_2: rc   = "FIN_WAIT_2"; break;
-    case TCPConnection::CLOSE_WAIT: rc   = "CLOSE_WAIT"; break;
-    case TCPConnection::CLOSING: rc      = "CLOSING"; break;
-    case TCPConnection::LAST_ACK: rc     = "LAST_ACK"; break;
-    case TCPConnection::TIMED_WAIT: rc   = "TIMED_WAIT"; break;
+    case TCPConnection::ESTABLISHED: rc = "ESTABLISHED"; break;
+    case TCPConnection::FIN_WAIT_1: rc = "FIN_WAIT_1"; break;
+    case TCPConnection::FIN_WAIT_2: rc = "FIN_WAIT_2"; break;
+    case TCPConnection::CLOSE_WAIT: rc = "CLOSE_WAIT"; break;
+    case TCPConnection::CLOSING: rc = "CLOSING"; break;
+    case TCPConnection::LAST_ACK: rc = "LAST_ACK"; break;
+    case TCPConnection::TIMED_WAIT: rc = "TIMED_WAIT"; break;
     case TCPConnection::TTCP_PERSIST: rc = "TTCP_PERSIST"; break;
     }
     return rc;
+}
+
+std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
+{
+    out << "connection " << obj.GetStateString() << "   ";
+    switch (obj.State)
+    {
+    case TCPConnection::LISTEN: out << "     local=" << obj.LocalPort << "\n"; break;
+    case TCPConnection::ESTABLISHED:
+        out << "local=" << obj.LocalPort;
+        out << "  remote=";
+        out << (int)obj.RemoteAddress[0] << ".";
+        out << (int)obj.RemoteAddress[1] << ".";
+        out << (int)obj.RemoteAddress[2] << ".";
+        out << (int)obj.RemoteAddress[3] << ":";
+        out << obj.RemotePort;
+        out << "\n";
+        out << "    "
+            << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
+        out << "    "
+            << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
+        out << "    "
+            << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
+        out << "    "
+            << "CurrentWindow " << obj.CurrentWindow << "\n";
+        break;
+    default: out << "\n";
+    }
+
+    return out;
 }

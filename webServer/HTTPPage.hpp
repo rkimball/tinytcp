@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "ProtocolTCP.hpp"
 #include "osThread.hpp"
@@ -83,14 +83,14 @@ public:
 
     char* Directory;
 
-    char   URL[256];
-    char   ContentType[256];
-    int    ContentLength;
-    int    Busy;
-    int    argc;
+    char URL[256];
+    char ContentType[256];
+    int ContentLength;
+    int Busy;
+    int argc;
     char** argv;
-    int    TagDepth;
-    bool   StartTagOpen;
+    int TagDepth;
+    bool StartTagOpen;
 
     TCPConnection* Connection;
 
@@ -106,11 +106,11 @@ private:
     std::streambuf::int_type underflow();
 
     osThread Thread;
-    Server*  _Server;
-    bool     HTTPHeaderSent;
+    Server* _Server;
+    bool HTTPHeaderSent;
 
-    std::ostream      m_ostream;
-    std::istream      m_istream;
+    std::ostream m_ostream;
+    std::istream m_istream;
     const std::size_t m_put_back;
     std::vector<char> m_char_buffer;
 };

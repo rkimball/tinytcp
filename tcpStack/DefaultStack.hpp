@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2016, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -52,10 +52,10 @@ public:
     void ProcessRx(uint8_t* data, size_t length);
 
     ProtocolMACEthernet MAC;
-    ProtocolIPv4        IP;
-    ProtocolARP         ARP;
-    ProtocolDHCP        DHCP;
-    ProtocolICMP        ICMP;
-    ProtocolTCP         TCP;
-    ProtocolUDP         UDP;
+    ProtocolIPv4 IP;
+    ProtocolARP ARP;
+    ProtocolDHCP DHCP;
+    ProtocolICMP ICMP;
+    ProtocolTCP TCP;
+    ProtocolUDP UDP;
 };

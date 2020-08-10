@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,10 @@
 #include "FCS.hpp"
 #include <stdio.h>
 
-//============================================================================
-//
-//============================================================================
-
 uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 {
     uint16_t value;
-    int32_t  i;
+    int32_t i;
 
     // Don't need to add in the checksum field so only 9x16 bit words in header
     for (i = 0; i < length / 2; i++)
@@ -51,10 +47,6 @@ uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
     return checksum;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint16_t FCS::ChecksumComplete(uint32_t checksum)
 {
     uint16_t sum;
@@ -65,15 +57,7 @@ uint16_t FCS::ChecksumComplete(uint32_t checksum)
     return sum;
 }
 
-//============================================================================
-//
-//============================================================================
-
 uint16_t FCS::Checksum(const uint8_t* buffer, int length)
 {
     return ChecksumComplete(ChecksumAdd(buffer, length, 0));
 }
-
-//============================================================================
-//
-//============================================================================

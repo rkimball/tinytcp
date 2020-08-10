@@ -14,21 +14,20 @@ ExternalProject_Add(
 )
 
 # Get GTest source and binary directories from CMake project
-ExternalProject_Get_Property(gtest source_dir binary_dir)
+ExternalProject_Get_Property(gtest SOURCE_DIR BINARY_DIR)
 
 # Create a libgtest target to be used as a dependency by test programs
-add_library(libgtest IMPORTED STATIC GLOBAL)
+add_library(libgtest INTERFACE)
 add_dependencies(libgtest gtest)
-
-# Set libgtest properties
-set_target_properties(libgtest PROPERTIES
-    "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.a"
-    "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
+target_include_directories(libgtest SYSTEM INTERFACE
+    ${SOURCE_DIR}/googletest/include
+    ${SOURCE_DIR}/googlemock/include)
+target_link_libraries(libgtest INTERFACE
+    ${BINARY_DIR}/googlemock/gtest//${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
-
-# I couldn't make it work with INTERFACE_INCLUDE_DIRECTORIES
-include_directories(SYSTEM "${source_dir}/googletest/include")
-
+if(NOT WIN32)
+    target_link_libraries(libgtest INTERFACE pthread)
+endif()
 
 set (SRC
     main.cpp

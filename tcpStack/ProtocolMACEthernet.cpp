@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 
 #include "ProtocolARP.hpp"
 #include "ProtocolIPv4.hpp"
@@ -42,10 +42,6 @@ using namespace std;
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes
-
-//============================================================================
-//
-//============================================================================
 
 ProtocolMACEthernet::ProtocolMACEthernet(ProtocolARP& arp, ProtocolIPv4& ipv4)
     : TxBufferQueue("Tx", TX_BUFFER_COUNT, TxBufferBuffer)
@@ -74,34 +70,22 @@ ProtocolMACEthernet::ProtocolMACEthernet(ProtocolARP& arp, ProtocolIPv4& ipv4)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolMACEthernet::RegisterDataTransmitHandler(DataTransmitHandler handler)
 {
     TxHandler = handler;
 }
-
-//============================================================================
-//
-//============================================================================
 
 bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 {
     return AddressCompare(UnicastAddress, addr, 6) || AddressCompare(BroadcastAddress, addr, 6);
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 {
-    uint16_t    type;
+    uint16_t type;
     DataBuffer* packet = (DataBuffer*)RxBufferQueue.Get();
-    int         i;
-    int         length =
+    int i;
+    int length =
         (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
 
     if (packet == 0)
@@ -162,10 +146,6 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 {
     DataBuffer* buffer;
@@ -184,28 +164,16 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
     return buffer;
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolMACEthernet::FreeTxBuffer(DataBuffer* buffer)
 {
     TxBufferQueue.Put(buffer);
     QueueEmptyEvent.Notify();
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolMACEthernet::FreeRxBuffer(DataBuffer* buffer)
 {
     RxBufferQueue.Put(buffer);
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC, uint16_t type)
 {
@@ -213,9 +181,9 @@ void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC,
     buffer->Length += header_size();
 
     size_t offset = 0;
-    offset        = PackBytes(buffer->Packet, offset, targetMAC, 6);
-    offset        = PackBytes(buffer->Packet, offset, UnicastAddress, 6);
-    offset        = Pack16(buffer->Packet, offset, type);
+    offset = PackBytes(buffer->Packet, offset, targetMAC, 6);
+    offset = PackBytes(buffer->Packet, offset, UnicastAddress, 6);
+    offset = Pack16(buffer->Packet, offset, type);
 
     offset += buffer->Length;
     while (buffer->Length < 60)
@@ -234,10 +202,6 @@ void ProtocolMACEthernet::Transmit(DataBuffer* buffer, const uint8_t* targetMAC,
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 void ProtocolMACEthernet::Retransmit(DataBuffer* buffer)
 {
     if (TxHandler)
@@ -251,45 +215,25 @@ void ProtocolMACEthernet::Retransmit(DataBuffer* buffer)
     }
 }
 
-//============================================================================
-//
-//============================================================================
-
 size_t ProtocolMACEthernet::AddressSize() const
 {
     return ADDRESS_SIZE;
 }
-
-//============================================================================
-//
-//============================================================================
 
 size_t ProtocolMACEthernet::HeaderSize() const
 {
     return header_size();
 }
 
-//============================================================================
-//
-//============================================================================
-
 const uint8_t* ProtocolMACEthernet::GetUnicastAddress() const
 {
     return UnicastAddress;
 }
 
-//============================================================================
-//
-//============================================================================
-
 const uint8_t* ProtocolMACEthernet::GetBroadcastAddress() const
 {
     return BroadcastAddress;
 }
-
-//============================================================================
-//
-//============================================================================
 
 std::ostream& operator<<(std::ostream& out, const ProtocolMACEthernet& obj)
 {
@@ -298,10 +242,6 @@ std::ostream& operator<<(std::ostream& out, const ProtocolMACEthernet& obj)
     out << "   Ethernet Broadcast MAC Address: " << macaddrtoa(obj.GetBroadcastAddress()) << "\n";
     return out;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void ProtocolMACEthernet::SetUnicastAddress(uint8_t* addr)
 {

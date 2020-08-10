@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,10 @@
 #pragma once
 
 #include <inttypes.h>
-#include <string>
-#include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 void DumpData(std::ostream& out, void* buffer, size_t len);
 void DumpBits(std::ostream& out, void* buffer, size_t size);
@@ -61,7 +61,7 @@ int ReadLine(char* buffer, size_t size, int (*ReadFunction)());
 
 bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length);
 
-template<typename T>
+template <typename T>
 std::string to_dec(T obj, size_t width)
 {
     std::stringstream ss;
@@ -69,8 +69,8 @@ std::string to_dec(T obj, size_t width)
     return ss.str();
 }
 
-template<typename T>
-std::string to_hex(T obj, size_t width=sizeof(T)*2)
+template <typename T>
+std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
     std::stringstream ss;
     ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;

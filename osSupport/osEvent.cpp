@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
+#include <iomanip>
 #include <stdio.h>
 #include <string.h>
-#include <iomanip>
 
 #include "osEvent.hpp"
 #include "osThread.hpp"
@@ -42,7 +42,7 @@
 using namespace std;
 
 osEvent* osEvent::InstanceList[osEvent::INSTANCE_MAX];
-osMutex  osEvent::ListMutex("Event List");
+osMutex osEvent::ListMutex("Event List");
 
 osEvent::osEvent(const char* name)
     :
@@ -50,17 +50,17 @@ osEvent::osEvent(const char* name)
     m_test(false)
     ,
 #endif
-    pending(NULL)
+    pending(nullptr)
 {
     if (name)
     {
         strncpy(Name, name, NAME_LENGTH_MAX - 1);
     }
 #ifdef _WIN32
-    Handle = CreateEvent(NULL, true, false, name);
+    Handle = CreateEvent(nullptr, true, false, name);
 #elif __linux__
-    pthread_mutex_init(&m_mutex, NULL);
-    pthread_cond_init(&m_condition, NULL);
+    pthread_mutex_init(&m_mutex, nullptr);
+    pthread_cond_init(&m_condition, nullptr);
 #endif
     ListMutex.Take(__FILE__, __LINE__);
     for (int i = 0; i < INSTANCE_MAX; i++)
@@ -108,7 +108,7 @@ void osEvent::Notify()
 bool osEvent::Wait(const char* file, int line, int msTimeout)
 {
 #ifdef _WIN32
-    uint32_t  rc     = 0;
+    uint32_t rc = 0;
     osThread* caller = osThread::GetCurrent();
     caller->SetState(osThread::THREAD_STATE::PENDING_EVENT, file, line, this);
     if (msTimeout == -1)
@@ -138,7 +138,7 @@ bool osEvent::Wait(const char* file, int line, int msTimeout)
     if (thread)
     {
         thread->ClearState();
-        pending = NULL;
+        pending = nullptr;
     }
     pthread_mutex_unlock(&m_mutex);
     return true;

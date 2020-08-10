@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,17 +30,17 @@
 //----------------------------------------------------------------------------
 
 #include <inttypes.h>
+#include <iomanip>
 #include <iostream>
 #include <stdio.h>
-#include <iomanip>
 
 #include "osQueue.hpp"
 
 using namespace std;
 
 static const size_t MAX_QUEUE_COUNT = 20;
-static osQueue*     QueueList[MAX_QUEUE_COUNT];
-osMutex             QueueListLock("queue list lock");
+static osQueue* QueueList[MAX_QUEUE_COUNT];
+osMutex QueueListLock("queue list lock");
 
 osQueue::osQueue(const char* name, int count, void** dataBuffer)
     : Array(dataBuffer)
@@ -54,7 +54,7 @@ osQueue::osQueue(const char* name, int count, void** dataBuffer)
     // Insert 'this' into the list of queues
     for (int i = 0; i < MAX_QUEUE_COUNT; i++)
     {
-        if (QueueList[i] == NULL)
+        if (QueueList[i] == nullptr)
         {
             QueueList[i] = this;
             break;
@@ -94,7 +94,7 @@ void* osQueue::Get()
 
     if (ElementCount != 0)
     {
-        rc           = Array[NextOutIndex];
+        rc = Array[NextOutIndex];
         NextOutIndex = Increment(NextOutIndex);
         ElementCount--;
     }
@@ -109,7 +109,7 @@ void* osQueue::Get()
 
 bool osQueue::Put(void* item)
 {
-    int  next;
+    int next;
     bool rc = true;
 
     Lock.Take(__FILE__, __LINE__);
@@ -123,7 +123,7 @@ bool osQueue::Put(void* item)
     else
     {
         Array[NextInIndex] = item;
-        NextInIndex        = next;
+        NextInIndex = next;
         ElementCount++;
     }
 
@@ -145,8 +145,8 @@ void osQueue::Flush()
 bool osQueue::Contains(void* object)
 {
     bool rc = false;
-    int  index;
-    int  i;
+    int index;
+    int i;
 
     Lock.Take(__FILE__, __LINE__);
 
@@ -173,11 +173,11 @@ void osQueue::dump_info(std::ostream& out)
     for (int i = 0; i < MAX_QUEUE_COUNT; i++)
     {
         osQueue* queue = QueueList[i];
-        if (queue != NULL)
+        if (queue != nullptr)
         {
-           out << "Queue " << queue->GetName();
-           out << " is size " << queue->MaxElements;
-           out  << " and contains " << queue->GetCount() << " objects\n";
+            out << "Queue " << queue->GetName();
+            out << " is size " << queue->MaxElements;
+            out << " and contains " << queue->GetCount() << " objects\n";
             // This is hanging
             // can't lock the queue and tx tcp frames as it can deadlock
             // tx tcp locks queues

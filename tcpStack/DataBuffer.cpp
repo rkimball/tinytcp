@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,40 +31,22 @@
 
 #include "DataBuffer.hpp"
 
-//============================================================================
-//
-//============================================================================
-
-DataBuffer::DataBuffer()
-{
-}
-
-//============================================================================
-//
-//============================================================================
+DataBuffer::DataBuffer() {}
 
 void DataBuffer::Initialize(InterfaceMAC* mac)
 {
-    Packet     = Data;
-    Length     = 0;
-    Remainder  = DATA_BUFFER_PAYLOAD_SIZE;
+    Packet = Data;
+    Length = 0;
+    Remainder = DATA_BUFFER_PAYLOAD_SIZE;
     Disposable = true;
-    MAC        = mac;
+    MAC = mac;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void DataBuffer::Preallocate(size_t size)
 {
     Packet += size;
     Remainder -= size;
 }
-
-//============================================================================
-//
-//============================================================================
 
 void DataBuffer::ResetPreallocation(size_t size)
 {

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,10 +58,10 @@ public:
 private:
 #ifdef _WIN32
     const char* CaptureDevice;
-    pcap_t*     adhandle;
+    pcap_t* adhandle;
 #elif __linux__
     osThread EthernetRxThread;
-    int      m_RawSocket;
-    int      m_IfIndex;
+    int m_RawSocket;
+    int m_IfIndex;
 #endif
 };

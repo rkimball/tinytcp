@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,14 @@ typedef void (*ThreadEntryPtr)(void*);
 class osThread
 {
 public:
-    typedef enum { INIT, RUNNING, PENDING_MUTEX, PENDING_EVENT, SLEEPING } THREAD_STATE;
+    typedef enum
+    {
+        INIT,
+        RUNNING,
+        PENDING_MUTEX,
+        PENDING_EVENT,
+        SLEEPING
+    } THREAD_STATE;
 
     osThread();
 
@@ -81,23 +88,23 @@ public:
 #elif __linux__
     uint32_t GetHandle();
 
-    pthread_t      m_thread;
+    pthread_t m_thread;
     ThreadEntryPtr Entry;
-    void*          Param;
+    void* Param;
 #endif
     osEvent ThreadStart;
 
     static void dump_info(std::ostream&);
 
     static const int32_t STATE_LENGTH_MAX = 81;
-    int32_t              Priority;
-    unsigned long        USleepTime;
+    int32_t Priority;
+    unsigned long USleepTime;
     static const int32_t NAME_LENGTH_MAX = 32;
 
 private:
-    char         Name[NAME_LENGTH_MAX];
-    const char*  Filename;
-    int          Linenumber;
+    char Name[NAME_LENGTH_MAX];
+    const char* Filename;
+    int Linenumber;
     THREAD_STATE State;
-    void*        StateObject;
+    void* StateObject;
 };

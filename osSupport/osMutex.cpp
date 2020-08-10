@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2015, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include <stdio.h>
 #include <iomanip>
+#include <stdio.h>
 #include <string>
 
 #include "osMutex.hpp"
@@ -51,11 +51,11 @@ pthread_mutex_t osMutex::MutexListMutex;
 
 osMutex::osMutex(const char* name)
     : Name(name)
-    , OwnerFile(NULL)
-    , OwnerThread(NULL)
+    , OwnerFile(nullptr)
+    , OwnerThread(nullptr)
 {
 #ifdef _WIN32
-    Handle = CreateMutex(NULL, false, name);
+    Handle = CreateMutex(nullptr, false, name);
 #elif __linux__
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
@@ -67,7 +67,7 @@ osMutex::osMutex(const char* name)
     LockListMutex();
     for (int i = 0; i < MAX_MUTEX; i++)
     {
-        if (MutexList[i] == NULL)
+        if (MutexList[i] == nullptr)
         {
             MutexList[i] = this;
             break;
@@ -79,12 +79,10 @@ osMutex::osMutex(const char* name)
 void osMutex::Give()
 {
     osThread* thread = osThread::GetCurrent();
-    if (thread != OwnerThread)
-    {
-    }
-    OwnerFile   = NULL;
-    OwnerLine   = 0;
-    OwnerThread = NULL;
+    if (thread != OwnerThread) {}
+    OwnerFile = nullptr;
+    OwnerLine = 0;
+    OwnerThread = nullptr;
 #ifdef _WIN32
     ReleaseMutex(Handle);
 #elif __linux__
@@ -182,12 +180,12 @@ void osMutex::dump_info(std::ostream& out)
     for (int i = 0; i < MAX_MUTEX; i++)
     {
         osMutex* mutex = MutexList[i];
-        if (mutex != NULL)
+        if (mutex != nullptr)
         {
             string name = mutex->Name;
             string state;
             string owner;
-            int    line = -1;
+            int line = -1;
             string file;
             if (mutex->OwnerFile)
             {
@@ -195,10 +193,10 @@ void osMutex::dump_info(std::ostream& out)
                 file = mutex->OwnerFile;
             }
             out << setw(20) << name << setw(0) << "|";
-            out << setw( 7) << state << setw(0) << "|";
+            out << setw(7) << state << setw(0) << "|";
             out << setw(20) << owner << setw(0) << "|";
-            out << setw( 6) << line << setw(0) << "|";
-            out << setw( 0) << file << setw(0) << "\n";
+            out << setw(6) << line << setw(0) << "|";
+            out << setw(0) << file << setw(0) << "\n";
         }
     }
     UnlockListMutex();

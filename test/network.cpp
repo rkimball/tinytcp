@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright( c ) 2017, Robert Kimball
+// Copyright(c) 2015-2020, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,10 @@
 
 #include <iostream>
 
-#include "gtest/gtest.h"
 #include "PacketIO.hpp"
+#include "gtest/gtest.h"
 
 using namespace std;
-
-//============================================================================
-//
-//============================================================================
 
 void RxData(uint8_t* data, size_t length)
 {
