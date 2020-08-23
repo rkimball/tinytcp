@@ -237,7 +237,7 @@ void osThread::Sleep(unsigned long ms, const char* file, int line)
 {
     osThread* thread = GetCurrent();
 
-    if (thread != 0)
+    if (thread != nullptr)
     {
         thread->Filename = file;
         thread->Linenumber = line;
@@ -264,7 +264,7 @@ void osThread::USleep(unsigned long us, const char* file, int line)
 {
     osThread* thread = GetCurrent();
 
-    if (thread != 0)
+    if (thread != nullptr)
     {
         thread->Filename = file;
         thread->Linenumber = line;

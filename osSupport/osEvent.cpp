@@ -65,7 +65,7 @@ osEvent::osEvent(const char* name)
     ListMutex.Take(__FILE__, __LINE__);
     for (int i = 0; i < INSTANCE_MAX; i++)
     {
-        if (InstanceList[i] == 0)
+        if (InstanceList[i] == nullptr)
         {
             InstanceList[i] = this;
             break;
@@ -81,7 +81,7 @@ osEvent::~osEvent()
     {
         if (InstanceList[i] == this)
         {
-            InstanceList[i] = 0;
+            InstanceList[i] = nullptr;
         }
     }
 #ifdef WIN32

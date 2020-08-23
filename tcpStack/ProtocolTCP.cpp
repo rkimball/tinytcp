@@ -87,7 +87,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
         rxBuffer->Length -= headerLength;
 
         connection = LocateConnection(remotePort, sourceIP, localPort);
-        if (connection == 0)
+        if (connection == nullptr)
         {
             // No connection found
             printf("Connection port %d not found\n", localPort);
@@ -106,7 +106,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 {
                     // Need a closed connection to work with
                     TCPConnection* tmp = NewClient(rxBuffer->MAC, sourceIP, remotePort, localPort);
-                    if (tmp != 0)
+                    if (tmp != nullptr)
                     {
                         tmp->Allocate(rxBuffer->MAC);
                         tmp->Parent = connection;
@@ -148,7 +148,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 {
                     connection->State = TCPConnection::ESTABLISHED;
 
-                    if (connection->Parent->NewConnection == 0)
+                    if (connection->Parent->NewConnection == nullptr)
                     {
                         connection->MaxSequenceTx = AcknowledgementNumber + remoteWindowSize;
                         connection->Parent->NewConnection = connection;
@@ -288,7 +288,7 @@ void ProtocolTCP::Reset(InterfaceMAC* mac,
 
     DataBuffer* buffer = IP.GetTxBuffer(mac);
 
-    if (buffer == 0)
+    if (buffer == nullptr)
     {
         return;
     }
@@ -299,7 +299,7 @@ void ProtocolTCP::Reset(InterfaceMAC* mac,
     buffer->Packet -= header_size();
     packet = buffer->Packet;
     length = buffer->Length;
-    if (packet != 0)
+    if (packet != nullptr)
     {
         Pack16(packet, 0, localPort);
         Pack16(packet, 2, remotePort);
@@ -383,7 +383,7 @@ TCPConnection* ProtocolTCP::LocateConnection(uint16_t remotePort,
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 uint16_t ProtocolTCP::NewPort()
@@ -436,7 +436,7 @@ TCPConnection* ProtocolTCP::NewClient(InterfaceMAC* mac,
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
@@ -455,7 +455,7 @@ TCPConnection* ProtocolTCP::NewServer(InterfaceMAC* mac, uint16_t port)
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 void ProtocolTCP::Tick()

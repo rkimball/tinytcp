@@ -66,7 +66,7 @@ void ProtocolARP::Initialize() {}
 void ProtocolARP::ProcessRx(const DataBuffer* buffer)
 {
     uint8_t* packet = buffer->Packet;
-    uint16_t length = buffer->Length;
+    // uint16_t length = buffer->Length;
     ARPInfo info;
 
     info.hardwareType = Unpack16(packet, 0);
@@ -197,7 +197,7 @@ void ProtocolARP::SendReply(const ARPInfo& info)
 {
     int offset = 0;
     DataBuffer* txBuffer = MAC.GetTxBuffer();
-    if (txBuffer == 0)
+    if (txBuffer == nullptr)
     {
         printf("ARP failed to get tx buffer\n");
         return;
@@ -253,7 +253,7 @@ void ProtocolARP::SendRequest(const uint8_t* targetIP)
 const uint8_t* ProtocolARP::Protocol2Hardware(const uint8_t* protocolAddress)
 {
     int index;
-    const uint8_t* rc = 0;
+    const uint8_t* rc = nullptr;
 
     if (IsBroadcast(protocolAddress))
     {

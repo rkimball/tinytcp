@@ -79,7 +79,7 @@ void* osQueue::Peek()
     }
     else
     {
-        rc = 0;
+        rc = nullptr;
     }
 
     Lock.Give();
@@ -100,7 +100,7 @@ void* osQueue::Get()
     }
     else
     {
-        rc = 0;
+        rc = nullptr;
     }
 
     Lock.Give();
@@ -138,7 +138,7 @@ int osQueue::GetCount()
 
 void osQueue::Flush()
 {
-    while (Get() != 0)
+    while (Get() != nullptr)
         ;
 }
 

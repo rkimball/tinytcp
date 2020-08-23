@@ -422,7 +422,6 @@ void PacketIO::Start(RxDataHandler rxData)
             int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, nullptr, nullptr);
             rxData((uint8_t*)pkt_data, length);
         }
-        free(pkt_data); // no way to get here, but ...
     }
 }
 

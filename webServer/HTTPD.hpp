@@ -67,8 +67,8 @@ private:
     static void ConnectionHandlerEntry(void*);
     void ConnectionHandler(void*);
 
-    static void TaskEntry(void* param);
-    void Task();
+    [[noreturn]] static void TaskEntry(void* param);
+    [[noreturn]] void Task();
 
     Page PagePoolPages[MAX_ACTIVE_CONNECTIONS];
     void* PagePoolBuffer[MAX_ACTIVE_CONNECTIONS];
