@@ -49,12 +49,10 @@ uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 
 uint16_t FCS::ChecksumComplete(uint32_t checksum)
 {
-    uint16_t sum;
-    sum = (checksum & 0xFFFF);
-    sum += (checksum >> 16);
-    sum = ~sum;
+    checksum = (checksum & 0xFFFF) + (checksum >> 16);
+    checksum = (checksum & 0xFFFF) + (checksum >> 16);
 
-    return sum;
+    return (uint16_t)~checksum;
 }
 
 uint16_t FCS::Checksum(const uint8_t* buffer, int length)
