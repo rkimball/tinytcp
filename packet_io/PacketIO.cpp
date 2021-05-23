@@ -339,7 +339,7 @@ void PacketIO::DisplayDevices()
     }
 }
 
-void PacketIO::GetInterface(char* name)
+void PacketIO::GetInterface(char* name, const char* requested)
 {
     struct ifaddrs* ifaddr;
 
@@ -352,10 +352,12 @@ void PacketIO::GetInterface(char* name)
                 continue;
             }
             int family = ifa->ifa_addr->sa_family;
+            printf("iface %s\n", ifa->ifa_name);
 
             if (family == AF_PACKET)
             {
-                if (strcmp(ifa->ifa_name, "lo") != 0)
+                if ((requested && (strcmp(ifa->ifa_name, requested) == 0)) ||
+                     (!requested && strcmp(ifa->ifa_name, "lo") != 0))
                 {
                     // yes, this is unsafe
                     strcpy(name, ifa->ifa_name);
@@ -395,7 +397,7 @@ void PacketIO::Start(RxDataHandler rxData)
     else
     {
         struct ifreq ifr;
-        PacketIO::GetInterface(ifr.ifr_name);
+        PacketIO::GetInterface(ifr.ifr_name, "eth0");
         printf("Using interface '%s'\n", ifr.ifr_name);
 
         // Find the socket index for tx later

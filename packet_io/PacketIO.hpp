@@ -55,7 +55,7 @@ public:
     static void GetDevice(int interfaceNumber, char* buffer, size_t buffer_size);
     static int GetMACAddress(const char* adapter, uint8_t* mac);
     static void DisplayDevices();
-    static void GetInterface(char* name);
+    static void GetInterface(char* name, const char* requested = nullptr);
 
 private:
 #ifdef _WIN32

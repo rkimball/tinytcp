@@ -1,0 +1,10 @@
+{
+    "image": "tinytcp:latest",
+    "dockerFile": "Dockerfile",
+    "workspaceFolder": "/workspaces",
+    "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools"
+    ]
+}
