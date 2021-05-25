@@ -49,7 +49,7 @@ TEST(network, raw_socket)
 
     PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
     printf("using device %s\n", device);
-    //PacketIO::GetMACAddress( device, Config.MACAddress );
+    // PacketIO::GetMACAddress( device, Config.MACAddress );
 
     PIO = new PacketIO(device);
 

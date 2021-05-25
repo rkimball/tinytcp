@@ -364,7 +364,11 @@ TCPConnection* ProtocolTCP::LocateConnection(uint16_t remotePort,
     // Pass 1
     for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
     {
-        //printf( "%s %d: connection port %d, state %s\n", FindFileName( __FILE__ ), __LINE__, ConnectionList[ i ].LocalPort, ConnectionList[ i ].GetStateString() );
+        // printf("%s %d: connection port %d, state %s\n",
+        //        FindFileName(__FILE__),
+        //        __LINE__,
+        //        ConnectionList[i].LocalPort,
+        //        ConnectionList[i].GetStateString());
         if (ConnectionList[i].LocalPort == localPort &&
             ConnectionList[i].RemotePort == remotePort &&
             AddressCompare(ConnectionList[i].RemoteAddress, remoteAddress, IP.AddressSize()))

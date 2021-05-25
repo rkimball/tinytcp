@@ -278,7 +278,7 @@ int TCPConnection::Read()
         RxBufferEmpty = true;
     }
 
-    //if( CurrentWindow == TCP_RX_WINDOW_SIZE && LastAck != AcknowledgementNumber )
+    // if( CurrentWindow == TCP_RX_WINDOW_SIZE && LastAck != AcknowledgementNumber )
     //{
     //   // The Rx buffer is empty, might as well ack
     //   Send( FLAG_ACK );

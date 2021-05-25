@@ -151,7 +151,7 @@ void osThread::Initialize()
 #ifdef _WIN32
     if ((dwTlsIndex = TlsAlloc()) == TLS_OUT_OF_INDEXES)
     {
-        //ErrorExit( "TlsAlloc failed" );
+        // ErrorExit( "TlsAlloc failed" );
     }
     TlsSetValue(dwTlsIndex, &MainThread);
 #elif __linux__

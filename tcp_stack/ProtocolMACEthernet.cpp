@@ -96,7 +96,9 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 
     if (length > DATA_BUFFER_PAYLOAD_SIZE)
     {
-        //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
+        // printf("ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n",
+        //        length,
+        //        DATA_BUFFER_PAYLOAD_SIZE);
         RxBufferQueue.Put(packet);
         return;
     }
@@ -114,11 +116,13 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     // Check if the MAC Address is destined for me
     if (IsLocalAddress(packet->Packet))
     {
-        //DumpData( buffer, length, printf );
+        // DumpData( buffer, length, printf );
         if (actualLength > length)
         {
-            //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
-            //printf( "Unicast type 0x%04X\n", type );
+            // printf("ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n",
+            //        length,
+            //        DATA_BUFFER_PAYLOAD_SIZE);
+            // printf("Unicast type 0x%04X\n", type);
             RxBufferQueue.Put(packet);
             return;
         }
@@ -135,7 +139,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
             ARP.ProcessRx(packet);
             break;
         default:
-            //printf( "Unsupported Unicast type 0x%04X\n", type );
+            // printf( "Unsupported Unicast type 0x%04X\n", type );
             break;
         }
     }

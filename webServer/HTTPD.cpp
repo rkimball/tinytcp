@@ -209,7 +209,7 @@ void http::Server::ProcessRequest(http::Page* page)
             }
         }
 
-        //Page.Initialize( connection );
+        // Page.Initialize( connection );
         if (PageHandler)
         {
             page->argc = argc;
