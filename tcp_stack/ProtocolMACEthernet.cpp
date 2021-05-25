@@ -47,7 +47,7 @@ ProtocolMACEthernet::ProtocolMACEthernet(ProtocolARP& arp, ProtocolIPv4& ipv4)
     : TxBufferQueue("Tx", TX_BUFFER_COUNT, TxBufferBuffer)
     , RxBufferQueue("Rx", RX_BUFFER_COUNT, RxBufferBuffer)
     , QueueEmptyEvent("MACEthernet")
-    , TxHandler(0)
+    , TxHandler(nullptr)
     , ARP(arp)
     , IPv4(ipv4)
 {
@@ -88,7 +88,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     int length =
         (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
 
-    if (packet == 0)
+    if (packet == nullptr)
     {
         printf("ProtocolMACEthernet::ProcessRx Out of receive buffers\n");
         return;
@@ -150,11 +150,11 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 {
     DataBuffer* buffer;
 
-    while ((buffer = (DataBuffer*)TxBufferQueue.Get()) == 0)
+    while ((buffer = (DataBuffer*)TxBufferQueue.Get()) == nullptr)
     {
         QueueEmptyEvent.Wait(__FILE__, __LINE__);
     }
-    if (buffer != 0)
+    if (buffer != nullptr)
     {
         buffer->Initialize(this);
         buffer->Packet += header_size();

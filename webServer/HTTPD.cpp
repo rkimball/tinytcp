@@ -52,11 +52,11 @@
 http::Server::Server()
     : PagePool("HTTPPage Pool", MAX_ACTIVE_CONNECTIONS, PagePoolBuffer)
     , Thread()
-    , ListenerConnection(0)
-    , CurrentConnection(0)
-    , PageHandler(0)
-    , ErrorHandler(0)
-    , AuthHandler(0)
+    , ListenerConnection(nullptr)
+    , CurrentConnection(nullptr)
+    , PageHandler(nullptr)
+    , ErrorHandler(nullptr)
+    , AuthHandler(nullptr)
 {
 }
 
@@ -84,7 +84,6 @@ void http::Server::ProcessRequest(http::Page* page)
     char password[20];
     int argc;
     char* argv[MAX_ARGV];
-    int rc;
     TCPConnection* connection = page->Connection;
 
     page->HTTPHeaderSent = false;
@@ -95,7 +94,7 @@ void http::Server::ProcessRequest(http::Page* page)
     }
 
     strtok(buffer1, " ");
-    path = strtok(0, " ");
+    path = strtok(nullptr, " ");
 
     username[0] = 0;
     password[0] = 0;
@@ -161,7 +160,7 @@ void http::Server::ProcessRequest(http::Page* page)
     if (path)
     {
         url = strtok(path, "?");
-        if (url == 0)
+        if (url == nullptr)
         {
             url = "";
         }
@@ -170,7 +169,7 @@ void http::Server::ProcessRequest(http::Page* page)
         argc = 0;
         for (i = 0; i < MAX_ARGV; i++)
         {
-            argv[i] = strtok(0, "&");
+            argv[i] = strtok(nullptr, "&");
             if (argv[i])
             {
                 int argLength;

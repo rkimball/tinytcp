@@ -49,8 +49,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 add_subdirectory (osSupport)
-add_subdirectory (tcpStack)
-include_directories(tcpStack osSupport)
+add_subdirectory (tcp_stack)
+include_directories(tcp_stack osSupport)
 add_subdirectory (webServer)
 add_subdirectory (packet_io)
 include_directories (packet_io)
@@ -61,7 +61,7 @@ set (CLANG_FORMAT clang-format-6.0)
 add_custom_target(style
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/osSupport/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/packet_io/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/tcpStack/*.?pp
+    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/tcp_stack/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/testApp/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/webServer/*.?pp

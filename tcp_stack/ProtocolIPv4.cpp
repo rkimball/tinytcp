@@ -131,7 +131,7 @@ DataBuffer* ProtocolIPv4::GetTxBuffer(InterfaceMAC* mac)
     DataBuffer* buffer;
 
     buffer = mac->GetTxBuffer();
-    if (buffer != 0)
+    if (buffer != nullptr)
     {
         buffer->Packet += header_size();
         buffer->Remainder -= header_size();
@@ -172,7 +172,7 @@ void ProtocolIPv4::Transmit(DataBuffer* buffer,
     Pack16(packet, 10, checksum);
 
     targetMAC = ARP.Protocol2Hardware(targetIP);
-    if (targetMAC != 0)
+    if (targetMAC != nullptr)
     {
         MAC.Transmit(buffer, targetMAC, 0x0800);
     }
@@ -200,7 +200,7 @@ void ProtocolIPv4::Retry()
         buffer = (DataBuffer*)UnresolvedQueue.Get();
 
         targetMAC = ARP.Protocol2Hardware(&buffer->Packet[16]);
-        if (targetMAC != 0)
+        if (targetMAC != nullptr)
         {
             MAC.Transmit(buffer, targetMAC, 0x0800);
         }

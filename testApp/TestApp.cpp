@@ -132,7 +132,7 @@ void MainEntry(void* config) {}
 
 void HomePage(http::Page* page)
 {
-    time_t t = time(0);
+    time_t t = time(nullptr);
     struct tm* now = localtime(&t);
     ostream& out = page->get_output_stream();
 
@@ -378,6 +378,4 @@ int main(int argc, char* argv[])
 #endif
         tcpStack.Tick();
     }
-
-    return 0;
 }

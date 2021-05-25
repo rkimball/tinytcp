@@ -140,7 +140,7 @@ bool http::Page::RawSend(const void* p, size_t length)
     {
         PageOK();
     }
-    Connection->Write((uint8_t*)p, length);
+    Connection->Write((const uint8_t*)p, length);
 
     return true;
 }
@@ -365,7 +365,7 @@ istream& http::Page::get_input_stream()
 
 streamsize http::Page::xsputn(const char* s, streamsize n)
 {
-    Connection->Write((uint8_t*)s, n);
+    Connection->Write((const uint8_t*)s, n);
     return n;
 }
 

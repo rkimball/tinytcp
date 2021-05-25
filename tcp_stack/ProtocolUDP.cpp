@@ -51,7 +51,7 @@ DataBuffer* ProtocolUDP::GetTxBuffer(InterfaceMAC* mac)
     DataBuffer* buffer;
 
     buffer = IP.GetTxBuffer(mac);
-    if (buffer != 0)
+    if (buffer != nullptr)
     {
         buffer->Packet += header_size();
         buffer->Remainder -= header_size();
@@ -62,7 +62,7 @@ DataBuffer* ProtocolUDP::GetTxBuffer(InterfaceMAC* mac)
 
 void ProtocolUDP::ProcessRx(DataBuffer* buffer, const uint8_t* sourceIP, const uint8_t* targetIP)
 {
-    uint16_t sourcePort = Unpack16(buffer->Packet, 0);
+    // uint16_t sourcePort = Unpack16(buffer->Packet, 0);
     uint16_t targetPort = Unpack16(buffer->Packet, 2);
 
     buffer->Packet += header_size();
