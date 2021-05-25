@@ -9,7 +9,7 @@ set( HTML
 set( LIBS
    webServer
    tcpStack
-   osSupport
+   os_support
    packet_io )
 if( UNIX )
 	set( LIBS ${LIBS})
@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME} ${SOURCE} )
 
 target_link_libraries(${PROJECT_NAME} ${LIBS} pthread)
 add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
-include_directories( ../webServer ../tcpStack ../osSupport )
+include_directories( ../webServer ../tcpStack ../os_support )
 if( WIN32 )
     include_directories( WinPcap/include )
 endif( WIN32 )

@@ -4,4 +4,4 @@ set( SOURCE
     HTTPPage.cpp
     )
 add_library(${LIB} ${SOURCE})
-include_directories( ../tcpStack ../osSupport )
+include_directories( ../tcpStack ../os_support )
