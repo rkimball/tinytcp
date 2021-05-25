@@ -42,8 +42,6 @@
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
-using namespace std;
-
 // Version - 4 bits
 // Header Length - 4 bits
 // Type of Service - 8 bits
@@ -222,7 +220,7 @@ void ProtocolIPv4::FreeRxBuffer(DataBuffer* buffer)
     MAC.FreeRxBuffer(buffer);
 }
 
-ostream& operator<<(ostream& out, const ProtocolIPv4& obj)
+std::ostream& operator<<(std::ostream& out, const ProtocolIPv4& obj)
 {
     out << "IPv4 Configuration\n";
     out << "   Address:            " << ipv4toa(obj.Address.Address) << "\n";

@@ -34,11 +34,9 @@
 #include "PacketIO.hpp"
 #include "gtest/gtest.h"
 
-using namespace std;
-
 void RxData(uint8_t* data, size_t length)
 {
-    cout << "Rx " << length << endl;
+    std::cout << "Rx " << length << std::endl;
 }
 
 TEST(network, raw_socket)

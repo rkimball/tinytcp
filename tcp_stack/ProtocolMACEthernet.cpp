@@ -37,8 +37,6 @@
 #include "ProtocolMACEthernet.hpp"
 #include "Utility.hpp"
 
-using namespace std;
-
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes

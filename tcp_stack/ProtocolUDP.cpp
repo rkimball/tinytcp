@@ -38,8 +38,6 @@
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
-using namespace std;
-
 ProtocolUDP::ProtocolUDP(ProtocolIPv4& ip, ProtocolDHCP& dhcp)
     : IP(ip)
     , DHCP(dhcp)
