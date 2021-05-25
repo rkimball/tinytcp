@@ -1,4 +1,4 @@
-project(testApp)
+project(test_app)
 cmake_minimum_required(VERSION 2.8)
 set( SOURCE
    TestApp.cpp
@@ -7,7 +7,7 @@ set( HTML
     master.html
     )
 set( LIBS
-   webServer
+   web_server
    tcpStack
    os_support
    packet_io )
@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME} ${SOURCE} )
 
 target_link_libraries(${PROJECT_NAME} ${LIBS} pthread)
 add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
-include_directories( ../webServer ../tcpStack ../os_support )
+include_directories( ../web_server ../tcpStack ../os_support )
 if( WIN32 )
     include_directories( WinPcap/include )
 endif( WIN32 )

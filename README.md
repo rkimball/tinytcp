@@ -16,7 +16,7 @@ cmake -G "Visual Studio 14 2015" ..\tinytcp
 ```
 This generates tinytcp.sln solution file.
 * The Windows build uses [WinPcap](http://www.winpcap.org/) that you will need to download and install before running.
-* To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this
+* To view the tinytcp test_app web page you will need to point a browser at the IPv4 address that test_app gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running test_app. When run, test_app will produce output like this
 ```
 sending discover
 discover sent
@@ -40,9 +40,9 @@ make
 * Because the tinytcp test app uses a promiscuous socket in order to read/write Layer 2 Ethernet frames, the test app must be run
 with elevated privileges.
 ```
-sudo testApp/testApp
+sudo test_app/test_app
 ```
-* To view the tinytcp testApp web page you will need to point a browser at the IPv4 address that testApp gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running testApp. When run, testApp will produce output like this:
+* To view the tinytcp test_app web page you will need to point a browser at the IPv4 address that test_app gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running test_app. When run, test_app will produce output like this:
 ```
 sending discover
 discover sent

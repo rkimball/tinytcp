@@ -1,4 +1,4 @@
-set( LIB webServer )
+set( LIB web_server )
 set( SOURCE
     HTTPD.cpp
     HTTPPage.cpp

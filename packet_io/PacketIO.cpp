@@ -384,7 +384,7 @@ void PacketIO::Start(RxDataHandler rxData)
     {
         if (errno == EPERM)
         {
-            printf("need root privileges, try 'sudo ./testApp'\n");
+            printf("need root privileges, try 'sudo ./test_app'\n");
             exit(-1);
         }
         else
