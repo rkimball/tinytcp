@@ -1,3 +1,5 @@
+![main](https://github.com/rkimball/tinytcp/actions/workflows/cmake.yml/badge.svg)
+
 # tinytcp
 tinytcp is designed primarily for use in an embedded environment. It is designed for simplicity and deterministic memory usage.
 All memory used is preallocated in static arrays.
