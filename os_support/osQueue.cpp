@@ -36,8 +36,6 @@
 
 #include "osQueue.hpp"
 
-using namespace std;
-
 static const size_t MAX_QUEUE_COUNT = 20;
 static osQueue* QueueList[MAX_QUEUE_COUNT];
 osMutex QueueListLock("queue list lock");

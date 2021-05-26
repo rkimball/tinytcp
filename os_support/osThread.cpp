@@ -45,8 +45,6 @@
 #include "osThread.hpp"
 #include "osUtil.hpp"
 
-using namespace std;
-
 static const int MAX_THREADS = 48;
 static osThread* Threads[MAX_THREADS];
 
@@ -327,16 +325,16 @@ void osThread::dump_info(std::ostream& out)
     if (GetProcessTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime))
     {
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        out << "  Kernel Time      = ", out << setw(2) << setfill('0') << sysTime.wHour << ":";
-        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
-        out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
+        out << "  Kernel Time      = ", out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << "\n";
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        out << "  User Time        = ", out << setw(2) << setfill('0') << sysTime.wHour << ":";
-        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
-        out << setw(2) << setfill('0') << sysTime.wMilliseconds << "\n";
+        out << "  User Time        = ", out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << "\n";
     }
 #endif
 
@@ -379,24 +377,24 @@ void osThread::dump_info(std::ostream& out)
         }
         GetThreadTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
 
-        out << setw(3) << priority << " |";
-        out << setw(20) << left << thread->Name << "|";
-        out << setw(6) << handle << " | ";
+        out << std::setw(3) << priority << " |";
+        out << std::setw(20) << std::left << thread->Name << "|";
+        out << std::setw(6) << handle << " | ";
 
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        out << setw(2) << setfill('0') << sysTime.wHour << ":";
-        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
-        out << setw(2) << setfill('0') << sysTime.wMilliseconds << " | ";
+        out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << " | ";
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        out << setw(2) << setfill('0') << sysTime.wHour << ":";
-        out << setw(2) << setfill('0') << sysTime.wMinute << ":";
-        out << setw(2) << setfill('0') << sysTime.wSecond << ".";
-        out << setw(2) << setfill('0') << sysTime.wMilliseconds << " | ";
+        out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
+        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
+        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << " | ";
 
 #elif __linux__
-        out << setw(20) << left << thread->Name << "|";
+        out << std::setw(20) << std::left << thread->Name << "|";
 #endif
 
         // Find out what this thread is doing
