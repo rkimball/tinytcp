@@ -1,5 +1,5 @@
-set( LIB tcpStack )
-set( SOURCE
+set (LIB tcpStack)
+set (SOURCE
     DataBuffer.cpp
     FCS.cpp
     ProtocolARP.cpp
@@ -14,7 +14,7 @@ set( SOURCE
     InterfaceMAC.hpp
     DefaultStack.cpp
     Config.hpp
-    )
-add_library( ${LIB} ${SOURCE} )
-add_dependencies( ${LIB} os_support )
-include_directories( ../os_support )
+)
+add_library (${LIB} ${SOURCE})
+add_dependencies (${LIB} os_support)
+include_directories (../os_support)
