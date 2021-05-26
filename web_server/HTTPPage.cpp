@@ -50,7 +50,7 @@ template <typename T>
 std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
     std::stringstream ss;
-    ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
+    ss << std::hex << std::setw(width) << std::setfill('0') << static_cast<size_t>(obj);
     return ss.str();
 }
 
@@ -74,7 +74,7 @@ void http::Page::Initialize(TCPConnection* connection)
 int http::Page::Printf(const char* format, ...)
 {
     char buffer[BUFFER_SIZE];
-    int i;
+    size_t i;
     va_list vlist;
     int rc;
 
@@ -82,7 +82,7 @@ int http::Page::Printf(const char* format, ...)
 
     vsnprintf(buffer, sizeof(buffer), format, vlist);
 
-    for (i = 0; buffer[i] && i < (int)(sizeof(buffer) - 1); i++)
+    for (i = 0; buffer[i] && i < (sizeof(buffer) - 1); i++)
     {
         RawSend(&buffer[i], 1);
     }
@@ -112,7 +112,7 @@ std::string http::Page::HTMLEncode(const std::string& str)
 bool http::Page::Puts(const char* string)
 {
     int i;
-    int length = (int)strlen(string);
+    int length = static_cast<int>(strlen(string));
 
     for (i = 0; i < length; i++)
     {
@@ -129,7 +129,7 @@ bool http::Page::Puts(const char* string)
 
 bool http::Page::SendString(const char* string)
 {
-    return RawSend(string, (int)strlen(string));
+    return RawSend(string, static_cast<int>(strlen(string)));
 }
 
 bool http::Page::RawSend(const void* p, size_t length)
@@ -138,7 +138,7 @@ bool http::Page::RawSend(const void* p, size_t length)
     {
         PageOK();
     }
-    Connection->Write((const uint8_t*)p, length);
+    Connection->Write(reinterpret_cast<const uint8_t*>(p), length);
 
     return true;
 }
@@ -173,7 +173,7 @@ void http::Page::DumpData(const char* buffer, size_t length)
     out << "<code>\n";
     while (i + 1 <= length)
     {
-        out << to_hex((uint16_t)i) << " ";
+        out << to_hex(static_cast<uint16_t>(i)) << " ";
         for (j = 0; j < 16; j++)
         {
             if (i + j < length)
@@ -272,7 +272,7 @@ bool http::Page::SendFile(const char* filename)
 
         do
         {
-            count = (int)fread(buffer, 1, sizeof(buffer), f);
+            count = static_cast<int>(fread(buffer, 1, sizeof(buffer), f));
             if (count > 0)
             {
                 RawSend(buffer, count);
@@ -363,7 +363,7 @@ std::istream& http::Page::get_input_stream()
 
 std::streamsize http::Page::xsputn(const char* s, std::streamsize n)
 {
-    Connection->Write((const uint8_t*)s, n);
+    Connection->Write(reinterpret_cast<const uint8_t*>(s), n);
     return n;
 }
 

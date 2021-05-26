@@ -41,7 +41,7 @@ uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
     for (i = 0; i < length / 2; i++)
     {
         value = (buffer[i * 2] << 8) | buffer[i * 2 + 1];
-        checksum += (uint32_t)value;
+        checksum += static_cast<uint32_t>(value);
     }
 
     return checksum;

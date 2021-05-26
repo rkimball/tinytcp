@@ -173,10 +173,10 @@ std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
     for (int i = 0; i < ARPCacheSize; i++)
     {
         std::stringstream ss;
-        ss << (int)obj.Cache[i].IPv4Address[0] << ".";
-        ss << (int)obj.Cache[i].IPv4Address[1] << ".";
-        ss << (int)obj.Cache[i].IPv4Address[2] << ".";
-        ss << (int)obj.Cache[i].IPv4Address[3];
+        ss << static_cast<int>(obj.Cache[i].IPv4Address[0]) << ".";
+        ss << static_cast<int>(obj.Cache[i].IPv4Address[1]) << ".";
+        ss << static_cast<int>(obj.Cache[i].IPv4Address[2]) << ".";
+        ss << static_cast<int>(obj.Cache[i].IPv4Address[3]);
         std::string s = ss.str();
 
         out << "   " << s;
@@ -188,7 +188,7 @@ std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
         out << to_hex(obj.Cache[i].MACAddress[3]) << ":";
         out << to_hex(obj.Cache[i].MACAddress[4]) << ":";
         out << to_hex(obj.Cache[i].MACAddress[5]);
-        out << "   age = " << (int)obj.Cache[i].Age << "\n";
+        out << "   age = " << static_cast<int>(obj.Cache[i].Age) << "\n";
     }
     return out;
 }

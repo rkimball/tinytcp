@@ -190,7 +190,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                     connection->State = TCPConnection::TIMED_WAIT;
                     // Start TimedWait timer
                     connection->AcknowledgementNumber++; // FIN consumes sequence number
-                    connection->Time_us = (int32_t)osTime::GetTime();
+                    connection->Time_us = static_cast<int32_t>(osTime::GetTime());
                     connection->SendFlags(FLAG_ACK);
                 }
                 break;
@@ -223,13 +223,13 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 {
                     connection->HoldingQueueLock.Take(__FILE__, __LINE__);
                     count = connection->HoldingQueue.GetCount();
-                    time_us = (uint32_t)osTime::GetTime();
+                    time_us = static_cast<uint32_t>(osTime::GetTime());
                     for (int i = 0; i < count; i++)
                     {
-                        buffer = (DataBuffer*)connection->HoldingQueue.Get();
-                        if ((int32_t)(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0)
+                        buffer = static_cast<DataBuffer*>(connection->HoldingQueue.Get());
+                        if (static_cast<int32_t>(AcknowledgementNumber - buffer->AcknowledgementNumber) >= 0)
                         {
-                            connection->CalculateRTT((int32_t)(time_us - buffer->Time_us));
+                            connection->CalculateRTT(static_cast<int32_t>(time_us - buffer->Time_us));
                             IP.FreeTxBuffer(buffer);
                         }
                         else

@@ -45,7 +45,7 @@ void DumpData(std::ostream& out, void* buffer, size_t len)
         {
             if (index + i < len)
             {
-                out << " " << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)data[i];
+                out << " " << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(data[i]);
             }
             else
             {
@@ -57,7 +57,7 @@ void DumpData(std::ostream& out, void* buffer, size_t len)
         {
             if (index + i < len)
             {
-                out << " " << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)data[i];
+                out << " " << std::hex << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(data[i]);
             }
             else
             {
@@ -79,7 +79,7 @@ void DumpData(std::ostream& out, void* buffer, size_t len)
 
 void DumpBits(std::ostream& out, void* buf, size_t size)
 {
-    uint8_t* buffer = (uint8_t*)buf;
+    uint8_t* buffer = static_cast<uint8_t*>(buf);
 
     for (size_t i = 0; i < size; i++)
     {
@@ -208,7 +208,7 @@ int ReadLine(char* buffer, size_t size, int (*ReadFunction)())
             *buffer = 0;
             break;
         }
-        c = (char)i;
+        c = static_cast<char>(i);
         bytesProcessed++;
         switch (c)
         {

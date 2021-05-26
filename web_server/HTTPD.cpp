@@ -238,7 +238,7 @@ void http::Server::Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port
 
 void http::Server::ConnectionHandlerEntry(void* param)
 {
-    Page* page = (Page*)param;
+    Page* page = static_cast<Page*>(param);
 
     page->_Server->ProcessRequest(page);
 
@@ -247,7 +247,7 @@ void http::Server::ConnectionHandlerEntry(void* param)
 
 void http::Server::TaskEntry(void* param)
 {
-    Server* s = (Server*)param;
+    Server* s = static_cast<Server*>(param);
     s->Task();
 }
 
@@ -261,7 +261,7 @@ void http::Server::Task()
         connection = ListenerConnection->Listen();
 
         // Spawn off a thread to handle this connection
-        page = (Page*)PagePool.Get();
+        page = static_cast<Page*>(PagePool.Get());
         if (page)
         {
             page->Initialize(connection);

@@ -103,7 +103,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         Pack16(packet, 0, LocalPort);
         Pack16(packet, 2, RemotePort);
         Pack32(packet, 4, SequenceNumber);
-        if ((int32_t)(AcknowledgementNumber - LastAck) > 0)
+        if (static_cast<int32_t>(AcknowledgementNumber - LastAck) > 0)
         {
             // Only advance LastAck if Ack > LastAck
             LastAck = AcknowledgementNumber;
@@ -118,7 +118,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         SequenceNumber += length;
         buffer->AcknowledgementNumber = SequenceNumber;
 
-        while ((int32_t)(MaxSequenceTx - SequenceNumber) < 0)
+        while (static_cast<int32_t>(MaxSequenceTx - SequenceNumber) < 0)
         {
             printf("tx window full\n");
             Event.Wait(__FILE__, __LINE__);
@@ -134,7 +134,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         if (length > 0 || (flags & (FLAG_SYN | FLAG_FIN)))
         {
             buffer->Disposable = false;
-            buffer->Time_us = (uint32_t)osTime::GetTime();
+            buffer->Time_us = static_cast<uint32_t>(osTime::GetTime());
             HoldingQueueLock.Take(__FILE__, __LINE__);
             HoldingQueue.Put(buffer);
             HoldingQueueLock.Give();
@@ -324,7 +324,7 @@ int TCPConnection::ReadLine(char* buffer, int size)
             *buffer = 0;
             break;
         }
-        c = (char)i;
+        c = static_cast<char>(i);
         bytesProcessed++;
         switch (c)
         {
@@ -356,19 +356,19 @@ void TCPConnection::Tick()
 
     HoldingQueueLock.Take(__FILE__, __LINE__);
     count = HoldingQueue.GetCount();
-    currentTime_us = (int32_t)osTime::GetTime();
+    currentTime_us = static_cast<int32_t>(osTime::GetTime());
 
     // Check for retransmit timeout
     timeoutTime_us = currentTime_us - TCP_RETRANSMIT_TIMEOUT_US;
     for (i = 0; i < count; i++)
     {
-        buffer = (DataBuffer*)HoldingQueue.Get();
-        if ((int32_t)(buffer->Time_us - timeoutTime_us) <= 0)
+        buffer = static_cast<DataBuffer*>(HoldingQueue.Get());
+        if (static_cast<int32_t>(buffer->Time_us - timeoutTime_us) <= 0)
         {
             printf("TCP retransmit timeout %u, %u, delta %d\n",
                    buffer->Time_us,
                    timeoutTime_us,
-                   (int32_t)(buffer->Time_us - timeoutTime_us));
+                   static_cast<int32_t>(buffer->Time_us - timeoutTime_us));
             buffer->Time_us = currentTime_us;
             IP->Retransmit(buffer);
         }
@@ -466,10 +466,10 @@ std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
     case TCPConnection::ESTABLISHED:
         out << "local=" << obj.LocalPort;
         out << "  remote=";
-        out << (int)obj.RemoteAddress[0] << ".";
-        out << (int)obj.RemoteAddress[1] << ".";
-        out << (int)obj.RemoteAddress[2] << ".";
-        out << (int)obj.RemoteAddress[3] << ":";
+        out << static_cast<int>(obj.RemoteAddress[0]) << ".";
+        out << static_cast<int>(obj.RemoteAddress[1]) << ".";
+        out << static_cast<int>(obj.RemoteAddress[2]) << ".";
+        out << static_cast<int>(obj.RemoteAddress[3]) << ":";
         out << obj.RemotePort;
         out << "\n";
         out << "    "

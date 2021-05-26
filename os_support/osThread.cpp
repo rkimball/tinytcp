@@ -105,7 +105,7 @@ DWORD WINAPI WinThreadEntry(LPVOID param)
 #elif __linux__
 static void* ThreadEntry(void* param)
 {
-    osThread* thread = (osThread*)param;
+    osThread* thread = static_cast<osThread*>(param);
     pthread_setspecific(tlsKey, thread); // Thread Local Storage points to osThread
     thread->ThreadStart.Notify();
     thread->Entry(thread->Param);
@@ -290,7 +290,7 @@ osThread* osThread::GetCurrent()
 #ifdef _WIN32
     return (osThread*)TlsGetValue(dwTlsIndex);
 #elif __linux__
-    return (osThread*)pthread_getspecific(tlsKey);
+    return static_cast<osThread*>(pthread_getspecific(tlsKey));
 #endif
 }
 
@@ -404,7 +404,7 @@ void osThread::dump_info(std::ostream& out)
         case RUNNING: out << "running\n"; break;
         case PENDING_MUTEX:
         {
-            osMutex* obj = (osMutex*)(thread->StateObject);
+            osMutex* obj = static_cast<osMutex*>(thread->StateObject);
             if (obj != nullptr)
             {
                 out << "pending on mutex \"" << obj->GetName() << "\"\n";
@@ -417,7 +417,7 @@ void osThread::dump_info(std::ostream& out)
         }
         case PENDING_EVENT:
         {
-            osEvent* obj = (osEvent*)(thread->StateObject);
+            osEvent* obj = static_cast<osEvent*>(thread->StateObject);
             if (obj != nullptr)
             {
                 out << "pending event \"" << obj->GetName() << "\"\n";

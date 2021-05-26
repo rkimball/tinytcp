@@ -63,7 +63,7 @@ char* iptos(u_long in)
     static short which;
     u_char* p;
 
-    p = (u_char*)&in;
+    p = reinterpret_cast<u_char*>(&in);
     which = (which + 1 == IPTOSBUFFERS ? 0 : which + 1);
     snprintf(output[which], sizeof(output[which]), "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
     return output[which];
@@ -411,16 +411,16 @@ void PacketIO::Start(RxDataHandler rxData)
         mreq.mr_type = PACKET_MR_PROMISC;
         mreq.mr_alen = 6;
         if (setsockopt(
-                m_RawSocket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, (socklen_t)sizeof(mreq)) < 0)
+                m_RawSocket, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mreq, static_cast<socklen_t>(sizeof(mreq))) < 0)
         {
             printf("promiscuous membership error %s", strerror(errno));
         }
 
-        void* pkt_data = (void*)malloc(ETH_FRAME_LEN);
+        void* pkt_data = static_cast<void*>(malloc(ETH_FRAME_LEN));
         while (1)
         {
             int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, nullptr, nullptr);
-            rxData((uint8_t*)pkt_data, length);
+            rxData(reinterpret_cast<uint8_t*>(pkt_data), length);
         }
         free(pkt_data); // no way to get here, but ...
     }
@@ -439,7 +439,7 @@ void PacketIO::TxData(void* packet, size_t length)
     dest.sll_family = AF_PACKET;
     dest.sll_ifindex = m_IfIndex;
 
-    int rc = sendto(m_RawSocket, packet, length, 0, (sockaddr*)&dest, sizeof(dest));
+    int rc = sendto(m_RawSocket, packet, length, 0, reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
     if (rc < 0)
     {
         printf("tx error %s\n", strerror(errno));

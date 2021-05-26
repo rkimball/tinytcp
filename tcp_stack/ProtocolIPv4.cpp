@@ -195,7 +195,7 @@ void ProtocolIPv4::Retry()
     count = UnresolvedQueue.GetCount();
     for (int i = 0; i < count; i++)
     {
-        buffer = (DataBuffer*)UnresolvedQueue.Get();
+        buffer = static_cast<DataBuffer*>(UnresolvedQueue.Get());
 
         targetMAC = ARP.Protocol2Hardware(&buffer->Packet[16]);
         if (targetMAC != nullptr)

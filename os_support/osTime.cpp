@@ -71,7 +71,7 @@ const char* osTime::GetTimestamp()
 
     time = GetTime();
 
-    seconds = (uint32_t)(time / 1000000);
+    seconds = static_cast<uint32_t>(time / 1000000);
 
     sec = seconds % 60;
 
@@ -97,7 +97,7 @@ const char* osTime::GetTimestamp()
              sec,
              (uint32_t)((time / 1000) % 1000));
 #else
-    snprintf(s, sizeof(s), "%u:%02u:%02u.%03u", hour, min, sec, (uint32_t)((time / 1000) % 1000));
+    snprintf(s, sizeof(s), "%u:%02u:%02u.%03u", hour, min, sec, static_cast<uint32_t>((time / 1000) % 1000));
 #endif
     return s;
 }

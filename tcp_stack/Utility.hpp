@@ -73,6 +73,6 @@ template <typename T>
 std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
     std::stringstream ss;
-    ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
+    ss << std::hex << std::setw(width) << std::setfill('0') << static_cast<size_t>(obj);
     return ss.str();
 }

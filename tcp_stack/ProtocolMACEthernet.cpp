@@ -81,7 +81,7 @@ bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 {
     uint16_t type;
-    DataBuffer* packet = (DataBuffer*)RxBufferQueue.Get();
+    DataBuffer* packet = static_cast<DataBuffer*>(RxBufferQueue.Get());
     int i;
     int length =
         (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
@@ -152,7 +152,7 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 {
     DataBuffer* buffer;
 
-    while ((buffer = (DataBuffer*)TxBufferQueue.Get()) == nullptr)
+    while ((buffer = static_cast<DataBuffer*>(TxBufferQueue.Get())) == nullptr)
     {
         QueueEmptyEvent.Wait(__FILE__, __LINE__);
     }
