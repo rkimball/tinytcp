@@ -42,7 +42,7 @@ namespace http
 {
     class Page;
     class Server;
-}
+} // namespace http
 
 class http::Page : public std::streambuf
 {

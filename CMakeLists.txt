@@ -48,21 +48,21 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-double-promotion")
 endif()
 
-add_subdirectory (osSupport)
-add_subdirectory (tcpStack)
-include_directories(tcpStack osSupport)
-add_subdirectory (webServer)
+add_subdirectory (os_support)
+add_subdirectory (tcp_stack)
+include_directories(tcp_stack os_support)
+add_subdirectory (web_server)
 add_subdirectory (packet_io)
 include_directories (packet_io)
-add_subdirectory (testApp)
+add_subdirectory (test_app)
 add_subdirectory (test)
 
-set (CLANG_FORMAT clang-format-6.0)
-add_custom_target(style
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/osSupport/*.?pp
+set (CLANG_FORMAT clang-format-10)
+add_custom_target(format
+    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/os_support/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/packet_io/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/tcpStack/*.?pp
+    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/tcp_stack/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/testApp/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/webServer/*.?pp
+    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test_app/*.?pp
+    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/web_server/*.?pp
 )

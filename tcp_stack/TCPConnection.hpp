@@ -103,7 +103,7 @@ private:
     void CalculateRTT(int32_t msRTT);
     void Allocate(InterfaceMAC* mac);
 
-    // This stuff is used for Listening for incomming connections
+    // This stuff is used for Listening for incoming connections
     TCPConnection* NewConnection;
     TCPConnection* Parent;
 

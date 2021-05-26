@@ -298,8 +298,8 @@ void PacketIO::Stop()
 
 void PacketIO::TxData(void* packet, size_t length)
 {
-    //printf( "Ethernet Tx:\n" );
-    //DumpData( packet, length, printf );
+    // printf( "Ethernet Tx:\n" );
+    // DumpData( packet, length, printf );
 
     if (pcap_sendpacket(adhandle, (u_char*)packet, length) != 0)
     {
@@ -384,7 +384,7 @@ void PacketIO::Start(RxDataHandler rxData)
     {
         if (errno == EPERM)
         {
-            printf("need root privileges, try 'sudo ./testApp'\n");
+            printf("need root privileges, try 'sudo ./test_app'\n");
             exit(-1);
         }
         else

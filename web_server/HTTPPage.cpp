@@ -46,8 +46,6 @@
 #include <strings.h>
 #endif
 
-using namespace std;
-
 template <typename T>
 std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {
@@ -93,10 +91,10 @@ int http::Page::Printf(const char* format, ...)
     return rc;
 }
 
-string http::Page::HTMLEncode(const string& str)
+std::string http::Page::HTMLEncode(const std::string& str)
 {
-    string rc;
-    stringstream ss;
+    std::string rc;
+    std::stringstream ss;
     for (int i = 0; i < str.size(); i++)
     {
         switch (str[i])
@@ -140,7 +138,7 @@ bool http::Page::RawSend(const void* p, size_t length)
     {
         PageOK();
     }
-    Connection->Write((uint8_t*)p, length);
+    Connection->Write((const uint8_t*)p, length);
 
     return true;
 }
@@ -168,7 +166,7 @@ void http::Page::DumpData(const char* buffer, size_t length)
 {
     int i;
     int j;
-    ostream& out = get_output_stream();
+    std::ostream& out = get_output_stream();
 
     i = 0;
     j = 0;
@@ -219,14 +217,14 @@ void http::Page::DumpData(const char* buffer, size_t length)
 void http::Page::PageNotFound()
 {
     HTTPHeaderSent = true;
-    ostream& out = get_output_stream();
+    std::ostream& out = get_output_stream();
     out << "HTTP/1.0 404 Not Found\r\n\r\n";
 }
 
 void http::Page::PageOK(const char* mimeType)
 {
     HTTPHeaderSent = true;
-    ostream& out = get_output_stream();
+    std::ostream& out = get_output_stream();
     out << "HTTP/1.0 200 OK\r\nContent-type: ";
     out << mimeType;
     out << "\r\n\r\n";
@@ -235,14 +233,14 @@ void http::Page::PageOK(const char* mimeType)
 void http::Page::PageNoContent()
 {
     HTTPHeaderSent = true;
-    ostream& out = get_output_stream();
+    std::ostream& out = get_output_stream();
     out << "HTTP/1.0 204 No Content\r\nContent-type: text/html\r\n\r\n";
 }
 
 void http::Page::PageUnauthorized()
 {
     HTTPHeaderSent = true;
-    ostream& out = get_output_stream();
+    std::ostream& out = get_output_stream();
     out << "HTTP/1.0 401 Unauthorized\r\nContent-type: text/html\r\n\r\n";
 }
 
@@ -254,7 +252,7 @@ bool http::Page::SendFile(const char* filename)
     unsigned char buffer[512];
     uint64_t counti64;
     int count;
-    ostream& out = get_output_stream();
+    std::ostream& out = get_output_stream();
 
     f = fopen(filename, "rb");
     if (f)
@@ -315,7 +313,7 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
         int c;
         int markerIndex = 0;
         int markerLength = strlen(marker);
-        ostream& out = get_output_stream();
+        std::ostream& out = get_output_stream();
         while ((c = fgetc(f)) > 0)
         {
             if (c == marker[markerIndex])
@@ -353,19 +351,19 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
     }
 }
 
-ostream& http::Page::get_output_stream()
+std::ostream& http::Page::get_output_stream()
 {
     return m_ostream;
 }
 
-istream& http::Page::get_input_stream()
+std::istream& http::Page::get_input_stream()
 {
     return m_istream;
 }
 
-streamsize http::Page::xsputn(const char* s, streamsize n)
+std::streamsize http::Page::xsputn(const char* s, std::streamsize n)
 {
-    Connection->Write((uint8_t*)s, n);
+    Connection->Write((const uint8_t*)s, n);
     return n;
 }
 

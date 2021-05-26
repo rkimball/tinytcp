@@ -42,8 +42,6 @@
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
-using namespace std;
-
 // Version - 4 bits
 // Header Length - 4 bits
 // Type of Service - 8 bits
@@ -131,7 +129,7 @@ DataBuffer* ProtocolIPv4::GetTxBuffer(InterfaceMAC* mac)
     DataBuffer* buffer;
 
     buffer = mac->GetTxBuffer();
-    if (buffer != 0)
+    if (buffer != nullptr)
     {
         buffer->Packet += header_size();
         buffer->Remainder -= header_size();
@@ -172,7 +170,7 @@ void ProtocolIPv4::Transmit(DataBuffer* buffer,
     Pack16(packet, 10, checksum);
 
     targetMAC = ARP.Protocol2Hardware(targetIP);
-    if (targetMAC != 0)
+    if (targetMAC != nullptr)
     {
         MAC.Transmit(buffer, targetMAC, 0x0800);
     }
@@ -200,7 +198,7 @@ void ProtocolIPv4::Retry()
         buffer = (DataBuffer*)UnresolvedQueue.Get();
 
         targetMAC = ARP.Protocol2Hardware(&buffer->Packet[16]);
-        if (targetMAC != 0)
+        if (targetMAC != nullptr)
         {
             MAC.Transmit(buffer, targetMAC, 0x0800);
         }
@@ -222,7 +220,7 @@ void ProtocolIPv4::FreeRxBuffer(DataBuffer* buffer)
     MAC.FreeRxBuffer(buffer);
 }
 
-ostream& operator<<(ostream& out, const ProtocolIPv4& obj)
+std::ostream& operator<<(std::ostream& out, const ProtocolIPv4& obj)
 {
     out << "IPv4 Configuration\n";
     out << "   Address:            " << ipv4toa(obj.Address.Address) << "\n";

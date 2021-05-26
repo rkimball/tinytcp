@@ -36,8 +36,6 @@
 
 #include "osQueue.hpp"
 
-using namespace std;
-
 static const size_t MAX_QUEUE_COUNT = 20;
 static osQueue* QueueList[MAX_QUEUE_COUNT];
 osMutex QueueListLock("queue list lock");
@@ -79,7 +77,7 @@ void* osQueue::Peek()
     }
     else
     {
-        rc = 0;
+        rc = nullptr;
     }
 
     Lock.Give();
@@ -100,7 +98,7 @@ void* osQueue::Get()
     }
     else
     {
-        rc = 0;
+        rc = nullptr;
     }
 
     Lock.Give();
@@ -138,7 +136,7 @@ int osQueue::GetCount()
 
 void osQueue::Flush()
 {
-    while (Get() != 0)
+    while (Get() != nullptr)
         ;
 }
 

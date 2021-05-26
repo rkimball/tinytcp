@@ -34,11 +34,9 @@
 #include "PacketIO.hpp"
 #include "gtest/gtest.h"
 
-using namespace std;
-
 void RxData(uint8_t* data, size_t length)
 {
-    cout << "Rx " << length << endl;
+    std::cout << "Rx " << length << std::endl;
 }
 
 TEST(network, raw_socket)
@@ -49,7 +47,7 @@ TEST(network, raw_socket)
 
     PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
     printf("using device %s\n", device);
-    //PacketIO::GetMACAddress( device, Config.MACAddress );
+    // PacketIO::GetMACAddress( device, Config.MACAddress );
 
     PIO = new PacketIO(device);
 

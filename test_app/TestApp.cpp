@@ -64,8 +64,6 @@ static osEvent StartEvent("StartEvent");
 
 DefaultStack tcpStack;
 
-using namespace std;
-
 struct NetworkConfig
 {
     int interfaceNumber;
@@ -110,7 +108,7 @@ void NetworkEntry(void* param)
 
     PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
     printf("using device %s\n", device);
-    //PacketIO::GetMACAddress( device, Config.MACAddress );
+    // PacketIO::GetMACAddress( device, Config.MACAddress );
 
     PIO = new PacketIO(device);
 
@@ -132,9 +130,9 @@ void MainEntry(void* config) {}
 
 void HomePage(http::Page* page)
 {
-    time_t t = time(0);
+    time_t t = time(nullptr);
     struct tm* now = localtime(&t);
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
 
     out << "<span>Current time: " << asctime(now) << "</span>\n";
 
@@ -156,7 +154,7 @@ void HomePage(http::Page* page)
 
 void FormsDemo(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<form action=\"/formsresult\">";
 
     out << "<label for=\"FirstName\">First name:</label>";
@@ -179,7 +177,7 @@ void FormsDemo(http::Page* page)
 
 void ShowMutex(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     osMutex::dump_info(out);
     out << "</pre>";
@@ -187,7 +185,7 @@ void ShowMutex(http::Page* page)
 
 void ShowEvent(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     osEvent::dump_info(out);
     out << "</pre>";
@@ -195,7 +193,7 @@ void ShowEvent(http::Page* page)
 
 void ShowQueue(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     osQueue::dump_info(out);
     out << "</pre>";
@@ -203,7 +201,7 @@ void ShowQueue(http::Page* page)
 
 void ShowThread(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     osThread::dump_info(out);
     out << "</pre>";
@@ -211,7 +209,7 @@ void ShowThread(http::Page* page)
 
 void ShowMAC(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     out << tcpStack.MAC;
     out << "</pre>";
@@ -219,7 +217,7 @@ void ShowMAC(http::Page* page)
 
 void ShowIP(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     out << tcpStack.IP;
     out << "</pre>";
@@ -227,7 +225,7 @@ void ShowIP(http::Page* page)
 
 void ShowARP(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     out << tcpStack.ARP;
     out << "</pre>";
@@ -235,7 +233,7 @@ void ShowARP(http::Page* page)
 
 void ShowTCP(http::Page* page)
 {
-    ostream& out = page->get_output_stream();
+    std::ostream& out = page->get_output_stream();
     out << "<pre>";
     out << tcpStack.TCP;
     out << "</pre>";
@@ -378,6 +376,4 @@ int main(int argc, char* argv[])
 #endif
         tcpStack.Tick();
     }
-
-    return 0;
 }

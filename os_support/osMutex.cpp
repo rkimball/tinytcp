@@ -39,8 +39,6 @@
 #include "osMutex.hpp"
 #include "osThread.hpp"
 
-using namespace std;
-
 osMutex* osMutex::MutexList[MAX_MUTEX];
 
 #ifdef __linux__
@@ -182,21 +180,21 @@ void osMutex::dump_info(std::ostream& out)
         osMutex* mutex = MutexList[i];
         if (mutex != nullptr)
         {
-            string name = mutex->Name;
-            string state;
-            string owner;
+            std::string name = mutex->Name;
+            std::string state;
+            std::string owner;
             int line = -1;
-            string file;
+            std::string file;
             if (mutex->OwnerFile)
             {
                 line = mutex->OwnerLine;
                 file = mutex->OwnerFile;
             }
-            out << setw(20) << name << setw(0) << "|";
-            out << setw(7) << state << setw(0) << "|";
-            out << setw(20) << owner << setw(0) << "|";
-            out << setw(6) << line << setw(0) << "|";
-            out << setw(0) << file << setw(0) << "\n";
+            out << std::setw(20) << name << std::setw(0) << "|";
+            out << std::setw(7) << state << std::setw(0) << "|";
+            out << std::setw(20) << owner << std::setw(0) << "|";
+            out << std::setw(6) << line << std::setw(0) << "|";
+            out << std::setw(0) << file << std::setw(0) << "\n";
         }
     }
     UnlockListMutex();

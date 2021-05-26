@@ -39,8 +39,6 @@
 #include "osEvent.hpp"
 #include "osThread.hpp"
 
-using namespace std;
-
 osEvent* osEvent::InstanceList[osEvent::INSTANCE_MAX];
 osMutex osEvent::ListMutex("Event List");
 
@@ -65,7 +63,7 @@ osEvent::osEvent(const char* name)
     ListMutex.Take(__FILE__, __LINE__);
     for (int i = 0; i < INSTANCE_MAX; i++)
     {
-        if (InstanceList[i] == 0)
+        if (InstanceList[i] == nullptr)
         {
             InstanceList[i] = this;
             break;
@@ -81,7 +79,7 @@ osEvent::~osEvent()
     {
         if (InstanceList[i] == this)
         {
-            InstanceList[i] = 0;
+            InstanceList[i] = nullptr;
         }
     }
 #ifdef WIN32
@@ -162,16 +160,16 @@ void osEvent::dump_info(std::ostream& out)
         if (e)
         {
             osThread* thread = e->pending;
-            out << setw(30) << left << e->GetName() << setw(0) << "|";
+            out << std::setw(30) << std::left << e->GetName() << std::setw(0) << "|";
             if (thread)
             {
-                out << setw(20) << left << thread->GetName() << setw(0) << "|";
-                out << setw(10) << left << "" << setw(0) << "\n";
+                out << std::setw(20) << std::left << thread->GetName() << std::setw(0) << "|";
+                out << std::setw(10) << std::left << "" << std::setw(0) << "\n";
             }
             else
             {
-                out << setw(20) << left << "" << setw(0) << "|";
-                out << setw(10) << left << "" << setw(0) << "\n";
+                out << std::setw(20) << std::left << "" << std::setw(0) << "|";
+                out << std::setw(10) << std::left << "" << std::setw(0) << "\n";
             }
         }
     }

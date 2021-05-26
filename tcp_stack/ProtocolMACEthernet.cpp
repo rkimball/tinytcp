@@ -37,8 +37,6 @@
 #include "ProtocolMACEthernet.hpp"
 #include "Utility.hpp"
 
-using namespace std;
-
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes
@@ -47,7 +45,7 @@ ProtocolMACEthernet::ProtocolMACEthernet(ProtocolARP& arp, ProtocolIPv4& ipv4)
     : TxBufferQueue("Tx", TX_BUFFER_COUNT, TxBufferBuffer)
     , RxBufferQueue("Rx", RX_BUFFER_COUNT, RxBufferBuffer)
     , QueueEmptyEvent("MACEthernet")
-    , TxHandler(0)
+    , TxHandler(nullptr)
     , ARP(arp)
     , IPv4(ipv4)
 {
@@ -88,7 +86,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     int length =
         (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
 
-    if (packet == 0)
+    if (packet == nullptr)
     {
         printf("ProtocolMACEthernet::ProcessRx Out of receive buffers\n");
         return;
@@ -96,7 +94,9 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 
     if (length > DATA_BUFFER_PAYLOAD_SIZE)
     {
-        //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
+        // printf("ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n",
+        //        length,
+        //        DATA_BUFFER_PAYLOAD_SIZE);
         RxBufferQueue.Put(packet);
         return;
     }
@@ -114,11 +114,13 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     // Check if the MAC Address is destined for me
     if (IsLocalAddress(packet->Packet))
     {
-        //DumpData( buffer, length, printf );
+        // DumpData( buffer, length, printf );
         if (actualLength > length)
         {
-            //printf( "ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n", length, DATA_BUFFER_PAYLOAD_SIZE );
-            //printf( "Unicast type 0x%04X\n", type );
+            // printf("ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n",
+            //        length,
+            //        DATA_BUFFER_PAYLOAD_SIZE);
+            // printf("Unicast type 0x%04X\n", type);
             RxBufferQueue.Put(packet);
             return;
         }
@@ -135,7 +137,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
             ARP.ProcessRx(packet);
             break;
         default:
-            //printf( "Unsupported Unicast type 0x%04X\n", type );
+            // printf( "Unsupported Unicast type 0x%04X\n", type );
             break;
         }
     }
@@ -150,11 +152,11 @@ DataBuffer* ProtocolMACEthernet::GetTxBuffer()
 {
     DataBuffer* buffer;
 
-    while ((buffer = (DataBuffer*)TxBufferQueue.Get()) == 0)
+    while ((buffer = (DataBuffer*)TxBufferQueue.Get()) == nullptr)
     {
         QueueEmptyEvent.Wait(__FILE__, __LINE__);
     }
-    if (buffer != 0)
+    if (buffer != nullptr)
     {
         buffer->Initialize(this);
         buffer->Packet += header_size();

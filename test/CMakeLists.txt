@@ -39,9 +39,9 @@ set (SRC
 
 add_executable(unit-test ${SRC})
 
-target_link_libraries(unit-test pthread libgtest packet_io osSupport)
+target_link_libraries(unit-test pthread libgtest packet_io os_support)
 
-add_dependencies(unit-test libgtest packet_io osSupport)
+add_dependencies(unit-test libgtest packet_io os_support)
 
 add_custom_target(check
 COMMAND ${PROJECT_BINARY_DIR}/test/unit-test

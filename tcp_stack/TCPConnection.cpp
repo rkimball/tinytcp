@@ -42,16 +42,16 @@ TCPConnection::TCPConnection()
     , RxOutOffset(0)
     , TxOffset(0)
     , CurrentWindow(TCP_RX_WINDOW_SIZE)
-    , TxBuffer(0)
+    , TxBuffer(nullptr)
     , RxBufferEmpty(true)
-    , NewConnection(0)
-    , Parent(0)
+    , NewConnection(nullptr)
+    , Parent(nullptr)
     , Event("tcp connection")
     , HoldingQueue("TCPHolding", TX_BUFFER_COUNT, ConnectionHoldingBuffer)
     , HoldingQueueLock("HoldingQueueLock")
-    , MAC(0)
-    , IP(0)
-    , TCP(0)
+    , MAC(nullptr)
+    , IP(nullptr)
+    , TCP(nullptr)
 {
 }
 
@@ -67,10 +67,10 @@ void TCPConnection::Allocate(InterfaceMAC* mac)
     RxOutOffset = 0;
     TxOffset = 0;
     CurrentWindow = TCP_RX_WINDOW_SIZE;
-    TxBuffer = 0;
+    TxBuffer = nullptr;
     RxBufferEmpty = true;
-    NewConnection = 0;
-    Parent = 0;
+    NewConnection = nullptr;
+    Parent = nullptr;
 
     MAC = mac;
 }
@@ -98,7 +98,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
     buffer->Packet -= ProtocolTCP::header_size();
     packet = buffer->Packet;
     length = buffer->Length;
-    if (packet != 0)
+    if (packet != nullptr)
     {
         Pack16(packet, 0, LocalPort);
         Pack16(packet, 2, RemotePort);
@@ -204,10 +204,10 @@ void TCPConnection::Write(const uint8_t* data, uint16_t length)
 
 void TCPConnection::Flush()
 {
-    if (TxBuffer != 0)
+    if (TxBuffer != nullptr)
     {
         BuildPacket(TxBuffer, FLAG_PSH);
-        TxBuffer = 0;
+        TxBuffer = nullptr;
     }
 }
 
@@ -242,12 +242,12 @@ TCPConnection* TCPConnection::Listen()
 {
     TCPConnection* connection;
 
-    while (NewConnection == 0)
+    while (NewConnection == nullptr)
     {
         Event.Wait(__FILE__, __LINE__);
     }
     connection = NewConnection;
-    NewConnection = 0;
+    NewConnection = nullptr;
 
     return connection;
 }
@@ -278,7 +278,7 @@ int TCPConnection::Read()
         RxBufferEmpty = true;
     }
 
-    //if( CurrentWindow == TCP_RX_WINDOW_SIZE && LastAck != AcknowledgementNumber )
+    // if( CurrentWindow == TCP_RX_WINDOW_SIZE && LastAck != AcknowledgementNumber )
     //{
     //   // The Rx buffer is empty, might as well ack
     //   Send( FLAG_ACK );

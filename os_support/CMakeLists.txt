@@ -1,4 +1,4 @@
-add_library (osSupport
+add_library (os_support
     osEvent.cpp
     osMutex.cpp
     osQueue.cpp

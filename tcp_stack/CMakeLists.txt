@@ -16,5 +16,5 @@ set( SOURCE
     Config.hpp
     )
 add_library( ${LIB} ${SOURCE} )
-add_dependencies( ${LIB} osSupport )
-include_directories( ../osSupport )
+add_dependencies( ${LIB} os_support )
+include_directories( ../os_support )

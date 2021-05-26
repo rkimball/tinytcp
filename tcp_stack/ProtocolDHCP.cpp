@@ -86,18 +86,32 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
     (void)giaddr;
     (void)magic;
 
-    //   printf( "op = %d\n", op );
-    //   printf( "htype = %d\n", htype );
-    //   printf( "hlen = %d\n", hlen );
-    //   printf( "hops = %d\n", hops );
-    //   printf( "xid = 0x%0X\n", xid );
-    //   printf( "secs = %d\n", secs );
-    //   printf( "flags = %d\n", flags );
-    //   printf( "ciaddr = %d.%d.%d.%d\n", ciaddr[0], ciaddr[1], ciaddr[2], ciaddr[3] ); // (Client IP address)
-    //   printf( "yiaddr = %d.%d.%d.%d\n", yiaddr[ 0 ], yiaddr[ 1 ], yiaddr[ 2 ], yiaddr[ 3 ] ); // (Your IP address)
-    //   printf( "siaddr = %d.%d.%d.%d\n", siaddr[ 0 ], siaddr[ 1 ], siaddr[ 2 ], siaddr[ 3 ] ); // (Server IP address)
-    //   printf( "giaddr = %d.%d.%d.%d\n", giaddr[ 0 ], giaddr[ 1 ], giaddr[ 2 ], giaddr[ 3 ] ); // (Gateway IP address)
-    //   printf( "magic = 0x%0X\n", magic );
+    // printf("op = %d\n", op);
+    // printf("htype = %d\n", htype);
+    // printf("hlen = %d\n", hlen);
+    // printf("hops = %d\n", hops);
+    // printf("xid = 0x%0X\n", xid);
+    // printf("secs = %d\n", secs);
+    // printf("flags = %d\n", flags);
+    // printf("ciaddr = %d.%d.%d.%d\n",
+    //        ciaddr[0],
+    //        ciaddr[1],
+    //        ciaddr[2],
+    //        ciaddr[3]); // (Client IP address)
+    // printf(
+    //     "yiaddr = %d.%d.%d.%d\n", yiaddr[0], yiaddr[1], yiaddr[2], yiaddr[3]); // (Your IP
+    //     address)
+    // printf("siaddr = %d.%d.%d.%d\n",
+    //        siaddr[0],
+    //        siaddr[1],
+    //        siaddr[2],
+    //        siaddr[3]); // (Server IP address)
+    // printf("giaddr = %d.%d.%d.%d\n",
+    //        giaddr[0],
+    //        giaddr[1],
+    //        giaddr[2],
+    //        giaddr[3]); // (Gateway IP address)
+    // printf("magic = 0x%0X\n", magic);
 
     // Parse Options
     size_t offset = 240;
@@ -108,7 +122,7 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
     {
         uint8_t option = Unpack8(buffer->Packet, offset++);
         uint8_t length = Unpack8(buffer->Packet, offset++);
-        //printf( "option %d, length %d\n", option, length );
+        // printf( "option %d, length %d\n", option, length );
         for (int i = 0; i < length; i++)
             optionData[i] = Unpack8(buffer->Packet, offset++);
         switch (option)
