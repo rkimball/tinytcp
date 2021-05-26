@@ -40,8 +40,8 @@
 #endif
 
 #include "DefaultStack.hpp"
-#include "HTTPD.hpp"
-#include "HTTPPage.hpp"
+#include "httpd.hpp"
+#include "http_page.hpp"
 #include "InterfaceMAC.hpp"
 #include "PacketIO.hpp"
 #include "ProtocolARP.hpp"

@@ -1,7 +1,9 @@
-set( LIB web_server )
-set( SOURCE
-    HTTPD.cpp
-    HTTPPage.cpp
-    )
-add_library(${LIB} ${SOURCE})
-include_directories( ../tcpStack ../os_support )
+set(SOURCE
+    httpd.cpp
+    http_page.cpp
+)
+add_library(web_server ${SOURCE})
+target_link_libraries(web_server
+    os_support
+    tcpStack
+)

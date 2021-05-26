@@ -33,8 +33,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "HTTPD.hpp"
-#include "HTTPPage.hpp"
+#include "httpd.hpp"
+#include "http_page.hpp"
 #include "ProtocolTCP.hpp"
 //#include "base64.h"
 #include "osQueue.hpp"
