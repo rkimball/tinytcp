@@ -6,11 +6,10 @@ include(ExternalProject)
 ExternalProject_Add(
     gtest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG     release-1.8.0
+    GIT_TAG     release-1.10.0
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
     # Disable install step
     INSTALL_COMMAND ""
-    UPDATE_COMMAND ""
 )
 
 # Get GTest source and binary directories from CMake project
@@ -23,7 +22,7 @@ target_include_directories(libgtest SYSTEM INTERFACE
     ${SOURCE_DIR}/googletest/include
     ${SOURCE_DIR}/googlemock/include)
 target_link_libraries(libgtest INTERFACE
-    ${BINARY_DIR}/googlemock/gtest//${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 if(NOT WIN32)
     target_link_libraries(libgtest INTERFACE pthread)
@@ -31,7 +30,6 @@ endif()
 
 set (SRC
     main.cpp
-    network.cpp
     util.cpp
 )
 
