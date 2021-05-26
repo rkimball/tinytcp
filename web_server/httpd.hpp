@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include "HTTPPage.hpp"
+#include "http_page.hpp"
 
 #define MAX_ACTIVE_CONNECTIONS 3
 #define HTTPD_PATH_LENGTH_MAX 256

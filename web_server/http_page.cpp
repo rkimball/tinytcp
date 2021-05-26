@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "HTTPPage.hpp"
+#include "http_page.hpp"
 #include "osThread.hpp"
 
 #ifdef WIN32
