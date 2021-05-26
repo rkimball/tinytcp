@@ -39,7 +39,7 @@ void RxData(uint8_t* data, size_t length)
     std::cout << "Rx " << length << std::endl;
 }
 
-TEST(network, raw_socket)
+TEST(DISABLED_network, raw_socket)
 {
 #ifdef _WIN32
     NetworkConfig& config = *(NetworkConfig*)param;
