@@ -39,7 +39,7 @@
 #include "ProtocolIPv4.hpp"
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
-#include "osTime.hpp"
+#include "time.hpp"
 
 static const uint32_t DHCP_MAGIC = 0x63825363;
 

@@ -39,8 +39,8 @@
 #include "ProtocolIPv4.hpp"
 #include "ProtocolTCP.hpp"
 #include "Utility.hpp"
-#include "osMutex.hpp"
-#include "osTime.hpp"
+#include "mutex.hpp"
+#include "time.hpp"
 
 ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
     : IP(ip)

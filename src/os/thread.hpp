@@ -34,75 +34,77 @@
 #include <inttypes.h>
 #include <iostream>
 
-#include "DataBuffer.hpp"
-#include "InterfaceMAC.hpp"
-#include "osQueue.hpp"
+#ifndef _WIN32
+#include <pthread.h>
+#include <sched.h>
+#include <setjmp.h>
+#endif
 
-class ProtocolARP;
-class ProtocolICMP;
-class ProtocolTCP;
-class ProtocolUDP;
+#include "event.hpp"
 
-class ProtocolIPv4
+typedef void (*ThreadEntryPtr)(void*);
+
+class osThread
 {
-private:
-    friend class TCPConnection;
-    static const int ADDRESS_SIZE = 4;
-
 public:
-    struct AddressInfo
+    typedef enum
     {
-        bool DataValid;
-        uint8_t Address[ADDRESS_SIZE];
-        uint32_t IpAddressLeaseTime;
-        uint32_t RenewTime;
-        uint32_t RebindTime;
-        uint8_t SubnetMask[ADDRESS_SIZE];
-        uint8_t Gateway[ADDRESS_SIZE];
-        uint8_t DomainNameServer[ADDRESS_SIZE];
-        uint8_t BroadcastAddress[ADDRESS_SIZE];
-    };
+        INIT,
+        RUNNING,
+        PENDING_MUTEX,
+        PENDING_EVENT,
+        SLEEPING
+    } THREAD_STATE;
 
-    ProtocolIPv4(InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP&);
-    void Initialize();
+    osThread();
 
-    void ProcessRx(DataBuffer*);
+    ~osThread();
 
-    void Transmit(DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP);
-    void Retransmit(DataBuffer*);
+    static void Initialize();
 
-    void Retry();
+    int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
 
-    size_t AddressSize();
-    const uint8_t* GetUnicastAddress();
-    const uint8_t* GetBroadcastAddress();
-    const uint8_t* GetGatewayAddress();
-    const uint8_t* GetSubnetMask();
-    void SetAddressInfo(const AddressInfo& info);
+    void WaitForExit(int32_t millisecondWaitTimeout = -1);
 
-    DataBuffer* GetTxBuffer(InterfaceMAC*);
-    void FreeTxBuffer(DataBuffer*);
-    void FreeRxBuffer(DataBuffer*);
+    static void Sleep(unsigned long ms, const char* file, int line);
 
-    static size_t header_size() { return 20; }
+    static void USleep(unsigned long us, const char* file, int line);
 
-    friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
+    void SetState(THREAD_STATE state, const char* file, int line, void* obj);
+
+    void ClearState();
+
+    static osThread* GetCurrent();
+
+    const char* GetName();
+
+#ifdef _WIN32
+    void* GetHandle();
+
+    uint32_t GetThreadId();
+    uint32_t ThreadId;
+
+    void* Handle;
+#elif __linux__
+    uint32_t GetHandle();
+
+    pthread_t m_thread;
+    ThreadEntryPtr Entry;
+    void* Param;
+#endif
+    osEvent ThreadStart;
+
+    static void dump_info(std::ostream&);
+
+    static const int32_t STATE_LENGTH_MAX = 81;
+    int32_t Priority;
+    unsigned long USleepTime;
+    static const int32_t NAME_LENGTH_MAX = 32;
 
 private:
-    bool IsLocal(const uint8_t* addr);
-
-    uint16_t PacketID;
-    void* TxBuffer[TX_BUFFER_COUNT];
-    osQueue UnresolvedQueue;
-
-    AddressInfo Address;
-
-    InterfaceMAC& MAC;
-    ProtocolARP& ARP;
-    ProtocolICMP& ICMP;
-    ProtocolTCP& TCP;
-    ProtocolUDP& UDP;
-
-    ProtocolIPv4();
-    ProtocolIPv4(ProtocolIPv4&);
+    char Name[NAME_LENGTH_MAX];
+    const char* Filename;
+    int Linenumber;
+    THREAD_STATE State;
+    void* StateObject;
 };

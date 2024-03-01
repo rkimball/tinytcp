@@ -31,80 +31,46 @@
 
 #pragma once
 
-#include <inttypes.h>
 #include <iostream>
 
-#ifndef _WIN32
-#include <pthread.h>
-#include <sched.h>
-#include <setjmp.h>
-#endif
+#include "mutex.hpp"
 
-#include "osEvent.hpp"
-
-typedef void (*ThreadEntryPtr)(void*);
-
-class osThread
+class osQueue
 {
 public:
-    typedef enum
-    {
-        INIT,
-        RUNNING,
-        PENDING_MUTEX,
-        PENDING_EVENT,
-        SLEEPING
-    } THREAD_STATE;
-
-    osThread();
-
-    ~osThread();
-
-    static void Initialize();
-
-    int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
-
-    void WaitForExit(int32_t millisecondWaitTimeout = -1);
-
-    static void Sleep(unsigned long ms, const char* file, int line);
-
-    static void USleep(unsigned long us, const char* file, int line);
-
-    void SetState(THREAD_STATE state, const char* file, int line, void* obj);
-
-    void ClearState();
-
-    static osThread* GetCurrent();
+    osQueue(const char* name, int count, void** dataBuffer);
 
     const char* GetName();
 
-#ifdef _WIN32
-    void* GetHandle();
+    void* Peek();
 
-    uint32_t GetThreadId();
-    uint32_t ThreadId;
+    void* Get();
 
-    void* Handle;
-#elif __linux__
-    uint32_t GetHandle();
+    bool Put(void* item);
 
-    pthread_t m_thread;
-    ThreadEntryPtr Entry;
-    void* Param;
-#endif
-    osEvent ThreadStart;
+    int GetCount();
+
+    void Flush();
+
+    bool Contains(void* object);
 
     static void dump_info(std::ostream&);
 
-    static const int32_t STATE_LENGTH_MAX = 81;
-    int32_t Priority;
-    unsigned long USleepTime;
-    static const int32_t NAME_LENGTH_MAX = 32;
-
 private:
-    char Name[NAME_LENGTH_MAX];
-    const char* Filename;
-    int Linenumber;
-    THREAD_STATE State;
-    void* StateObject;
+    int Increment(int index)
+    {
+        if (++index >= MaxElements)
+        {
+            index = 0;
+        }
+        return index;
+    }
+
+    void** Array;
+    const char* Name;
+    int NextInIndex;
+    int NextOutIndex;
+    int MaxElements;
+    int ElementCount;
+    osMutex Lock;
 };

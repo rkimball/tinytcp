@@ -35,7 +35,7 @@
 #include "ProtocolTCP.hpp"
 #include "TCPConnection.hpp"
 #include "Utility.hpp"
-#include "osTime.hpp"
+#include "time.hpp"
 
 TCPConnection::TCPConnection()
     : RxInOffset(0)

@@ -1,5 +1,4 @@
-set( LIB tcpStack )
-set( SOURCE
+add_library(tinytcp
     DataBuffer.cpp
     FCS.cpp
     ProtocolARP.cpp
@@ -14,7 +13,10 @@ set( SOURCE
     InterfaceMAC.hpp
     DefaultStack.cpp
     Config.hpp
-    )
-add_library( ${LIB} ${SOURCE} )
-add_dependencies( ${LIB} os_support )
-include_directories( ../os_support )
+)
+
+# add dependencies for os
+target_include_directories(tinytcp PUBLIC ../os)
+
+# target_link_directories(tinytcp PUBLIC os)
+add_dependencies(tinytcp os)

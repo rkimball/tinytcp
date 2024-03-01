@@ -1,12 +1,12 @@
-cmake_minimum_required (VERSION 3.0)
-set (CMAKE_DISABLE_SOURCE_CHANGES ON)
-set (CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+cmake_minimum_required(VERSION 3.0)
+set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-project (tinytcp)
+project(tinytcp)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=return-type")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=inconsistent-missing-override")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=non-virtual-dtor")
@@ -48,21 +48,26 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-double-promotion")
 endif()
 
-add_subdirectory (os_support)
-add_subdirectory (tcp_stack)
-include_directories(tcp_stack os_support)
-add_subdirectory (web_server)
-add_subdirectory (packet_io)
-include_directories (packet_io)
-add_subdirectory (test_app)
-add_subdirectory (test)
+add_subdirectory(src)
+# add_subdirectory(src/tinytcp)
+# include_directories(tcp_stack os_support)
+# add_subdirectory(src/web_server)
+# add_subdirectory(packet_io)
+# include_directories(packet_io)
+# add_subdirectory(test_app)
+# add_subdirectory(test)
 
-set (CLANG_FORMAT clang-format-10)
+set(CLANG_FORMAT clang-format-10)
 add_custom_target(format
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/os_support/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/packet_io/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/tcp_stack/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test_app/*.?pp
-    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/web_server/*.?pp
+    COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/src/os/*.?pp
+    # COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/packet_io/*.?pp
+    # COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/tcp_stack/*.?pp
+    # COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test/*.?pp
+    # COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/test_app/*.?pp
+    # COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/web_server/*.?pp
 )
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+  message(STATUS "dir='${dir}'")
+endforeach()

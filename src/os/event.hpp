@@ -34,70 +34,40 @@
 #include <inttypes.h>
 #include <iostream>
 
-#include "DataBuffer.hpp"
-#include "InterfaceMAC.hpp"
-#include "ProtocolIPv4.hpp"
-#include "osMutex.hpp"
+#ifdef __linux__
+#include "pthread.h"
+#endif
 
-class ARPCacheEntry
+#include "mutex.hpp"
+
+class osEvent
 {
 public:
-    ARPCacheEntry();
-    uint8_t Age;
-    uint8_t IPv4Address[4];
-    uint8_t MACAddress[6];
-};
+    osEvent(const char* name);
 
-// HardwareType - 2 bytes
-// ProtocolType - 2 bytes
-// HardwareSize - 1 byte, size int bytes of HardwareAddress fields
-// IPv4AddressSize - 1 byte, size int bytes of ProtocolAddress fields
-// SenderHardwareAddress - HardwareSize bytes
-// SenderProtocolAddress - IPv4AddressSize bytes
-// TargetHardwareAddress - HardwareSize bytes
-// TargetProtocolAddress - IPv4AddressSize bytes
+    ~osEvent();
 
-class ProtocolARP
-{
-public:
-    ProtocolARP(InterfaceMAC& mac, ProtocolIPv4& ip);
-    void Initialize();
+    void Notify();
 
-    void ProcessRx(const DataBuffer*);
+    bool Wait(const char* file, int line, int msTimeout = -1);
 
-    void Add(const uint8_t* protocolAddress, const uint8_t* hardwareAddress);
+    const char* GetName();
 
-    const uint8_t* Protocol2Hardware(const uint8_t* protocolAddress);
-    bool IsLocal(const uint8_t* protocolAddress);
-    bool IsBroadcast(const uint8_t* protocolAddress);
-
-    friend std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj);
+    static void dump_info(std::ostream&);
 
 private:
-    struct ARPInfo
-    {
-        uint16_t hardwareType;
-        uint16_t protocolType;
-        uint8_t hardwareSize;
-        uint8_t protocolSize;
-        uint16_t opType;
-        uint8_t* senderHardwareAddress;
-        uint8_t* senderProtocolAddress;
-        uint8_t* targetHardwareAddress;
-        uint8_t* targetProtocolAddress;
-    };
+#ifdef _WIN32
+    void* Handle;
+#elif __linux__
+    pthread_mutex_t m_mutex;
+    pthread_cond_t m_condition;
+    bool m_test;
+#endif
+    static const int NAME_LENGTH_MAX = 80;
+    char Name[NAME_LENGTH_MAX];
+    osThread* pending;
 
-    void SendReply(const ARPInfo& info);
-    void SendRequest(const uint8_t* targetIP);
-    int LocateProtocolAddress(const uint8_t* protocolAddress);
-
-    DataBuffer ARPRequest;
-
-    ARPCacheEntry Cache[ARPCacheSize];
-
-    InterfaceMAC& MAC;
-    ProtocolIPv4& IP;
-
-    ProtocolARP();
-    ProtocolARP(ProtocolARP&);
+    static osMutex ListMutex;
+    static const int INSTANCE_MAX = 20;
+    static osEvent* InstanceList[];
 };

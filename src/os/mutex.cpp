@@ -36,8 +36,8 @@
 #include <stdio.h>
 #include <string>
 
-#include "osMutex.hpp"
-#include "osThread.hpp"
+#include "mutex.hpp"
+#include "thread.hpp"
 
 osMutex* osMutex::MutexList[MAX_MUTEX];
 

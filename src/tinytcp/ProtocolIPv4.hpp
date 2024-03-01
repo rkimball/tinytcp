@@ -34,40 +34,75 @@
 #include <inttypes.h>
 #include <iostream>
 
-#ifdef __linux__
-#include "pthread.h"
-#endif
+#include "DataBuffer.hpp"
+#include "InterfaceMAC.hpp"
+#include "queue.hpp"
 
-#include "osMutex.hpp"
+class ProtocolARP;
+class ProtocolICMP;
+class ProtocolTCP;
+class ProtocolUDP;
 
-class osEvent
+class ProtocolIPv4
 {
+private:
+    friend class TCPConnection;
+    static const int ADDRESS_SIZE = 4;
+
 public:
-    osEvent(const char* name);
+    struct AddressInfo
+    {
+        bool DataValid;
+        uint8_t Address[ADDRESS_SIZE];
+        uint32_t IpAddressLeaseTime;
+        uint32_t RenewTime;
+        uint32_t RebindTime;
+        uint8_t SubnetMask[ADDRESS_SIZE];
+        uint8_t Gateway[ADDRESS_SIZE];
+        uint8_t DomainNameServer[ADDRESS_SIZE];
+        uint8_t BroadcastAddress[ADDRESS_SIZE];
+    };
 
-    ~osEvent();
+    ProtocolIPv4(InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP&);
+    void Initialize();
 
-    void Notify();
+    void ProcessRx(DataBuffer*);
 
-    bool Wait(const char* file, int line, int msTimeout = -1);
+    void Transmit(DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP);
+    void Retransmit(DataBuffer*);
 
-    const char* GetName();
+    void Retry();
 
-    static void dump_info(std::ostream&);
+    size_t AddressSize();
+    const uint8_t* GetUnicastAddress();
+    const uint8_t* GetBroadcastAddress();
+    const uint8_t* GetGatewayAddress();
+    const uint8_t* GetSubnetMask();
+    void SetAddressInfo(const AddressInfo& info);
+
+    DataBuffer* GetTxBuffer(InterfaceMAC*);
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
+
+    static size_t header_size() { return 20; }
+
+    friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
 
 private:
-#ifdef _WIN32
-    void* Handle;
-#elif __linux__
-    pthread_mutex_t m_mutex;
-    pthread_cond_t m_condition;
-    bool m_test;
-#endif
-    static const int NAME_LENGTH_MAX = 80;
-    char Name[NAME_LENGTH_MAX];
-    osThread* pending;
+    bool IsLocal(const uint8_t* addr);
 
-    static osMutex ListMutex;
-    static const int INSTANCE_MAX = 20;
-    static osEvent* InstanceList[];
+    uint16_t PacketID;
+    void* TxBuffer[TX_BUFFER_COUNT];
+    osQueue UnresolvedQueue;
+
+    AddressInfo Address;
+
+    InterfaceMAC& MAC;
+    ProtocolARP& ARP;
+    ProtocolICMP& ICMP;
+    ProtocolTCP& TCP;
+    ProtocolUDP& UDP;
+
+    ProtocolIPv4();
+    ProtocolIPv4(ProtocolIPv4&);
 };

@@ -34,7 +34,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "osQueue.hpp"
+#include "queue.hpp"
 
 static const size_t MAX_QUEUE_COUNT = 20;
 static osQueue* QueueList[MAX_QUEUE_COUNT];

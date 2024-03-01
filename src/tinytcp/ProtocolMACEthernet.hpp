@@ -31,46 +31,64 @@
 
 #pragma once
 
-#include <iostream>
+#include <inttypes.h>
 
-#include "osMutex.hpp"
+#include "DataBuffer.hpp"
+#include "InterfaceMAC.hpp"
+#include "event.hpp"
+#include "queue.hpp"
 
-class osQueue
+class ProtocolARP;
+class ProtocolIPv4;
+
+class ProtocolMACEthernet : public InterfaceMAC
 {
 public:
-    osQueue(const char* name, int count, void** dataBuffer);
+    ProtocolMACEthernet(ProtocolARP&, ProtocolIPv4&);
+    void RegisterDataTransmitHandler(DataTransmitHandler);
 
-    const char* GetName();
+    void ProcessRx(uint8_t* buffer, int length);
 
-    void* Peek();
+    void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type);
+    void Retransmit(DataBuffer* buffer);
 
-    void* Get();
+    DataBuffer* GetTxBuffer();
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
 
-    bool Put(void* item);
+    size_t AddressSize() const;
+    size_t HeaderSize() const;
 
-    int GetCount();
+    const uint8_t* GetUnicastAddress() const;
+    const uint8_t* GetBroadcastAddress() const;
 
-    void Flush();
+    void SetUnicastAddress(uint8_t* addr);
+    static size_t header_size() { return 14; }
 
-    bool Contains(void* object);
-
-    static void dump_info(std::ostream&);
+    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
 
 private:
-    int Increment(int index)
-    {
-        if (++index >= MaxElements)
-        {
-            index = 0;
-        }
-        return index;
-    }
+    static const int ADDRESS_SIZE = 6;
+    osQueue TxBufferQueue;
+    osQueue RxBufferQueue;
 
-    void** Array;
-    const char* Name;
-    int NextInIndex;
-    int NextOutIndex;
-    int MaxElements;
-    int ElementCount;
-    osMutex Lock;
+    osEvent QueueEmptyEvent;
+
+    uint8_t UnicastAddress[ADDRESS_SIZE];
+    uint8_t BroadcastAddress[ADDRESS_SIZE];
+
+    DataBuffer TxBuffer[TX_BUFFER_COUNT];
+    DataBuffer RxBuffer[RX_BUFFER_COUNT];
+
+    void* TxBufferBuffer[TX_BUFFER_COUNT];
+    void* RxBufferBuffer[RX_BUFFER_COUNT];
+
+    DataTransmitHandler TxHandler;
+    ProtocolARP& ARP;
+    ProtocolIPv4& IPv4;
+
+    bool IsLocalAddress(const uint8_t* addr);
+
+    ProtocolMACEthernet(ProtocolMACEthernet&);
+    ProtocolMACEthernet();
 };

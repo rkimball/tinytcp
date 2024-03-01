@@ -29,66 +29,75 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#pragma once
+#ifdef _WIN32
+#include <Windows.h>
+#elif __linux__
+#include <time.h>
+#endif
+#include <stdio.h>
 
-#include <inttypes.h>
+#include "time.hpp"
 
-#include "DataBuffer.hpp"
-#include "InterfaceMAC.hpp"
-#include "osEvent.hpp"
-#include "osQueue.hpp"
-
-class ProtocolARP;
-class ProtocolIPv4;
-
-class ProtocolMACEthernet : public InterfaceMAC
+uint64_t osTime::GetTime()
 {
-public:
-    ProtocolMACEthernet(ProtocolARP&, ProtocolIPv4&);
-    void RegisterDataTransmitHandler(DataTransmitHandler);
+#ifdef _WIN32
+    FILETIME ftime;
+    uint64_t time;
 
-    void ProcessRx(uint8_t* buffer, int length);
+    // Time in 100ns ticks
+    GetSystemTimeAsFileTime(&ftime);
 
-    void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type);
-    void Retransmit(DataBuffer* buffer);
+    time = ftime.dwHighDateTime;
+    time <<= 32;
+    time += ftime.dwLowDateTime;
 
-    DataBuffer* GetTxBuffer();
-    void FreeTxBuffer(DataBuffer*);
-    void FreeRxBuffer(DataBuffer*);
+    return time;
+#elif __linux__
+    timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    uint64_t rc = ts.tv_sec * 1000000 + (ts.tv_nsec / 1000);
+    return rc;
+#endif
+}
 
-    size_t AddressSize() const;
-    size_t HeaderSize() const;
+const char* osTime::GetTimestamp()
+{
+    static char s[64];
+    uint32_t seconds;
+    uint32_t sec;
+    uint32_t min;
+    uint32_t hour;
+    uint64_t time;
 
-    const uint8_t* GetUnicastAddress() const;
-    const uint8_t* GetBroadcastAddress() const;
+    time = GetTime();
 
-    void SetUnicastAddress(uint8_t* addr);
-    static size_t header_size() { return 14; }
+    seconds = (uint32_t)(time / 1000000);
 
-    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
+    sec = seconds % 60;
 
-private:
-    static const int ADDRESS_SIZE = 6;
-    osQueue TxBufferQueue;
-    osQueue RxBufferQueue;
+    min = seconds / 60;
+    min %= 60;
 
-    osEvent QueueEmptyEvent;
+    hour = seconds / (60 * 60);
+    hour %= 24;
 
-    uint8_t UnicastAddress[ADDRESS_SIZE];
-    uint8_t BroadcastAddress[ADDRESS_SIZE];
-
-    DataBuffer TxBuffer[TX_BUFFER_COUNT];
-    DataBuffer RxBuffer[RX_BUFFER_COUNT];
-
-    void* TxBufferBuffer[TX_BUFFER_COUNT];
-    void* RxBufferBuffer[RX_BUFFER_COUNT];
-
-    DataTransmitHandler TxHandler;
-    ProtocolARP& ARP;
-    ProtocolIPv4& IPv4;
-
-    bool IsLocalAddress(const uint8_t* addr);
-
-    ProtocolMACEthernet(ProtocolMACEthernet&);
-    ProtocolMACEthernet();
-};
+#ifdef OSTIME_SHOW_PROCESSOR_TIMESTAMP
+    struct _timeb timebuffer;
+    _ftime(&timebuffer);
+    char* timeline;
+    timeline = ctime(&(timebuffer.time));
+    timeline = strchr(timeline, ':') - 2;
+    snprintf(s,
+             sizeof(s),
+             "%.8s.%hu(%u:%02u:%02u.%03u)",
+             timeline,
+             timebuffer.millitm,
+             hour,
+             min,
+             sec,
+             (uint32_t)((time / 1000) % 1000));
+#else
+    snprintf(s, sizeof(s), "%u:%02u:%02u.%03u", hour, min, sec, (uint32_t)((time / 1000) % 1000));
+#endif
+    return s;
+}
