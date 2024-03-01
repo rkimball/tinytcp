@@ -75,6 +75,21 @@ void ProtocolMACEthernet::RegisterDataTransmitHandler(DataTransmitHandler handle
 
 bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 {
+    uint8_t ZeroAddress[6];
+
+    ZeroAddress[0] = 0;
+    ZeroAddress[1] = 0;
+    ZeroAddress[2] = 0;
+    ZeroAddress[3] = 0;
+    ZeroAddress[4] = 0;
+    ZeroAddress[5] = 0;
+    if (!AddressCompare(ZeroAddress, addr, 6))
+    {
+        printf("UnicastAddress: %s\n", macaddrtoa(UnicastAddress));
+        printf("BroadcastAddress: %s\n", macaddrtoa(BroadcastAddress));
+        printf("addr: %s\n", macaddrtoa(addr));
+    }
+
     return AddressCompare(UnicastAddress, addr, 6) || AddressCompare(BroadcastAddress, addr, 6);
 }
 
