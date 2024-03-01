@@ -6,7 +6,7 @@ include(ExternalProject)
 ExternalProject_Add(
     gtest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG     release-1.10.0
+    GIT_TAG v1.14.x
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
     # Disable install step
     INSTALL_COMMAND ""

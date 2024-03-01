@@ -27,8 +27,8 @@ DHCP got address 192.168.1.23
 ```
 so you will point your browser at http://192.168.1.23 in this example
 ### Linux
-Linux build has been tested on Ubuntu 14.04 and 16.04. It works fine in a Windows Hyper-v VM
-install of Ubuntu. tinytcp does not support in-tree building.
+Linux build has been tested on Ubuntu 22.04. It works fine in a Windows Hyper-v VM
+install of Ubuntu.
 
 ```
 mkdir myproject
@@ -56,6 +56,9 @@ so you will point your browser at http://192.168.1.23 in this example
 VM's network adapter. To do this go to the VM's settings page, expand the *Network Adapter* node in
 the left panel, and select *Advanced Features*. Now, in the panel on the right check the
 *Enable MAC address spoofing* checkbox and select *Apply* to apply the setting.
+
+![hyper-v setting](images/mac_spoofing.png)
+
 ## Usage
 The protocol stack has three main functions required
 
