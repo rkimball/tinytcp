@@ -40,13 +40,13 @@
 #endif
 
 #include "DefaultStack.hpp"
-#include "httpd.hpp"
-#include "http_page.hpp"
 #include "InterfaceMAC.hpp"
 #include "PacketIO.hpp"
 #include "ProtocolARP.hpp"
 #include "ProtocolDHCP.hpp"
 #include "ProtocolTCP.hpp"
+#include "http_page.hpp"
+#include "httpd.hpp"
 #include "osMutex.hpp"
 #include "osThread.hpp"
 #include "osTime.hpp"
