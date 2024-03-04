@@ -95,7 +95,7 @@ std::string http::Page::HTMLEncode(const std::string& str)
 {
     std::string rc;
     std::stringstream ss;
-    for (int i = 0; i < str.size(); i++)
+    for (size_t i = 0; i < str.size(); i++)
     {
         switch (str[i])
         {
@@ -164,8 +164,8 @@ void http::Page::SendASCIIString(const char* string)
 
 void http::Page::DumpData(const char* buffer, size_t length)
 {
-    int i;
-    int j;
+    size_t i;
+    size_t j;
     std::ostream& out = get_output_stream();
 
     i = 0;

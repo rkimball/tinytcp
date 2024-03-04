@@ -62,7 +62,7 @@ typedef struct WinThreadParam
     ThreadEntryPtr Entry;
     void* Param;
     osThread* Thread;
-} * WINTHREADPARAMPTR;
+}* WINTHREADPARAMPTR;
 
 osThread::osThread()
     : ThreadStart("ThreadStart")

@@ -105,8 +105,7 @@ void ProtocolARP::ProcessRx(const DataBuffer* buffer)
 void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAddress)
 {
     int index;
-    int i;
-    int j;
+    uint32_t i;
     int oldest;
 
     index = LocateProtocolAddress(protocolAddress);
@@ -142,11 +141,11 @@ void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAdd
 
         // At this point i is the entry we want to use
         Cache[i].Age = 1;
-        for (j = 0; j < IP.AddressSize(); j++)
+        for (size_t j = 0; j < IP.AddressSize(); j++)
         {
             Cache[i].IPv4Address[j] = protocolAddress[j];
         }
-        for (j = 0; j < MAC.AddressSize(); j++)
+        for (size_t j = 0; j < MAC.AddressSize(); j++)
         {
             Cache[i].MACAddress[j] = hardwareAddress[j];
         }
@@ -284,7 +283,7 @@ const uint8_t* ProtocolARP::Protocol2Hardware(const uint8_t* protocolAddress)
 bool ProtocolARP::IsBroadcast(const uint8_t* protocolAddress)
 {
     bool rc = true;
-    for (int i = 0; i < IP.AddressSize(); i++)
+    for (uint32_t i = 0; i < IP.AddressSize(); i++)
     {
         if (protocolAddress[i] != 0xFF)
         {
@@ -297,7 +296,7 @@ bool ProtocolARP::IsBroadcast(const uint8_t* protocolAddress)
 
 bool ProtocolARP::IsLocal(const uint8_t* protocolAddress)
 {
-    int i;
+    uint32_t i;
 
     for (i = 0; i < IP.AddressSize(); i++)
     {

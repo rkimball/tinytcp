@@ -49,9 +49,9 @@ const char* ipv4toa(uint32_t addr);
 const char* ipv4toa(const uint8_t* addr);
 const char* macaddrtoa(const uint8_t* addr);
 
-uint8_t Unpack8(const uint8_t* p, size_t offset, size_t size = 1);
-uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size = 2);
-uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size = 4);
+uint8_t Unpack8(const uint8_t* p, size_t offset);
+uint16_t Unpack16(const uint8_t* p, size_t offset);
+uint32_t Unpack32(const uint8_t* p, size_t offset);
 size_t Pack8(uint8_t* p, size_t offset, uint8_t value);
 size_t Pack16(uint8_t* p, size_t offset, uint16_t value);
 size_t Pack32(uint8_t* p, size_t offset, uint32_t value);
