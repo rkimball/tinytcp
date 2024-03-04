@@ -329,10 +329,10 @@ void PacketIO::DisplayDevices()
 
             printf("%-8s %s (%d)\n",
                    ifa->ifa_name,
-                   (family == AF_PACKET)
-                       ? "AF_PACKET"
-                       : (family == AF_INET) ? "AF_INET"
-                                             : (family == AF_INET6) ? "AF_INET6" : "???",
+                   (family == AF_PACKET) ? "AF_PACKET"
+                   : (family == AF_INET) ? "AF_INET"
+                   : (family == AF_INET6) ? "AF_INET6"
+                                          : "???",
                    family);
         }
         freeifaddrs(ifaddr);

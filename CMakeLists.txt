@@ -57,7 +57,7 @@ include_directories (packet_io)
 add_subdirectory (test_app)
 add_subdirectory (test)
 
-set (CLANG_FORMAT clang-format-10)
+set (CLANG_FORMAT clang-format-14)
 add_custom_target(format
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/os_support/*.?pp
     COMMAND ${CLANG_FORMAT} -i ${PROJECT_SOURCE_DIR}/packet_io/*.?pp

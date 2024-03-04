@@ -124,7 +124,9 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
         uint8_t length = Unpack8(buffer->Packet, offset++);
         // printf( "option %d, length %d\n", option, length );
         for (int i = 0; i < length; i++)
+        {
             optionData[i] = Unpack8(buffer->Packet, offset++);
+        }
         switch (option)
         {
         case 53: // DHCP Message Type
@@ -141,20 +143,28 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
             break;
         case 1: // Subnet Mask
             for (int i = 0; i < 4; i++)
+            {
                 ipv4Data.SubnetMask[i] = optionData[i];
+            }
             break;
         case 3: // Router
             for (int i = 0; i < 4; i++)
+            {
                 ipv4Data.Gateway[i] = optionData[i];
+            }
             break;
         case 6: // DNS
             for (int i = 0; i < 4; i++)
+            {
                 ipv4Data.DomainNameServer[i] = optionData[i];
+            }
             // There could be more, but just take one for now
             break;
         case 28: // Broadcast Address
             for (int i = 0; i < 4; i++)
+            {
                 ipv4Data.BroadcastAddress[i] = optionData[i];
+            }
             break;
         case 255: offset = buffer->Remainder; break;
         }
@@ -173,7 +183,9 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
         case 5: // ack
         {
             for (int i = 0; i < 4; i++)
+            {
                 ipv4Data.Address[i] = yiaddr[i];
+            }
             ipv4Data.DataValid = true;
             IP.SetAddressInfo(ipv4Data);
             const uint8_t* addr = IP.GetUnicastAddress();
@@ -231,13 +243,21 @@ void ProtocolDHCP::Discover()
         buffer->Length = Pack32(buffer->Packet, buffer->Length, 0);          // (Server IP address)
         buffer->Length = Pack32(buffer->Packet, buffer->Length, 0);          // (Gateway IP address)
         for (i = 0; i < 6; i++)
+        {
             buffer->Packet[buffer->Length++] = MAC.GetUnicastAddress()[i];
+        }
         for (; i < 16; i++)
+        {
             buffer->Packet[buffer->Length++] = 0; // pad chaddr to 16 bytes
+        }
         for (i = 0; i < 64; i++)
+        {
             buffer->Packet[buffer->Length++] = 0; // sname
+        }
         for (i = 0; i < 128; i++)
+        {
             buffer->Packet[buffer->Length++] = 0; // file
+        }
         buffer->Length = Pack32(buffer->Packet, buffer->Length, DHCP_MAGIC);
 
         // Add options
@@ -250,14 +270,18 @@ void ProtocolDHCP::Discover()
         buffer->Packet[buffer->Length++] = 7; // length
         buffer->Packet[buffer->Length++] = 1; // type is hardware address
         for (i = 0; i < 6; i++)
+        {
             buffer->Packet[buffer->Length++] = MAC.GetUnicastAddress()[i];
+        }
 
         // host name
         const char* name = "tinytcp";
         buffer->Packet[buffer->Length++] = 12;
         buffer->Packet[buffer->Length++] = strlen(name);
         for (i = 0; i < strlen(name); i++)
+        {
             buffer->Packet[buffer->Length++] = name[i];
+        }
 
         // parameter request list
         buffer->Packet[buffer->Length++] = 55;
@@ -271,7 +295,9 @@ void ProtocolDHCP::Discover()
 
         int pad = 8;
         for (i = 0; i < pad; i++)
+        {
             buffer->Packet[buffer->Length++] = 0;
+        }
 
         uint8_t sourceIP[] = {0, 0, 0, 0};
         uint8_t targetIP[] = {255, 255, 255, 255};
@@ -302,7 +328,9 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         if (serverAddress != nullptr)
         {
             for (i = 0; i < 4; i++)
+            {
                 buffer->Packet[buffer->Length++] = serverAddress[i]; // (Server IP address)
+            }
         }
         else
         {
@@ -310,13 +338,21 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         }
         buffer->Length = Pack32(buffer->Packet, buffer->Length, 0); // (Gateway IP address)
         for (i = 0; i < 6; i++)
+        {
             buffer->Packet[buffer->Length++] = MAC.GetUnicastAddress()[i];
+        }
         for (; i < 16; i++)
+        {
             buffer->Packet[buffer->Length++] = 0; // pad chaddr to 16 bytes
+        }
         for (i = 0; i < 64; i++)
+        {
             buffer->Packet[buffer->Length++] = 0; // sname
+        }
         for (i = 0; i < 128; i++)
+        {
             buffer->Packet[buffer->Length++] = 0; // file
+        }
         buffer->Length = Pack32(buffer->Packet, buffer->Length, DHCP_MAGIC);
 
         // Add options
@@ -336,7 +372,9 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
             buffer->Packet[buffer->Length++] = 50;
             buffer->Packet[buffer->Length++] = 4; // length
             for (i = 0; i < 4; i++)
+            {
                 buffer->Packet[buffer->Length++] = requestAddress[i];
+            }
         }
 
         if (serverAddress != nullptr)
@@ -345,14 +383,18 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
             buffer->Packet[buffer->Length++] = 54;
             buffer->Packet[buffer->Length++] = 5; // length
             for (i = 0; i < 4; i++)
+            {
                 buffer->Packet[buffer->Length++] = serverAddress[i]; // (Server IP address)
+            }
         }
 
         buffer->Packet[buffer->Length++] = 255; // End options
 
         int pad = 8;
         for (i = 0; i < pad; i++)
+        {
             buffer->Packet[buffer->Length++] = 0;
+        }
 
         uint8_t sourceIP[] = {0, 0, 0, 0};
         uint8_t targetIP[] = {255, 255, 255, 255};

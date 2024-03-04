@@ -325,13 +325,15 @@ void osThread::dump_info(std::ostream& out)
     if (GetProcessTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime))
     {
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        out << "  Kernel Time      = ", out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
+        out << "  Kernel Time      = ",
+            out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
         out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
         out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
         out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << "\n";
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        out << "  User Time        = ", out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
+        out << "  User Time        = ",
+            out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
         out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
         out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
         out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << "\n";

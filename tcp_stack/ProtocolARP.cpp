@@ -181,7 +181,9 @@ std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
 
         out << "   " << s;
         for (int length = s.size(); length < 19; length++)
+        {
             out << " ";
+        }
         out << to_hex(obj.Cache[i].MACAddress[0]) << ":";
         out << to_hex(obj.Cache[i].MACAddress[1]) << ":";
         out << to_hex(obj.Cache[i].MACAddress[2]) << ":";
