@@ -418,8 +418,8 @@ TCPConnection* ProtocolTCP::NewClient(InterfaceMAC* mac,
                                       uint16_t remotePort,
                                       uint16_t localPort)
 {
-    int i;
-    int j;
+    size_t i;
+    size_t j;
 
     for (i = 0; i < TCP_MAX_CONNECTIONS; i++)
     {

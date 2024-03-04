@@ -50,7 +50,7 @@ osQueue::osQueue(const char* name, int count, void** dataBuffer)
     , Lock("osQueue")
 {
     // Insert 'this' into the list of queues
-    for (int i = 0; i < MAX_QUEUE_COUNT; i++)
+    for (size_t i = 0; i < MAX_QUEUE_COUNT; i++)
     {
         if (QueueList[i] == nullptr)
         {
@@ -168,7 +168,7 @@ bool osQueue::Contains(void* object)
 void osQueue::dump_info(std::ostream& out)
 {
     QueueListLock.Take(__FILE__, __LINE__);
-    for (int i = 0; i < MAX_QUEUE_COUNT; i++)
+    for (size_t i = 0; i < MAX_QUEUE_COUNT; i++)
     {
         osQueue* queue = QueueList[i];
         if (queue != nullptr)

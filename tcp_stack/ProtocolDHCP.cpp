@@ -224,7 +224,7 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
 void ProtocolDHCP::Discover()
 {
     DataBuffer* buffer = UDP.GetTxBuffer(&MAC);
-    int i;
+    size_t i;
 
     if (buffer)
     {
@@ -292,7 +292,7 @@ void ProtocolDHCP::Discover()
 
         buffer->Packet[buffer->Length++] = 255; // End options
 
-        int pad = 8;
+        size_t pad = 8;
         for (i = 0; i < pad; i++)
         {
             buffer->Packet[buffer->Length++] = 0;

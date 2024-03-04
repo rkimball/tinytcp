@@ -126,15 +126,15 @@ const char* macaddrtoa(const uint8_t* addr)
     return rc;
 }
 
-uint8_t Unpack8(const uint8_t* p, size_t offset, size_t size)
+uint8_t Unpack8(const uint8_t* p, size_t offset)
 {
     return p[offset];
 }
 
-uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size)
+uint16_t Unpack16(const uint8_t* p, size_t offset)
 {
     uint16_t rc = 0;
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < 2; i++)
     {
         rc <<= 8;
         rc |= p[offset++];
@@ -142,10 +142,10 @@ uint16_t Unpack16(const uint8_t* p, size_t offset, size_t size)
     return rc;
 }
 
-uint32_t Unpack32(const uint8_t* p, size_t offset, size_t size)
+uint32_t Unpack32(const uint8_t* p, size_t offset)
 {
     uint32_t rc = 0;
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < 4; i++)
     {
         rc <<= 8;
         rc |= p[offset++];
