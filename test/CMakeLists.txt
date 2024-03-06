@@ -30,17 +30,20 @@ endif()
 
 set (SRC
     main.cpp
-    util.cpp
+    tinytcp/mac.cpp
+    tinytcp/test_Utility.cpp
 )
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 add_executable(unit-test ${SRC})
 
-target_link_libraries(unit-test pthread libgtest packet_io os_support)
+target_link_libraries(unit-test pthread libgtest packet_io os_support  tinytcp)
 
-add_dependencies(unit-test libgtest packet_io os_support)
+add_dependencies(unit-test libgtest packet_io os_support tinytcp)
+# target_include_directories(unit-test PRIVATE ${CMAKE_SOURCE_DIR}/tcp_stack)
 
 add_custom_target(check
-COMMAND ${PROJECT_BINARY_DIR}/test/unit-test
-DEPENDS unit-test)
+    COMMAND ${PROJECT_BINARY_DIR}/test/unit-test
+    DEPENDS unit-test
+)

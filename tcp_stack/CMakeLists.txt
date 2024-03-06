@@ -1,4 +1,4 @@
-set( LIB tcpStack )
+set( LIB tinytcp )
 set( SOURCE
     DataBuffer.cpp
     FCS.cpp
