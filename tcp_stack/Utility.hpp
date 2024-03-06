@@ -49,8 +49,33 @@ const char* ipv4toa(uint32_t addr);
 const char* ipv4toa(const uint8_t* addr);
 const char* macaddrtoa(const uint8_t* addr);
 
+/**
+ * Unpacks an 8-bit value from the given buffer at the specified offset.
+ *
+ * @param p      Pointer to the buffer.
+ * @param offset Offset at which to unpack the value.
+ * @return       The unpacked 8-bit value.
+ */
 uint8_t Unpack8(const uint8_t* p, size_t offset);
+/**
+ * @brief Unpacks a 16-bit value from a byte array.
+ *
+ * This function takes a pointer to a byte array and an offset, and unpacks a 16-bit value from the
+ * array starting at the specified offset. The byte array is assumed to be in big-endian format.
+ *
+ * @param p Pointer to the byte array.
+ * @param offset Offset in bytes from where to start unpacking the value.
+ * @return The unpacked 16-bit value.
+ */
 uint16_t Unpack16(const uint8_t* p, size_t offset);
+/**
+ * This function takes a pointer to a byte array and an offset, and unpacks a 32-bit value from the
+ * array starting at the specified offset. The byte array is assumed to be in big-endian format.
+ *
+ * @param p The pointer to the byte array.
+ * @param offset The offset in the byte array where the 32-bit integer starts.
+ * @return The unpacked 32-bit unsigned integer.
+ */
 uint32_t Unpack32(const uint8_t* p, size_t offset);
 size_t Pack8(uint8_t* p, size_t offset, uint8_t value);
 size_t Pack16(uint8_t* p, size_t offset, uint16_t value);
@@ -61,6 +86,11 @@ int ReadLine(char* buffer, size_t size, int (*ReadFunction)());
 
 bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length);
 
+/// @brief  Convert a value to a decimal string
+/// @tparam T   The type of the value
+/// @param obj  The value to convert
+/// @param width   The width of the decimal string.
+/// @return The decimal string
 template <typename T>
 std::string to_dec(T obj, size_t width)
 {
@@ -69,6 +99,11 @@ std::string to_dec(T obj, size_t width)
     return ss.str();
 }
 
+/// @brief  Convert a value to a hexadecimal string
+/// @tparam T   The type of the value
+/// @param obj      The value to convert
+/// @param width    The width of the hexadecimal string. The default is the size of the type.
+/// @return     The hexadecimal string
 template <typename T>
 std::string to_hex(T obj, size_t width = sizeof(T) * 2)
 {

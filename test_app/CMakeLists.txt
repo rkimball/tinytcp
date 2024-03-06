@@ -8,7 +8,7 @@ set( HTML
     )
 set( LIBS
    web_server
-   tcpStack
+   tinytcp
    os_support
    packet_io )
 if( UNIX )
@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME} ${SOURCE} )
 
 target_link_libraries(${PROJECT_NAME} ${LIBS} pthread)
 add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
-include_directories( ../web_server ../tcpStack ../os_support )
+include_directories( ../web_server ../tcp_stack ../os_support )
 if( WIN32 )
     include_directories( WinPcap/include )
 endif( WIN32 )
