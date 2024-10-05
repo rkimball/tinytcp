@@ -3,7 +3,7 @@
         "dockerfile": "Dockerfile",
         "context": ".."
     },
-    "runArgs": ["--network=host"],
+    "runArgs": ["--network=host", "--cap-add=NET_RAW"],
     "customizations": {
         "vscode": {
             "extensions": [
