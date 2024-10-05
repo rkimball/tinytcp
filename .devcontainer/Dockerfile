@@ -1,23 +1,25 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    wget \
-    libcap2-bin \
-    && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        libcap2-bin \
+        clang-18 \
+        clang-format-18 \
+        && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.4/clang+llvm-16.0.4-x86_64-linux-gnu-ubuntu-22.04.tar.xz \
-    && tar -xvf clang+llvm-16.0.4-x86_64-linux-gnu-ubuntu-22.04.tar.xz \
-    && mv clang+llvm-16.0.4-x86_64-linux-gnu-ubuntu-22.04 /usr/local/clang_16.0.4 \
-    && rm clang+llvm-16.0.4-x86_64-linux-gnu-ubuntu-22.04.tar.xz
-
-ENV PATH="/usr/local/clang_16.0.4/bin:${PATH}"
+# Update alternatives to use clang-18
+RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100 && \
+    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 100 && \
+    update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-18 100
 
 # Grant CAP_NET_RAW capability to your executable
 # RUN setcap cap_net_raw+ep /path/to/your/executable
 
-COPY . /workspace
+# COPY . /workspace
 
-CMD bash
+CMD ["bash"]

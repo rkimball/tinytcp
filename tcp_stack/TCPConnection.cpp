@@ -472,14 +472,10 @@ std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
         out << (int)obj.RemoteAddress[3] << ":";
         out << obj.RemotePort;
         out << "\n";
-        out << "    "
-            << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
-        out << "    "
-            << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
-        out << "    "
-            << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
-        out << "    "
-            << "CurrentWindow " << obj.CurrentWindow << "\n";
+        out << "    " << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
+        out << "    " << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
+        out << "    " << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
+        out << "    " << "CurrentWindow " << obj.CurrentWindow << "\n";
         break;
     default: out << "\n";
     }
