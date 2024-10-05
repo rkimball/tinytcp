@@ -3,7 +3,7 @@
         "dockerfile": "Dockerfile",
         "context": ".."
     },
-    "workspaceFolder": "/workspace",
+    "runArgs": ["--network=host", "--cap-add=NET_RAW"],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -11,6 +11,9 @@
                 "ms-vscode.cmake-tools",
                 "ms-vscode.cmake-tools-helper",
                 "ms-vscode.remote-containers",
+                "johnpapa.vscode-peacock",
+                "github.copilot",
+                "github.copilot-chat"
             ]
         }
     }
