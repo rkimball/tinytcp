@@ -32,6 +32,7 @@
 #pragma once
 
 #include <sstream>
+#include <iomanip>
 
 template <typename T>
 std::string to_dec(T obj, size_t width)
