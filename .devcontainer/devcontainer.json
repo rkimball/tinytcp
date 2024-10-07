@@ -3,7 +3,11 @@
         "dockerfile": "Dockerfile",
         "context": ".."
     },
-    "runArgs": ["--network=host", "--cap-add=NET_RAW"],
+    "runArgs": [
+        "--network=host",
+        "--cap-add=NET_RAW"
+    ],
+    "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {
             "extensions": [

@@ -1,7 +1,5 @@
 FROM ubuntu:24.04
 
-SET (CMAKE_EXPORT_COMPILE_COMMANDS=ON)
-
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
@@ -21,9 +19,13 @@ RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100 && 
     update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-18 100 && \
     update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-18 100
 
-# Grant CAP_NET_RAW capability to your executable
-# RUN setcap cap_net_raw+ep /path/to/your/executable
+ENV USERNAME=ubuntu
+RUN \
+    apt-get update && \
+    apt-get install -y sudo && \
+    echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME
 
-# COPY . /workspace
+USER $USERNAME
 
 CMD ["bash"]
