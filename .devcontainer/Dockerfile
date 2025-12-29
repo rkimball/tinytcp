@@ -8,6 +8,7 @@ RUN apt-get update && \
         git \
         wget \
         libcap2-bin \
+        libcap-dev \
         clang-18 \
         clang-format-18 \
         clang-tidy-18 \
@@ -25,6 +26,10 @@ RUN \
     apt-get install -y sudo && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
     chmod 0440 /etc/sudoers.d/$USERNAME
+
+# Allow passwordless setcap for the ubuntu user (for setting capabilities on test binaries)
+# This lets the build system grant CAP_NET_RAW to test executables without interactive sudo
+RUN echo "$USERNAME ALL=(root) NOPASSWD: /usr/sbin/setcap" >> /etc/sudoers.d/$USERNAME
 
 USER $USERNAME
 

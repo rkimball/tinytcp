@@ -1,5 +1,9 @@
 project(test_app)
 cmake_minimum_required(VERSION 3.10)
+
+# Include the capability helper module for raw socket support
+include(${CMAKE_SOURCE_DIR}/cmake/SetNetRawCapability.cmake)
+
 set( SOURCE
    TestApp.cpp
    )
@@ -34,3 +38,7 @@ include_directories( ../web_server ../tcp_stack ../os_support )
 if( WIN32 )
     include_directories( WinPcap/include )
 endif( WIN32 )
+
+# Automatically set CAP_NET_RAW capability after building (Linux only)
+# This allows running the test app without sudo in the dev container
+target_add_net_raw_capability(${PROJECT_NAME})

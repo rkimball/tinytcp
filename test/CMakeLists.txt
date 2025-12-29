@@ -47,3 +47,6 @@ add_custom_target(check
     COMMAND ${PROJECT_BINARY_DIR}/test/unit-test
     DEPENDS unit-test
 )
+
+# Raw socket test subdirectory
+add_subdirectory(raw_sockets)
