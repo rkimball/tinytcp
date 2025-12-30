@@ -405,9 +405,22 @@ void PacketIO::Start(RxDataHandler rxData)
         }
         m_IfIndex = ifr.ifr_ifindex;
 
+        // Bind socket to the interface to get full Ethernet frames (not cooked mode)
+        struct sockaddr_ll sll;
+        memset(&sll, 0, sizeof(sll));
+        sll.sll_family = AF_PACKET;
+        sll.sll_ifindex = m_IfIndex;
+        sll.sll_protocol = htons(ETH_P_ALL);
+
+        if (bind(m_RawSocket, (struct sockaddr*)&sll, sizeof(sll)) == -1)
+        {
+            printf("Error binding to interface: %s\n", strerror(errno));
+        }
+
         // Set socket to promiscuous mode
         struct packet_mreq mreq;
-        mreq.mr_ifindex = ifr.ifr_ifindex;
+        memset(&mreq, 0, sizeof(mreq));
+        mreq.mr_ifindex = m_IfIndex;
         mreq.mr_type = PACKET_MR_PROMISC;
         mreq.mr_alen = 6;
         if (setsockopt(

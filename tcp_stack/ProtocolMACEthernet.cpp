@@ -75,6 +75,14 @@ void ProtocolMACEthernet::RegisterDataTransmitHandler(DataTransmitHandler handle
 
 bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 {
+    // std::cout << "  addr:         ";
+    // for (int i = 0; i < 6; i++)
+    //     printf("%02X ", addr[i]);
+    // std::cout << std::endl;
+    // std::cout << "  UnicastAddr:  ";
+    // for (int i = 0; i < 6; i++)
+    //     printf("%02X ", UnicastAddress[i]);
+    // std::cout << std::endl;
     return AddressCompare(UnicastAddress, addr, 6) || AddressCompare(BroadcastAddress, addr, 6);
 }
 
@@ -114,6 +122,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     // Check if the MAC Address is destined for me
     if (IsLocalAddress(packet->Packet))
     {
+        std::cout << "ProtocolMACEthernet::ProcessRx Local address match" << std::endl;
         // DumpData( buffer, length, printf );
         if (actualLength > length)
         {
