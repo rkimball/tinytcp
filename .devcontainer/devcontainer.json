@@ -16,6 +16,7 @@
                 "ms-vscode.cmake-tools",
                 "ms-vscode.cmake-tools-helper",
                 "ms-vscode.remote-containers",
+                "ms-vscode.cpptools-extension-pack",
                 "johnpapa.vscode-peacock",
                 "github.copilot",
                 "github.copilot-chat"

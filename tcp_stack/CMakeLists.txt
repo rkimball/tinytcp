@@ -1,5 +1,5 @@
-set( LIB tinytcp )
-set( SOURCE
+set(LIB tinytcp)
+set(SOURCE
     DataBuffer.cpp
     FCS.cpp
     ProtocolARP.cpp
@@ -15,6 +15,6 @@ set( SOURCE
     DefaultStack.cpp
     Config.hpp
     )
-add_library( ${LIB} ${SOURCE} )
-add_dependencies( ${LIB} os_support )
-include_directories( ../os_support )
+add_library(${LIB} ${SOURCE})
+add_dependencies(${LIB} os_support)
+include_directories(../os_support)
