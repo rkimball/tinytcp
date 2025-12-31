@@ -8,6 +8,7 @@
         "--cap-add=NET_RAW",
         "--cap-add=NET_ADMIN"
     ],
+    "postStartCommand": ".devcontainer/network-setup.sh",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {

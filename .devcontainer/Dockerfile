@@ -12,6 +12,10 @@ RUN apt-get update && \
         clang-18 \
         clang-format-18 \
         clang-tidy-18 \
+        tcpdump \
+        dnsmasq \
+        iproute2 \
+        iputils-ping \
         && rm -rf /var/lib/apt/lists/*
 
 # Update alternatives to use clang-18

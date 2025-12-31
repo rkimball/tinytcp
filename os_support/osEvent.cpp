@@ -31,6 +31,9 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#else
+#include <errno.h>
+#include <sys/time.h>
 #endif
 #include <iomanip>
 #include <stdio.h>
@@ -128,10 +131,40 @@ bool osEvent::Wait(const char* file, int line, int msTimeout)
     }
     pthread_mutex_lock(&m_mutex);
     int rc = 0;
-    while (m_test == false && rc == 0)
+    
+    if (msTimeout == -1)
     {
-        rc = pthread_cond_wait(&m_condition, &m_mutex);
+        // Wait indefinitely
+        while (m_test == false && rc == 0)
+        {
+            rc = pthread_cond_wait(&m_condition, &m_mutex);
+        }
     }
+    else
+    {
+        // Wait with timeout
+        struct timespec ts;
+        struct timeval tv;
+        gettimeofday(&tv, nullptr);
+        ts.tv_sec = tv.tv_sec + msTimeout / 1000;
+        ts.tv_nsec = tv.tv_usec * 1000 + (msTimeout % 1000) * 1000000;
+        if (ts.tv_nsec >= 1000000000)
+        {
+            ts.tv_sec++;
+            ts.tv_nsec -= 1000000000;
+        }
+        
+        while (m_test == false && rc == 0)
+        {
+            rc = pthread_cond_timedwait(&m_condition, &m_mutex, &ts);
+            if (rc == ETIMEDOUT)
+            {
+                break;
+            }
+        }
+    }
+    
+    bool result = m_test;
     m_test = false;
     if (thread)
     {
@@ -139,7 +172,7 @@ bool osEvent::Wait(const char* file, int line, int msTimeout)
         pending = nullptr;
     }
     pthread_mutex_unlock(&m_mutex);
-    return true;
+    return result;
 #endif
 }
 
