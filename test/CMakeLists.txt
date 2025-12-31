@@ -24,14 +24,12 @@ target_include_directories(libgtest SYSTEM INTERFACE
 target_link_libraries(libgtest INTERFACE
     ${BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
-if(NOT WIN32)
-    target_link_libraries(libgtest INTERFACE pthread)
-endif()
+target_link_libraries(libgtest INTERFACE pthread)
 
-set (SRC
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+add_executable(unit-test
     main.cpp
-    tinytcp/mac.cpp
-    tinytcp/Utility.cpp
     os/osEvent.cpp
     os/osMutex.cpp
     os/osQueue.cpp
@@ -40,14 +38,7 @@ set (SRC
     os/osUtil.cpp
 )
 
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-add_executable(unit-test ${SRC})
-
-target_link_libraries(unit-test pthread libgtest packet_io os_support  tinytcp)
-
-add_dependencies(unit-test libgtest packet_io os_support tinytcp)
-# target_include_directories(unit-test PRIVATE ${CMAKE_SOURCE_DIR}/tcp_stack)
+target_link_libraries(unit-test pthread libgtest os_support tinytcp)
 
 add_custom_target(check
     COMMAND ${PROJECT_BINARY_DIR}/test/unit-test

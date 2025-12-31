@@ -7,7 +7,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/SetNetRawCapability.cmake)
 add_executable(test_raw_socket raw_socket.cpp)
 
 # No additional libraries needed for raw sockets on Linux
-target_link_libraries(test_raw_socket)
+target_link_libraries(test_raw_socket os_support tinytcp pthread)
 
 # Automatically set CAP_NET_RAW capability after building
 # This allows running tests without sudo

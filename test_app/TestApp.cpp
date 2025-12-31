@@ -41,12 +41,12 @@
 
 #include "DefaultStack.hpp"
 #include "InterfaceMAC.hpp"
-#include "PacketIO.hpp"
 #include "ProtocolARP.hpp"
 #include "ProtocolDHCP.hpp"
 #include "ProtocolTCP.hpp"
 #include "http_page.hpp"
 #include "httpd.hpp"
+#include "PacketIO.hpp"
 #include "osMutex.hpp"
 #include "osThread.hpp"
 #include "osTime.hpp"
