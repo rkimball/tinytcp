@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 include(${CMAKE_SOURCE_DIR}/cmake/SetNetRawCapability.cmake)
 
 # Raw Socket Test Application
-add_executable(test_raw_socket test_raw_socket.cpp)
+add_executable(test_raw_socket raw_socket.cpp)
 
 # No additional libraries needed for raw sockets on Linux
 target_link_libraries(test_raw_socket)

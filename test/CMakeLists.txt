@@ -31,13 +31,13 @@ endif()
 set (SRC
     main.cpp
     tinytcp/mac.cpp
-    tinytcp/test_Utility.cpp
-    os/test_osEvent.cpp
-    os/test_osMutex.cpp
-    os/test_osQueue.cpp
-    os/test_osThread.cpp
-    os/test_osTime.cpp
-    os/test_osUtil.cpp
+    tinytcp/Utility.cpp
+    os/osEvent.cpp
+    os/osMutex.cpp
+    os/osQueue.cpp
+    os/osThread.cpp
+    os/osTime.cpp
+    os/osUtil.cpp
 )
 
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
