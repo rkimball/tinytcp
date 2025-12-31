@@ -36,6 +36,7 @@ add_executable(unit-test
     os/osThread.cpp
     os/osTime.cpp
     os/osUtil.cpp
+    tinytcp/utility.cpp
 )
 
 target_link_libraries(unit-test pthread libgtest os_support tinytcp)

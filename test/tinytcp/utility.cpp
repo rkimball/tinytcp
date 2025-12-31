@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "Utility.hpp"
 
-TEST(UtilityTest, Unpack8Test) {
+TEST(utility, unpack8) {
     // Test case 1: Unpacking a single byte
     uint8_t data1[] = {0xAB};
     uint8_t result1 = Unpack8(data1, 0);
@@ -18,7 +18,7 @@ TEST(UtilityTest, Unpack8Test) {
     EXPECT_EQ(result3, 0x44);
 }
 
-TEST(UtilityTest, Unpack16Test) {
+TEST(utility, unpack16) {
     // Test case 1: Unpacking two bytes from a single byte array
     uint8_t data1[] = {0xAB, 0xCD};
     uint16_t result1 = Unpack16(data1, 0);
@@ -35,7 +35,7 @@ TEST(UtilityTest, Unpack16Test) {
     EXPECT_EQ(result3, 0x4455);
 }
 
-TEST(UtilityTest, Unpack32Test) {
+TEST(utility, unpack32) {
     // Test case 1: Unpacking four bytes from a single byte array
     uint8_t data1[] = {0xAB, 0xCD, 0xEF, 0x12};
     uint32_t result1 = Unpack32(data1, 0);
@@ -52,7 +52,7 @@ TEST(UtilityTest, Unpack32Test) {
     EXPECT_EQ(result3, 0x55667788);
 }
 
-TEST(UtilityTest, Pack8Test) {
+TEST(utility, pack8) {
     // Test case 1: Packing a single byte
     uint8_t data1[1];
     size_t offset1 = Pack8(data1, 0, 0xAB);
@@ -72,7 +72,7 @@ TEST(UtilityTest, Pack8Test) {
     EXPECT_EQ(data3[3], 0x44);
 }
 
-TEST(UtilityTest, Pack16Test) {
+TEST(utility, pack16) {
     // Test case 1: Packing a single byte
     uint8_t data1[2];
     size_t offset1 = Pack16(data1, 0, 0xABCD);
@@ -95,7 +95,7 @@ TEST(UtilityTest, Pack16Test) {
     EXPECT_EQ(data3[4], 0x55);
 }
 
-TEST(UtilityTest, Pack32Test) {
+TEST(utility, pack32) {
     // Test case 1: Packing a single byte
     uint8_t data1[4];
     size_t offset1 = Pack32(data1, 0, 0xABCDEF12);
