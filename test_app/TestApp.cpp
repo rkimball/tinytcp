@@ -50,6 +50,7 @@
 #include "osMutex.hpp"
 #include "osThread.hpp"
 #include "osTime.hpp"
+#include "Utility.hpp"
 
 #ifdef WIN32
 #define strcasecmp _stricmp
@@ -83,13 +84,11 @@ void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_cha
 
 void RxData(uint8_t* data, size_t length)
 {
-    std::cout << "RxData called with length " << length << std::endl;
     tcpStack.ProcessRx(data, length);
 }
 
 void TxData(void* data, size_t length)
 {
-    std::cout << "TxData called with length " << length << std::endl;
     PIO->TxData(data, length);
 }
 
@@ -98,6 +97,9 @@ void NetworkEntry(void* param)
     // This is just a made-up MAC address to user for testing
     uint8_t addr[] = {0x10, 0xBF, 0x48, 0x44, 0x55, 0x66};
     tcpStack.SetMACAddress(addr);
+
+    std::cout << "MAC Address set to "
+              << macaddrtoa(tcpStack.MAC.GetUnicastAddress()) << std::endl;
 
     //   Config.IPv4.Address[ 0 ] = 0;
     //   Config.IPv4.Address[ 1 ] = 0;

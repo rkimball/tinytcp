@@ -100,6 +100,11 @@ void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
     sourceIP = &packet[12];
     targetIP = &packet[16];
 
+    printf("IPv4 Rx: src=%d.%d.%d.%d dst=%d.%d.%d.%d proto=%d IsLocal=%d\n",
+           sourceIP[0], sourceIP[1], sourceIP[2], sourceIP[3],
+           targetIP[0], targetIP[1], targetIP[2], targetIP[3],
+           protocol, IsLocal(targetIP) ? 1 : 0);
+
     if (IsLocal(targetIP))
     {
         buffer->Packet += headerLength;
