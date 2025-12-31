@@ -117,6 +117,7 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
     uint8_t optionData[255];
     ProtocolIPv4::AddressInfo ipv4Data;
     uint8_t dhcpType = 0xFF;
+    uint8_t serverIdentifier[4] = {0, 0, 0, 0};
     while (offset < buffer->Remainder)
     {
         uint8_t option = Unpack8(buffer->Packet, offset++);
@@ -130,6 +131,12 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
         {
         case 53: // DHCP Message Type
             dhcpType = optionData[0];
+            break;
+        case 54: // DHCP Server Identifier
+            for (int i = 0; i < 4; i++)
+            {
+                serverIdentifier[i] = optionData[i];
+            }
             break;
         case 51: // IP Address Lease Time
             ipv4Data.IpAddressLeaseTime = Unpack32(optionData, 0);
@@ -169,6 +176,9 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
         }
     }
 
+    printf("DHCP xid=0x%X PendingXID=0x%X dhcpType=%d serverID=%d.%d.%d.%d\n", 
+           xid, PendingXID, dhcpType, 
+           serverIdentifier[0], serverIdentifier[1], serverIdentifier[2], serverIdentifier[3]);
     if (xid == PendingXID)
     {
         switch (dhcpType)
@@ -176,7 +186,7 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
         case 2: // offer
         {
             PendingXID = (uint32_t)osTime::GetTime();
-            SendRequest(3, siaddr, yiaddr);
+            SendRequest(3, serverIdentifier, yiaddr);
             break;
         }
         case 5: // ack
@@ -380,7 +390,7 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         {
             // server address
             buffer->Packet[buffer->Length++] = 54;
-            buffer->Packet[buffer->Length++] = 5; // length
+            buffer->Packet[buffer->Length++] = 4; // length
             for (i = 0; i < 4; i++)
             {
                 buffer->Packet[buffer->Length++] = serverAddress[i]; // (Server IP address)

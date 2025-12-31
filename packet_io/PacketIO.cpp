@@ -342,9 +342,30 @@ void PacketIO::DisplayDevices()
 void PacketIO::GetInterface(char* name)
 {
     struct ifaddrs* ifaddr;
+    const char* preferred[] = {"eth0", "eth1", "en0", "en1", nullptr};
 
+    name[0] = '\0';
+    
     if (getifaddrs(&ifaddr) == 0)
     {
+        // First pass: look for preferred interfaces
+        for (int p = 0; preferred[p] != nullptr; p++)
+        {
+            for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
+            {
+                if (ifa->ifa_addr == nullptr)
+                    continue;
+                if (ifa->ifa_addr->sa_family == AF_PACKET && 
+                    strcmp(ifa->ifa_name, preferred[p]) == 0)
+                {
+                    strcpy(name, ifa->ifa_name);
+                    freeifaddrs(ifaddr);
+                    return;
+                }
+            }
+        }
+        
+        // Second pass: any non-loopback interface
         for (struct ifaddrs* ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next)
         {
             if (ifa->ifa_addr == nullptr)
@@ -357,21 +378,10 @@ void PacketIO::GetInterface(char* name)
             {
                 if (strcmp(ifa->ifa_name, "lo") != 0)
                 {
-                    // yes, this is unsafe
                     strcpy(name, ifa->ifa_name);
                     break;
                 }
             }
-
-            // /* Display interface name and family (including symbolic
-            //     form of the latter for the common families) */
-
-            // printf("%-8s %s (%d)\n",
-            //         ifa->ifa_name,
-            //         (family == AF_PACKET) ? "AF_PACKET" :
-            //         (family == AF_INET) ? "AF_INET" :
-            //         (family == AF_INET6) ? "AF_INET6" : "???",
-            //         family);
         }
         freeifaddrs(ifaddr);
     }
