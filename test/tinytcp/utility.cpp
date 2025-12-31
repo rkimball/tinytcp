@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Utility.hpp"
+#include "utility.hpp"
 
 TEST(utility, unpack8) {
     // Test case 1: Unpacking a single byte

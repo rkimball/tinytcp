@@ -32,63 +32,72 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iostream>
 
-#include "DataBuffer.hpp"
-#include "InterfaceMAC.hpp"
-#include "osEvent.hpp"
-#include "osQueue.hpp"
+#include "data_buffer.hpp"
+#include "interface_mac.hpp"
+#include "ipv4.hpp"
+#include "osMutex.hpp"
 
-class ProtocolARP;
-class ProtocolIPv4;
-
-class ProtocolMACEthernet : public InterfaceMAC
+class ARPCacheEntry
 {
 public:
-    ProtocolMACEthernet(ProtocolARP&, ProtocolIPv4&);
-    void RegisterDataTransmitHandler(DataTransmitHandler);
+    ARPCacheEntry();
+    uint8_t Age;
+    uint8_t IPv4Address[4];
+    uint8_t MACAddress[6];
+};
 
-    void ProcessRx(uint8_t* buffer, int length);
+// HardwareType - 2 bytes
+// ProtocolType - 2 bytes
+// HardwareSize - 1 byte, size int bytes of HardwareAddress fields
+// IPv4AddressSize - 1 byte, size int bytes of ProtocolAddress fields
+// SenderHardwareAddress - HardwareSize bytes
+// SenderProtocolAddress - IPv4AddressSize bytes
+// TargetHardwareAddress - HardwareSize bytes
+// TargetProtocolAddress - IPv4AddressSize bytes
 
-    void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type);
-    void Retransmit(DataBuffer* buffer);
+class ProtocolARP
+{
+public:
+    ProtocolARP(InterfaceMAC& mac, ProtocolIPv4& ip);
+    void Initialize();
 
-    DataBuffer* GetTxBuffer();
-    void FreeTxBuffer(DataBuffer*);
-    void FreeRxBuffer(DataBuffer*);
+    void ProcessRx(const DataBuffer*);
 
-    size_t AddressSize() const;
-    size_t HeaderSize() const;
+    void Add(const uint8_t* protocolAddress, const uint8_t* hardwareAddress);
 
-    const uint8_t* GetUnicastAddress() const;
-    const uint8_t* GetBroadcastAddress() const;
+    const uint8_t* Protocol2Hardware(const uint8_t* protocolAddress);
+    bool IsLocal(const uint8_t* protocolAddress);
+    bool IsBroadcast(const uint8_t* protocolAddress);
 
-    void SetUnicastAddress(uint8_t* addr);
-    static size_t header_size() { return 14; }
-
-    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
+    friend std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj);
 
 private:
-    static const int ADDRESS_SIZE = 6;
-    osQueue TxBufferQueue;
-    osQueue RxBufferQueue;
+    struct ARPInfo
+    {
+        uint16_t hardwareType;
+        uint16_t protocolType;
+        uint8_t hardwareSize;
+        uint8_t protocolSize;
+        uint16_t opType;
+        uint8_t* senderHardwareAddress;
+        uint8_t* senderProtocolAddress;
+        uint8_t* targetHardwareAddress;
+        uint8_t* targetProtocolAddress;
+    };
 
-    osEvent QueueEmptyEvent;
+    void SendReply(const ARPInfo& info);
+    void SendRequest(const uint8_t* targetIP);
+    int LocateProtocolAddress(const uint8_t* protocolAddress);
 
-    uint8_t UnicastAddress[ADDRESS_SIZE];
-    uint8_t BroadcastAddress[ADDRESS_SIZE];
+    DataBuffer ARPRequest;
 
-    DataBuffer TxBuffer[TX_BUFFER_COUNT];
-    DataBuffer RxBuffer[RX_BUFFER_COUNT];
+    ARPCacheEntry Cache[ARPCacheSize];
 
-    void* TxBufferBuffer[TX_BUFFER_COUNT];
-    void* RxBufferBuffer[RX_BUFFER_COUNT];
+    InterfaceMAC& MAC;
+    ProtocolIPv4& IP;
 
-    DataTransmitHandler TxHandler;
-    ProtocolARP& ARP;
-    ProtocolIPv4& IPv4;
-
-    bool IsLocalAddress(const uint8_t* addr);
-
-    ProtocolMACEthernet(ProtocolMACEthernet&);
-    ProtocolMACEthernet();
+    ProtocolARP();
+    ProtocolARP(ProtocolARP&);
 };

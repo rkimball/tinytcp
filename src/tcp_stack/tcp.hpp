@@ -32,9 +32,9 @@
 #pragma once
 
 #include <inttypes.h>
-#include "DataBuffer.hpp"
-#include "ProtocolTCP.hpp"
-#include "TCPConnection.hpp"
+#include "data_buffer.hpp"
+#include "tcp.hpp"
+#include "tcp_connection.hpp"
 #include "osMutex.hpp"
 
 // SourcePort - 16 bits

@@ -32,13 +32,13 @@
 // DHCP Info https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol
 // DHCP Options http://www.faqs.org/rfcs/rfc1533.html
 
-#include "ProtocolDHCP.hpp"
+#include "dhcp.hpp"
 #include <stdio.h>
 #include <string.h>
-#include "InterfaceMAC.hpp"
-#include "ProtocolIPv4.hpp"
-#include "ProtocolUDP.hpp"
-#include "Utility.hpp"
+#include "interface_mac.hpp"
+#include "ipv4.hpp"
+#include "udp.hpp"
+#include "utility.hpp"
 #include "osTime.hpp"
 
 static const uint32_t DHCP_MAGIC = 0x63825363;

@@ -31,31 +31,29 @@
 
 #pragma once
 
-#include "InterfaceMAC.hpp"
-#include "ProtocolARP.hpp"
-#include "ProtocolDHCP.hpp"
-#include "ProtocolICMP.hpp"
-#include "ProtocolIPv4.hpp"
-#include "ProtocolMACEthernet.hpp"
-#include "ProtocolTCP.hpp"
-#include "ProtocolUDP.hpp"
+#include <inttypes.h>
+#include "config.hpp"
+#include "interface_mac.hpp"
 
-class DefaultStack
+class DataBuffer
 {
 public:
-    DefaultStack();
-    void RegisterDataTransmitHandler(InterfaceMAC::DataTransmitHandler);
-    void SetMACAddress(uint8_t* addr);
-    void StartDHCP();
-    void Tick();
+    DataBuffer();
 
-    void ProcessRx(uint8_t* data, size_t length);
+    uint8_t* Packet;
+    uint32_t AcknowledgementNumber;
+    uint32_t Time_us;
+    uint16_t Length;
+    uint16_t Remainder;
+    bool Disposable;
+    InterfaceMAC* MAC;
 
-    ProtocolMACEthernet MAC;
-    ProtocolIPv4 IP;
-    ProtocolARP ARP;
-    ProtocolDHCP DHCP;
-    ProtocolICMP ICMP;
-    ProtocolTCP TCP;
-    ProtocolUDP UDP;
+    void Initialize(InterfaceMAC*);
+    void Preallocate(size_t size);
+    void ResetPreallocation(size_t size);
+
+private:
+    uint8_t Data[DATA_BUFFER_PAYLOAD_SIZE];
+
+    DataBuffer(DataBuffer&);
 };

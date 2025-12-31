@@ -32,10 +32,10 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "ProtocolARP.hpp"
-#include "ProtocolIPv4.hpp"
-#include "ProtocolMACEthernet.hpp"
-#include "Utility.hpp"
+#include "arp.hpp"
+#include "ipv4.hpp"
+#include "mac_ethernet.hpp"
+#include "utility.hpp"
 
 // Destination - 6 bytes
 // Source - 6 bytes

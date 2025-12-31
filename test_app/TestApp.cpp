@@ -39,19 +39,18 @@
 #include <unistd.h>
 #endif
 
-#include "DefaultStack.hpp"
-#include "InterfaceMAC.hpp"
-#include "ProtocolARP.hpp"
-#include "ProtocolDHCP.hpp"
-#include "ProtocolTCP.hpp"
+#include "default_stack.hpp"
+#include "interface_mac.hpp"
+#include "arp.hpp"
+#include "dhcp.hpp"
+#include "tcp.hpp"
 #include "http_page.hpp"
 #include "httpd.hpp"
-#include "PacketIO.hpp"
+#include "packet_io.hpp"
 #include "osMutex.hpp"
 #include "osThread.hpp"
 #include "osTime.hpp"
-#include "Utility.hpp"
-
+#include "utility.hpp"
 #ifdef WIN32
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp

@@ -32,28 +32,63 @@
 #pragma once
 
 #include <inttypes.h>
-#include "Config.hpp"
-#include "InterfaceMAC.hpp"
 
-class DataBuffer
+#include "data_buffer.hpp"
+#include "interface_mac.hpp"
+#include "osEvent.hpp"
+#include "osQueue.hpp"
+
+class ProtocolARP;
+class ProtocolIPv4;
+
+class ProtocolMACEthernet : public InterfaceMAC
 {
 public:
-    DataBuffer();
+    ProtocolMACEthernet(ProtocolARP&, ProtocolIPv4&);
+    void RegisterDataTransmitHandler(DataTransmitHandler);
 
-    uint8_t* Packet;
-    uint32_t AcknowledgementNumber;
-    uint32_t Time_us;
-    uint16_t Length;
-    uint16_t Remainder;
-    bool Disposable;
-    InterfaceMAC* MAC;
+    void ProcessRx(uint8_t* buffer, int length);
 
-    void Initialize(InterfaceMAC*);
-    void Preallocate(size_t size);
-    void ResetPreallocation(size_t size);
+    void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type);
+    void Retransmit(DataBuffer* buffer);
+
+    DataBuffer* GetTxBuffer();
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
+
+    size_t AddressSize() const;
+    size_t HeaderSize() const;
+
+    const uint8_t* GetUnicastAddress() const;
+    const uint8_t* GetBroadcastAddress() const;
+
+    void SetUnicastAddress(uint8_t* addr);
+    static size_t header_size() { return 14; }
+
+    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
 
 private:
-    uint8_t Data[DATA_BUFFER_PAYLOAD_SIZE];
+    static const int ADDRESS_SIZE = 6;
+    osQueue TxBufferQueue;
+    osQueue RxBufferQueue;
 
-    DataBuffer(DataBuffer&);
+    osEvent QueueEmptyEvent;
+
+    uint8_t UnicastAddress[ADDRESS_SIZE];
+    uint8_t BroadcastAddress[ADDRESS_SIZE];
+
+    DataBuffer TxBuffer[TX_BUFFER_COUNT];
+    DataBuffer RxBuffer[RX_BUFFER_COUNT];
+
+    void* TxBufferBuffer[TX_BUFFER_COUNT];
+    void* RxBufferBuffer[RX_BUFFER_COUNT];
+
+    DataTransmitHandler TxHandler;
+    ProtocolARP& ARP;
+    ProtocolIPv4& IPv4;
+
+    bool IsLocalAddress(const uint8_t* addr);
+
+    ProtocolMACEthernet(ProtocolMACEthernet&);
+    ProtocolMACEthernet();
 };

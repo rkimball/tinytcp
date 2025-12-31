@@ -29,7 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "DefaultStack.hpp"
+#include "default_stack.hpp"
 
 DefaultStack::DefaultStack()
     : MAC(ARP, IP)

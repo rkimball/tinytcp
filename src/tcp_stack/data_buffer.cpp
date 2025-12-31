@@ -29,35 +29,27 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#pragma once
+#include "data_buffer.hpp"
 
-#include <inttypes.h>
+DataBuffer::DataBuffer() {}
 
-#include "DataBuffer.hpp"
-
-class InterfaceMAC;
-class ProtocolIPv4;
-class ProtocolUDP;
-
-// UDP Src = 0.0.0.0 sPort = 68
-// Dest = 255.255.255.255 dPort = 67
-
-class ProtocolDHCP
+void DataBuffer::Initialize(InterfaceMAC* mac)
 {
-public:
-    ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp);
-    void ProcessRx(DataBuffer* buffer);
-    void Discover();
-    void SendRequest(uint8_t messageType,
-                     const uint8_t* serverAddress,
-                     const uint8_t* requestAddress);
-    void test();
+    Packet = Data;
+    Length = 0;
+    Remainder = DATA_BUFFER_PAYLOAD_SIZE;
+    Disposable = true;
+    MAC = mac;
+}
 
-private:
-    DataBuffer Buffer;
-    int PendingXID;
+void DataBuffer::Preallocate(size_t size)
+{
+    Packet += size;
+    Remainder -= size;
+}
 
-    InterfaceMAC& MAC;
-    ProtocolIPv4& IP;
-    ProtocolUDP& UDP;
-};
+void DataBuffer::ResetPreallocation(size_t size)
+{
+    Packet -= size;
+    Remainder += size;
+}

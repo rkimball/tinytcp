@@ -35,7 +35,7 @@
 #include <string>
 #include <vector>
 
-#include "ProtocolTCP.hpp"
+#include "tcp.hpp"
 #include "osThread.hpp"
 
 namespace http

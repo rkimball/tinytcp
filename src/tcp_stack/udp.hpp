@@ -32,7 +32,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include "DataBuffer.hpp"
+#include "data_buffer.hpp"
 
 class ProtocolIPv4;
 class ProtocolDHCP;

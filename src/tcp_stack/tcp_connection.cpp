@@ -31,12 +31,11 @@
 
 #include <cstring>
 
-#include "ProtocolIPv4.hpp"
-#include "ProtocolTCP.hpp"
-#include "TCPConnection.hpp"
-#include "Utility.hpp"
+#include "ipv4.hpp"
+#include "tcp.hpp"
+#include "tcp_connection.hpp"
+#include "utility.hpp"
 #include "osTime.hpp"
-
 TCPConnection::TCPConnection()
     : RxInOffset(0)
     , RxOutOffset(0)

@@ -29,7 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "FCS.hpp"
+#include "fcs.hpp"
 #include <stdio.h>
 
 uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)

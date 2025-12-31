@@ -32,12 +32,11 @@
 #pragma once
 
 #include <inttypes.h>
-#include "Config.hpp"
-#include "ProtocolIPv4.hpp"
+#include "config.hpp"
+#include "ipv4.hpp"
 #include "osEvent.hpp"
 #include "osMutex.hpp"
 #include "osQueue.hpp"
-
 class DataBuffer;
 
 class TCPConnection

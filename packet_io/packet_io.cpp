@@ -49,9 +49,9 @@
 #include <cstring>
 #include <stdio.h>
 
-#include "InterfaceMAC.hpp"
-#include "PacketIO.hpp"
-#include "Utility.hpp"
+#include "interface_mac.hpp"
+#include "packet_io.hpp"
+#include "utility.hpp"
 
 #define Max_Num_Adapter 10
 char AdapterList[Max_Num_Adapter][1024];

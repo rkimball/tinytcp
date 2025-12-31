@@ -31,7 +31,7 @@
 
 #include <stdio.h>
 
-#include "Utility.hpp"
+#include "utility.hpp"
 
 void DumpData(std::ostream& out, void* buffer, size_t len)
 {

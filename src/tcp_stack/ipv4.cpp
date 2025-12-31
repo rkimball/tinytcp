@@ -32,15 +32,15 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "DataBuffer.hpp"
-#include "FCS.hpp"
-#include "InterfaceMAC.hpp"
-#include "ProtocolARP.hpp"
-#include "ProtocolICMP.hpp"
-#include "ProtocolIPv4.hpp"
-#include "ProtocolTCP.hpp"
-#include "ProtocolUDP.hpp"
-#include "Utility.hpp"
+#include "data_buffer.hpp"
+#include "fcs.hpp"
+#include "interface_mac.hpp"
+#include "arp.hpp"
+#include "icmp.hpp"
+#include "ipv4.hpp"
+#include "tcp.hpp"
+#include "udp.hpp"
+#include "utility.hpp"
 
 // Version - 4 bits
 // Header Length - 4 bits

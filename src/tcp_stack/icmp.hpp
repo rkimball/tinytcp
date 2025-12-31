@@ -32,77 +32,20 @@
 #pragma once
 
 #include <inttypes.h>
-#include <iostream>
+#include "data_buffer.hpp"
 
-#include "DataBuffer.hpp"
-#include "InterfaceMAC.hpp"
-#include "osQueue.hpp"
+class ProtocolIPv4;
 
-class ProtocolARP;
-class ProtocolICMP;
-class ProtocolTCP;
-class ProtocolUDP;
-
-class ProtocolIPv4
+class ProtocolICMP
 {
-private:
-    friend class TCPConnection;
-    static const int ADDRESS_SIZE = 4;
-
 public:
-    struct AddressInfo
-    {
-        bool DataValid;
-        uint8_t Address[ADDRESS_SIZE];
-        uint32_t IpAddressLeaseTime;
-        uint32_t RenewTime;
-        uint32_t RebindTime;
-        uint8_t SubnetMask[ADDRESS_SIZE];
-        uint8_t Gateway[ADDRESS_SIZE];
-        uint8_t DomainNameServer[ADDRESS_SIZE];
-        uint8_t BroadcastAddress[ADDRESS_SIZE];
-    };
+    ProtocolICMP(ProtocolIPv4& ip);
 
-    ProtocolIPv4(InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP&);
-    void Initialize();
-
-    void ProcessRx(DataBuffer*);
-
-    void Transmit(DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP);
-    void Retransmit(DataBuffer*);
-
-    void Retry();
-
-    size_t AddressSize();
-    const uint8_t* GetUnicastAddress();
-    const uint8_t* GetBroadcastAddress();
-    const uint8_t* GetGatewayAddress();
-    const uint8_t* GetSubnetMask();
-    void SetAddressInfo(const AddressInfo& info);
-
-    DataBuffer* GetTxBuffer(InterfaceMAC*);
-    void FreeTxBuffer(DataBuffer*);
-    void FreeRxBuffer(DataBuffer*);
-
-    static size_t header_size() { return 20; }
-
-    friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
+    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
 
 private:
-    bool IsLocal(const uint8_t* addr);
+    ProtocolIPv4& IP;
 
-    uint16_t PacketID;
-    void* TxBuffer[TX_BUFFER_COUNT];
-    osQueue UnresolvedQueue;
-
-    AddressInfo Address;
-
-    InterfaceMAC& MAC;
-    ProtocolARP& ARP;
-    ProtocolICMP& ICMP;
-    ProtocolTCP& TCP;
-    ProtocolUDP& UDP;
-
-    ProtocolIPv4();
-    ProtocolIPv4(ProtocolIPv4&);
+    ProtocolICMP();
+    ProtocolICMP(ProtocolICMP&);
 };

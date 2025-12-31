@@ -32,12 +32,11 @@
 #include <iostream>
 
 #include <stdio.h>
-#include "FCS.hpp"
-#include "ProtocolDHCP.hpp"
-#include "ProtocolIPv4.hpp"
-#include "ProtocolUDP.hpp"
-#include "Utility.hpp"
-
+#include "fcs.hpp"
+#include "dhcp.hpp"
+#include "ipv4.hpp"
+#include "udp.hpp"
+#include "utility.hpp"
 ProtocolUDP::ProtocolUDP(ProtocolIPv4& ip, ProtocolDHCP& dhcp)
     : IP(ip)
     , DHCP(dhcp)

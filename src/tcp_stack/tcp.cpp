@@ -34,11 +34,11 @@
 #include <windows.h>
 #endif
 
-#include "DataBuffer.hpp"
-#include "FCS.hpp"
-#include "ProtocolIPv4.hpp"
-#include "ProtocolTCP.hpp"
-#include "Utility.hpp"
+#include "data_buffer.hpp"
+#include "fcs.hpp"
+#include "ipv4.hpp"
+#include "tcp.hpp"
+#include "utility.hpp"
 #include "osMutex.hpp"
 #include "osTime.hpp"
 
