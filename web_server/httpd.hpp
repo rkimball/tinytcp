@@ -57,7 +57,7 @@ public:
     void RegisterErrorHandler(ErrorMessageHandler);
     void RegisterAuthorizationHandler(AuthorizationHandler);
 
-    void Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port);
+    void Initialize(tinytcp::InterfaceMAC& mac, tinytcp::ProtocolTCP& tcp, uint16_t port);
 
     void ProcessRequest(Page* page);
 
@@ -76,8 +76,8 @@ private:
 
     osThread Thread;
 
-    TCPConnection* ListenerConnection;
-    TCPConnection* CurrentConnection;
+    tinytcp::TCPConnection* ListenerConnection;
+    tinytcp::TCPConnection* CurrentConnection;
 
     PageRequestHandler PageHandler;
     ErrorMessageHandler ErrorHandler;

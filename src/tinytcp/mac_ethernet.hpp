@@ -32,26 +32,67 @@
 #pragma once
 
 #include <inttypes.h>
+
 #include "data_buffer.hpp"
+#include "interface_mac.hpp"
+#include "osEvent.hpp"
+#include "osQueue.hpp"
 
+namespace tinytcp
+{
+
+class ProtocolARP;
 class ProtocolIPv4;
-class ProtocolDHCP;
 
-class ProtocolUDP
+class ProtocolMACEthernet : public InterfaceMAC
 {
 public:
-    ProtocolUDP(ProtocolIPv4&, ProtocolDHCP&);
-    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
-    void Transmit(DataBuffer* buffer,
-                  const uint8_t* targetIP,
-                  uint16_t targetPort,
-                  const uint8_t* sourceIP,
-                  uint16_t sourcePort);
+    ProtocolMACEthernet(ProtocolARP&, ProtocolIPv4&);
+    void RegisterDataTransmitHandler(DataTransmitHandler);
 
-    DataBuffer* GetTxBuffer(InterfaceMAC*);
-    static size_t header_size() { return 8; }
+    void ProcessRx(uint8_t* buffer, int length);
+
+    void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type);
+    void Retransmit(DataBuffer* buffer);
+
+    DataBuffer* GetTxBuffer();
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
+
+    size_t AddressSize() const;
+    size_t HeaderSize() const;
+
+    const uint8_t* GetUnicastAddress() const;
+    const uint8_t* GetBroadcastAddress() const;
+
+    void SetUnicastAddress(uint8_t* addr);
+    static size_t header_size() { return 14; }
+
+    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
 
 private:
-    ProtocolIPv4& IP;
-    ProtocolDHCP& DHCP;
+    static const int ADDRESS_SIZE = 6;
+    osQueue TxBufferQueue;
+    osQueue RxBufferQueue;
+
+    osEvent QueueEmptyEvent;
+
+    uint8_t UnicastAddress[ADDRESS_SIZE];
+    uint8_t BroadcastAddress[ADDRESS_SIZE];
+
+    DataBuffer TxBuffer[TX_BUFFER_COUNT];
+    DataBuffer RxBuffer[RX_BUFFER_COUNT];
+
+    void* TxBufferBuffer[TX_BUFFER_COUNT];
+    void* RxBufferBuffer[RX_BUFFER_COUNT];
+
+    DataTransmitHandler TxHandler;
+    ProtocolARP& ARP;
+    ProtocolIPv4& IPv4;
+
+    bool IsLocalAddress(const uint8_t* addr);
+
+    ProtocolMACEthernet(ProtocolMACEthernet&);
+    ProtocolMACEthernet();
 };
+} // namespace tinytcp

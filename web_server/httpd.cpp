@@ -84,7 +84,7 @@ void http::Server::ProcessRequest(http::Page* page)
     char password[20];
     int argc;
     char* argv[MAX_ARGV];
-    TCPConnection* connection = page->Connection;
+    tinytcp::TCPConnection* connection = page->Connection;
 
     page->HTTPHeaderSent = false;
     actualSizeRead = connection->ReadLine(buffer1, sizeof(buffer1));
@@ -222,7 +222,7 @@ void http::Server::ProcessRequest(http::Page* page)
     }
 }
 
-void http::Server::Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port)
+void http::Server::Initialize(tinytcp::InterfaceMAC& mac, tinytcp::ProtocolTCP& tcp, uint16_t port)
 {
     int i;
 
@@ -253,7 +253,7 @@ void http::Server::TaskEntry(void* param)
 
 void http::Server::Task()
 {
-    TCPConnection* connection;
+    tinytcp::TCPConnection* connection;
     Page* page;
 
     while (1)

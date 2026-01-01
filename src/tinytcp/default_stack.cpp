@@ -29,35 +29,43 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#pragma once
+#include "default_stack.hpp"
 
-#include <inttypes.h>
-
-#include "data_buffer.hpp"
-
-class InterfaceMAC;
-class ProtocolIPv4;
-class ProtocolUDP;
-
-// UDP Src = 0.0.0.0 sPort = 68
-// Dest = 255.255.255.255 dPort = 67
-
-class ProtocolDHCP
+namespace tinytcp
 {
-public:
-    ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp);
-    void ProcessRx(DataBuffer* buffer);
-    void Discover();
-    void SendRequest(uint8_t messageType,
-                     const uint8_t* serverAddress,
-                     const uint8_t* requestAddress);
-    void test();
+DefaultStack::DefaultStack()
+    : MAC(ARP, IP)
+    , IP(MAC, ARP, ICMP, TCP, UDP)
+    , ARP(MAC, IP)
+    , DHCP(MAC, IP, UDP)
+    , ICMP(IP)
+    , TCP(IP)
+    , UDP(IP, DHCP)
+{
+}
 
-private:
-    DataBuffer Buffer;
-    int PendingXID;
+void DefaultStack::RegisterDataTransmitHandler(InterfaceMAC::DataTransmitHandler handler)
+{
+    MAC.RegisterDataTransmitHandler(handler);
+}
 
-    InterfaceMAC& MAC;
-    ProtocolIPv4& IP;
-    ProtocolUDP& UDP;
-};
+void DefaultStack::SetMACAddress(uint8_t* addr)
+{
+    MAC.SetUnicastAddress(addr);
+}
+
+void DefaultStack::StartDHCP()
+{
+    DHCP.test();
+}
+
+void DefaultStack::Tick()
+{
+    TCP.Tick();
+}
+
+void DefaultStack::ProcessRx(uint8_t* data, size_t length)
+{
+    MAC.ProcessRx(data, length);
+}
+} // namespace tinytcp

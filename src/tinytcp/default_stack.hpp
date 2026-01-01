@@ -29,40 +29,36 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "default_stack.hpp"
+#pragma once
 
-DefaultStack::DefaultStack()
-    : MAC(ARP, IP)
-    , IP(MAC, ARP, ICMP, TCP, UDP)
-    , ARP(MAC, IP)
-    , DHCP(MAC, IP, UDP)
-    , ICMP(IP)
-    , TCP(IP)
-    , UDP(IP, DHCP)
-{
-}
+// #include "int.hpp"
+#include "arp.hpp"
+#include "dhcp.hpp"
+#include "icmp.hpp"
+#include "ipv4.hpp"
+#include "mac_ethernet.hpp"
+#include "tcp.hpp"
+#include "udp.hpp"
 
-void DefaultStack::RegisterDataTransmitHandler(InterfaceMAC::DataTransmitHandler handler)
+namespace tinytcp
 {
-    MAC.RegisterDataTransmitHandler(handler);
-}
+class DefaultStack
+{
+public:
+    DefaultStack();
+    void RegisterDataTransmitHandler(InterfaceMAC::DataTransmitHandler);
+    void SetMACAddress(uint8_t* addr);
+    void StartDHCP();
+    void Tick();
 
-void DefaultStack::SetMACAddress(uint8_t* addr)
-{
-    MAC.SetUnicastAddress(addr);
-}
+    void ProcessRx(uint8_t* data, size_t length);
 
-void DefaultStack::StartDHCP()
-{
-    DHCP.test();
-}
-
-void DefaultStack::Tick()
-{
-    TCP.Tick();
-}
-
-void DefaultStack::ProcessRx(uint8_t* data, size_t length)
-{
-    MAC.ProcessRx(data, length);
-}
+    ProtocolMACEthernet MAC;
+    ProtocolIPv4 IP;
+    ProtocolARP ARP;
+    ProtocolDHCP DHCP;
+    ProtocolICMP ICMP;
+    ProtocolTCP TCP;
+    ProtocolUDP UDP;
+};
+} // namespace tinytcp

@@ -34,6 +34,8 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
+namespace tinytcp
+{
 class DataBuffer;
 
 class InterfaceMAC
@@ -53,3 +55,4 @@ public:
     virtual void Transmit(DataBuffer*, const uint8_t* targetMAC, uint16_t type) = 0;
     virtual void Retransmit(DataBuffer* buffer) = 0;
 };
+} // namespace tinytcp

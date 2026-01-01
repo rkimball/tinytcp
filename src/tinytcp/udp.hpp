@@ -32,11 +32,29 @@
 #pragma once
 
 #include <inttypes.h>
+#include "data_buffer.hpp"
 
-class FCS
+namespace tinytcp
+{
+class ProtocolIPv4;
+class ProtocolDHCP;
+
+class ProtocolUDP
 {
 public:
-    static uint16_t Checksum(const uint8_t* buffer, int length);
-    static uint32_t ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum);
-    static uint16_t ChecksumComplete(uint32_t checksum);
+    ProtocolUDP(ProtocolIPv4&, ProtocolDHCP&);
+    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
+    void Transmit(DataBuffer* buffer,
+                  const uint8_t* targetIP,
+                  uint16_t targetPort,
+                  const uint8_t* sourceIP,
+                  uint16_t sourcePort);
+
+    DataBuffer* GetTxBuffer(InterfaceMAC*);
+    static size_t header_size() { return 8; }
+
+private:
+    ProtocolIPv4& IP;
+    ProtocolDHCP& DHCP;
 };
+} // namespace tinytcp

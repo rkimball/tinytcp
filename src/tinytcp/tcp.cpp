@@ -30,9 +30,6 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 #include "data_buffer.hpp"
 #include "fcs.hpp"
@@ -41,6 +38,10 @@
 #include "utility.hpp"
 #include "osMutex.hpp"
 #include "osTime.hpp"
+
+
+namespace tinytcp
+{
 
 ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
     : IP(ip)
@@ -485,3 +486,4 @@ std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
     }
     return out;
 }
+} // namespace tinytcp

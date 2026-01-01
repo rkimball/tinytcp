@@ -37,6 +37,8 @@
 #include "mac_ethernet.hpp"
 #include "utility.hpp"
 
+namespace tinytcp
+{
 // Destination - 6 bytes
 // Source - 6 bytes
 // FrameType - 2 bytes
@@ -261,3 +263,4 @@ void ProtocolMACEthernet::SetUnicastAddress(uint8_t* addr)
         UnicastAddress[i] = addr[i];
     }
 }
+} // namespace tinytcp

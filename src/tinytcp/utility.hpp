@@ -37,6 +37,8 @@
 #include <sstream>
 #include <string>
 
+namespace tinytcp
+{
 void DumpData(std::ostream& out, void* buffer, size_t len);
 void DumpBits(std::ostream& out, void* buffer, size_t size);
 
@@ -111,3 +113,4 @@ std::string to_hex(T obj, size_t width = sizeof(T) * 2)
     ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
     return ss.str();
 }
+} // namespace tinytcp

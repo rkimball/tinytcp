@@ -31,9 +31,9 @@
 
 #include "data_buffer.hpp"
 
-DataBuffer::DataBuffer() {}
+tinytcp::DataBuffer::DataBuffer() {}
 
-void DataBuffer::Initialize(InterfaceMAC* mac)
+void tinytcp::DataBuffer::Initialize(InterfaceMAC* mac)
 {
     Packet = Data;
     Length = 0;
@@ -42,13 +42,13 @@ void DataBuffer::Initialize(InterfaceMAC* mac)
     MAC = mac;
 }
 
-void DataBuffer::Preallocate(size_t size)
+void tinytcp::DataBuffer::Preallocate(size_t size)
 {
     Packet += size;
     Remainder -= size;
 }
 
-void DataBuffer::ResetPreallocation(size_t size)
+void tinytcp::DataBuffer::ResetPreallocation(size_t size)
 {
     Packet -= size;
     Remainder += size;

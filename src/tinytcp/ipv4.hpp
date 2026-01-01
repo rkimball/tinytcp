@@ -36,68 +36,77 @@
 
 #include "data_buffer.hpp"
 #include "interface_mac.hpp"
-#include "ipv4.hpp"
-#include "osMutex.hpp"
+#include "osQueue.hpp"
 
-class ARPCacheEntry
+namespace tinytcp
 {
-public:
-    ARPCacheEntry();
-    uint8_t Age;
-    uint8_t IPv4Address[4];
-    uint8_t MACAddress[6];
-};
 
-// HardwareType - 2 bytes
-// ProtocolType - 2 bytes
-// HardwareSize - 1 byte, size int bytes of HardwareAddress fields
-// IPv4AddressSize - 1 byte, size int bytes of ProtocolAddress fields
-// SenderHardwareAddress - HardwareSize bytes
-// SenderProtocolAddress - IPv4AddressSize bytes
-// TargetHardwareAddress - HardwareSize bytes
-// TargetProtocolAddress - IPv4AddressSize bytes
+class ProtocolARP;
+class ProtocolICMP;
+class ProtocolTCP;
+class ProtocolUDP;
 
-class ProtocolARP
+class ProtocolIPv4
 {
-public:
-    ProtocolARP(InterfaceMAC& mac, ProtocolIPv4& ip);
-    void Initialize();
-
-    void ProcessRx(const DataBuffer*);
-
-    void Add(const uint8_t* protocolAddress, const uint8_t* hardwareAddress);
-
-    const uint8_t* Protocol2Hardware(const uint8_t* protocolAddress);
-    bool IsLocal(const uint8_t* protocolAddress);
-    bool IsBroadcast(const uint8_t* protocolAddress);
-
-    friend std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj);
-
 private:
-    struct ARPInfo
+    friend class TCPConnection;
+    static const int ADDRESS_SIZE = 4;
+
+public:
+    struct AddressInfo
     {
-        uint16_t hardwareType;
-        uint16_t protocolType;
-        uint8_t hardwareSize;
-        uint8_t protocolSize;
-        uint16_t opType;
-        uint8_t* senderHardwareAddress;
-        uint8_t* senderProtocolAddress;
-        uint8_t* targetHardwareAddress;
-        uint8_t* targetProtocolAddress;
+        bool DataValid;
+        uint8_t Address[ADDRESS_SIZE];
+        uint32_t IpAddressLeaseTime;
+        uint32_t RenewTime;
+        uint32_t RebindTime;
+        uint8_t SubnetMask[ADDRESS_SIZE];
+        uint8_t Gateway[ADDRESS_SIZE];
+        uint8_t DomainNameServer[ADDRESS_SIZE];
+        uint8_t BroadcastAddress[ADDRESS_SIZE];
     };
 
-    void SendReply(const ARPInfo& info);
-    void SendRequest(const uint8_t* targetIP);
-    int LocateProtocolAddress(const uint8_t* protocolAddress);
+    ProtocolIPv4(InterfaceMAC&, ProtocolARP&, ProtocolICMP&, ProtocolTCP&, ProtocolUDP&);
+    void Initialize();
 
-    DataBuffer ARPRequest;
+    void ProcessRx(DataBuffer*);
 
-    ARPCacheEntry Cache[ARPCacheSize];
+    void Transmit(DataBuffer*, uint8_t protocol, const uint8_t* targetIP, const uint8_t* sourceIP);
+    void Retransmit(DataBuffer*);
+
+    void Retry();
+
+    size_t AddressSize();
+    const uint8_t* GetUnicastAddress();
+    const uint8_t* GetBroadcastAddress();
+    const uint8_t* GetGatewayAddress();
+    const uint8_t* GetSubnetMask();
+    void SetAddressInfo(const AddressInfo& info);
+
+    DataBuffer* GetTxBuffer(InterfaceMAC*);
+    void FreeTxBuffer(DataBuffer*);
+    void FreeRxBuffer(DataBuffer*);
+
+    static size_t header_size() { return 20; }
+
+    friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
+
+private:
+    bool IsLocal(const uint8_t* addr);
+
+    uint16_t PacketID;
+    void* TxBuffer[TX_BUFFER_COUNT];
+    osQueue UnresolvedQueue;
+
+    AddressInfo Address;
 
     InterfaceMAC& MAC;
-    ProtocolIPv4& IP;
+    ProtocolARP& ARP;
+    ProtocolICMP& ICMP;
+    ProtocolTCP& TCP;
+    ProtocolUDP& UDP;
 
-    ProtocolARP();
-    ProtocolARP(ProtocolARP&);
+    ProtocolIPv4();
+    ProtocolIPv4(ProtocolIPv4&);
 };
+} // namespace tinytcp

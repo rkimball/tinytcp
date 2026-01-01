@@ -33,6 +33,8 @@
 
 #include "utility.hpp"
 
+namespace tinytcp
+{
 void DumpData(std::ostream& out, void* buffer, size_t len)
 {
     std::ios_base::fmtflags flags = out.flags();
@@ -242,3 +244,4 @@ bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length)
 
     return true;
 }
+} // namespace tinytcp

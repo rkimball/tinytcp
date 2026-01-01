@@ -37,6 +37,9 @@
 #include "osEvent.hpp"
 #include "osMutex.hpp"
 #include "osQueue.hpp"
+
+namespace tinytcp
+{
 class DataBuffer;
 
 class TCPConnection
@@ -121,3 +124,4 @@ private:
     void Initialize(ProtocolIPv4&, ProtocolTCP&);
     TCPConnection(TCPConnection&);
 };
+} // namespace tinytcp

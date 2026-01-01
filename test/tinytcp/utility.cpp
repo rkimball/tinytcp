@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "utility.hpp"
 
+using namespace tinytcp;
+
 TEST(utility, unpack8) {
     // Test case 1: Unpacking a single byte
     uint8_t data1[] = {0xAB};

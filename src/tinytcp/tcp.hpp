@@ -37,6 +37,8 @@
 #include "tcp_connection.hpp"
 #include "osMutex.hpp"
 
+namespace tinytcp
+{
 // SourcePort - 16 bits
 // TargetPort - 16 bits
 // Sequence - 32 bits
@@ -111,3 +113,4 @@ private:
     ProtocolTCP();
     ProtocolTCP(ProtocolTCP&);
 };
+} // namespace tinytcp

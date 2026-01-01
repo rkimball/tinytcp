@@ -62,7 +62,7 @@ static osThread MainThread;
 
 static osEvent StartEvent("StartEvent");
 
-DefaultStack tcpStack;
+tinytcp::DefaultStack tcpStack;
 
 struct NetworkConfig
 {
@@ -98,7 +98,7 @@ void NetworkEntry(void* param)
     tcpStack.SetMACAddress(addr);
 
     std::cout << "MAC Address set to "
-              << macaddrtoa(tcpStack.MAC.GetUnicastAddress()) << std::endl;
+              << tinytcp::macaddrtoa(tcpStack.MAC.GetUnicastAddress()) << std::endl;
 
     //   Config.IPv4.Address[ 0 ] = 0;
     //   Config.IPv4.Address[ 1 ] = 0;

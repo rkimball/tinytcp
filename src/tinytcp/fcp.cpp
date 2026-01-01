@@ -29,23 +29,35 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#pragma once
+#include "fcs.hpp"
+#include <stdio.h>
 
-#include <inttypes.h>
-#include "data_buffer.hpp"
-
-class ProtocolIPv4;
-
-class ProtocolICMP
+uint32_t tinytcp::FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 {
-public:
-    ProtocolICMP(ProtocolIPv4& ip);
+    uint16_t value;
+    int32_t i;
 
-    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
+    // Don't need to add in the checksum field so only 9x16 bit words in header
+    for (i = 0; i < length / 2; i++)
+    {
+        value = (buffer[i * 2] << 8) | buffer[i * 2 + 1];
+        checksum += (uint32_t)value;
+    }
 
-private:
-    ProtocolIPv4& IP;
+    return checksum;
+}
 
-    ProtocolICMP();
-    ProtocolICMP(ProtocolICMP&);
-};
+uint16_t tinytcp::FCS::ChecksumComplete(uint32_t checksum)
+{
+    uint16_t sum;
+    sum = (checksum & 0xFFFF);
+    sum += (checksum >> 16);
+    sum = ~sum;
+
+    return sum;
+}
+
+uint16_t tinytcp::FCS::Checksum(const uint8_t* buffer, int length)
+{
+    return ChecksumComplete(ChecksumAdd(buffer, length, 0));
+}

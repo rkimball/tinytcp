@@ -31,31 +31,24 @@
 
 #pragma once
 
-// #include "int.hpp"
-#include "arp.hpp"
-#include "dhcp.hpp"
-#include "icmp.hpp"
-#include "ipv4.hpp"
-#include "mac_ethernet.hpp"
-#include "tcp.hpp"
-#include "udp.hpp"
+#include <inttypes.h>
+#include "data_buffer.hpp"
 
-class DefaultStack
+namespace tinytcp
+{
+class ProtocolIPv4;
+
+class ProtocolICMP
 {
 public:
-    DefaultStack();
-    void RegisterDataTransmitHandler(InterfaceMAC::DataTransmitHandler);
-    void SetMACAddress(uint8_t* addr);
-    void StartDHCP();
-    void Tick();
+    ProtocolICMP(ProtocolIPv4& ip);
 
-    void ProcessRx(uint8_t* data, size_t length);
+    void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
 
-    ProtocolMACEthernet MAC;
-    ProtocolIPv4 IP;
-    ProtocolARP ARP;
-    ProtocolDHCP DHCP;
-    ProtocolICMP ICMP;
-    ProtocolTCP TCP;
-    ProtocolUDP UDP;
+private:
+    ProtocolIPv4& IP;
+
+    ProtocolICMP();
+    ProtocolICMP(ProtocolICMP&);
 };
+} // namespace tinytcp

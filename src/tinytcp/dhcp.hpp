@@ -29,35 +29,39 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include "fcs.hpp"
-#include <stdio.h>
+#pragma once
 
-uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
+#include <inttypes.h>
+
+#include "data_buffer.hpp"
+
+namespace tinytcp
 {
-    uint16_t value;
-    int32_t i;
 
-    // Don't need to add in the checksum field so only 9x16 bit words in header
-    for (i = 0; i < length / 2; i++)
-    {
-        value = (buffer[i * 2] << 8) | buffer[i * 2 + 1];
-        checksum += (uint32_t)value;
-    }
+class InterfaceMAC;
+class ProtocolIPv4;
+class ProtocolUDP;
 
-    return checksum;
-}
+// UDP Src = 0.0.0.0 sPort = 68
+// Dest = 255.255.255.255 dPort = 67
 
-uint16_t FCS::ChecksumComplete(uint32_t checksum)
+class ProtocolDHCP
 {
-    uint16_t sum;
-    sum = (checksum & 0xFFFF);
-    sum += (checksum >> 16);
-    sum = ~sum;
+public:
+    ProtocolDHCP(InterfaceMAC& mac, ProtocolIPv4& ip, ProtocolUDP& udp);
+    void ProcessRx(DataBuffer* buffer);
+    void Discover();
+    void SendRequest(uint8_t messageType,
+                     const uint8_t* serverAddress,
+                     const uint8_t* requestAddress);
+    void test();
 
-    return sum;
-}
+private:
+    DataBuffer Buffer;
+    int PendingXID;
 
-uint16_t FCS::Checksum(const uint8_t* buffer, int length)
-{
-    return ChecksumComplete(ChecksumAdd(buffer, length, 0));
-}
+    InterfaceMAC& MAC;
+    ProtocolIPv4& IP;
+    ProtocolUDP& UDP;
+};
+} // namespace tinytcp

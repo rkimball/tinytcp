@@ -29,50 +29,34 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <stdio.h>
+#pragma once
 
-#include "fcs.hpp"
-#include "icmp.hpp"
-#include "ipv4.hpp"
-#include "utility.hpp"
+#include <inttypes.h>
+#include "config.hpp"
+#include "interface_mac.hpp"
 
-// Type - 8 bits
-// Code - 8 bits
-// Checksum - 16 bits
-
-ProtocolICMP::ProtocolICMP(ProtocolIPv4& ip)
-    : IP(ip)
+namespace tinytcp
 {
-}
-
-void ProtocolICMP::ProcessRx(DataBuffer* buffer, const uint8_t* remoteIP, const uint8_t*)
+class DataBuffer
 {
-    uint8_t type;
-    uint8_t code;
-    DataBuffer* txBuffer;
-    uint16_t i;
+public:
+    DataBuffer();
 
-    type = buffer->Packet[0];
-    code = buffer->Packet[1];
+    uint8_t* Packet;
+    uint32_t AcknowledgementNumber;
+    uint32_t Time_us;
+    uint16_t Length;
+    uint16_t Remainder;
+    bool Disposable;
+    InterfaceMAC* MAC;
 
-    switch (type)
-    {
-    case 8: // echo request
-        txBuffer = IP.GetTxBuffer(buffer->MAC);
-        if (txBuffer && buffer->Length <= txBuffer->Remainder)
-        {
-            for (i = 0; i < buffer->Length; i++)
-            {
-                txBuffer->Packet[i] = buffer->Packet[i];
-            }
-            txBuffer->Packet[0] = 0;
-            Pack16(txBuffer->Packet, 2, 0); // clear the checksum
-            i = FCS::Checksum(txBuffer->Packet, buffer->Length);
-            Pack16(txBuffer->Packet, 2, i); // set the checksum
-            txBuffer->Length = buffer->Length;
-            IP.Transmit(txBuffer, 0x01, remoteIP, IP.GetUnicastAddress());
-        }
-        break;
-    default: break;
-    }
+    void Initialize(InterfaceMAC*);
+    void Preallocate(size_t size);
+    void ResetPreallocation(size_t size);
+
+private:
+    uint8_t Data[DATA_BUFFER_PAYLOAD_SIZE];
+
+    DataBuffer(DataBuffer&);
+};
 }
