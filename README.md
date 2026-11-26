@@ -58,6 +58,11 @@ DHCP got address 192.168.1.23
 ```
 so you will point your browser at http://192.168.1.23 in this example
 
+## Dev Container
+Use **Dev Containers: Reopen in Container** in VS Code and pick a configuration:
+* **NoChatSupport** - build environment only.
+* **ClaudeSupport** - adds Claude Code. It mounts your host `~/.claude` so history is shared with the container. Set `export CLAUDE_CONFIG_DIR="$HOME/.claude"` on the host so the host and container share one `.claude.json`.
+
 ## Usage
 The protocol stack has three main functions required
 

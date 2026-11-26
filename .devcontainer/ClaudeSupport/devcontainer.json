@@ -1,20 +1,23 @@
 {
     "build": {
-        "dockerfile": "Dockerfile",
-        "context": "..",
+        "dockerfile": "../Dockerfile",
+        "context": "../..",
         "args": {
             "USER_UID": "1000",
             "USER_GID": "1000"
         }
     },
     "updateRemoteUserUID": true,
-    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/dev/tinytcp,type=bind",
+    "workspaceFolder": "/home/dev/tinytcp",
     "mounts": [
-        "source=claude-config,target=/home/vscode/.claude,type=volume"
+        "source=${localEnv:HOME}/.claude,target=/home/dev/.claude,type=bind"
     ],
-    "runArgs": [
-        "--cap-add=NET_RAW"
-    ],
+    "containerEnv": {
+        "HOST_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
+        "CLAUDE_CONFIG_DIR": "/home/dev/.claude"
+    },
+    "postCreateCommand": "bash .devcontainer/ClaudeSupport/postCreate.sh",
     "remoteUser": "dev",
     "containerUser": "dev",
     "customizations": {

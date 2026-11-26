@@ -1,0 +1,28 @@
+{
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": "../..",
+        "args": {
+            "USER_UID": "1000",
+            "USER_GID": "1000"
+        }
+    },
+    "updateRemoteUserUID": true,
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/dev/tinytcp,type=bind",
+    "workspaceFolder": "/home/dev/tinytcp",
+    "remoteUser": "dev",
+    "containerUser": "dev",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "ms-vscode.cmake-tools-helper",
+                "ms-vscode.remote-containers",
+                "johnpapa.vscode-peacock",
+                "github.copilot",
+                "github.copilot-chat"
+            ]
+        }
+    }
+}

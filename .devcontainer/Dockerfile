@@ -32,6 +32,8 @@ RUN (userdel -r ubuntu 2>/dev/null || true) && \
     echo "dev ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/dev && \
     chmod 0440 /etc/sudoers.d/dev
 
+USER root
+RUN mkdir -p /home/dev/.claude && chown -R dev:dev /home/dev/.claude
 USER dev
 
 CMD ["bash"]
