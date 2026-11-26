@@ -1,13 +1,22 @@
 {
     "build": {
         "dockerfile": "Dockerfile",
-        "context": ".."
+        "context": "..",
+        "args": {
+            "USER_UID": "1000",
+            "USER_GID": "1000"
+        }
     },
+    "updateRemoteUserUID": true,
+    "workspaceFolder": "/workspace",
+    "mounts": [
+        "source=claude-config,target=/home/vscode/.claude,type=volume"
+    ],
     "runArgs": [
-        "--network=host",
         "--cap-add=NET_RAW"
     ],
-    "remoteUser": "ubuntu",
+    "remoteUser": "dev",
+    "containerUser": "dev",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -17,7 +26,8 @@
                 "ms-vscode.remote-containers",
                 "johnpapa.vscode-peacock",
                 "github.copilot",
-                "github.copilot-chat"
+                "github.copilot-chat",
+                "anthropic.claude-code"
             ]
         }
     }
