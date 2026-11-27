@@ -1,19 +1,15 @@
 {
     "build": {
         "dockerfile": "../Dockerfile",
-        "context": "../..",
-        "args": {
-            "USER_UID": "1000",
-            "USER_GID": "1000"
-        }
+        "context": "../.."
     },
     "updateRemoteUserUID": true,
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/dev/tinytcp,type=bind",
-    "workspaceFolder": "/home/dev/tinytcp",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/ubuntu/tinytcp,type=bind",
+    "workspaceFolder": "/home/ubuntu/tinytcp",
     "runArgs": ["--cap-add=NET_ADMIN"],
     "forwardPorts": [8080],
-    "remoteUser": "dev",
-    "containerUser": "dev",
+    "remoteUser": "ubuntu",
+    "containerUser": "ubuntu",
     "customizations": {
         "vscode": {
             "extensions": [

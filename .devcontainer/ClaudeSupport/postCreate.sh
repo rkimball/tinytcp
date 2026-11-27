@@ -3,7 +3,7 @@
 #
 # Claude Code files session history under ~/.claude/projects/<workspace path
 # with every non-alphanumeric character replaced by "-">. The container sees the
-# workspace as /home/dev/tinytcp, but history recorded on the host is filed under
+# workspace as /home/ubuntu/tinytcp, but history recorded on the host is filed under
 # the host path, so it would not show up in the History tab. This links the
 # container's project directory to the host's, wherever the repo lives on the host.
 #
