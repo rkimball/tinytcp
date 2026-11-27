@@ -5,7 +5,9 @@
 # (tinytcp) runs on veth1, so tinytcp gets its address through real DHCP and can
 # be reached from this container with curl.
 #
-#   vnet.sh test      start everything, fetch the web page with curl, tear down
+#   vnet.sh test      start everything, fetch the web page with curl, ping it, tear down.
+#                     The pings (a default and an odd sized one) fail on a lost or a
+#                     duplicated reply
 #   vnet.sh run       start everything and keep running (Ctrl-C to stop); the web
 #                     server is also forwarded to port $FORWARD_PORT (default 8080)
 #   vnet.sh up|down   create / remove the virtual network only
@@ -107,6 +109,22 @@ test)
     start_app
     curl --silent --show-error --fail --max-time 10 "http://${TT_ADDR}/" -o "$STATE_DIR/index.html"
     echo "vnet: PASS - fetched $(wc -c <"$STATE_DIR/index.html") bytes from http://${TT_ADDR}/"
+    # Ping with a payload of the default size and of an odd size. Every request must get exactly one
+    # reply: a lost reply is a failure, and so is a duplicated one, which means the stack is
+    # handling a frame more than once.
+    if command -v ping >/dev/null 2>&1; then
+        for size in 56 1; do
+            if ! output=$(ping -c 3 -W 2 -s "$size" "$TT_ADDR" 2>&1) || ! grep -q " 3 received," <<<"$output" ||
+                grep -q "DUP!" <<<"$output"; then
+                echo "vnet: FAIL - ping -s $size $TT_ADDR:" >&2
+                echo "$output" >&2
+                exit 1
+            fi
+        done
+        echo "vnet: PASS - pinged $TT_ADDR with 56 and 1 octets of data, one reply to every request"
+    else
+        echo "vnet: ping not installed, skipping the ping checks" >&2
+    fi
     ;;
 run)
     trap trap_cleanup EXIT INT TERM

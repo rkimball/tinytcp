@@ -46,6 +46,15 @@ public:
 
     void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
 
+    // Tell the sender of a datagram that it cannot be delivered. code is the destination
+    // unreachable code, such as 2 for an unsupported protocol and 3 for a port nobody is listening
+    // on. received is the buffer the datagram arrived in and datagram points at its IP header,
+    // length octets of it. Nothing is sent where RFC 1122 section 3.2.2 says an error must not be.
+    void SendDestinationUnreachable(uint8_t code,
+                                    const DataBuffer* received,
+                                    const uint8_t* datagram,
+                                    uint16_t length);
+
 private:
     ProtocolIPv4& IP;
 

@@ -37,6 +37,8 @@ set (SRC
     tinytcp/mac.cpp
     tinytcp/test_arp.cpp
     tinytcp/test_ethernet.cpp
+    tinytcp/test_icmp.cpp
+    tinytcp/test_ipv4.cpp
     tinytcp/test_checksum.cpp
     tinytcp/test_Utility.cpp
 )

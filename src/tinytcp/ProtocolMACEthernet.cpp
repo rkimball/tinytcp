@@ -101,6 +101,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
     }
 
     packet->Initialize(this);
+    packet->LinkBroadcast = AddressCompare(buffer, BroadcastAddress, ADDRESS_SIZE);
 
     for (i = 0; i < actualLength; i++)
     {

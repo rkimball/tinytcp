@@ -15,6 +15,7 @@ RUN apt-get update && \
         socat \
         tcpdump \
         ethtool \
+        iputils-ping \
         gcovr \
         g++-riscv64-linux-gnu \
         g++-arm-linux-gnueabihf \

@@ -49,6 +49,7 @@ public:
     uint16_t Length;
     uint16_t Remainder;
     bool Disposable;
+    bool LinkBroadcast; // the frame this came in was sent to the Ethernet broadcast address
     InterfaceMAC* MAC;
 
     void Initialize(InterfaceMAC*);
