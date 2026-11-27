@@ -310,6 +310,10 @@ void http::Page::Process(const char* htmlFile, const char* marker, MarkerContent
     FILE* f = fopen(htmlFile, "r");
     if (f)
     {
+        if (!HTTPHeaderSent)
+        {
+            PageOK();
+        }
         int c;
         int markerIndex = 0;
         int markerLength = strlen(marker);

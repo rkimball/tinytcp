@@ -10,6 +10,8 @@
     "updateRemoteUserUID": true,
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/dev/tinytcp,type=bind",
     "workspaceFolder": "/home/dev/tinytcp",
+    "runArgs": ["--cap-add=NET_ADMIN"],
+    "forwardPorts": [8080],
     "remoteUser": "dev",
     "containerUser": "dev",
     "customizations": {

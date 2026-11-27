@@ -18,6 +18,8 @@
         "CLAUDE_CONFIG_DIR": "/home/dev/.claude"
     },
     "postCreateCommand": "bash .devcontainer/ClaudeSupport/postCreate.sh",
+    "runArgs": ["--cap-add=NET_ADMIN"],
+    "forwardPorts": [8080],
     "remoteUser": "dev",
     "containerUser": "dev",
     "customizations": {

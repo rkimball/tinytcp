@@ -63,6 +63,9 @@ Use **Dev Containers: Reopen in Container** in VS Code and pick a configuration:
 * **NoChatSupport** - build environment only.
 * **ClaudeSupport** - adds Claude Code. It mounts your host `~/.claude` so history is shared with the container. Set `export CLAUDE_CONFIG_DIR="$HOME/.claude"` on the host so the host and container share one `.claude.json`.
 
+### Testing in the container
+`test_app/vnet.sh test` builds a virtual network (veth pair plus a dnsmasq DHCP server), runs `test_app` on it, fetches its web page with curl and cleans up. `test_app/vnet.sh run` keeps it running and forwards the web server to port 8080 so a browser on the host can reach it. Build first (`cmake` + `make` in `build/`).
+
 ## Usage
 The protocol stack has three main functions required
 

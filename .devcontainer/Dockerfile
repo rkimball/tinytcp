@@ -9,6 +9,12 @@ RUN apt-get update && \
         wget \
         libcap2-bin \
         sudo \
+        iproute2 \
+        dnsmasq \
+        curl \
+        socat \
+        tcpdump \
+        ethtool \
         clang-18 \
         clang-format-18 \
         clang-tidy-18 \
