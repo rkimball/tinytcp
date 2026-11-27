@@ -83,6 +83,9 @@ public:
     const uint8_t* GetSubnetMask();
     void SetAddressInfo(const AddressInfo& info);
 
+    // Whether the stack has an address yet, which DHCP supplies
+    bool IsConfigured() const { return Address.DataValid; }
+
     DataBuffer* GetTxBuffer(InterfaceMAC*);
     void FreeTxBuffer(DataBuffer*);
     void FreeRxBuffer(DataBuffer*);

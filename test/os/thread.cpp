@@ -1,9 +1,11 @@
 #include <atomic>
 #include <chrono>
 #include <memory>
+#include <pthread.h>
 #include <string.h>
 #include <string>
 #include <thread>
+#include <unistd.h>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -521,4 +523,26 @@ TEST(ThreadTest, DISABLED_WaitForExitWaitsForTheThread)
     parked.thread.WaitForExit(100);
     auto elapsed = std::chrono::steady_clock::now() - start;
     EXPECT_GE(elapsed, std::chrono::milliseconds(90));
+}
+
+// Until the first thread is created the key that GetCurrent() reads does not exist. It is zero,
+// which is a valid key if another library, googletest for one, has created keys of its own. The
+// function used to return that library's data, and Mutex::Take() then wrote thread state into it,
+// which corrupted the heap. A fresh process is needed because Initialize() only runs once.
+TEST(ThreadDeathTest, GetCurrentBeforeAnyThreadExistsDoesNotReadAnotherLibrarysData)
+{
+    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+    EXPECT_EXIT(
+        {
+            static int sentinel;
+            pthread_key_t key;
+            pthread_key_create(&key, nullptr); // so that at least key 0 exists
+            for (pthread_key_t each = 0; each < 64; each++)
+            {
+                pthread_setspecific(each, &sentinel);
+            }
+            _exit(os::Thread::GetCurrent() == nullptr ? 0 : 3);
+        },
+        ::testing::ExitedWithCode(0),
+        "");
 }

@@ -19,8 +19,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 # The minimums are percentages and "make coverage" fails if line coverage is below them. They are
 # set a little under what the tests reach today. Raise them as tests are added.
 option(TINYTCP_COVERAGE "Instrument the code with gcov and add the coverage target" OFF)
-set(TINYTCP_COVERAGE_MIN_LINES 22 CACHE STRING "Minimum line coverage of src/, in percent")
-set(TINYTCP_COVERAGE_MIN_LINES_OS 98 CACHE STRING "Minimum line coverage of src/os, in percent")
+set(TINYTCP_COVERAGE_MIN_LINES 51 CACHE STRING "Minimum line coverage of src/, in percent")
+set(TINYTCP_COVERAGE_MIN_LINES_OS 99 CACHE STRING "Minimum line coverage of src/os, in percent")
 if(TINYTCP_COVERAGE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0 -g")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
