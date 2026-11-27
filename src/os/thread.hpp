@@ -32,7 +32,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include <iostream>
+#include "output.hpp"
 
 #ifndef _WIN32
 #include <pthread.h>
@@ -96,7 +96,7 @@ public:
 #endif
     Event ThreadStart;
 
-    static void dump_info(std::ostream&);
+    static void dump_info(TextOutput output, void* context);
 
     static const int32_t STATE_LENGTH_MAX = 81;
     int32_t Priority;

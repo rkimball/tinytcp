@@ -292,7 +292,8 @@ int TCPConnection::Read()
 
 int TCPConnection::Read(char* buffer, int size)
 {
-    int bytes_to_read = std::min(size, TCP_RX_WINDOW_SIZE - RxOutOffset);
+    int window_remaining = TCP_RX_WINDOW_SIZE - RxOutOffset;
+    int bytes_to_read = (size < window_remaining) ? size : window_remaining;
 
     memcpy(buffer, &RxBuffer[RxOutOffset], bytes_to_read);
 
@@ -460,30 +461,31 @@ const char* TCPConnection::GetStateString() const
     return rc;
 }
 
-std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
+void TCPConnection::dump_info(os::TextOutput output, void* context) const
 {
-    out << "connection " << obj.GetStateString() << "   ";
-    switch (obj.State)
+    os::Print(output, context, "connection %s   ", GetStateString());
+    switch (State)
     {
-    case TCPConnection::LISTEN: out << "     local=" << obj.LocalPort << "\n"; break;
-    case TCPConnection::ESTABLISHED:
-        out << "local=" << obj.LocalPort;
-        out << "  remote=";
-        out << (int)obj.RemoteAddress[0] << ".";
-        out << (int)obj.RemoteAddress[1] << ".";
-        out << (int)obj.RemoteAddress[2] << ".";
-        out << (int)obj.RemoteAddress[3] << ":";
-        out << obj.RemotePort;
-        out << "\n";
-        out << "    " << "RxBuffer size " << TCP_RX_WINDOW_SIZE << "\n";
-        out << "    " << "RxBufferEmpty " << obj.RxBufferEmpty << "\n";
-        out << "    " << "RxBuffer      " << obj.RxInOffset - obj.RxOutOffset << "\n";
-        out << "    " << "CurrentWindow " << obj.CurrentWindow << "\n";
+    case TCPConnection::LISTEN:
+        os::Print(output, context, "     local=%u\n", (unsigned)LocalPort);
         break;
-    default: out << "\n";
+    case TCPConnection::ESTABLISHED:
+        os::Print(output,
+                  context,
+                  "local=%u  remote=%d.%d.%d.%d:%u\n",
+                  (unsigned)LocalPort,
+                  (int)RemoteAddress[0],
+                  (int)RemoteAddress[1],
+                  (int)RemoteAddress[2],
+                  (int)RemoteAddress[3],
+                  (unsigned)RemotePort);
+        os::Print(output, context, "    RxBuffer size %d\n", TCP_RX_WINDOW_SIZE);
+        os::Print(output, context, "    RxBufferEmpty %d\n", (int)RxBufferEmpty);
+        os::Print(output, context, "    RxBuffer      %d\n", (int)RxInOffset - (int)RxOutOffset);
+        os::Print(output, context, "    CurrentWindow %u\n", (unsigned)CurrentWindow);
+        break;
+    default: os::Print(output, context, "\n");
     }
-
-    return out;
 }
 
 } // namespace tinytcp

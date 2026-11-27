@@ -36,69 +36,67 @@
 namespace tinytcp
 {
 
-void DumpData(std::ostream& out, void* buffer, size_t len)
+void DumpData(os::TextOutput output, void* context, void* buffer, size_t len)
 {
-    std::ios_base::fmtflags flags = out.flags();
     const uint8_t* data = reinterpret_cast<const uint8_t*>(buffer);
     size_t index = 0;
     while (index < len)
     {
-        out << std::hex << std::setw(8) << std::setfill('0') << index;
+        char line[96];
+        size_t n = static_cast<size_t>(snprintf(line, sizeof(line), "%08lx", (unsigned long)index));
         for (int i = 0; i < 8; i++)
         {
             if (index + i < len)
             {
-                out << " " << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)data[i];
+                n += static_cast<size_t>(
+                    snprintf(line + n, sizeof(line) - n, " %02x", (unsigned)data[i]));
             }
             else
             {
-                out << "   ";
+                n += static_cast<size_t>(snprintf(line + n, sizeof(line) - n, "   "));
             }
         }
-        out << "  ";
+        n += static_cast<size_t>(snprintf(line + n, sizeof(line) - n, "  "));
         for (int i = 8; i < 16; i++)
         {
             if (index + i < len)
             {
-                out << " " << std::hex << std::setw(2) << std::setfill('0') << (uint32_t)data[i];
+                n += static_cast<size_t>(
+                    snprintf(line + n, sizeof(line) - n, " %02x", (unsigned)data[i]));
             }
             else
             {
-                out << "   ";
+                n += static_cast<size_t>(snprintf(line + n, sizeof(line) - n, "   "));
             }
         }
-        out << "  ";
+        n += static_cast<size_t>(snprintf(line + n, sizeof(line) - n, "  "));
         for (int i = 0; i < 16; i++)
         {
             char ch = (index + i < len ? data[i] : ' ');
-            out << ((ch < 32) ? '.' : ch);
+            n += static_cast<size_t>(
+                snprintf(line + n, sizeof(line) - n, "%c", (ch < 32) ? '.' : ch));
         }
-        out << "\n";
+        n += static_cast<size_t>(snprintf(line + n, sizeof(line) - n, "\n"));
+        output(context, line, n);
         data += 16;
         index += 16;
     }
-    out.flags(flags);
 }
 
-void DumpBits(std::ostream& out, void* buf, size_t size)
+void DumpBits(os::TextOutput output, void* context, void* buf, size_t size)
 {
     uint8_t* buffer = (uint8_t*)buf;
 
     for (size_t i = 0; i < size; i++)
     {
-        out << std::setw(3) << i << " - ";
+        char line[48];
+        size_t n = static_cast<size_t>(snprintf(line, sizeof(line), "%3lu - ", (unsigned long)i));
         for (uint8_t bitIndex = 0x80; bitIndex != 0; bitIndex >>= 1)
         {
-            if (buffer[i] & bitIndex)
-            {
-                out << "1";
-            }
-            else
-            {
-                out << "0";
-            }
+            line[n++] = (buffer[i] & bitIndex) ? '1' : '0';
         }
-        out << "\n";
+        line[n++] = '\n';
+        output(context, line, n);
     }
 }
 

@@ -66,22 +66,40 @@ while( 1 )
    }
 }
 ```
-## TCP Library Size
-All of the memory used is statically allocated and so a buffer such as transmit or receive will
-show up in the bss section. The transmit and receive buffers are configurable and current set to 20 each of size 512 bytes.
-These buffers are defined in ProtocolMACEthernet, which explains it's large bss.
-```
-   text    data     bss     dec     hex filename
-   1249       8      48    1305     519 Address.cpp.o (ex build/tcpStack/libtcpStack.a)
-      0       0       0       0       0 DataBuffer.cpp.o (ex build/tcpStack/libtcpStack.a)
-    312       0       0     312     138 FCS.cpp.o (ex build/tcpStack/libtcpStack.a)
-    164       0       0     164      a4 NetworkInterface.cpp.o (ex build/tcpStack/libtcpStack.a)
-   3524       8     600    4132    1024 ProtocolARP.cpp.o (ex build/tcpStack/libtcpStack.a)
-   5018       4       0    5022    139e ProtocolDHCP.cpp.o (ex build/tcpStack/libtcpStack.a)
-    360       0       0     360     168 ProtocolICMP.cpp.o (ex build/tcpStack/libtcpStack.a)
-   1665       8     320    1993     7c9 ProtocolIP.cpp.o (ex build/tcpStack/libtcpStack.a)
-   2176       8   22232   24416    5f60 ProtocolMACEthernet.cpp.o (ex build/tcpStack/libtcpStack.a)
-   8873       8    3744   12625    3151 ProtocolTCP.cpp.o (ex build/tcpStack/libtcpStack.a)
-    717       0       0     717     2cd ProtocolUDP.cpp.o (ex build/tcpStack/libtcpStack.a)
-   2731       0      84    2815     aff Utility.cpp.o (ex build/tcpStack/libtcpStack.a)
-```
+## Size
+tinytcp is meant for small devices. All memory is statically allocated, there is no heap, and the
+stack is built without exceptions, RTTI or `iostream`, so it needs next to nothing from the C++
+runtime.
+
+<!-- size-table:begin -->
+| bytes | x86-64 | RISC-V (rv64) | ARM (Thumb-2) |
+|---|---:|---:|---:|
+| Stack code (text + data) | 21,326 | 20,776 | 11,508 |
+| Stack RAM (`sizeof(DefaultStack)`) | 28,664 | 28,664 | 26,776 |
+| OS layer code (text + data) | 6,436 | 6,063 | 3,619 |
+| OS layer RAM (data + bss) | 1,462 | 1,462 | 874 |
+| C++ runtime (libstdc++) linked in | 66 | 310 | 173 |
+| Minimal program, static link | 885,633 | 549,411 | 388,064 |
+| Empty program, same link | 711,349 | 490,387 | 341,664 |
+| Net cost of the stack | 174,284 | 59,024 | 46,400 |
+<!-- size-table:end -->
+
+* **Stack code** is `src/tinytcp` (text + data). **Stack RAM** is `sizeof(DefaultStack)`, which holds
+  every buffer the stack uses. It is set in `src/tinytcp/Config.hpp`: 20 transmit and 20 receive
+  buffers of 512 bytes, 5 TCP connections and so on.
+* **OS layer** is `src/os`: threads, mutexes, events, queues and a clock. This is the part to port
+  to another RTOS.
+* **C++ runtime** is what is left of libstdc++ in a program that uses the whole stack. A host
+  written in C has to run global constructors and provide `__cxa_atexit` and `operator delete`,
+  or just link with `g++`.
+* **Net cost** is a program that uses the stack minus an empty program, linked the same way. The
+  two program rows are statically linked against the toolchain's glibc, which is much bigger than
+  an embedded libc, so they are mostly libc. Read the net cost, not the totals.
+* The stack itself calls only `printf` (log messages) and `sprintf` from the C library.
+
+Everything is built with `-Os -fno-exceptions -fno-rtti -fno-threadsafe-statics`, with the host
+`g++` for x86-64 and the GNU cross compilers for RISC-V (rv64gc) and 32-bit ARM (Thumb-2).
+
+Run `make size` in the build directory (or `tools/size/measure.sh`) to print this table, and
+`make size-readme` to update it here. `tools/size/measure.sh --details` also shows where the
+linked bytes come from. The dev container has all three compilers.

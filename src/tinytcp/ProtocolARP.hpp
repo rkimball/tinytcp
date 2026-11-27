@@ -32,7 +32,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include <iostream>
+#include "output.hpp"
 
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
@@ -74,7 +74,7 @@ public:
     bool IsLocal(const uint8_t* protocolAddress);
     bool IsBroadcast(const uint8_t* protocolAddress);
 
-    friend std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj);
+    void dump_info(os::TextOutput output, void* context) const;
 
 private:
     struct ARPInfo

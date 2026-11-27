@@ -36,7 +36,7 @@
 #include <pthread.h>
 #endif
 
-#include <iostream>
+#include "output.hpp"
 
 namespace os
 {
@@ -60,7 +60,7 @@ public:
 
     const char* GetName();
 
-    static void dump_info(std::ostream&);
+    static void dump_info(TextOutput output, void* context);
 
 private:
 #ifdef _WIN32

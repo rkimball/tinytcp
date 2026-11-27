@@ -35,15 +35,11 @@
 #include <unistd.h>
 #endif
 #include <cassert>
-#include <iomanip>
-#include <iostream>
 #include <stdio.h>
-#include <string>
 
 #include "event.hpp"
 #include "mutex.hpp"
 #include "thread.hpp"
-#include "util.hpp"
 
 namespace os
 {
@@ -312,7 +308,7 @@ void Thread::ClearState()
     Linenumber = 0;
 }
 
-void Thread::dump_info(std::ostream& out)
+void Thread::dump_info(TextOutput output, void* context)
 {
 #ifdef WIN32
     FILETIME creationTime;
@@ -323,41 +319,54 @@ void Thread::dump_info(std::ostream& out)
     HANDLE handle;
 
     handle = GetCurrentProcess();
-    out << "Process Priority   = 0x" << to_hex(GetPriorityClass(handle)) << "\n";
+    Print(output,
+          context,
+          "Process Priority   = 0x%lx\n",
+          static_cast<unsigned long>(GetPriorityClass(handle)));
     if (GetProcessTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime))
     {
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        out << "  Kernel Time      = ",
-            out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << "\n";
+        Print(output,
+              context,
+              "  Kernel Time      = %02d:%02d:%02d.%02d\n",
+              sysTime.wHour,
+              sysTime.wMinute,
+              sysTime.wSecond,
+              sysTime.wMilliseconds);
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        out << "  User Time        = ",
-            out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << "\n";
+        Print(output,
+              context,
+              "  User Time        = %02d:%02d:%02d.%02d\n",
+              sysTime.wHour,
+              sysTime.wMinute,
+              sysTime.wSecond,
+              sysTime.wMilliseconds);
     }
 #endif
 
-    out << "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n";
+    Print(output,
+          context,
+          "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n");
 
 #ifdef WIN32
-    out << "----+--------------------+-------+--------------+--------------+-------------------"
-           "----"
-           "---"
-           "\n";
-    out << "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n";
-    out << "----+--------------------+-------+--------------+--------------+-------------------"
-           "----"
-           "---"
-           "\n";
+    Print(
+        output,
+        context,
+        "----+--------------------+-------+--------------+--------------+--------------------------"
+        "\n");
+    Print(output,
+          context,
+          "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n");
+    Print(
+        output,
+        context,
+        "----+--------------------+-------+--------------+--------------+--------------------------"
+        "\n");
 #elif __linux__
-    out << "--------------------+------------------------------------\n";
-    out << "Thread Name         | State\n";
-    out << "--------------------+------------------------------------\n";
+    Print(output, context, "--------------------+------------------------------------\n");
+    Print(output, context, "Thread Name         | State\n");
+    Print(output, context, "--------------------+------------------------------------\n");
 #endif
 
     ThreadListMutex.Take(__FILE__, __LINE__);
@@ -383,60 +392,60 @@ void Thread::dump_info(std::ostream& out)
         }
         GetThreadTimes(handle, &creationTime, &exitTime, &kernelTime, &userTime);
 
-        out << std::setw(3) << priority << " |";
-        out << std::setw(20) << std::left << thread->Name << "|";
-        out << std::setw(6) << handle << " | ";
+        Print(output, context, "%3d |%-20s|%6p | ", priority, thread->Name, handle);
 
         FileTimeToSystemTime(&kernelTime, &sysTime);
-        out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << " | ";
+        Print(output,
+              context,
+              "%02d:%02d:%02d.%02d | ",
+              sysTime.wHour,
+              sysTime.wMinute,
+              sysTime.wSecond,
+              sysTime.wMilliseconds);
 
         FileTimeToSystemTime(&userTime, &sysTime);
-        out << std::setw(2) << std::setfill('0') << sysTime.wHour << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMinute << ":";
-        out << std::setw(2) << std::setfill('0') << sysTime.wSecond << ".";
-        out << std::setw(2) << std::setfill('0') << sysTime.wMilliseconds << " | ";
+        Print(output,
+              context,
+              "%02d:%02d:%02d.%02d | ",
+              sysTime.wHour,
+              sysTime.wMinute,
+              sysTime.wSecond,
+              sysTime.wMilliseconds);
 
 #elif __linux__
-        out << std::setw(20) << std::left << thread->Name << "|";
+        Print(output, context, "%-20s|", thread->Name);
 #endif
 
         // Find out what this thread is doing
         switch (thread->State)
         {
-        case INIT: out << "init\n"; break;
-        case RUNNING: out << "running\n"; break;
+        case INIT: Print(output, context, "init\n"); break;
+        case RUNNING: Print(output, context, "running\n"); break;
         case PENDING_MUTEX:
         {
             Mutex* obj = (Mutex*)(thread->StateObject);
-            if (obj != nullptr)
-            {
-                out << "pending on mutex \"" << obj->GetName() << "\"\n";
-            }
-            else
-            {
-                out << "pending on mutex \"UNKNOWN\"\n";
-            }
+            Print(output,
+                  context,
+                  "pending on mutex \"%s\"\n",
+                  obj != nullptr ? obj->GetName() : "UNKNOWN");
             break;
         }
         case PENDING_EVENT:
         {
             Event* obj = (Event*)(thread->StateObject);
-            if (obj != nullptr)
-            {
-                out << "pending event \"" << obj->GetName() << "\"\n";
-            }
-            else
-            {
-                out << "pending event \"UNKNOWN\"\n";
-            }
+            Print(output,
+                  context,
+                  "pending event \"%s\"\n",
+                  obj != nullptr ? obj->GetName() : "UNKNOWN");
             break;
         }
         case SLEEPING:
-            out << "sleeping " << thread->USleepTime;
-            out << " at " << thread->Filename << " " << thread->Linenumber;
+            Print(output,
+                  context,
+                  "sleeping %lu at %s %d\n",
+                  thread->USleepTime,
+                  thread->Filename,
+                  thread->Linenumber);
             break;
         }
     }

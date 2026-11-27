@@ -55,6 +55,12 @@ static os::Event StartEvent("StartEvent");
 
 tinytcp::DefaultStack tcpStack;
 
+// Adapter that sends the output of the dump_info() diagnostics to a stream
+static void WriteToStream(void* context, const char* text, size_t length)
+{
+    static_cast<std::ostream*>(context)->write(text, static_cast<std::streamsize>(length));
+}
+
 void RxData(uint8_t* data, size_t length)
 {
     tcpStack.ProcessRx(data, length);
@@ -135,7 +141,7 @@ void ShowMutex(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    os::Mutex::dump_info(out);
+    os::Mutex::dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -143,7 +149,7 @@ void ShowEvent(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    os::Event::dump_info(out);
+    os::Event::dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -151,7 +157,7 @@ void ShowQueue(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    os::Queue::dump_info(out);
+    os::Queue::dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -159,7 +165,7 @@ void ShowThread(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    os::Thread::dump_info(out);
+    os::Thread::dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -167,7 +173,7 @@ void ShowMAC(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    out << tcpStack.MAC;
+    tcpStack.MAC.dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -175,7 +181,7 @@ void ShowIP(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    out << tcpStack.IP;
+    tcpStack.IP.dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -183,7 +189,7 @@ void ShowARP(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    out << tcpStack.ARP;
+    tcpStack.ARP.dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 
@@ -191,7 +197,7 @@ void ShowTCP(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    out << tcpStack.TCP;
+    tcpStack.TCP.dump_info(WriteToStream, &out);
     out << "</pre>";
 }
 

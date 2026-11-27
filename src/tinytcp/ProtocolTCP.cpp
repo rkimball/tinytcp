@@ -476,14 +476,13 @@ void ProtocolTCP::Tick()
     }
 }
 
-std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
+void ProtocolTCP::dump_info(os::TextOutput output, void* context) const
 {
-    out << "TCP Information\n";
+    os::Print(output, context, "TCP Information\n");
     for (int i = 0; i < TCP_MAX_CONNECTIONS; i++)
     {
-        out << obj.ConnectionList[i];
+        ConnectionList[i].dump_info(output, context);
     }
-    return out;
 }
 
 } // namespace tinytcp

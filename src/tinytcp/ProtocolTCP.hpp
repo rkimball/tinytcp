@@ -36,6 +36,7 @@
 #include "ProtocolTCP.hpp"
 #include "TCPConnection.hpp"
 #include "mutex.hpp"
+#include "output.hpp"
 
 // SourcePort - 16 bits
 // TargetPort - 16 bits
@@ -92,7 +93,7 @@ public:
     size_t rx_window_size() const { return 512; }
 
     void ProcessRx(DataBuffer*, const uint8_t* sourceIP, const uint8_t* targetIP);
-    friend std::ostream& operator<<(std::ostream&, const ProtocolTCP&);
+    void dump_info(os::TextOutput output, void* context) const;
 
 private:
     TCPConnection*

@@ -32,7 +32,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include <iostream>
+#include "output.hpp"
 
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
@@ -89,7 +89,7 @@ public:
 
     static size_t header_size() { return 20; }
 
-    friend std::ostream& operator<<(std::ostream&, const ProtocolIPv4&);
+    void dump_info(os::TextOutput output, void* context) const;
 
 private:
     bool IsLocal(const uint8_t* addr);

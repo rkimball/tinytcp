@@ -32,9 +32,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include <iomanip>
 #include <stdio.h>
-#include <string>
 
 #include "mutex.hpp"
 #include "thread.hpp"
@@ -171,11 +169,15 @@ void Mutex::UnlockListMutex()
 #endif
 }
 
-void Mutex::dump_info(std::ostream& out)
+void Mutex::dump_info(TextOutput output, void* context)
 {
-    out << "--------------------+-------+--------------------+------+--------------------\n";
-    out << " Name               | State | Owner              | Line | File\n";
-    out << "--------------------+-------+--------------------+------+--------------------\n";
+    Print(output,
+          context,
+          "--------------------+-------+--------------------+------+--------------------\n");
+    Print(output, context, " Name               | State | Owner              | Line | File\n");
+    Print(output,
+          context,
+          "--------------------+-------+--------------------+------+--------------------\n");
 
     LockListMutex();
     for (int i = 0; i < MAX_MUTEX; i++)
@@ -183,21 +185,23 @@ void Mutex::dump_info(std::ostream& out)
         Mutex* mutex = MutexList[i];
         if (mutex != nullptr)
         {
-            std::string name = mutex->Name;
-            std::string state;
-            std::string owner;
+            const char* state = "";
+            const char* owner = "";
             int line = -1;
-            std::string file;
+            const char* file = "";
             if (mutex->OwnerFile)
             {
                 line = mutex->OwnerLine;
                 file = mutex->OwnerFile;
             }
-            out << std::setw(20) << name << std::setw(0) << "|";
-            out << std::setw(7) << state << std::setw(0) << "|";
-            out << std::setw(20) << owner << std::setw(0) << "|";
-            out << std::setw(6) << line << std::setw(0) << "|";
-            out << std::setw(0) << file << std::setw(0) << "\n";
+            Print(output,
+                  context,
+                  "%-20s|%-7s|%-20s|%-6d|%s\n",
+                  mutex->Name,
+                  state,
+                  owner,
+                  line,
+                  file);
         }
     }
     UnlockListMutex();

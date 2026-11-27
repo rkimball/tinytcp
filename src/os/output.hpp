@@ -31,25 +31,26 @@
 
 #pragma once
 
-#include <iomanip>
-#include <sstream>
+#include <stddef.h>
+
+#if defined(__GNUC__) || defined(__clang__)
+#define OS_PRINTF_FORMAT(format_index, first_arg)                                                  \
+    __attribute__((format(printf, format_index, first_arg)))
+#else
+#define OS_PRINTF_FORMAT(format_index, first_arg)
+#endif
 
 namespace os
 {
-template <typename T>
-std::string to_dec(T obj, size_t width)
-{
-    std::stringstream ss;
-    ss << std::setw(width) << std::setfill('0') << obj;
-    return ss.str();
-}
 
-template <typename T>
-std::string to_hex(T obj, size_t width = sizeof(T) * 2)
-{
-    std::stringstream ss;
-    ss << std::hex << std::setw(width) << std::setfill('0') << obj;
-    return ss.str();
-}
+// Where the text produced by the dump_info() diagnostics goes. The callback receives a piece of
+// text, which is not NUL terminated and is not necessarily a whole line. context is the pointer
+// the caller passed along with the callback, so a sink such as a stream, socket or UART can be
+// reached without globals.
+typedef void (*TextOutput)(void* context, const char* text, size_t length);
+
+// printf-style formatting to a TextOutput. A single call produces at most 255 characters, any
+// more is truncated. Nothing is written if output is null.
+void Print(TextOutput output, void* context, const char* format, ...) OS_PRINTF_FORMAT(3, 4);
 
 } // namespace os

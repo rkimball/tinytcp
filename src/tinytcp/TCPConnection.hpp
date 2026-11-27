@@ -36,6 +36,7 @@
 #include "ProtocolIPv4.hpp"
 #include "event.hpp"
 #include "mutex.hpp"
+#include "output.hpp"
 #include "queue.hpp"
 
 namespace tinytcp
@@ -88,7 +89,7 @@ public:
     void Flush();
     const char* GetStateString() const;
 
-    friend std::ostream& operator<<(std::ostream&, const TCPConnection&);
+    void dump_info(os::TextOutput output, void* context) const;
 
 private:
     uint16_t RxInOffset;

@@ -28,3 +28,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
+
+#include <stdarg.h>
+#include <stdio.h>
+
+#include "output.hpp"
+
+namespace os
+{
+
+void Print(TextOutput output, void* context, const char* format, ...)
+{
+    char buffer[256];
+
+    va_list args;
+    va_start(args, format);
+    int length = vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    if (output == nullptr || length < 0)
+    {
+        return;
+    }
+    if (static_cast<size_t>(length) >= sizeof(buffer))
+    {
+        length = static_cast<int>(sizeof(buffer) - 1);
+    }
+    output(context, buffer, static_cast<size_t>(length));
+}
+
+} // namespace os

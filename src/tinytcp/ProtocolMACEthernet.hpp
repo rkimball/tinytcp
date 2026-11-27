@@ -36,6 +36,7 @@
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
 #include "event.hpp"
+#include "output.hpp"
 #include "queue.hpp"
 
 namespace tinytcp
@@ -68,7 +69,7 @@ public:
     void SetUnicastAddress(uint8_t* addr);
     static size_t header_size() { return 14; }
 
-    friend std::ostream& operator<<(std::ostream&, const ProtocolMACEthernet&);
+    void dump_info(os::TextOutput output, void* context) const;
 
 private:
     static const int ADDRESS_SIZE = 6;

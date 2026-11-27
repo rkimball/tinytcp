@@ -29,7 +29,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <iostream>
 #include <stdio.h>
 
 #include "DataBuffer.hpp"
@@ -223,18 +222,22 @@ void ProtocolIPv4::FreeRxBuffer(DataBuffer* buffer)
     MAC.FreeRxBuffer(buffer);
 }
 
-std::ostream& operator<<(std::ostream& out, const ProtocolIPv4& obj)
+void ProtocolIPv4::dump_info(os::TextOutput output, void* context) const
 {
-    out << "IPv4 Configuration\n";
-    out << "   Address:            " << ipv4toa(obj.Address.Address) << "\n";
-    out << "   Subnet Mask:        " << ipv4toa(obj.Address.SubnetMask) << "\n";
-    out << "   Gateway:            " << ipv4toa(obj.Address.Gateway) << "\n";
-    out << "   Domain Name Server: " << ipv4toa(obj.Address.DomainNameServer) << "\n";
-    out << "   Broadcast Address:  " << ipv4toa(obj.Address.BroadcastAddress) << "\n";
-    out << "   Address Lease Time: " << obj.Address.IpAddressLeaseTime << " seconds\n";
-    out << "   RenewTime:          " << obj.Address.RenewTime << " seconds\n";
-    out << "   RebindTime:         " << obj.Address.RebindTime << " seconds\n";
-    return out;
+    os::Print(output, context, "IPv4 Configuration\n");
+    os::Print(output, context, "   Address:            %s\n", ipv4toa(Address.Address));
+    os::Print(output, context, "   Subnet Mask:        %s\n", ipv4toa(Address.SubnetMask));
+    os::Print(output, context, "   Gateway:            %s\n", ipv4toa(Address.Gateway));
+    os::Print(output, context, "   Domain Name Server: %s\n", ipv4toa(Address.DomainNameServer));
+    os::Print(output, context, "   Broadcast Address:  %s\n", ipv4toa(Address.BroadcastAddress));
+    os::Print(output,
+              context,
+              "   Address Lease Time: %lu seconds\n",
+              (unsigned long)Address.IpAddressLeaseTime);
+    os::Print(
+        output, context, "   RenewTime:          %lu seconds\n", (unsigned long)Address.RenewTime);
+    os::Print(
+        output, context, "   RebindTime:         %lu seconds\n", (unsigned long)Address.RebindTime);
 }
 
 size_t ProtocolIPv4::AddressSize()

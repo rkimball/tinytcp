@@ -29,9 +29,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <sstream>
 #include <stdio.h>
-#include <string>
 
 #include "Config.hpp"
 #include "DataBuffer.hpp"
@@ -169,32 +167,31 @@ void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAdd
     }
 }
 
-std::ostream& operator<<(std::ostream& out, const ProtocolARP& obj)
+void ProtocolARP::dump_info(os::TextOutput output, void* context) const
 {
-    out << "ARP Cache (ostream):\n";
+    os::Print(output, context, "ARP Cache:\n");
     for (int i = 0; i < ARPCacheSize; i++)
     {
-        std::stringstream ss;
-        ss << (int)obj.Cache[i].IPv4Address[0] << ".";
-        ss << (int)obj.Cache[i].IPv4Address[1] << ".";
-        ss << (int)obj.Cache[i].IPv4Address[2] << ".";
-        ss << (int)obj.Cache[i].IPv4Address[3];
-        std::string s = ss.str();
-
-        out << "   " << s;
-        for (int length = s.size(); length < 19; length++)
-        {
-            out << " ";
-        }
-        out << to_hex(obj.Cache[i].MACAddress[0]) << ":";
-        out << to_hex(obj.Cache[i].MACAddress[1]) << ":";
-        out << to_hex(obj.Cache[i].MACAddress[2]) << ":";
-        out << to_hex(obj.Cache[i].MACAddress[3]) << ":";
-        out << to_hex(obj.Cache[i].MACAddress[4]) << ":";
-        out << to_hex(obj.Cache[i].MACAddress[5]);
-        out << "   age = " << (int)obj.Cache[i].Age << "\n";
+        char ip[16];
+        snprintf(ip,
+                 sizeof(ip),
+                 "%d.%d.%d.%d",
+                 (int)Cache[i].IPv4Address[0],
+                 (int)Cache[i].IPv4Address[1],
+                 (int)Cache[i].IPv4Address[2],
+                 (int)Cache[i].IPv4Address[3]);
+        os::Print(output,
+                  context,
+                  "   %-19s%02x:%02x:%02x:%02x:%02x:%02x   age = %d\n",
+                  ip,
+                  (unsigned)Cache[i].MACAddress[0],
+                  (unsigned)Cache[i].MACAddress[1],
+                  (unsigned)Cache[i].MACAddress[2],
+                  (unsigned)Cache[i].MACAddress[3],
+                  (unsigned)Cache[i].MACAddress[4],
+                  (unsigned)Cache[i].MACAddress[5],
+                  (int)Cache[i].Age);
     }
-    return out;
 }
 
 void ProtocolARP::SendReply(const ARPInfo& info)
