@@ -43,7 +43,7 @@ class ProtocolTCP;
 
 namespace http
 {
-    class Server;
+class Server;
 }
 
 typedef void (*PageRequestHandler)(http::Page* page, const char* url);
