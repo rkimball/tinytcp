@@ -28,6 +28,7 @@ target_link_libraries(libgtest INTERFACE pthread)
 
 set (SRC
     main.cpp
+    os/event.cpp
     tinytcp/mac.cpp
     tinytcp/test_Utility.cpp
 )
@@ -39,7 +40,7 @@ add_executable(unit-test ${SRC})
 target_link_libraries(unit-test pthread libgtest packet_io os_support  tinytcp)
 
 add_dependencies(unit-test libgtest packet_io os_support tinytcp)
-# Tests include project headers by path from src/, e.g. "tinytcp/Utility.hpp", "os/osEvent.hpp"
+# Tests include project headers by path from src/, e.g. "tinytcp/Utility.hpp", "os/event.hpp"
 target_include_directories(unit-test PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 add_custom_target(check

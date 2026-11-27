@@ -35,7 +35,7 @@
 #include <pcap.h>
 #endif
 #include <inttypes.h>
-#include "osThread.hpp"
+#include "thread.hpp"
 
 class PacketIO
 {
@@ -62,7 +62,7 @@ private:
     const char* CaptureDevice;
     pcap_t* adhandle;
 #elif __linux__
-    osThread EthernetRxThread;
+    os::Thread EthernetRxThread;
     int m_RawSocket;
     int m_IfIndex;
 #endif

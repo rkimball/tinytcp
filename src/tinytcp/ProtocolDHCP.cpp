@@ -39,7 +39,7 @@
 #include "ProtocolIPv4.hpp"
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
-#include "osTime.hpp"
+#include "time.hpp"
 
 static const uint32_t DHCP_MAGIC = 0x63825363;
 
@@ -177,7 +177,7 @@ void ProtocolDHCP::ProcessRx(DataBuffer* buffer)
         {
         case 2: // offer
         {
-            PendingXID = (uint32_t)osTime::GetTime();
+            PendingXID = (uint32_t)os::Time::GetTime();
             SendRequest(3, siaddr, yiaddr);
             break;
         }
@@ -230,7 +230,7 @@ void ProtocolDHCP::Discover()
 
     if (buffer)
     {
-        PendingXID = (uint32_t)osTime::GetTime();
+        PendingXID = (uint32_t)os::Time::GetTime();
 
         buffer->Length = Pack8(buffer->Packet, buffer->Length, 1);           // op
         buffer->Length = Pack8(buffer->Packet, buffer->Length, 1);           // htype
@@ -315,7 +315,7 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
 
     if (buffer)
     {
-        PendingXID = (uint32_t)osTime::GetTime();
+        PendingXID = (uint32_t)os::Time::GetTime();
 
         buffer->Length = Pack8(buffer->Packet, buffer->Length, 1);           // op
         buffer->Length = Pack8(buffer->Packet, buffer->Length, 1);           // htype

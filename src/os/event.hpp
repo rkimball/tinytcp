@@ -34,77 +34,44 @@
 #include <inttypes.h>
 #include <iostream>
 
-#ifndef _WIN32
-#include <pthread.h>
-#include <sched.h>
-#include <setjmp.h>
+#ifdef __linux__
+#include "pthread.h"
 #endif
 
-#include "osEvent.hpp"
+#include "mutex.hpp"
 
-typedef void (*ThreadEntryPtr)(void*);
-
-class osThread
+namespace os
+{
+class Event
 {
 public:
-    typedef enum
-    {
-        INIT,
-        RUNNING,
-        PENDING_MUTEX,
-        PENDING_EVENT,
-        SLEEPING
-    } THREAD_STATE;
+    Event(const char* name);
 
-    osThread();
+    ~Event();
 
-    ~osThread();
+    void Notify();
 
-    static void Initialize();
-
-    int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
-
-    void WaitForExit(int32_t millisecondWaitTimeout = -1);
-
-    static void Sleep(unsigned long ms, const char* file, int line);
-
-    static void USleep(unsigned long us, const char* file, int line);
-
-    void SetState(THREAD_STATE state, const char* file, int line, void* obj);
-
-    void ClearState();
-
-    static osThread* GetCurrent();
+    bool Wait(const char* file, int line, int msTimeout = -1);
 
     const char* GetName();
 
-#ifdef _WIN32
-    void* GetHandle();
-
-    uint32_t GetThreadId();
-    uint32_t ThreadId;
-
-    void* Handle;
-#elif __linux__
-    uint32_t GetHandle();
-
-    pthread_t m_thread;
-    ThreadEntryPtr Entry;
-    void* Param;
-#endif
-    osEvent ThreadStart;
-
     static void dump_info(std::ostream&);
 
-    static const int32_t STATE_LENGTH_MAX = 81;
-    int32_t Priority;
-    unsigned long USleepTime;
-    static const int32_t NAME_LENGTH_MAX = 32;
-
 private:
+#ifdef _WIN32
+    void* Handle;
+#elif __linux__
+    pthread_mutex_t m_mutex;
+    pthread_cond_t m_condition;
+    bool m_test;
+#endif
+    static const int NAME_LENGTH_MAX = 80;
     char Name[NAME_LENGTH_MAX];
-    const char* Filename;
-    int Linenumber;
-    THREAD_STATE State;
-    void* StateObject;
+    Thread* pending;
+
+    static Mutex ListMutex;
+    static const int INSTANCE_MAX = 20;
+    static Event* InstanceList[];
 };
+
+} // namespace os

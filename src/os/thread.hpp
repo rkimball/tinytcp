@@ -32,11 +32,83 @@
 #pragma once
 
 #include <inttypes.h>
+#include <iostream>
 
-class osTime
+#ifndef _WIN32
+#include <pthread.h>
+#include <sched.h>
+#include <setjmp.h>
+#endif
+
+#include "event.hpp"
+
+namespace os
+{
+typedef void (*ThreadEntryPtr)(void*);
+
+class Thread
 {
 public:
-    static const char* GetTimestamp();
+    typedef enum
+    {
+        INIT,
+        RUNNING,
+        PENDING_MUTEX,
+        PENDING_EVENT,
+        SLEEPING
+    } THREAD_STATE;
 
-    static uint64_t GetTime();
+    Thread();
+
+    ~Thread();
+
+    static void Initialize();
+
+    int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
+
+    void WaitForExit(int32_t millisecondWaitTimeout = -1);
+
+    static void Sleep(unsigned long ms, const char* file, int line);
+
+    static void USleep(unsigned long us, const char* file, int line);
+
+    void SetState(THREAD_STATE state, const char* file, int line, void* obj);
+
+    void ClearState();
+
+    static Thread* GetCurrent();
+
+    const char* GetName();
+
+#ifdef _WIN32
+    void* GetHandle();
+
+    uint32_t GetThreadId();
+    uint32_t ThreadId;
+
+    void* Handle;
+#elif __linux__
+    uint32_t GetHandle();
+
+    pthread_t m_thread;
+    ThreadEntryPtr Entry;
+    void* Param;
+#endif
+    Event ThreadStart;
+
+    static void dump_info(std::ostream&);
+
+    static const int32_t STATE_LENGTH_MAX = 81;
+    int32_t Priority;
+    unsigned long USleepTime;
+    static const int32_t NAME_LENGTH_MAX = 32;
+
+private:
+    char Name[NAME_LENGTH_MAX];
+    const char* Filename;
+    int Linenumber;
+    THREAD_STATE State;
+    void* StateObject;
 };
+
+} // namespace os

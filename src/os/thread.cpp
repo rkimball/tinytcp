@@ -40,31 +40,34 @@
 #include <stdio.h>
 #include <string>
 
-#include "osEvent.hpp"
-#include "osMutex.hpp"
-#include "osThread.hpp"
-#include "osUtil.hpp"
+#include "event.hpp"
+#include "mutex.hpp"
+#include "thread.hpp"
+#include "util.hpp"
+
+namespace os
+{
 
 static const int MAX_THREADS = 48;
-static osThread* Threads[MAX_THREADS];
+static Thread* Threads[MAX_THREADS];
 
-static osMutex Mutex("Thread List");
+static Mutex ThreadListMutex("Thread List");
 #ifdef _WIN32
 static DWORD dwTlsIndex;
 #elif __linux__
 static pthread_key_t tlsKey;
 #endif
-static osThread MainThread;
+static Thread MainThread;
 static bool IsInitialized = false;
 
 typedef struct WinThreadParam
 {
     ThreadEntryPtr Entry;
     void* Param;
-    osThread* Thread;
+    os::Thread* Thread;
 }* WINTHREADPARAMPTR;
 
-osThread::osThread()
+Thread::Thread()
     : ThreadStart("ThreadStart")
 {
     USleepTime = 0;
@@ -78,14 +81,14 @@ osThread::osThread()
 #endif
 }
 
-osThread::~osThread() {}
+Thread::~Thread() {}
 
 #ifdef _WIN32
 DWORD WINAPI WinThreadEntry(LPVOID param)
 {
     WINTHREADPARAMPTR thread = (WINTHREADPARAMPTR)param;
 
-    // Set the thread local storage to point to this osThread
+    // Set the thread local storage to point to this Thread
     TlsSetValue(dwTlsIndex, thread->Thread);
 
     thread->Entry(thread->Param);
@@ -105,8 +108,8 @@ DWORD WINAPI WinThreadEntry(LPVOID param)
 #elif __linux__
 static void* ThreadEntry(void* param)
 {
-    osThread* thread = (osThread*)param;
-    pthread_setspecific(tlsKey, thread); // Thread Local Storage points to osThread
+    Thread* thread = (Thread*)param;
+    pthread_setspecific(tlsKey, thread); // Thread Local Storage points to Thread
     thread->ThreadStart.Notify();
     thread->Entry(thread->Param);
 
@@ -125,24 +128,24 @@ static void* ThreadEntry(void* param)
 
 #endif
 
-const char* osThread::GetName()
+const char* Thread::GetName()
 {
     return Name;
 }
 
 #ifdef _WIN32
-void* osThread::GetHandle()
+void* Thread::GetHandle()
 {
     return Handle;
 }
 
-uint32_t osThread::GetThreadId()
+uint32_t Thread::GetThreadId()
 {
     return ThreadId;
 }
 #endif
 
-void osThread::Initialize()
+void Thread::Initialize()
 {
     // This is a hack to add the thread that called main() to the list
     snprintf(MainThread.Name, NAME_LENGTH_MAX, "main");
@@ -166,8 +169,7 @@ void osThread::Initialize()
     IsInitialized = true;
 }
 
-int osThread::Create(
-    ThreadEntryPtr entry, const char* name, int stackSize, int priority, void* param)
+int Thread::Create(ThreadEntryPtr entry, const char* name, int stackSize, int priority, void* param)
 {
     if (!IsInitialized)
     {
@@ -205,7 +207,7 @@ int osThread::Create(
     ThreadStart.Wait(__FILE__, __LINE__);
 #endif
 
-    Mutex.Take(__FILE__, __LINE__);
+    ThreadListMutex.Take(__FILE__, __LINE__);
     for (i = 0; i < MAX_THREADS; i++)
     {
         if (Threads[i] == nullptr)
@@ -214,12 +216,12 @@ int osThread::Create(
             break;
         }
     }
-    Mutex.Give();
+    ThreadListMutex.Give();
 
     return rc;
 }
 
-void osThread::WaitForExit(int32_t millisecondWaitTimeout)
+void Thread::WaitForExit(int32_t millisecondWaitTimeout)
 {
 #ifdef _WIN32
     if (millisecondWaitTimeout < 0)
@@ -231,9 +233,9 @@ void osThread::WaitForExit(int32_t millisecondWaitTimeout)
 #endif
 }
 
-void osThread::Sleep(unsigned long ms, const char* file, int line)
+void Thread::Sleep(unsigned long ms, const char* file, int line)
 {
-    osThread* thread = GetCurrent();
+    Thread* thread = GetCurrent();
 
     if (thread != nullptr)
     {
@@ -258,9 +260,9 @@ void osThread::Sleep(unsigned long ms, const char* file, int line)
     }
 }
 
-void osThread::USleep(unsigned long us, const char* file, int line)
+void Thread::USleep(unsigned long us, const char* file, int line)
 {
-    osThread* thread = GetCurrent();
+    Thread* thread = GetCurrent();
 
     if (thread != nullptr)
     {
@@ -285,16 +287,16 @@ void osThread::USleep(unsigned long us, const char* file, int line)
     }
 }
 
-osThread* osThread::GetCurrent()
+Thread* Thread::GetCurrent()
 {
 #ifdef _WIN32
-    return (osThread*)TlsGetValue(dwTlsIndex);
+    return (Thread*)TlsGetValue(dwTlsIndex);
 #elif __linux__
-    return (osThread*)pthread_getspecific(tlsKey);
+    return (Thread*)pthread_getspecific(tlsKey);
 #endif
 }
 
-void osThread::SetState(THREAD_STATE state, const char* file, int line, void* obj)
+void Thread::SetState(THREAD_STATE state, const char* file, int line, void* obj)
 {
     State = state;
     StateObject = obj;
@@ -302,7 +304,7 @@ void osThread::SetState(THREAD_STATE state, const char* file, int line, void* ob
     Linenumber = line;
 }
 
-void osThread::ClearState()
+void Thread::ClearState()
 {
     State = RUNNING;
     StateObject = nullptr;
@@ -310,7 +312,7 @@ void osThread::ClearState()
     Linenumber = 0;
 }
 
-void osThread::dump_info(std::ostream& out)
+void Thread::dump_info(std::ostream& out)
 {
 #ifdef WIN32
     FILETIME creationTime;
@@ -343,11 +345,13 @@ void osThread::dump_info(std::ostream& out)
     out << "\n\n\"Reading\" means that the thread is reading a device or network socket\n\n";
 
 #ifdef WIN32
-    out << "----+--------------------+-------+--------------+--------------+-----------------------"
+    out << "----+--------------------+-------+--------------+--------------+-------------------"
+           "----"
            "---"
            "\n";
     out << "Pri |Thread Name         | ID    | Kernel Time  |  User Time   | State\n";
-    out << "----+--------------------+-------+--------------+--------------+-----------------------"
+    out << "----+--------------------+-------+--------------+--------------+-------------------"
+           "----"
            "---"
            "\n";
 #elif __linux__
@@ -356,11 +360,11 @@ void osThread::dump_info(std::ostream& out)
     out << "--------------------+------------------------------------\n";
 #endif
 
-    Mutex.Take(__FILE__, __LINE__);
+    ThreadListMutex.Take(__FILE__, __LINE__);
 
     for (int i = 0; i < MAX_THREADS; i++)
     {
-        osThread* thread = Threads[i];
+        Thread* thread = Threads[i];
         if (!thread)
         {
             continue;
@@ -406,7 +410,7 @@ void osThread::dump_info(std::ostream& out)
         case RUNNING: out << "running\n"; break;
         case PENDING_MUTEX:
         {
-            osMutex* obj = (osMutex*)(thread->StateObject);
+            Mutex* obj = (Mutex*)(thread->StateObject);
             if (obj != nullptr)
             {
                 out << "pending on mutex \"" << obj->GetName() << "\"\n";
@@ -419,7 +423,7 @@ void osThread::dump_info(std::ostream& out)
         }
         case PENDING_EVENT:
         {
-            osEvent* obj = (osEvent*)(thread->StateObject);
+            Event* obj = (Event*)(thread->StateObject);
             if (obj != nullptr)
             {
                 out << "pending event \"" << obj->GetName() << "\"\n";
@@ -437,5 +441,7 @@ void osThread::dump_info(std::ostream& out)
         }
     }
 
-    Mutex.Give();
+    ThreadListMutex.Give();
 }
+
+} // namespace os

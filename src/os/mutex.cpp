@@ -36,18 +36,21 @@
 #include <stdio.h>
 #include <string>
 
-#include "osMutex.hpp"
-#include "osThread.hpp"
+#include "mutex.hpp"
+#include "thread.hpp"
 
-osMutex* osMutex::MutexList[MAX_MUTEX];
+namespace os
+{
+
+Mutex* Mutex::MutexList[MAX_MUTEX];
 
 #ifdef __linux__
-// Can't use osMutex to lock the MutexList because you can't create an osMutex
+// Can't use Mutex to lock the MutexList because you can't create an Mutex
 // without locking the MutexList, so make a private mutex
-pthread_mutex_t osMutex::MutexListMutex;
+pthread_mutex_t Mutex::MutexListMutex;
 #endif
 
-osMutex::osMutex(const char* name)
+Mutex::Mutex(const char* name)
     : Name(name)
     , OwnerFile(nullptr)
     , OwnerThread(nullptr)
@@ -74,9 +77,9 @@ osMutex::osMutex(const char* name)
     UnlockListMutex();
 }
 
-void osMutex::Give()
+void Mutex::Give()
 {
-    osThread* thread = osThread::GetCurrent();
+    Thread* thread = Thread::GetCurrent();
     if (thread != OwnerThread) {}
     OwnerFile = nullptr;
     OwnerLine = 0;
@@ -88,17 +91,17 @@ void osMutex::Give()
 #endif
 }
 
-void osMutex::Take(const char* file, int line)
+void Mutex::Take(const char* file, int line)
 {
 #ifdef _WIN32
     DWORD rc = -1;
 
     if (Handle)
     {
-        osThread* thread = osThread::GetCurrent();
+        Thread* thread = Thread::GetCurrent();
         if (thread)
         {
-            thread->SetState(osThread::THREAD_STATE::PENDING_MUTEX, file, line, this);
+            thread->SetState(Thread::THREAD_STATE::PENDING_MUTEX, file, line, this);
         }
         rc = WaitForSingleObject(Handle, INFINITE);
         if (thread)
@@ -110,10 +113,10 @@ void osMutex::Take(const char* file, int line)
         OwnerLine = line;
     }
 #elif __linux__
-    osThread* thread = osThread::GetCurrent();
+    Thread* thread = Thread::GetCurrent();
     if (thread)
     {
-        thread->SetState(osThread::PENDING_MUTEX, file, line, this);
+        thread->SetState(Thread::PENDING_MUTEX, file, line, this);
     }
     pthread_mutex_lock(&m_mutex);
     if (thread)
@@ -125,7 +128,7 @@ void osMutex::Take(const char* file, int line)
 #endif
 }
 
-void osMutex::Take()
+void Mutex::Take()
 {
 #ifdef _WIN32
     WaitForSingleObject(Handle, INFINITE) == 0;
@@ -134,12 +137,12 @@ void osMutex::Take()
 #endif
 }
 
-const char* osMutex::GetName()
+const char* Mutex::GetName()
 {
     return Name;
 }
 
-void osMutex::StaticInit()
+void Mutex::StaticInit()
 {
     static bool IsInitialized = false;
     if (!IsInitialized)
@@ -154,21 +157,21 @@ void osMutex::StaticInit()
     }
 }
 
-void osMutex::LockListMutex()
+void Mutex::LockListMutex()
 {
 #ifdef __linux__
     pthread_mutex_lock(&MutexListMutex);
 #endif
 }
 
-void osMutex::UnlockListMutex()
+void Mutex::UnlockListMutex()
 {
 #ifdef __linux__
     pthread_mutex_unlock(&MutexListMutex);
 #endif
 }
 
-void osMutex::dump_info(std::ostream& out)
+void Mutex::dump_info(std::ostream& out)
 {
     out << "--------------------+-------+--------------------+------+--------------------\n";
     out << " Name               | State | Owner              | Line | File\n";
@@ -177,7 +180,7 @@ void osMutex::dump_info(std::ostream& out)
     LockListMutex();
     for (int i = 0; i < MAX_MUTEX; i++)
     {
-        osMutex* mutex = MutexList[i];
+        Mutex* mutex = MutexList[i];
         if (mutex != nullptr)
         {
             std::string name = mutex->Name;
@@ -199,3 +202,5 @@ void osMutex::dump_info(std::ostream& out)
     }
     UnlockListMutex();
 }
+
+} // namespace os

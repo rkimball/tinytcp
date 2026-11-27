@@ -31,21 +31,50 @@
 
 #pragma once
 
-#include <sstream>
-#include <iomanip>
+#include <iostream>
 
-template <typename T>
-std::string to_dec(T obj, size_t width)
-{
-    std::stringstream ss;
-    ss << std::setw(width) << std::setfill('0') << obj;
-    return ss.str();
-}
+#include "mutex.hpp"
 
-template <typename T>
-std::string to_hex(T obj, size_t width = sizeof(T) * 2)
+namespace os
 {
-    std::stringstream ss;
-    ss << std::hex << std::setw(width) << std::setfill('0') << obj;
-    return ss.str();
-}
+class Queue
+{
+public:
+    Queue(const char* name, int count, void** dataBuffer);
+
+    const char* GetName();
+
+    void* Peek();
+
+    void* Get();
+
+    bool Put(void* item);
+
+    int GetCount();
+
+    void Flush();
+
+    bool Contains(void* object);
+
+    static void dump_info(std::ostream&);
+
+private:
+    int Increment(int index)
+    {
+        if (++index >= MaxElements)
+        {
+            index = 0;
+        }
+        return index;
+    }
+
+    void** Array;
+    const char* Name;
+    int NextInIndex;
+    int NextOutIndex;
+    int MaxElements;
+    int ElementCount;
+    Mutex Lock;
+};
+
+} // namespace os

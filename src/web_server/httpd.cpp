@@ -37,8 +37,8 @@
 #include "http_page.hpp"
 #include "httpd.hpp"
 // #include "base64.h"
-#include "osQueue.hpp"
-#include "osThread.hpp"
+#include "queue.hpp"
+#include "thread.hpp"
 
 #include <strings.h>
 

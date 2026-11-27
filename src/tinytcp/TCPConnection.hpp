@@ -34,9 +34,9 @@
 #include <inttypes.h>
 #include "Config.hpp"
 #include "ProtocolIPv4.hpp"
-#include "osEvent.hpp"
-#include "osMutex.hpp"
-#include "osQueue.hpp"
+#include "event.hpp"
+#include "mutex.hpp"
+#include "queue.hpp"
 
 class DataBuffer;
 
@@ -107,9 +107,9 @@ private:
     TCPConnection* NewConnection;
     TCPConnection* Parent;
 
-    osEvent Event;
-    osQueue HoldingQueue;
-    osMutex HoldingQueueLock;
+    os::Event Event;
+    os::Queue HoldingQueue;
+    os::Mutex HoldingQueueLock;
     void* ConnectionHoldingBuffer[TX_BUFFER_COUNT];
 
     InterfaceMAC* MAC;

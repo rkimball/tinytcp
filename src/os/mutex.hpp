@@ -29,75 +29,61 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
+#pragma once
+
 #ifdef _WIN32
-#include <Windows.h>
 #elif __linux__
-#include <time.h>
+#include <pthread.h>
 #endif
-#include <stdio.h>
 
-#include "osTime.hpp"
+#include <iostream>
 
-uint64_t osTime::GetTime()
+namespace os
 {
-#ifdef _WIN32
-    FILETIME ftime;
-    uint64_t time;
-
-    // Time in 100ns ticks
-    GetSystemTimeAsFileTime(&ftime);
-
-    time = ftime.dwHighDateTime;
-    time <<= 32;
-    time += ftime.dwLowDateTime;
-
-    return time;
-#elif __linux__
-    timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    uint64_t rc = ts.tv_sec * 1000000 + (ts.tv_nsec / 1000);
-    return rc;
-#endif
+class Thread;
 }
 
-const char* osTime::GetTimestamp()
+#define MAX_MUTEX (16)
+
+namespace os
 {
-    static char s[64];
-    uint32_t seconds;
-    uint32_t sec;
-    uint32_t min;
-    uint32_t hour;
-    uint64_t time;
+class Mutex
+{
+    friend class Thread;
 
-    time = GetTime();
+public:
+    Mutex(const char* name);
 
-    seconds = (uint32_t)(time / 1000000);
+    void Give();
 
-    sec = seconds % 60;
+    void Take(const char* file, int line);
 
-    min = seconds / 60;
-    min %= 60;
+    const char* GetName();
 
-    hour = seconds / (60 * 60);
-    hour %= 24;
+    static void dump_info(std::ostream&);
 
-#ifdef OSTIME_SHOW_PROCESSOR_TIMESTAMP
-    struct _timeb timebuffer;
-    _ftime(&timebuffer);
-    char* timeline;
-    timeline = ctime(&(timebuffer.time));
-    timeline = strchr(timeline, ':') - 2;
-    snprintf(s,
-             sizeof(s),
-             "%.8s.%hu(%u:%02u:%02u.%03u)",
-             timeline,
-             timebuffer.millitm,
-             hour,
-             min,
-             sec,
-             (uint32_t)((time / 1000) % 1000));
-#else
-    snprintf(s, sizeof(s), "%u:%02u:%02u.%03u", hour, min, sec, (uint32_t)((time / 1000) % 1000));
+private:
+#ifdef _WIN32
+    void* Handle;
+#elif __linux__
+    pthread_mutex_t m_mutex;
+
+    // Can't use Mutex to lock the MutexList because you can't create an Mutex
+    // without locking the MutexList, so make a private mutex
+    static pthread_mutex_t MutexListMutex;
 #endif
-    return s;
-}
+
+    static void StaticInit();
+    static void LockListMutex();
+    static void UnlockListMutex();
+
+    void Take();
+    const char* Name;
+    static Mutex* MutexList[];
+
+    const char* OwnerFile;
+    int OwnerLine;
+    Thread* OwnerThread;
+};
+
+} // namespace os

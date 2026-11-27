@@ -36,7 +36,7 @@
 #include <vector>
 
 #include "ProtocolTCP.hpp"
-#include "osThread.hpp"
+#include "thread.hpp"
 
 namespace http
 {
@@ -105,7 +105,7 @@ private:
     std::streambuf::int_type overflow(std::streambuf::int_type c);
     std::streambuf::int_type underflow();
 
-    osThread Thread;
+    os::Thread Thread;
     Server* _Server;
     bool HTTPHeaderSent;
 

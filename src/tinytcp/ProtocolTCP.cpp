@@ -36,8 +36,8 @@
 #include "ProtocolIPv4.hpp"
 #include "ProtocolTCP.hpp"
 #include "Utility.hpp"
-#include "osMutex.hpp"
-#include "osTime.hpp"
+#include "mutex.hpp"
+#include "time.hpp"
 
 ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
     : IP(ip)
@@ -187,7 +187,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                     connection->State = TCPConnection::TIMED_WAIT;
                     // Start TimedWait timer
                     connection->AcknowledgementNumber++; // FIN consumes sequence number
-                    connection->Time_us = (int32_t)osTime::GetTime();
+                    connection->Time_us = (int32_t)os::Time::GetTime();
                     connection->SendFlags(FLAG_ACK);
                 }
                 break;
@@ -220,7 +220,7 @@ void ProtocolTCP::ProcessRx(DataBuffer* rxBuffer, const uint8_t* sourceIP, const
                 {
                     connection->HoldingQueueLock.Take(__FILE__, __LINE__);
                     count = connection->HoldingQueue.GetCount();
-                    time_us = (uint32_t)osTime::GetTime();
+                    time_us = (uint32_t)os::Time::GetTime();
                     for (int i = 0; i < count; i++)
                     {
                         buffer = (DataBuffer*)connection->HoldingQueue.Get();

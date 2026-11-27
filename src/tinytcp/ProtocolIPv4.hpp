@@ -36,7 +36,7 @@
 
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
-#include "osQueue.hpp"
+#include "queue.hpp"
 
 class ProtocolARP;
 class ProtocolICMP;
@@ -93,7 +93,7 @@ private:
 
     uint16_t PacketID;
     void* TxBuffer[TX_BUFFER_COUNT];
-    osQueue UnresolvedQueue;
+    os::Queue UnresolvedQueue;
 
     AddressInfo Address;
 

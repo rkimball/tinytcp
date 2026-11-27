@@ -31,46 +31,16 @@
 
 #pragma once
 
-#include <iostream>
+#include <inttypes.h>
 
-#include "osMutex.hpp"
-
-class osQueue
+namespace os
+{
+class Time
 {
 public:
-    osQueue(const char* name, int count, void** dataBuffer);
+    static const char* GetTimestamp();
 
-    const char* GetName();
-
-    void* Peek();
-
-    void* Get();
-
-    bool Put(void* item);
-
-    int GetCount();
-
-    void Flush();
-
-    bool Contains(void* object);
-
-    static void dump_info(std::ostream&);
-
-private:
-    int Increment(int index)
-    {
-        if (++index >= MaxElements)
-        {
-            index = 0;
-        }
-        return index;
-    }
-
-    void** Array;
-    const char* Name;
-    int NextInIndex;
-    int NextOutIndex;
-    int MaxElements;
-    int ElementCount;
-    osMutex Lock;
+    static uint64_t GetTime();
 };
+
+} // namespace os

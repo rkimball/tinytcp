@@ -31,43 +31,25 @@
 
 #pragma once
 
-#include <inttypes.h>
-#include <iostream>
+#include <iomanip>
+#include <sstream>
 
-#ifdef __linux__
-#include "pthread.h"
-#endif
-
-#include "osMutex.hpp"
-
-class osEvent
+namespace os
 {
-public:
-    osEvent(const char* name);
+template <typename T>
+std::string to_dec(T obj, size_t width)
+{
+    std::stringstream ss;
+    ss << std::setw(width) << std::setfill('0') << obj;
+    return ss.str();
+}
 
-    ~osEvent();
+template <typename T>
+std::string to_hex(T obj, size_t width = sizeof(T) * 2)
+{
+    std::stringstream ss;
+    ss << std::hex << std::setw(width) << std::setfill('0') << obj;
+    return ss.str();
+}
 
-    void Notify();
-
-    bool Wait(const char* file, int line, int msTimeout = -1);
-
-    const char* GetName();
-
-    static void dump_info(std::ostream&);
-
-private:
-#ifdef _WIN32
-    void* Handle;
-#elif __linux__
-    pthread_mutex_t m_mutex;
-    pthread_cond_t m_condition;
-    bool m_test;
-#endif
-    static const int NAME_LENGTH_MAX = 80;
-    char Name[NAME_LENGTH_MAX];
-    osThread* pending;
-
-    static osMutex ListMutex;
-    static const int INSTANCE_MAX = 20;
-    static osEvent* InstanceList[];
-};
+} // namespace os

@@ -43,15 +43,15 @@
 #include "ProtocolTCP.hpp"
 #include "http_page.hpp"
 #include "httpd.hpp"
-#include "osMutex.hpp"
-#include "osThread.hpp"
-#include "osTime.hpp"
+#include "mutex.hpp"
+#include "thread.hpp"
+#include "time.hpp"
 
 PacketIO* PIO;
-static osThread NetworkThread;
-static osThread MainThread;
+static os::Thread NetworkThread;
+static os::Thread MainThread;
 
-static osEvent StartEvent("StartEvent");
+static os::Event StartEvent("StartEvent");
 
 DefaultStack tcpStack;
 
@@ -135,7 +135,7 @@ void ShowMutex(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    osMutex::dump_info(out);
+    os::Mutex::dump_info(out);
     out << "</pre>";
 }
 
@@ -143,7 +143,7 @@ void ShowEvent(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    osEvent::dump_info(out);
+    os::Event::dump_info(out);
     out << "</pre>";
 }
 
@@ -151,7 +151,7 @@ void ShowQueue(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    osQueue::dump_info(out);
+    os::Queue::dump_info(out);
     out << "</pre>";
 }
 
@@ -159,7 +159,7 @@ void ShowThread(http::Page* page)
 {
     std::ostream& out = page->get_output_stream();
     out << "<pre>";
-    osThread::dump_info(out);
+    os::Thread::dump_info(out);
     out << "</pre>";
 }
 

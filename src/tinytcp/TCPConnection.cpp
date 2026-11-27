@@ -35,7 +35,7 @@
 #include "ProtocolTCP.hpp"
 #include "TCPConnection.hpp"
 #include "Utility.hpp"
-#include "osTime.hpp"
+#include "time.hpp"
 
 TCPConnection::TCPConnection()
     : RxInOffset(0)
@@ -134,7 +134,7 @@ void TCPConnection::BuildPacket(DataBuffer* buffer, uint8_t flags)
         if (length > 0 || (flags & (FLAG_SYN | FLAG_FIN)))
         {
             buffer->Disposable = false;
-            buffer->Time_us = (uint32_t)osTime::GetTime();
+            buffer->Time_us = (uint32_t)os::Time::GetTime();
             HoldingQueueLock.Take(__FILE__, __LINE__);
             HoldingQueue.Put(buffer);
             HoldingQueueLock.Give();
@@ -356,7 +356,7 @@ void TCPConnection::Tick()
 
     HoldingQueueLock.Take(__FILE__, __LINE__);
     count = HoldingQueue.GetCount();
-    currentTime_us = (int32_t)osTime::GetTime();
+    currentTime_us = (int32_t)os::Time::GetTime();
 
     // Check for retransmit timeout
     timeoutTime_us = currentTime_us - TCP_RETRANSMIT_TIMEOUT_US;
