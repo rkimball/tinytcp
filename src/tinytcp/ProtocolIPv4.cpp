@@ -69,21 +69,64 @@ ProtocolIPv4::ProtocolIPv4(
     Address.DataValid = false;
 }
 
+bool ProtocolIPv4::IsBroadcastAddress(const uint8_t* addr)
+{
+    bool allOnes = true;
+    for (size_t i = 0; i < AddressSize(); i++)
+    {
+        if (addr[i] != 0xFF)
+        {
+            allOnes = false;
+        }
+    }
+    if (allOnes)
+    {
+        return true; // the limited broadcast address, 255.255.255.255
+    }
+
+    if (!Address.DataValid)
+    {
+        return false;
+    }
+
+    // A mask with no host bits leaves no room for a broadcast address
+    bool hostBits = false;
+    for (size_t i = 0; i < AddressSize(); i++)
+    {
+        if (Address.SubnetMask[i] != 0xFF)
+        {
+            hostBits = true;
+        }
+    }
+    if (!hostBits)
+    {
+        return false;
+    }
+
+    // On our subnet, with every host bit set
+    for (size_t i = 0; i < AddressSize(); i++)
+    {
+        if ((addr[i] & Address.SubnetMask[i]) != (Address.Address[i] & Address.SubnetMask[i]) ||
+            (addr[i] | Address.SubnetMask[i]) != 0xFF)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool ProtocolIPv4::IsLocal(const uint8_t* addr)
 {
-    bool rc;
-    uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF};
-    if (Address.DataValid)
-    {
-        rc = AddressCompare(addr, broadcast, AddressSize()) ||
-             AddressCompare(addr, GetUnicastAddress(), AddressSize()) ||
-             AddressCompare(addr, GetBroadcastAddress(), AddressSize());
-    }
-    else
-    {
-        rc = AddressCompare(addr, broadcast, AddressSize());
-    }
-    return rc;
+    return IsBroadcastAddress(addr) ||
+           (Address.DataValid && AddressCompare(addr, GetUnicastAddress(), AddressSize()));
+}
+
+// RFC 1122 section 3.2.1.3: a broadcast address, a loopback address or a multicast address is not
+// the address of a host, so a datagram cannot come from one. 0.0.0.0 can: it is how a host that has
+// no address yet, one that is asking for one with DHCP, says so.
+static bool IsValidSource(ProtocolIPv4& ip, const uint8_t* addr)
+{
+    return !ip.IsBroadcastAddress(addr) && addr[0] != 127 && (addr[0] & 0xF0) != 0xE0;
 }
 
 void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
@@ -94,35 +137,85 @@ void ProtocolIPv4::ProcessRx(DataBuffer* buffer)
     uint8_t* targetIP;
     uint8_t* packet = buffer->Packet;
     uint16_t length = buffer->Length;
-    uint16_t dataLength;
+    uint16_t totalLength;
 
+    // RFC 791: the fixed part of the header is 20 octets
+    if (length < header_size())
+    {
+        return;
+    }
+
+    // RFC 1122 section 3.2.1.1: a datagram whose version is not 4 is silently discarded
+    if ((packet[0] >> 4) != 4)
+    {
+        return;
+    }
+
+    // RFC 791: the header length is in 32 bit words and is at least 5. The total length counts the
+    // header and the data, so it cannot be less than the header, and it cannot be more than what
+    // arrived. Anything after the total length is padding.
     headerLength = (packet[0] & 0x0F) * 4;
-    dataLength = Unpack16(packet, 2);
+    totalLength = Unpack16(packet, 2);
+    if (headerLength < header_size() || totalLength < headerLength || totalLength > length)
+    {
+        return;
+    }
+
+    // RFC 1122 section 3.2.1.2: the header checksum is verified, and a datagram with a bad one is
+    // silently discarded. A header that has its checksum in it adds up to zero.
+    if (FCS::Checksum(packet, headerLength) != 0)
+    {
+        return;
+    }
+
     protocol = packet[9];
     sourceIP = &packet[12];
     targetIP = &packet[16];
 
-    if (IsLocal(targetIP))
+    // RFC 1122 section 3.2.1.3: a datagram that is not for this host is silently discarded, and so
+    // is one with a source address that cannot be a host
+    if (!IsLocal(targetIP) || !IsValidSource(*this, sourceIP))
     {
-        buffer->Packet += headerLength;
-        dataLength -= headerLength;
-        buffer->Length = dataLength;
+        return;
+    }
 
-        switch (protocol)
-        {
-        case 0x01: // ICMP
-            ICMP.ProcessRx(buffer, sourceIP, targetIP);
-            break;
-        case 0x02: // IGMP
-            break;
-        case 0x06: // TCP
-            TCP.ProcessRx(buffer, sourceIP, targetIP);
-            break;
-        case 0x11: // UDP
-            UDP.ProcessRx(buffer, sourceIP, targetIP);
-            break;
-        default: printf("Unsupported IP Protocol 0x%02X\n", protocol); break;
-        }
+    // RFC 1122 section 3.3.6: a datagram that came in a link layer broadcast, and is not for an IP
+    // broadcast address, should be silently discarded
+    if (buffer->LinkBroadcast && !IsBroadcastAddress(targetIP))
+    {
+        return;
+    }
+
+    // RFC 791 and RFC 1122 section 3.3.2 say a host must reassemble fragments. This stack does not,
+    // and a fragment must not be passed on as if it were a whole datagram, so fragments are
+    // dropped. The flags are the top 3 bits of the field. More fragments is 0x2000, and the rest is
+    // the offset.
+    if ((Unpack16(packet, 6) & 0x3FFF) != 0)
+    {
+        return;
+    }
+
+    buffer->Packet += headerLength;
+    buffer->Length = totalLength - headerLength;
+
+    switch (protocol)
+    {
+    case 0x01: // ICMP
+        ICMP.ProcessRx(buffer, sourceIP, targetIP);
+        break;
+    case 0x02: // IGMP
+        break;
+    case 0x06: // TCP
+        TCP.ProcessRx(buffer, sourceIP, targetIP);
+        break;
+    case 0x11: // UDP
+        UDP.ProcessRx(buffer, sourceIP, targetIP);
+        break;
+    default:
+        // RFC 1122 section 3.2.2.1: a protocol that is not supported is answered with protocol
+        // unreachable, which is code 2
+        ICMP.SendDestinationUnreachable(2, buffer, packet, totalLength);
+        break;
     }
 }
 
@@ -162,7 +255,7 @@ void ProtocolIPv4::Transmit(DataBuffer* buffer,
     packet[6] = 0; // Flags & FragmentOffset
     packet[7] = 0; // rest of FragmentOffset
 
-    packet[8] = 32; // TTL
+    packet[8] = IPV4_DEFAULT_TTL; // TTL
     packet[9] = protocol;
     Pack16(packet, 10, 0); // checksum placeholder
     PackBytes(packet, 12, sourceIP, 4);

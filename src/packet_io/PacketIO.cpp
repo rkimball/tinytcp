@@ -405,19 +405,41 @@ void PacketIO::Start(RxDataHandler rxData)
     else
     {
         struct ifreq ifr;
+        memset(&ifr, 0, sizeof(ifr));
         PacketIO::GetInterface(ifr.ifr_name);
+        if (ifr.ifr_name[0] == '\0')
+        {
+            printf("no network interface found. Aborting...\n");
+            exit(-1);
+        }
         printf("Using interface '%s'\n", ifr.ifr_name);
 
-        // Find the socket index for tx later
+        // Find the interface index, which is needed to bind to the interface and to send
         if (ioctl(m_RawSocket, SIOCGIFINDEX, &ifr) == -1)
         {
-            printf("oh crap %s\n", strerror(errno));
+            printf("interface '%s' not found: %s\n", ifr.ifr_name, strerror(errno));
+            exit(-1);
         }
         m_IfIndex = ifr.ifr_ifindex;
 
+        // A packet socket that is not bound receives from every interface, so a frame that passes
+        // through more than one (the two ends of a veth pair, or a bridge) would reach the stack
+        // once for each. Bind to the one interface in use.
+        struct sockaddr_ll address;
+        memset(&address, 0, sizeof(address));
+        address.sll_family = AF_PACKET;
+        address.sll_protocol = htons(ETH_P_ALL);
+        address.sll_ifindex = m_IfIndex;
+        if (bind(m_RawSocket, (struct sockaddr*)&address, sizeof(address)) < 0)
+        {
+            printf("could not bind to interface '%s': %s\n", ifr.ifr_name, strerror(errno));
+            exit(-1);
+        }
+
         // Set socket to promiscuous mode
         struct packet_mreq mreq;
-        mreq.mr_ifindex = ifr.ifr_ifindex;
+        memset(&mreq, 0, sizeof(mreq));
+        mreq.mr_ifindex = m_IfIndex;
         mreq.mr_type = PACKET_MR_PROMISC;
         mreq.mr_alen = 6;
         if (setsockopt(
@@ -429,10 +451,29 @@ void PacketIO::Start(RxDataHandler rxData)
         void* pkt_data = (void*)malloc(ETH_FRAME_LEN);
         while (1)
         {
-            int length = recvfrom(m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, nullptr, nullptr);
-            rxData((uint8_t*)pkt_data, length);
+            struct sockaddr_ll from;
+            socklen_t fromLength = sizeof(from);
+            ssize_t length = recvfrom(
+                m_RawSocket, pkt_data, ETH_FRAME_LEN, 0, (struct sockaddr*)&from, &fromLength);
+            if (length < 0)
+            {
+                if (errno == EINTR)
+                {
+                    continue;
+                }
+                printf("receive error: %s\n", strerror(errno));
+                break;
+            }
+
+            // The socket is also given a copy of every frame this host sends. Those are not for the
+            // stack.
+            if (from.sll_pkttype == PACKET_OUTGOING)
+            {
+                continue;
+            }
+            rxData((uint8_t*)pkt_data, static_cast<size_t>(length));
         }
-        free(pkt_data); // no way to get here, but ...
+        free(pkt_data); // only a receive error gets here
     }
 }
 

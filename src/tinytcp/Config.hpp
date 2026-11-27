@@ -45,6 +45,10 @@
 // octets, rounded up to 592. Larger frames are dropped.
 #define DATA_BUFFER_PAYLOAD_SIZE (592)
 
+// The time to live of the IP datagrams the stack sends. RFC 1122 says a fixed value must be
+// configurable, and the Assigned Numbers registry says 64.
+#define IPV4_DEFAULT_TTL (64)
+
 namespace tinytcp
 {
 const uint8_t ARPCacheSize = 5;

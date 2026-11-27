@@ -199,6 +199,54 @@ inline Bytes Ipv4Packet(const Bytes& source,
     return packet;
 }
 
+// Every field of an IPv4 header (RFC 791), so a test can change one thing and leave the rest right.
+// A field left at its default is filled in correctly: the header length from the options, the
+// total length from the payload and the checksum from the rest of the header.
+struct Ipv4Fields
+{
+    int versionAndHeaderLength = -1; // -1 means 4 and the length that fits the options
+    uint8_t typeOfService = 0;
+    int totalLength = -1; // -1 means the header and the payload
+    uint16_t id = 1;
+    uint16_t flagsAndFragmentOffset = 0;
+    uint8_t ttl = 64;
+    uint8_t protocol = 1;
+    Bytes source = PeerIp;
+    Bytes destination = StackIp;
+    Bytes options;     // a multiple of 4 octets
+    int checksum = -1; // -1 means the correct checksum
+    Bytes payload;
+};
+
+inline Bytes Ipv4Datagram(const Ipv4Fields& ip)
+{
+    Bytes header;
+    size_t headerLength = 20 + ip.options.size();
+    header.push_back(ip.versionAndHeaderLength >= 0
+                         ? static_cast<uint8_t>(ip.versionAndHeaderLength)
+                         : static_cast<uint8_t>(0x40 | (headerLength / 4)));
+    header.push_back(ip.typeOfService);
+    Append16(header,
+             ip.totalLength >= 0 ? static_cast<uint16_t>(ip.totalLength)
+                                 : static_cast<uint16_t>(headerLength + ip.payload.size()));
+    Append16(header, ip.id);
+    Append16(header, ip.flagsAndFragmentOffset);
+    header.push_back(ip.ttl);
+    header.push_back(ip.protocol);
+    Append16(header, 0); // checksum, filled in below
+    Append(header, ip.source);
+    Append(header, ip.destination);
+    Append(header, ip.options);
+    uint16_t checksum =
+        ip.checksum >= 0 ? static_cast<uint16_t>(ip.checksum) : InternetChecksum(header);
+    header[10] = static_cast<uint8_t>(checksum >> 8);
+    header[11] = static_cast<uint8_t>(checksum & 0xff);
+
+    Bytes datagram = header;
+    Append(datagram, ip.payload);
+    return datagram;
+}
+
 // An ICMP echo request (type 8) or reply (type 0) with a correct checksum (RFC 792)
 inline Bytes IcmpEcho(uint8_t type, uint16_t identifier, uint16_t sequence, const Bytes& data)
 {
@@ -236,7 +284,25 @@ public:
         MacOnly        // as before DHCP has given it an address
     };
 
+    // The IPv4 configuration of the stack when it has one
+    struct Network
+    {
+        Bytes address = StackIp;
+        Bytes mask = SubnetMask;
+        Bytes gateway = GatewayIp;
+    };
+
     explicit StackUnderTest(Setup setup = MacAndAddress)
+        : StackUnderTest(setup, Network())
+    {
+    }
+
+    explicit StackUnderTest(const Network& network)
+        : StackUnderTest(MacAndAddress, network)
+    {
+    }
+
+    StackUnderTest(Setup setup, const Network& network)
     {
         // Build the stack in memory full of 0xAA so that anything the stack reads without having
         // written it first is a recognisable pattern, not an accidental zero
@@ -254,10 +320,13 @@ public:
             tt::ProtocolIPv4::AddressInfo info;
             memset(&info, 0, sizeof(info));
             info.DataValid = true;
-            memcpy(info.Address, StackIp.data(), 4);
-            memcpy(info.SubnetMask, SubnetMask.data(), 4);
-            memcpy(info.Gateway, GatewayIp.data(), 4);
-            memcpy(info.BroadcastAddress, SubnetBroadcastIp.data(), 4);
+            memcpy(info.Address, network.address.data(), 4);
+            memcpy(info.SubnetMask, network.mask.data(), 4);
+            memcpy(info.Gateway, network.gateway.data(), 4);
+            for (int i = 0; i < 4; i++)
+            {
+                info.BroadcastAddress[i] = network.address[i] | ~network.mask[i];
+            }
             m_stack->IP.SetAddressInfo(info);
         }
     }
@@ -306,6 +375,18 @@ private:
     tt::DefaultStack* m_stack;
     std::vector<Bytes> m_sent;
 };
+
+// Hand the stack a datagram to send, as a transport layer does, and let it go out
+inline void SendDatagram(StackUnderTest& stack,
+                         uint8_t protocol,
+                         const Bytes& destination,
+                         const Bytes& payload)
+{
+    tt::DataBuffer* buffer = stack.stack().IP.GetTxBuffer(&stack.stack().MAC);
+    memcpy(buffer->Packet, payload.data(), payload.size());
+    buffer->Length = static_cast<uint16_t>(payload.size());
+    stack.stack().IP.Transmit(buffer, protocol, destination.data(), StackIp.data());
+}
 
 // Make the stack learn that peerIp is at peerMac, using an ARP reply addressed to the stack
 inline void TeachArp(StackUnderTest& stack, const Bytes& peerMac, const Bytes& peerIp)

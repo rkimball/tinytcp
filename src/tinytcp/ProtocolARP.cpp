@@ -316,16 +316,7 @@ const uint8_t* ProtocolARP::Protocol2Hardware(const uint8_t* protocolAddress)
 
 bool ProtocolARP::IsBroadcast(const uint8_t* protocolAddress)
 {
-    bool rc = true;
-    for (uint32_t i = 0; i < IP.AddressSize(); i++)
-    {
-        if (protocolAddress[i] != 0xFF)
-        {
-            rc = false;
-            break;
-        }
-    }
-    return rc;
+    return IP.IsBroadcastAddress(protocolAddress);
 }
 
 bool ProtocolARP::IsLocal(const uint8_t* protocolAddress)

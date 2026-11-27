@@ -86,6 +86,10 @@ public:
     // Whether the stack has an address yet, which DHCP supplies
     bool IsConfigured() const { return Address.DataValid; }
 
+    // Whether addr is a broadcast address: the limited broadcast address, or, once the stack has an
+    // address, the one for its subnet (the network with every host bit set)
+    bool IsBroadcastAddress(const uint8_t* addr);
+
     DataBuffer* GetTxBuffer(InterfaceMAC*);
     void FreeTxBuffer(DataBuffer*);
     void FreeRxBuffer(DataBuffer*);

@@ -96,15 +96,15 @@ several layers, so each layer lists the part of it that applies.
 ### Internet: IPv4 and ICMP
 | | RFC | Title | What the tests check | Tests |
 |:-:|---|---|---|---|
-| ☐ | [RFC 791](https://www.rfc-editor.org/rfc/rfc791) | Internet Protocol | Header fields and their validation, options skipped using the header length, fragment fields, accepting 576 byte datagrams, protocol demultiplexing, header of the datagrams we send | |
+| ☐ | [RFC 791](https://www.rfc-editor.org/rfc/rfc791) | Internet Protocol | Header fields and their validation (version, header length, total length, checksum), options skipped using the header length, 576 octet datagrams accepted, the header of the datagrams we send, protocol demultiplexing. **Not met:** the stack does not reassemble fragments, so it drops them instead of passing them on (RFC 1122 sec. 3.3.2 says a host must reassemble), and options are skipped, not passed to the transport layer | [test_ipv4.cpp](test/tinytcp/test_ipv4.cpp) |
 | ☑ | [RFC 1071](https://www.rfc-editor.org/rfc/rfc1071) | Computing the Internet Checksum | One's complement sum, odd length data, carry folding. Used by IP, ICMP, UDP and TCP | [test_checksum.cpp](test/tinytcp/test_checksum.cpp) |
-| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 3.2 | Requirements for Internet Hosts, IP | Silently discard a wrong version or a bad header checksum, accept only our own and broadcast addresses, TTL of datagrams we send | |
-| ☐ | [RFC 919](https://www.rfc-editor.org/rfc/rfc919), [RFC 922](https://www.rfc-editor.org/rfc/rfc922) | Broadcasting Internet Datagrams | Limited broadcast (255.255.255.255) and subnet broadcast, which DHCP needs | |
-| ☐ | [RFC 950](https://www.rfc-editor.org/rfc/rfc950) | Internet Standard Subnetting Procedure | Using the subnet mask to decide between the local network and the gateway | |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 3.2 | Requirements for Internet Hosts, IP | Silently discard a wrong version, a bad header checksum, a datagram not for us and one with a source address that cannot be a host, accept a small TTL, discard a unicast datagram that came in a link layer broadcast frame, TTL of datagrams we send (64, set in Config.hpp). **Not met:** reassembly, and a way for the transport layer to set IP options or the type of service | [test_ipv4.cpp](test/tinytcp/test_ipv4.cpp) |
+| ☑ | [RFC 919](https://www.rfc-editor.org/rfc/rfc919), [RFC 922](https://www.rfc-editor.org/rfc/rfc922) | Broadcasting Internet Datagrams | The limited broadcast address (255.255.255.255) and the subnet broadcast address, which follows the subnet mask, are both sent to the broadcast Ethernet address | [test_ipv4.cpp](test/tinytcp/test_ipv4.cpp) |
+| ☑ | [RFC 950](https://www.rfc-editor.org/rfc/rfc950) | Internet Standard Subnetting Procedure | The subnet mask decides between a destination on the local network and one reached by the gateway | [test_ipv4.cpp](test/tinytcp/test_ipv4.cpp) |
 | ☐ | [RFC 6864](https://www.rfc-editor.org/rfc/rfc6864) | Updated Specification of the IPv4 ID Field | ID field of the datagrams we send *(optional)* | |
-| ☐ | [RFC 2474](https://www.rfc-editor.org/rfc/rfc2474), [RFC 3168](https://www.rfc-editor.org/rfc/rfc3168) | DS Field and ECN | DS and ECN bits are ignored on receive *(optional)* | |
-| ☐ | [RFC 792](https://www.rfc-editor.org/rfc/rfc792) | Internet Control Message Protocol | Echo request and reply (identifier, sequence and data returned unchanged, checksum), destination unreachable format, other types ignored | |
-| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 3.2.2 | Requirements for Internet Hosts, ICMP | Must answer echo requests, errors that must and must not be sent | |
+| ☑ | [RFC 2474](https://www.rfc-editor.org/rfc/rfc2474), [RFC 3168](https://www.rfc-editor.org/rfc/rfc3168) | DS Field and ECN | DS and ECN bits are ignored on receive *(optional)* | [test_ipv4.cpp](test/tinytcp/test_ipv4.cpp) |
+| ☑ | [RFC 792](https://www.rfc-editor.org/rfc/rfc792) | Internet Control Message Protocol | Echo request and reply (identifier, sequence and data returned unchanged, checksum over the whole message, odd lengths), short and damaged messages discarded, other types ignored, the destination unreachable message (protocol unreachable, quoting the datagram). Port unreachable is sent once the UDP tests are done | [test_icmp.cpp](test/tinytcp/test_icmp.cpp) |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 3.2.2 | Requirements for Internet Hosts, ICMP | Must answer echo requests, silently discard unknown types, protocol unreachable for an unsupported protocol, and no error for a broadcast, a link layer broadcast, a fragment that is not the first, a source that is not a single host. **Not met yet:** port unreachable (code 3), which needs the UDP layer | [test_icmp.cpp](test/tinytcp/test_icmp.cpp) |
 
 ### Transport: UDP
 | | RFC | Title | What the tests check | Tests |
@@ -146,14 +146,14 @@ runtime.
 <!-- size-table:begin -->
 | bytes | x86-64 | RISC-V (rv64) | ARM (Thumb-2) |
 |---|---:|---:|---:|
-| Stack code (text + data) | 21,603 | 21,020 | 11,668 |
+| Stack code (text + data) | 22,418 | 21,788 | 12,062 |
 | Stack RAM (`sizeof(DefaultStack)`) | 32,024 | 32,024 | 30,136 |
 | OS layer code (text + data) | 6,946 | 6,615 | 4,002 |
 | OS layer RAM (data + bss) | 1,462 | 1,462 | 874 |
 | C++ runtime (libstdc++) linked in | 66 | 310 | 173 |
-| Minimal program, static link | 890,265 | 553,923 | 392,168 |
+| Minimal program, static link | 891,105 | 554,623 | 392,520 |
 | Empty program, same link | 711,349 | 490,387 | 341,664 |
-| Net cost of the stack | 178,916 | 63,536 | 50,504 |
+| Net cost of the stack | 179,756 | 64,236 | 50,856 |
 <!-- size-table:end -->
 
 * **Stack code** is `src/tinytcp` (text + data). **Stack RAM** is `sizeof(DefaultStack)`, which holds

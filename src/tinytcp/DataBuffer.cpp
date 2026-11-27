@@ -42,6 +42,7 @@ void DataBuffer::Initialize(InterfaceMAC* mac)
     Length = 0;
     Remainder = DATA_BUFFER_PAYLOAD_SIZE;
     Disposable = true;
+    LinkBroadcast = false;
     MAC = mac;
 }
 
