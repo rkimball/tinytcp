@@ -40,7 +40,10 @@ namespace os
 class Queue
 {
 public:
+    // A null name becomes the empty string. The name is not copied, so it must outlive the queue.
     Queue(const char* name, int count, void** dataBuffer);
+
+    ~Queue();
 
     const char* GetName();
 

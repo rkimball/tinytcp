@@ -36,6 +36,7 @@
 #endif
 #include <cassert>
 #include <stdio.h>
+#include <string.h>
 
 #include "event.hpp"
 #include "mutex.hpp"
@@ -66,6 +67,8 @@ typedef struct WinThreadParam
 Thread::Thread()
     : ThreadStart("ThreadStart")
 {
+    // The name is set by Create(). Until then it is the empty string, never uninitialized.
+    memset(Name, 0, sizeof(Name));
     USleepTime = 0;
     State = INIT;
     Filename = "";
@@ -77,7 +80,19 @@ Thread::Thread()
 #endif
 }
 
-Thread::~Thread() {}
+Thread::~Thread()
+{
+    // Remove this thread from the list so dump_info() does not use a dangling pointer
+    ThreadListMutex.Take(__FILE__, __LINE__);
+    for (int i = 0; i < MAX_THREADS; i++)
+    {
+        if (Threads[i] == this)
+        {
+            Threads[i] = nullptr;
+        }
+    }
+    ThreadListMutex.Give();
+}
 
 #ifdef _WIN32
 DWORD WINAPI WinThreadEntry(LPVOID param)
@@ -174,7 +189,9 @@ int Thread::Create(ThreadEntryPtr entry, const char* name, int stackSize, int pr
     int i;
     int rc = 0;
 
-    snprintf(Name, NAME_LENGTH_MAX, "%s", name);
+    // A null name becomes the empty string and a name that is too long is cut off.
+    // snprintf always terminates Name.
+    snprintf(Name, NAME_LENGTH_MAX, "%s", name ? name : "");
     Priority = priority;
 
 #ifdef _WIN32

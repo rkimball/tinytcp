@@ -45,6 +45,8 @@ namespace os
 class Event
 {
 public:
+    // Every name is accepted: null becomes the empty string and a name longer than
+    // NAME_LENGTH_MAX - 1 characters is truncated. The name is copied and always terminated.
     Event(const char* name);
 
     ~Event();

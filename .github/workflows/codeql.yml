@@ -1,0 +1,40 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Adds a "Run workflow" button on the Actions tab, to run it by hand
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Needed to upload the results to the Security tab
+      security-events: write
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: c-cpp
+        # C++ has to be built so the compiler can be traced. See the build step below.
+        build-mode: manual
+
+    - name: Build
+      # Build only the stack and the test app. The unit tests are left out on purpose: building
+      # them downloads and compiles googletest, which would be analyzed as if it were our code.
+      run: |
+        cmake -B build
+        cmake --build build --target os_support tinytcp packet_io web_server test_app
+
+    - name: Analyze
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:c-cpp"

@@ -14,6 +14,21 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
+# Code coverage. Configure with -DTINYTCP_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug, build, and run
+# "make coverage". Use Debug, not Release: optimization makes the line numbers meaningless.
+# The minimums are percentages and "make coverage" fails if line coverage is below them. They are
+# set a little under what the tests reach today. Raise them as tests are added.
+option(TINYTCP_COVERAGE "Instrument the code with gcov and add the coverage target" OFF)
+set(TINYTCP_COVERAGE_MIN_LINES 22 CACHE STRING "Minimum line coverage of src/, in percent")
+set(TINYTCP_COVERAGE_MIN_LINES_OS 98 CACHE STRING "Minimum line coverage of src/os, in percent")
+if(TINYTCP_COVERAGE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0 -g")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    if(CMAKE_BUILD_TYPE MATCHES "Rel")
+        message(WARNING "TINYTCP_COVERAGE with a Release build gives misleading coverage, use Debug")
+    endif()
+endif()
+
 # Library sources include each other by bare header name
 include_directories (
     ${PROJECT_SOURCE_DIR}/src/os
@@ -93,3 +108,33 @@ add_custom_target(size-readme
     USES_TERMINAL
     VERBATIM
 )
+
+# make coverage: run the unit tests, write a report to <build>/coverage (index.html and
+# summary.txt) and fail if line coverage is below TINYTCP_COVERAGE_MIN_LINES for src/ or
+# TINYTCP_COVERAGE_MIN_LINES_OS for src/os. Needs -DTINYTCP_COVERAGE=ON and gcovr.
+if(TINYTCP_COVERAGE)
+    find_program(GCOVR gcovr)
+    if(GCOVR)
+        set(COVERAGE_DIR ${CMAKE_BINARY_DIR}/coverage)
+        set(GCOVR_COMMON ${GCOVR} --root ${PROJECT_SOURCE_DIR} --object-directory ${CMAKE_BINARY_DIR})
+        add_custom_target(coverage
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${COVERAGE_DIR}
+            # Counters left over from an earlier run would be added to this one
+            COMMAND find ${CMAKE_BINARY_DIR} -name "*.gcda" -delete
+            COMMAND $<TARGET_FILE:unit-test>
+            COMMAND ${GCOVR_COMMON} --filter ${PROJECT_SOURCE_DIR}/src/
+                    --txt ${COVERAGE_DIR}/summary.txt --html-details ${COVERAGE_DIR}/index.html
+            COMMAND ${CMAKE_COMMAND} -E cat ${COVERAGE_DIR}/summary.txt
+            COMMAND ${GCOVR_COMMON} --filter ${PROJECT_SOURCE_DIR}/src/ --output ${COVERAGE_DIR}/check-all.txt
+                    --print-summary --fail-under-line ${TINYTCP_COVERAGE_MIN_LINES}
+            COMMAND ${GCOVR_COMMON} --filter ${PROJECT_SOURCE_DIR}/src/os/ --output ${COVERAGE_DIR}/check-os.txt
+                    --print-summary --fail-under-line ${TINYTCP_COVERAGE_MIN_LINES_OS}
+            DEPENDS unit-test
+            COMMENT "Running the unit tests and checking coverage"
+            USES_TERMINAL
+            VERBATIM
+        )
+    else()
+        message(STATUS "gcovr not found, the 'coverage' target is not available")
+    endif()
+endif()

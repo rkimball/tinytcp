@@ -49,7 +49,7 @@ pthread_mutex_t Mutex::MutexListMutex;
 #endif
 
 Mutex::Mutex(const char* name)
-    : Name(name)
+    : Name(name ? name : "")
     , OwnerFile(nullptr)
     , OwnerThread(nullptr)
 {
@@ -73,6 +73,25 @@ Mutex::Mutex(const char* name)
         }
     }
     UnlockListMutex();
+}
+
+Mutex::~Mutex()
+{
+    // Remove this mutex from the list so dump_info() does not use a dangling pointer
+    LockListMutex();
+    for (int i = 0; i < MAX_MUTEX; i++)
+    {
+        if (MutexList[i] == this)
+        {
+            MutexList[i] = nullptr;
+        }
+    }
+    UnlockListMutex();
+#ifdef _WIN32
+    CloseHandle(Handle);
+#elif __linux__
+    pthread_mutex_destroy(&m_mutex);
+#endif
 }
 
 void Mutex::Give()
