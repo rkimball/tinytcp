@@ -27,6 +27,13 @@ add_subdirectory (src/tinytcp)
 add_subdirectory (src/packet_io)
 add_subdirectory (src/web_server)
 add_subdirectory (test_app)
+
+# Embedded C++ constraints: no exceptions and no RTTI in the library and apps.
+# Not applied to the unit tests, which are built against a separately built gtest.
+foreach(target os_support tinytcp packet_io web_server test_app)
+    target_compile_options(${target} PRIVATE -fno-exceptions -fno-rtti)
+endforeach()
+
 add_subdirectory (test)
 
 set (CLANG_FORMAT clang-format)
