@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright(c) 2015-2021, Robert Kimball
+// Copyright(c) 2015, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #endif
+#include <cstdlib>
 #include <cstring>
 #include <stdio.h>
 
@@ -341,6 +342,15 @@ void PacketIO::DisplayDevices()
 
 void PacketIO::GetInterface(char* name)
 {
+    // TINYTCP_IFACE selects the interface explicitly, e.g. a veth for container testing
+    const char* requested = getenv("TINYTCP_IFACE");
+    if (requested != nullptr && requested[0] != '\0')
+    {
+        strncpy(name, requested, IFNAMSIZ - 1);
+        name[IFNAMSIZ - 1] = '\0';
+        return;
+    }
+
     struct ifaddrs* ifaddr;
 
     if (getifaddrs(&ifaddr) == 0)

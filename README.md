@@ -6,35 +6,8 @@ All memory used is preallocated in static arrays.
 
 ## Building
 Building uses [CMake](https://cmake.org/).
-### Windows
-Windows build has been tested on Windows 10 using the community version of [Visual Studio 2015](https://www.visualstudio.com/en-us/visual-studio-homepage-vs.aspx).
-```
-mkdir myproject
-cd myproject
-git clone https://github.com/rkimball/tinytcp.git
-mkdir build
-cd build
-cmake -G "Visual Studio 14 2015" ..\tinytcp
-```
-This generates tinytcp.sln solution file.
-* The Windows build uses [WinPcap](http://www.winpcap.org/) that you will need to download and install before running.
-* To view the tinytcp test_app web page you will need to point a browser at the IPv4 address that test_app gets from DHCP. This is printed out when the app is run. You will also need to use a browser on a different computer that the one running test_app. When run, test_app will produce output like this
-```
-sending discover
-discover sent
-DHCP Send type 3
-DHCP got address 192.168.1.23
-```
-so you will point your browser at http://192.168.1.23 in this example
 ### Linux
-Linux build has been tested on Ubuntu 22.04.
-* To run on a windows Hyper-V ubuntu installation you need to enable MAC address spoofing on the
-VM's network adapter. To do this go to the VM's settings page, expand the *Network Adapter* node in
-the left panel, and select *Advanced Features*. Now, in the panel on the right check the
-*Enable MAC address spoofing* checkbox and select *Apply* to apply the setting.
-
-![hyper-v setting](images/mac_spoofing.png)
-
+tinytcp builds and runs on Linux (tested on Ubuntu 22.04). Windows is no longer supported.
 ```
 mkdir myproject
 cd myproject
@@ -57,6 +30,14 @@ DHCP Send type 3
 DHCP got address 192.168.1.23
 ```
 so you will point your browser at http://192.168.1.23 in this example
+
+## Dev Container
+Use **Dev Containers: Reopen in Container** in VS Code and pick a configuration:
+* **NoChatSupport** - build environment only.
+* **ClaudeSupport** - adds Claude Code. It mounts your host `~/.claude` so history is shared with the container. Set `export CLAUDE_CONFIG_DIR="$HOME/.claude"` on the host so the host and container share one `.claude.json`.
+
+### Testing in the container
+`test_app/vnet.sh test` builds a virtual network (veth pair plus a dnsmasq DHCP server), runs `test_app` on it, fetches its web page with curl and cleans up. `test_app/vnet.sh run` keeps it running and forwards the web server to port 8080 so a browser on the host can reach it. Build first (`cmake` + `make` in `build/`).
 
 ## Usage
 The protocol stack has three main functions required

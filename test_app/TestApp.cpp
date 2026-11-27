@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright(c) 2015-2021, Robert Kimball
+// Copyright(c) 2015, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-#ifdef _WIN32
-#include <pcap.h>
-#elif __linux__
 #include <strings.h>
 #include <unistd.h>
-#endif
 
 #include "DefaultStack.hpp"
 #include "InterfaceMAC.hpp"
@@ -51,11 +47,6 @@
 #include "osThread.hpp"
 #include "osTime.hpp"
 
-#ifdef WIN32
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#endif
-
 PacketIO* PIO;
 static osThread NetworkThread;
 static osThread MainThread;
@@ -63,23 +54,6 @@ static osThread MainThread;
 static osEvent StartEvent("StartEvent");
 
 DefaultStack tcpStack;
-
-struct NetworkConfig
-{
-    int interfaceNumber;
-};
-
-//============================================================================
-// Callback function invoked by libpcap for every incoming packet
-//============================================================================
-
-#ifdef _WIN32
-void packet_handler(u_char* param, const struct pcap_pkthdr* header, const u_char* pkt_data)
-{
-    ProtocolMACEthernet::ProcessRx((uint8_t*)pkt_data, header->len);
-}
-#elif __linux__
-#endif
 
 void RxData(uint8_t* data, size_t length)
 {
@@ -102,28 +76,10 @@ void NetworkEntry(void* param)
     //   Config.IPv4.Address[ 2 ] = 0;
     //   Config.IPv4.Address[ 3 ] = 0;
 
-#ifdef _WIN32
-    NetworkConfig& config = *(NetworkConfig*)param;
-    char device[256];
-
-    PacketIO::GetDevice(config.interfaceNumber, device, sizeof(device));
-    printf("using device %s\n", device);
-    // PacketIO::GetMACAddress( device, Config.MACAddress );
-
-    PIO = new PacketIO(device);
-
-    ProtocolMACEthernet::Initialize(PIO);
-
-    StartEvent.Notify();
-
-    // This method does not return...ever
-    PIO->Start(packet_handler);
-#elif __linux__
     PIO = new PacketIO();
     tcpStack.RegisterDataTransmitHandler(TxData);
     StartEvent.Notify();
     PIO->Start(RxData);
-#endif
 }
 
 void MainEntry(void* config) {}
@@ -328,8 +284,6 @@ void ProcessPageRequest(http::Page* page, const char* url)
 
 int main(int argc, char* argv[])
 {
-    NetworkConfig config;
-    config.interfaceNumber = 1;
     http::Server WebServer;
 
     printf("%d bit build\n", (sizeof(void*) == 4 ? 32 : 64));
@@ -342,10 +296,6 @@ int main(int argc, char* argv[])
             PacketIO::DisplayDevices();
             return 0;
         }
-        else if (!strcmp(argv[i], "-use"))
-        {
-            config.interfaceNumber = atoi(argv[++i]);
-        }
         else
         {
             printf("unknown option '%s'\n", argv[i]);
@@ -354,13 +304,9 @@ int main(int argc, char* argv[])
     }
 
     WebServer.RegisterPageHandler(ProcessPageRequest);
-    NetworkThread.Create(NetworkEntry, "Network", 1024, 10, &config);
+    NetworkThread.Create(NetworkEntry, "Network", 1024, 10, nullptr);
 
-#ifdef _WIN32
-    Sleep(1000);
-#elif __linux__
     usleep(1000000);
-#endif
     StartEvent.Wait(__FILE__, __LINE__);
 
     WebServer.Initialize(tcpStack.MAC, tcpStack.TCP, 80);
@@ -369,11 +315,7 @@ int main(int argc, char* argv[])
 
     while (1)
     {
-#ifdef _WIN32
-        Sleep(100);
-#elif __linux__
         usleep(100000);
-#endif
         tcpStack.Tick();
     }
 }

@@ -7,6 +7,11 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project (tinytcp)
 
+option(TINYTCP_DEBUG "Enable verbose debug output (rx header dumps, etc.)" OFF)
+if(TINYTCP_DEBUG)
+    add_definitions(-DTINYTCP_DEBUG)
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 add_subdirectory (os_support)

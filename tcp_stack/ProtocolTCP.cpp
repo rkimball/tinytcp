@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright(c) 2015-2021, Robert Kimball
+// Copyright(c) 2015, Robert Kimball
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,6 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 #include "DataBuffer.hpp"
 #include "FCS.hpp"

@@ -1,0 +1,26 @@
+{
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": "../.."
+    },
+    "updateRemoteUserUID": true,
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/ubuntu/tinytcp,type=bind",
+    "workspaceFolder": "/home/ubuntu/tinytcp",
+    "runArgs": ["--cap-add=NET_ADMIN"],
+    "forwardPorts": [8080],
+    "remoteUser": "ubuntu",
+    "containerUser": "ubuntu",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "ms-vscode.cmake-tools-helper",
+                "ms-vscode.remote-containers",
+                "johnpapa.vscode-peacock",
+                "github.copilot",
+                "github.copilot-chat"
+            ]
+        }
+    }
+}
