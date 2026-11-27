@@ -2,7 +2,8 @@
 
 namespace tt = tinytcp;
 
-class LocalMAC: public tt::InterfaceMAC {
+class LocalMAC : public tt::InterfaceMAC
+{
 public:
     typedef void (*TxHandler)(const uint8_t* src, const uint8_t* data, size_t len);
 
