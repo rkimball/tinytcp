@@ -29,13 +29,11 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <iostream>
-
+#include "ProtocolUDP.hpp"
 #include <stdio.h>
 #include "FCS.hpp"
 #include "ProtocolDHCP.hpp"
 #include "ProtocolIPv4.hpp"
-#include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
 namespace tinytcp

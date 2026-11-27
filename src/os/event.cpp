@@ -32,7 +32,6 @@
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include <iomanip>
 #include <stdio.h>
 #include <string.h>
 
@@ -151,29 +150,24 @@ const char* Event::GetName()
     return Name;
 }
 
-void Event::dump_info(std::ostream& out)
+void Event::dump_info(TextOutput output, void* context)
 {
     uint32_t i;
 
-    out << "Event                         |Thread Name         |State\n";
-    out << "------------------------------+--------------------+------------\n";
+    Print(output, context, "Event                         |Thread Name         |State\n");
+    Print(output, context, "------------------------------+--------------------+------------\n");
     for (i = 0; i < INSTANCE_MAX; i++)
     {
         Event* e = InstanceList[i];
         if (e)
         {
             Thread* thread = e->pending;
-            out << std::setw(30) << std::left << e->GetName() << std::setw(0) << "|";
-            if (thread)
-            {
-                out << std::setw(20) << std::left << thread->GetName() << std::setw(0) << "|";
-                out << std::setw(10) << std::left << "" << std::setw(0) << "\n";
-            }
-            else
-            {
-                out << std::setw(20) << std::left << "" << std::setw(0) << "|";
-                out << std::setw(10) << std::left << "" << std::setw(0) << "\n";
-            }
+            Print(output,
+                  context,
+                  "%-30s|%-20s|%-10s\n",
+                  e->GetName(),
+                  thread ? thread->GetName() : "",
+                  "");
         }
     }
 }

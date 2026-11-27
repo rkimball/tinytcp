@@ -30,8 +30,6 @@
 //----------------------------------------------------------------------------
 
 #include <inttypes.h>
-#include <iomanip>
-#include <iostream>
 #include <stdio.h>
 
 #include "queue.hpp"
@@ -168,7 +166,7 @@ bool Queue::Contains(void* object)
     return rc;
 }
 
-void Queue::dump_info(std::ostream& out)
+void Queue::dump_info(TextOutput output, void* context)
 {
     QueueListLock.Take(__FILE__, __LINE__);
     for (size_t i = 0; i < MAX_QUEUE_COUNT; i++)
@@ -176,9 +174,12 @@ void Queue::dump_info(std::ostream& out)
         Queue* queue = QueueList[i];
         if (queue != nullptr)
         {
-            out << "Queue " << queue->GetName();
-            out << " is size " << queue->MaxElements;
-            out << " and contains " << queue->GetCount() << " objects\n";
+            Print(output,
+                  context,
+                  "Queue %s is size %d and contains %d objects\n",
+                  queue->GetName(),
+                  queue->MaxElements,
+                  queue->GetCount());
             // This is hanging
             // can't lock the queue and tx tcp frames as it can deadlock
             // tx tcp locks queues

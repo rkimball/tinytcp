@@ -32,16 +32,15 @@
 #pragma once
 
 #include <inttypes.h>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <stddef.h>
+
+#include "output.hpp"
 
 namespace tinytcp
 {
 
-void DumpData(std::ostream& out, void* buffer, size_t len);
-void DumpBits(std::ostream& out, void* buffer, size_t size);
+void DumpData(os::TextOutput output, void* context, void* buffer, size_t len);
+void DumpBits(os::TextOutput output, void* context, void* buffer, size_t size);
 
 uint16_t ntoh16(uint16_t value);
 uint16_t hton16(uint16_t value);
@@ -88,31 +87,5 @@ size_t PackFill(uint8_t* p, size_t offset, uint8_t value, size_t count);
 int ReadLine(char* buffer, size_t size, int (*ReadFunction)());
 
 bool AddressCompare(const uint8_t* a1, const uint8_t* a2, int length);
-
-/// @brief  Convert a value to a decimal string
-/// @tparam T   The type of the value
-/// @param obj  The value to convert
-/// @param width   The width of the decimal string.
-/// @return The decimal string
-template <typename T>
-std::string to_dec(T obj, size_t width)
-{
-    std::stringstream ss;
-    ss << std::setw(width) << std::setfill('0') << obj;
-    return ss.str();
-}
-
-/// @brief  Convert a value to a hexadecimal string
-/// @tparam T   The type of the value
-/// @param obj      The value to convert
-/// @param width    The width of the hexadecimal string. The default is the size of the type.
-/// @return     The hexadecimal string
-template <typename T>
-std::string to_hex(T obj, size_t width = sizeof(T) * 2)
-{
-    std::stringstream ss;
-    ss << std::hex << std::setw(width) << std::setfill('0') << (size_t)obj;
-    return ss.str();
-}
 
 } // namespace tinytcp

@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include <iostream>
+#include "output.hpp"
 
 #include "mutex.hpp"
 
@@ -56,7 +56,7 @@ public:
 
     bool Contains(void* object);
 
-    static void dump_info(std::ostream&);
+    static void dump_info(TextOutput output, void* context);
 
 private:
     int Increment(int index)

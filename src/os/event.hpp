@@ -32,7 +32,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include <iostream>
+#include "output.hpp"
 
 #ifdef __linux__
 #include "pthread.h"
@@ -55,7 +55,7 @@ public:
 
     const char* GetName();
 
-    static void dump_info(std::ostream&);
+    static void dump_info(TextOutput output, void* context);
 
 private:
 #ifdef _WIN32

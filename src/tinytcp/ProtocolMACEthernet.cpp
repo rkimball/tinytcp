@@ -29,7 +29,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#include <iostream>
 #include <stdio.h>
 
 #include "ProtocolARP.hpp"
@@ -240,12 +239,15 @@ const uint8_t* ProtocolMACEthernet::GetBroadcastAddress() const
     return BroadcastAddress;
 }
 
-std::ostream& operator<<(std::ostream& out, const ProtocolMACEthernet& obj)
+void ProtocolMACEthernet::dump_info(os::TextOutput output, void* context) const
 {
-    out << "MAC Configuration\n";
-    out << "   Ethernet Unicast MAC Address: " << macaddrtoa(obj.GetUnicastAddress()) << "\n";
-    out << "   Ethernet Broadcast MAC Address: " << macaddrtoa(obj.GetBroadcastAddress()) << "\n";
-    return out;
+    os::Print(output, context, "MAC Configuration\n");
+    os::Print(
+        output, context, "   Ethernet Unicast MAC Address: %s\n", macaddrtoa(GetUnicastAddress()));
+    os::Print(output,
+              context,
+              "   Ethernet Broadcast MAC Address: %s\n",
+              macaddrtoa(GetBroadcastAddress()));
 }
 
 void ProtocolMACEthernet::SetUnicastAddress(uint8_t* addr)

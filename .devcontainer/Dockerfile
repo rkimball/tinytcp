@@ -15,6 +15,8 @@ RUN apt-get update && \
         socat \
         tcpdump \
         ethtool \
+        g++-riscv64-linux-gnu \
+        g++-arm-linux-gnueabihf \
         clang-18 \
         clang-format-18 \
         clang-tidy-18 \
