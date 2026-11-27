@@ -69,6 +69,75 @@ while( 1 )
    }
 }
 ```
+## RFC conformance
+tinytcp is checked against the RFCs that define each protocol it implements. A box is ticked only
+when the unit tests written for that RFC all pass, so ☑ means "tested and conforming", not "believed
+to work". Tests are named after the RFC they check and live in `test/tinytcp/`. Work goes from the
+bottom layer up. RFCs marked *(optional)* are not needed to finish their layer.
+
+☐ not tested yet, ☑ tests pass
+
+Where an RFC has been replaced the current one is used: TCP is checked against RFC 9293, which
+obsoletes RFC 793 and folds in RFCs 879, 6528 and 6691. RFC 1122 (host requirements) applies to
+several layers, so each layer lists the part of it that applies.
+
+### Link: Ethernet
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 894](https://www.rfc-editor.org/rfc/rfc894) | A Standard for the Transmission of IP Datagrams over Ethernet Networks | Frame layout, EtherType values for IP (0x0800) and ARP (0x0806), 46 to 1500 byte payload and padding | |
+
+### Link to network: ARP
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 826](https://www.rfc-editor.org/rfc/rfc826) | An Ethernet Address Resolution Protocol | Packet format, reply to a request for our address, the packet reception rules (hardware and protocol type checks, learning the sender, ignoring requests for other hosts), cache updates | |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 2.3.2 | Requirements for Internet Hosts, ARP | Cache timeout and limiting how often requests are sent *(optional)* | |
+| ☐ | [RFC 5227](https://www.rfc-editor.org/rfc/rfc5227) | IPv4 Address Conflict Detection | Probing before using an address, defending it *(optional)* | |
+
+### Internet: IPv4 and ICMP
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 791](https://www.rfc-editor.org/rfc/rfc791) | Internet Protocol | Header fields and their validation, options skipped using the header length, fragment fields, accepting 576 byte datagrams, protocol demultiplexing, header of the datagrams we send | |
+| ☑ | [RFC 1071](https://www.rfc-editor.org/rfc/rfc1071) | Computing the Internet Checksum | One's complement sum, odd length data, carry folding. Used by IP, ICMP, UDP and TCP | [test_checksum.cpp](test/tinytcp/test_checksum.cpp) |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 3.2 | Requirements for Internet Hosts, IP | Silently discard a wrong version or a bad header checksum, accept only our own and broadcast addresses, TTL of datagrams we send | |
+| ☐ | [RFC 919](https://www.rfc-editor.org/rfc/rfc919), [RFC 922](https://www.rfc-editor.org/rfc/rfc922) | Broadcasting Internet Datagrams | Limited broadcast (255.255.255.255) and subnet broadcast, which DHCP needs | |
+| ☐ | [RFC 950](https://www.rfc-editor.org/rfc/rfc950) | Internet Standard Subnetting Procedure | Using the subnet mask to decide between the local network and the gateway | |
+| ☐ | [RFC 6864](https://www.rfc-editor.org/rfc/rfc6864) | Updated Specification of the IPv4 ID Field | ID field of the datagrams we send *(optional)* | |
+| ☐ | [RFC 2474](https://www.rfc-editor.org/rfc/rfc2474), [RFC 3168](https://www.rfc-editor.org/rfc/rfc3168) | DS Field and ECN | DS and ECN bits are ignored on receive *(optional)* | |
+| ☐ | [RFC 792](https://www.rfc-editor.org/rfc/rfc792) | Internet Control Message Protocol | Echo request and reply (identifier, sequence and data returned unchanged, checksum), destination unreachable format, other types ignored | |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 3.2.2 | Requirements for Internet Hosts, ICMP | Must answer echo requests, errors that must and must not be sent | |
+
+### Transport: UDP
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 768](https://www.rfc-editor.org/rfc/rfc768) | User Datagram Protocol | Header format, checksum with the pseudo header, a checksum of zero means none, length validation, delivery to the right port | |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 4.1 | Requirements for Internet Hosts, UDP | Checksum rules, ICMP port unreachable when nothing listens | |
+| ☐ | [RFC 9868](https://www.rfc-editor.org/rfc/rfc9868) | Transport Options for UDP | Options sit after the UDP length inside the IP datagram, so only the UDP length is used for the data *(optional)* | |
+
+### Transport: TCP
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 9293](https://www.rfc-editor.org/rfc/rfc9293) | Transmission Control Protocol (TCP) | Header and checksum, every state and transition, three way handshake and simultaneous open, reset generation and processing, closing, TIME-WAIT, sequence numbers and wraparound, windows, retransmission, MSS option, initial sequence numbers | |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 4.2 | Requirements for Internet Hosts, TCP | Parts 9293 leaves to it: delayed ACK, silly window avoidance, window probes | |
+| ☐ | [RFC 6298](https://www.rfc-editor.org/rfc/rfc6298) | Computing TCP's Retransmission Timer | Smoothed RTT and variance, the timeout, backoff, minimum timeout | |
+| ☐ | [RFC 5681](https://www.rfc-editor.org/rfc/rfc5681) | TCP Congestion Control | Slow start, congestion avoidance, fast retransmit *(to be decided)* | |
+| ☐ | [RFC 5961](https://www.rfc-editor.org/rfc/rfc5961) | Improving TCP's Robustness to Blind In-Window Attacks | Checks on RST, SYN and ACK segments *(optional)* | |
+| ☐ | [RFC 7323](https://www.rfc-editor.org/rfc/rfc7323) | TCP Extensions for High Performance | Window scale and timestamps are ignored cleanly if offered *(optional)* | |
+| ☐ | [RFC 2018](https://www.rfc-editor.org/rfc/rfc2018) | TCP Selective Acknowledgment Options | SACK is ignored cleanly if offered *(optional)* | |
+
+### Configuration: DHCP
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 2131](https://www.rfc-editor.org/rfc/rfc2131) | Dynamic Host Configuration Protocol | Fixed header and magic cookie, DISCOVER and REQUEST we send, handling OFFER, ACK and NAK, transaction ID matching, lease, renewing and rebinding | |
+| ☐ | [RFC 2132](https://www.rfc-editor.org/rfc/rfc2132) | DHCP Options and BOOTP Vendor Extensions | The options we send and read: subnet mask, router, DNS, broadcast address, lease time, message type, renewal and rebinding times, end and pad | |
+| ☐ | [RFC 951](https://www.rfc-editor.org/rfc/rfc951), [RFC 1542](https://www.rfc-editor.org/rfc/rfc1542) | Bootstrap Protocol and its clarifications | The BOOTP message layout DHCP is built on, ports 67 and 68, the broadcast flag | |
+| ☐ | [RFC 3396](https://www.rfc-editor.org/rfc/rfc3396) | Encoding Long Options in DHCPv4 | Options split over several entries *(optional)* | |
+
+### Application: HTTP (`src/web_server`)
+| | RFC | Title | What the tests check | Tests |
+|:-:|---|---|---|---|
+| ☐ | [RFC 1945](https://www.rfc-editor.org/rfc/rfc1945) | Hypertext Transfer Protocol, HTTP/1.0 | What the server speaks today: request line, status line, headers, 200 and 404 | |
+| ☐ | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110), [RFC 9112](https://www.rfc-editor.org/rfc/rfc9112) | HTTP Semantics and HTTP/1.1 | The current HTTP standards *(optional, later)* | |
+
 ## Size
 tinytcp is meant for small devices. All memory is statically allocated, there is no heap, and the
 stack is built without exceptions, RTTI or `iostream`, so it needs next to nothing from the C++
