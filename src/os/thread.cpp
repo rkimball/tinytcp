@@ -302,6 +302,12 @@ void Thread::USleep(unsigned long us, const char* file, int line)
 
 Thread* Thread::GetCurrent()
 {
+    // The thread local storage key is created by Initialize(). Until then it is zero, which may be
+    // a key that some other library owns, and reading it would return that library's data.
+    if (!IsInitialized)
+    {
+        return nullptr;
+    }
 #ifdef _WIN32
     return (Thread*)TlsGetValue(dwTlsIndex);
 #elif __linux__
