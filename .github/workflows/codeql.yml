@@ -18,10 +18,10 @@ jobs:
       contents: read
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: c-cpp
         # C++ has to be built so the compiler can be traced. See the build step below.
@@ -35,6 +35,6 @@ jobs:
         cmake --build build --target os_support tinytcp packet_io web_server test_app
 
     - name: Analyze
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
       with:
         category: "/language:c-cpp"
