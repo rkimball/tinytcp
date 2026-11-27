@@ -84,14 +84,14 @@ several layers, so each layer lists the part of it that applies.
 ### Link: Ethernet
 | | RFC | Title | What the tests check | Tests |
 |:-:|---|---|---|---|
-| ☐ | [RFC 894](https://www.rfc-editor.org/rfc/rfc894) | A Standard for the Transmission of IP Datagrams over Ethernet Networks | Frame layout, EtherType values for IP (0x0800) and ARP (0x0806), 46 to 1500 byte payload and padding | |
+| ☑ | [RFC 894](https://www.rfc-editor.org/rfc/rfc894) | A Standard for the Transmission of IP Datagrams over Ethernet Networks | Frame layout, EtherType values for IP (0x0800) and ARP (0x0806), zero padding to 46 octets of data and ignoring padding on receive, the broadcast address, frames shorter than a header dropped. Receive buffers hold 592 octets (a 576 octet datagram), so larger frames are dropped. The RFC allows that: a host that cannot take full-length frames should discourage them, and TCP without an MSS option keeps peers to 536 octet segments | [test_ethernet.cpp](test/tinytcp/test_ethernet.cpp) |
 
 ### Link to network: ARP
 | | RFC | Title | What the tests check | Tests |
 |:-:|---|---|---|---|
-| ☐ | [RFC 826](https://www.rfc-editor.org/rfc/rfc826) | An Ethernet Address Resolution Protocol | Packet format, reply to a request for our address, the packet reception rules (hardware and protocol type checks, learning the sender, ignoring requests for other hosts), cache updates | |
-| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 2.3.2 | Requirements for Internet Hosts, ARP | Cache timeout and limiting how often requests are sent *(optional)* | |
-| ☐ | [RFC 5227](https://www.rfc-editor.org/rfc/rfc5227) | IPv4 Address Conflict Detection | Probing before using an address, defending it *(optional)* | |
+| ☑ | [RFC 826](https://www.rfc-editor.org/rfc/rfc826) | An Ethernet Address Resolution Protocol | Packet format, reply to a request for our address, the packet reception rules in the RFC's order (hardware and protocol type and address length checks, replacing a changed address, learning the sender, ignoring packets for other hosts), asking for an address, a full table. Does not cover when entries expire, which RFC 826 leaves open (see RFC 1122 sec. 2.3.2) | [test_arp.cpp](test/tinytcp/test_arp.cpp) |
+| ☐ | [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122) sec. 2.3.2 | Requirements for Internet Hosts, ARP | Cache timeout and limiting how often requests are sent *(optional)*. Not met: entries age by the number of ARP events, not by time, and requests are not rate limited | |
+| ☐ | [RFC 5227](https://www.rfc-editor.org/rfc/rfc5227) | IPv4 Address Conflict Detection | Probing before using an address, defending it *(optional)*. Not implemented | |
 
 ### Internet: IPv4 and ICMP
 | | RFC | Title | What the tests check | Tests |
@@ -146,14 +146,14 @@ runtime.
 <!-- size-table:begin -->
 | bytes | x86-64 | RISC-V (rv64) | ARM (Thumb-2) |
 |---|---:|---:|---:|
-| Stack code (text + data) | 21,326 | 20,776 | 11,508 |
-| Stack RAM (`sizeof(DefaultStack)`) | 28,664 | 28,664 | 26,776 |
-| OS layer code (text + data) | 6,436 | 6,063 | 3,619 |
+| Stack code (text + data) | 21,603 | 21,020 | 11,668 |
+| Stack RAM (`sizeof(DefaultStack)`) | 32,024 | 32,024 | 30,136 |
+| OS layer code (text + data) | 6,946 | 6,615 | 4,002 |
 | OS layer RAM (data + bss) | 1,462 | 1,462 | 874 |
 | C++ runtime (libstdc++) linked in | 66 | 310 | 173 |
-| Minimal program, static link | 885,633 | 549,411 | 388,064 |
+| Minimal program, static link | 890,265 | 553,923 | 392,168 |
 | Empty program, same link | 711,349 | 490,387 | 341,664 |
-| Net cost of the stack | 174,284 | 59,024 | 46,400 |
+| Net cost of the stack | 178,916 | 63,536 | 50,504 |
 <!-- size-table:end -->
 
 * **Stack code** is `src/tinytcp` (text + data). **Stack RAM** is `sizeof(DefaultStack)`, which holds
