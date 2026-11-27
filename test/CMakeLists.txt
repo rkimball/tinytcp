@@ -35,6 +35,7 @@ set (SRC
     os/thread.cpp
     os/time.cpp
     tinytcp/mac.cpp
+    tinytcp/test_checksum.cpp
     tinytcp/test_Utility.cpp
 )
 

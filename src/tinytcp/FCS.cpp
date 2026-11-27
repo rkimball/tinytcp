@@ -37,14 +37,18 @@ namespace tinytcp
 
 uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 {
-    uint16_t value;
     int32_t i;
 
-    // Don't need to add in the checksum field so only 9x16 bit words in header
-    for (i = 0; i < length / 2; i++)
+    // The data is a series of 16 bit words, the first octet of each being the high order half
+    for (i = 0; i + 1 < length; i += 2)
     {
-        value = (buffer[i * 2] << 8) | buffer[i * 2 + 1];
-        checksum += (uint32_t)value;
+        checksum += (uint32_t)((buffer[i] << 8) | buffer[i + 1]);
+    }
+
+    // RFC 1071: an odd last octet is padded on the right with a zero octet
+    if (i < length)
+    {
+        checksum += (uint32_t)(buffer[i] << 8);
     }
 
     return checksum;
@@ -52,12 +56,14 @@ uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 
 uint16_t FCS::ChecksumComplete(uint32_t checksum)
 {
-    uint16_t sum;
-    sum = (checksum & 0xFFFF);
-    sum += (checksum >> 16);
-    sum = ~sum;
+    // RFC 1071: every carry out of the low 16 bits is added back in, and adding it back can
+    // produce another carry, so keep going until there is none
+    while ((checksum >> 16) != 0)
+    {
+        checksum = (checksum & 0xFFFF) + (checksum >> 16);
+    }
 
-    return sum;
+    return (uint16_t)~checksum;
 }
 
 uint16_t FCS::Checksum(const uint8_t* buffer, int length)

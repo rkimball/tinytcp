@@ -36,11 +36,21 @@
 namespace tinytcp
 {
 
+// The Internet checksum of RFC 1071: the one's complement of the one's complement sum of the data
+// taken as 16 bit words. Used by IP, ICMP, UDP and TCP.
 class FCS
 {
 public:
+    // The checksum of the data. Run over data that includes its own checksum field, a result of
+    // zero means the data is intact.
     static uint16_t Checksum(const uint8_t* buffer, int length);
+
+    // Adds the data to a running sum, so the checksum of data held in pieces (the TCP pseudo header
+    // and the segment, for example) can be built up. Start with checksum 0. Only the last piece may
+    // have an odd length.
     static uint32_t ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum);
+
+    // Turns a running sum into the checksum
     static uint16_t ChecksumComplete(uint32_t checksum);
 };
 
