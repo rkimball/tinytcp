@@ -40,7 +40,7 @@ Use **Dev Containers: Reopen in Container** in VS Code and pick a configuration:
 `test_app/vnet.sh test` builds a virtual network (veth pair plus a dnsmasq DHCP server), runs `test_app` on it, fetches its web page with curl and cleans up. `test_app/vnet.sh run` keeps it running and forwards the web server to port 8080 so a browser on the host can reach it. Build first (`cmake` + `make` in `build/`).
 
 ### Unit tests and coverage
-`build/test/unit-test` runs the unit tests. For coverage, configure a Debug build with `-DTINYTCP_COVERAGE=ON` and run `make coverage` (it needs `gcovr`, which the dev container has). It writes `coverage/index.html` in the build directory and fails if line coverage is below the minimums in `CMakeLists.txt`. CI runs the same thing.
+`build/test/unit-test` runs the unit tests. For coverage, configure a Debug build with `-DTINYTCP_COVERAGE=ON` and run `make coverage` (it needs `gcovr`, which the dev container has). It writes `coverage/index.html` in the build directory and fails if line coverage is below the minimums in `CMakeLists.txt`. CI runs the same thing, and publishes the report for `main` at https://rkimball.github.io/tinytcp/.
 
 ## Usage
 The protocol stack has three main functions required
