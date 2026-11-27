@@ -24,9 +24,7 @@ target_include_directories(libgtest SYSTEM INTERFACE
 target_link_libraries(libgtest INTERFACE
     ${BINARY_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
-if(NOT WIN32)
-    target_link_libraries(libgtest INTERFACE pthread)
-endif()
+target_link_libraries(libgtest INTERFACE pthread)
 
 set (SRC
     main.cpp

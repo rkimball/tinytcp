@@ -39,12 +39,7 @@
 #include "http_page.hpp"
 #include "osThread.hpp"
 
-#ifdef WIN32
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#elif __linux__
 #include <strings.h>
-#endif
 
 template <typename T>
 std::string to_hex(T obj, size_t width = sizeof(T) * 2)
@@ -257,15 +252,9 @@ bool http::Page::SendFile(const char* filename)
     f = fopen(filename, "rb");
     if (f)
     {
-#ifdef _WIN32
-        _fseeki64(f, 0, SEEK_END);
-        counti64 = _ftelli64(f);
-        _fseeki64(f, 0, SEEK_SET);
-#elif __linux__
         fseek(f, 0, SEEK_END);
         counti64 = ftell(f);
         fseek(f, 0, SEEK_SET);
-#endif
         out << "HTTP/1.0 200 OK\r\nContent-Type: application/java-archive\r\n";
         out << "Content-Length: " << counti64 << "\r\n\r\n";
         SendString(s);

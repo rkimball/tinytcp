@@ -40,12 +40,7 @@
 #include "osQueue.hpp"
 #include "osThread.hpp"
 
-#ifdef WIN32
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#elif __linux__
 #include <strings.h>
-#endif
 
 #define MAX_ARGV 10
 

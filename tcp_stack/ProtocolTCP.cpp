@@ -30,9 +30,6 @@
 //----------------------------------------------------------------------------
 
 #include <stdio.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 #include "DataBuffer.hpp"
 #include "FCS.hpp"
