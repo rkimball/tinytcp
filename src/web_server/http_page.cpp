@@ -60,7 +60,7 @@ http::Page::Page()
 
 http::Page::~Page() {}
 
-void http::Page::Initialize(TCPConnection* connection)
+void http::Page::Initialize(tinytcp::TCPConnection* connection)
 {
     Connection = connection;
     Busy = 0;

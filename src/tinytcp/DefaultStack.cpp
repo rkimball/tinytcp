@@ -31,6 +31,9 @@
 
 #include "DefaultStack.hpp"
 
+namespace tinytcp
+{
+
 DefaultStack::DefaultStack()
     : MAC(ARP, IP)
     , IP(MAC, ARP, ICMP, TCP, UDP)
@@ -66,3 +69,5 @@ void DefaultStack::ProcessRx(uint8_t* data, size_t length)
 {
     MAC.ProcessRx(data, length);
 }
+
+} // namespace tinytcp

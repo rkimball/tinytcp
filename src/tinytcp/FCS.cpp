@@ -32,6 +32,9 @@
 #include "FCS.hpp"
 #include <stdio.h>
 
+namespace tinytcp
+{
+
 uint32_t FCS::ChecksumAdd(const uint8_t* buffer, int length, uint32_t checksum)
 {
     uint16_t value;
@@ -61,3 +64,5 @@ uint16_t FCS::Checksum(const uint8_t* buffer, int length)
 {
     return ChecksumComplete(ChecksumAdd(buffer, length, 0));
 }
+
+} // namespace tinytcp

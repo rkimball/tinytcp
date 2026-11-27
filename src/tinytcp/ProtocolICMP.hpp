@@ -34,6 +34,9 @@
 #include <inttypes.h>
 #include "DataBuffer.hpp"
 
+namespace tinytcp
+{
+
 class ProtocolIPv4;
 
 class ProtocolICMP
@@ -49,3 +52,5 @@ private:
     ProtocolICMP();
     ProtocolICMP(ProtocolICMP&);
 };
+
+} // namespace tinytcp

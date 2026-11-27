@@ -38,6 +38,9 @@
 #include "event.hpp"
 #include "queue.hpp"
 
+namespace tinytcp
+{
+
 class ProtocolARP;
 class ProtocolIPv4;
 
@@ -92,3 +95,5 @@ private:
     ProtocolMACEthernet(ProtocolMACEthernet&);
     ProtocolMACEthernet();
 };
+
+} // namespace tinytcp

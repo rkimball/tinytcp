@@ -38,6 +38,9 @@
 #include "InterfaceMAC.hpp"
 #include "queue.hpp"
 
+namespace tinytcp
+{
+
 class ProtocolARP;
 class ProtocolICMP;
 class ProtocolTCP;
@@ -106,3 +109,5 @@ private:
     ProtocolIPv4();
     ProtocolIPv4(ProtocolIPv4&);
 };
+
+} // namespace tinytcp

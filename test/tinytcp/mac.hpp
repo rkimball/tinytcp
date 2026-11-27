@@ -1,6 +1,8 @@
 #include "tinytcp/InterfaceMAC.hpp"
 
-class LocalMAC: public InterfaceMAC {
+namespace tt = tinytcp;
+
+class LocalMAC: public tt::InterfaceMAC {
 public:
     typedef void (*TxHandler)(const uint8_t* src, const uint8_t* data, size_t len);
 

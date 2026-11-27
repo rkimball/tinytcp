@@ -70,6 +70,8 @@
 #define SYN (packet[13] & FLAG_SYN)
 #define FIN (packet[13] & FLAG_FIN)
 
+namespace tinytcp
+{
 class ProtocolIPv4;
 
 class ProtocolTCP
@@ -111,3 +113,5 @@ private:
     ProtocolTCP();
     ProtocolTCP(ProtocolTCP&);
 };
+
+} // namespace tinytcp

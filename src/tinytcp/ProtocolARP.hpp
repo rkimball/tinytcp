@@ -39,6 +39,9 @@
 #include "ProtocolIPv4.hpp"
 #include "mutex.hpp"
 
+namespace tinytcp
+{
+
 class ARPCacheEntry
 {
 public:
@@ -101,3 +104,5 @@ private:
     ProtocolARP();
     ProtocolARP(ProtocolARP&);
 };
+
+} // namespace tinytcp

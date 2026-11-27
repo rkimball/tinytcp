@@ -35,6 +35,9 @@
 
 #include "DataBuffer.hpp"
 
+namespace tinytcp
+{
+
 class InterfaceMAC;
 class ProtocolIPv4;
 class ProtocolUDP;
@@ -61,3 +64,5 @@ private:
     ProtocolIPv4& IP;
     ProtocolUDP& UDP;
 };
+
+} // namespace tinytcp

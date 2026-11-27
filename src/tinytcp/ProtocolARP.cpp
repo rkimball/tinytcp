@@ -40,6 +40,9 @@
 #include "ProtocolIPv4.hpp"
 #include "Utility.hpp"
 
+namespace tinytcp
+{
+
 // HardwareType - 2 bytes
 // ProtocolType - 2 bytes
 // HardwareSize - 1 byte, size int bytes of HardwareAddress fields
@@ -335,3 +338,5 @@ int ProtocolARP::LocateProtocolAddress(const uint8_t* protocolAddress)
 
     return -1;
 }
+
+} // namespace tinytcp
