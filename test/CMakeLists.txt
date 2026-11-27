@@ -29,6 +29,11 @@ target_link_libraries(libgtest INTERFACE pthread)
 set (SRC
     main.cpp
     os/event.cpp
+    os/mutex.cpp
+    os/output.cpp
+    os/queue.cpp
+    os/thread.cpp
+    os/time.cpp
     tinytcp/mac.cpp
     tinytcp/test_Utility.cpp
 )

@@ -64,6 +64,8 @@ public:
 
     static void Initialize();
 
+    // A null name becomes the empty string and a name longer than NAME_LENGTH_MAX - 1 characters
+    // is truncated. Until Create() is called the name is the empty string.
     int Create(ThreadEntryPtr entry, const char* name, int stack, int priority, void* param);
 
     void WaitForExit(int32_t millisecondWaitTimeout = -1);

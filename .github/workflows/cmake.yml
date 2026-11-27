@@ -36,3 +36,39 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: test/unit-test
 
+
+  coverage:
+    # Runs the unit tests with gcov instrumentation. Fails if a test fails or if line coverage is
+    # below the minimums set in CMakeLists.txt (TINYTCP_COVERAGE_MIN_LINES and
+    # TINYTCP_COVERAGE_MIN_LINES_OS).
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install gcovr
+      run: sudo apt-get update && sudo apt-get install -y gcovr
+
+    - name: Configure CMake
+      # Debug, not Release: optimization makes the line numbers meaningless
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Debug -DTINYTCP_COVERAGE=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --parallel --target unit-test
+
+    - name: Test and check coverage
+      run: cmake --build ${{github.workspace}}/build --target coverage
+
+    - name: Coverage summary
+      if: always()
+      run: |
+        if [ -f build/coverage/summary.txt ]; then
+          { echo '### Coverage'; echo '```'; cat build/coverage/summary.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Upload the coverage report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: build/coverage

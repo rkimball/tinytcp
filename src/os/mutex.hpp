@@ -52,7 +52,10 @@ class Mutex
     friend class Thread;
 
 public:
+    // A null name becomes the empty string. The name is not copied, so it must outlive the mutex.
     Mutex(const char* name);
+
+    ~Mutex();
 
     void Give();
 

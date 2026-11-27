@@ -43,7 +43,7 @@ Mutex QueueListLock("queue list lock");
 
 Queue::Queue(const char* name, int count, void** dataBuffer)
     : Array(dataBuffer)
-    , Name(name)
+    , Name(name ? name : "")
     , NextInIndex(0)
     , NextOutIndex(0)
     , MaxElements(count)
@@ -59,6 +59,20 @@ Queue::Queue(const char* name, int count, void** dataBuffer)
             break;
         }
     }
+}
+
+Queue::~Queue()
+{
+    // Remove this queue from the list so dump_info() does not use a dangling pointer
+    QueueListLock.Take(__FILE__, __LINE__);
+    for (size_t i = 0; i < MAX_QUEUE_COUNT; i++)
+    {
+        if (QueueList[i] == this)
+        {
+            QueueList[i] = nullptr;
+        }
+    }
+    QueueListLock.Give();
 }
 
 const char* Queue::GetName()

@@ -52,10 +52,11 @@ Event::Event(const char* name)
 #endif
     pending(nullptr)
 {
-    if (name)
-    {
-        strncpy(Name, name, NAME_LENGTH_MAX - 1);
-    }
+    // A constructor can not report an error, so every name is accepted: a null name becomes the
+    // empty string and a name that is too long is cut off. strncpy fills the rest of Name with
+    // zeros, so Name is always completely initialized, and it is always terminated.
+    strncpy(Name, name ? name : "", NAME_LENGTH_MAX - 1);
+    Name[NAME_LENGTH_MAX - 1] = '\0';
 #ifdef _WIN32
     Handle = CreateEvent(nullptr, true, false, name);
 #elif __linux__
