@@ -71,7 +71,10 @@ start_app() {
         exit 1
     fi
     : >"$LOG"
-    $SUDO env TINYTCP_IFACE="$STACK_IF" stdbuf -oL "$APP" >"$LOG" 2>&1 &
+    # setsid detaches from the controlling terminal. Otherwise sudo's use_pty puts the
+    # terminal in raw mode for as long as it runs, and since we exit without waiting
+    # for sudo the terminal is never restored (no echo, staircase output).
+    setsid $SUDO env TINYTCP_IFACE="$STACK_IF" stdbuf -oL "$APP" >"$LOG" 2>&1 </dev/null &
     TT_ADDR=""
     for _ in $(seq 1 30); do
         TT_ADDR=$(sed -n 's/.*DHCP got address \([0-9.]*\).*/\1/p' "$LOG" | tail -n 1)
