@@ -35,10 +35,12 @@
 
 #include "mutex.hpp"
 
-class osQueue
+namespace os
+{
+class Queue
 {
 public:
-    osQueue(const char* name, int count, void** dataBuffer);
+    Queue(const char* name, int count, void** dataBuffer);
 
     const char* GetName();
 
@@ -72,5 +74,7 @@ private:
     int NextOutIndex;
     int MaxElements;
     int ElementCount;
-    osMutex Lock;
+    Mutex Lock;
 };
+
+} // namespace os

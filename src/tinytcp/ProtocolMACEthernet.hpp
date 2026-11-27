@@ -69,10 +69,10 @@ public:
 
 private:
     static const int ADDRESS_SIZE = 6;
-    osQueue TxBufferQueue;
-    osQueue RxBufferQueue;
+    os::Queue TxBufferQueue;
+    os::Queue RxBufferQueue;
 
-    osEvent QueueEmptyEvent;
+    os::Event QueueEmptyEvent;
 
     uint8_t UnicastAddress[ADDRESS_SIZE];
     uint8_t BroadcastAddress[ADDRESS_SIZE];

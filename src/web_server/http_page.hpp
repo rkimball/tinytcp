@@ -105,7 +105,7 @@ private:
     std::streambuf::int_type overflow(std::streambuf::int_type c);
     std::streambuf::int_type underflow();
 
-    osThread Thread;
+    os::Thread Thread;
     Server* _Server;
     bool HTTPHeaderSent;
 

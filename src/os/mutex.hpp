@@ -38,16 +38,21 @@
 
 #include <iostream>
 
-class osThread;
+namespace os
+{
+class Thread;
+}
 
 #define MAX_MUTEX (16)
 
-class osMutex
+namespace os
 {
-    friend class osThread;
+class Mutex
+{
+    friend class Thread;
 
 public:
-    osMutex(const char* name);
+    Mutex(const char* name);
 
     void Give();
 
@@ -63,7 +68,7 @@ private:
 #elif __linux__
     pthread_mutex_t m_mutex;
 
-    // Can't use osMutex to lock the MutexList because you can't create an osMutex
+    // Can't use Mutex to lock the MutexList because you can't create an Mutex
     // without locking the MutexList, so make a private mutex
     static pthread_mutex_t MutexListMutex;
 #endif
@@ -74,9 +79,11 @@ private:
 
     void Take();
     const char* Name;
-    static osMutex* MutexList[];
+    static Mutex* MutexList[];
 
     const char* OwnerFile;
     int OwnerLine;
-    osThread* OwnerThread;
+    Thread* OwnerThread;
 };
+
+} // namespace os

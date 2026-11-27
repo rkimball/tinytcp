@@ -33,10 +33,14 @@
 
 #include <inttypes.h>
 
-class osTime
+namespace os
+{
+class Time
 {
 public:
     static const char* GetTimestamp();
 
     static uint64_t GetTime();
 };
+
+} // namespace os

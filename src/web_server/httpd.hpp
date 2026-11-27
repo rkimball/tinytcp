@@ -72,9 +72,9 @@ private:
 
     Page PagePoolPages[MAX_ACTIVE_CONNECTIONS];
     void* PagePoolBuffer[MAX_ACTIVE_CONNECTIONS];
-    osQueue PagePool;
+    os::Queue PagePool;
 
-    osThread Thread;
+    os::Thread Thread;
 
     TCPConnection* ListenerConnection;
     TCPConnection* CurrentConnection;

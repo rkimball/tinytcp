@@ -38,7 +38,10 @@
 
 #include "time.hpp"
 
-uint64_t osTime::GetTime()
+namespace os
+{
+
+uint64_t Time::GetTime()
 {
 #ifdef _WIN32
     FILETIME ftime;
@@ -60,7 +63,7 @@ uint64_t osTime::GetTime()
 #endif
 }
 
-const char* osTime::GetTimestamp()
+const char* Time::GetTimestamp()
 {
     static char s[64];
     uint32_t seconds;
@@ -101,3 +104,5 @@ const char* osTime::GetTimestamp()
 #endif
     return s;
 }
+
+} // namespace os

@@ -29,7 +29,6 @@ IndentCaseLabels: false
 IndentWrappedFunctionNames: true
 
 KeepEmptyLinesAtTheStartOfBlocks: false
-NamespaceIndentation: All
 
 PointerAlignment: Left
 SpaceAfterCStyleCast: false

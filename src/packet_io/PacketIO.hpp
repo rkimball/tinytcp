@@ -62,7 +62,7 @@ private:
     const char* CaptureDevice;
     pcap_t* adhandle;
 #elif __linux__
-    osThread EthernetRxThread;
+    os::Thread EthernetRxThread;
     int m_RawSocket;
     int m_IfIndex;
 #endif

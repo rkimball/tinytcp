@@ -36,18 +36,21 @@
 
 #include "queue.hpp"
 
-static const size_t MAX_QUEUE_COUNT = 20;
-static osQueue* QueueList[MAX_QUEUE_COUNT];
-osMutex QueueListLock("queue list lock");
+namespace os
+{
 
-osQueue::osQueue(const char* name, int count, void** dataBuffer)
+static const size_t MAX_QUEUE_COUNT = 20;
+static Queue* QueueList[MAX_QUEUE_COUNT];
+Mutex QueueListLock("queue list lock");
+
+Queue::Queue(const char* name, int count, void** dataBuffer)
     : Array(dataBuffer)
     , Name(name)
     , NextInIndex(0)
     , NextOutIndex(0)
     , MaxElements(count)
     , ElementCount(0)
-    , Lock("osQueue")
+    , Lock("Queue")
 {
     // Insert 'this' into the list of queues
     for (size_t i = 0; i < MAX_QUEUE_COUNT; i++)
@@ -60,12 +63,12 @@ osQueue::osQueue(const char* name, int count, void** dataBuffer)
     }
 }
 
-const char* osQueue::GetName()
+const char* Queue::GetName()
 {
     return Name;
 }
 
-void* osQueue::Peek()
+void* Queue::Peek()
 {
     void* rc;
 
@@ -84,7 +87,7 @@ void* osQueue::Peek()
     return rc;
 }
 
-void* osQueue::Get()
+void* Queue::Get()
 {
     void* rc;
 
@@ -105,7 +108,7 @@ void* osQueue::Get()
     return rc;
 }
 
-bool osQueue::Put(void* item)
+bool Queue::Put(void* item)
 {
     int next;
     bool rc = true;
@@ -129,18 +132,18 @@ bool osQueue::Put(void* item)
     return rc;
 }
 
-int osQueue::GetCount()
+int Queue::GetCount()
 {
     return ElementCount;
 }
 
-void osQueue::Flush()
+void Queue::Flush()
 {
     while (Get() != nullptr)
         ;
 }
 
-bool osQueue::Contains(void* object)
+bool Queue::Contains(void* object)
 {
     bool rc = false;
     int index;
@@ -165,12 +168,12 @@ bool osQueue::Contains(void* object)
     return rc;
 }
 
-void osQueue::dump_info(std::ostream& out)
+void Queue::dump_info(std::ostream& out)
 {
     QueueListLock.Take(__FILE__, __LINE__);
     for (size_t i = 0; i < MAX_QUEUE_COUNT; i++)
     {
-        osQueue* queue = QueueList[i];
+        Queue* queue = QueueList[i];
         if (queue != nullptr)
         {
             out << "Queue " << queue->GetName();
@@ -193,3 +196,5 @@ void osQueue::dump_info(std::ostream& out)
 
     QueueListLock.Give();
 }
+
+} // namespace os

@@ -31,9 +31,11 @@
 
 #pragma once
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
+namespace os
+{
 template <typename T>
 std::string to_dec(T obj, size_t width)
 {
@@ -49,3 +51,5 @@ std::string to_hex(T obj, size_t width = sizeof(T) * 2)
     ss << std::hex << std::setw(width) << std::setfill('0') << obj;
     return ss.str();
 }
+
+} // namespace os

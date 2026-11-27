@@ -42,9 +42,11 @@
 
 #include "event.hpp"
 
+namespace os
+{
 typedef void (*ThreadEntryPtr)(void*);
 
-class osThread
+class Thread
 {
 public:
     typedef enum
@@ -56,9 +58,9 @@ public:
         SLEEPING
     } THREAD_STATE;
 
-    osThread();
+    Thread();
 
-    ~osThread();
+    ~Thread();
 
     static void Initialize();
 
@@ -74,7 +76,7 @@ public:
 
     void ClearState();
 
-    static osThread* GetCurrent();
+    static Thread* GetCurrent();
 
     const char* GetName();
 
@@ -92,7 +94,7 @@ public:
     ThreadEntryPtr Entry;
     void* Param;
 #endif
-    osEvent ThreadStart;
+    Event ThreadStart;
 
     static void dump_info(std::ostream&);
 
@@ -108,3 +110,5 @@ private:
     THREAD_STATE State;
     void* StateObject;
 };
+
+} // namespace os

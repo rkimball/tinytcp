@@ -107,9 +107,9 @@ private:
     TCPConnection* NewConnection;
     TCPConnection* Parent;
 
-    osEvent Event;
-    osQueue HoldingQueue;
-    osMutex HoldingQueueLock;
+    os::Event Event;
+    os::Queue HoldingQueue;
+    os::Mutex HoldingQueueLock;
     void* ConnectionHoldingBuffer[TX_BUFFER_COUNT];
 
     InterfaceMAC* MAC;

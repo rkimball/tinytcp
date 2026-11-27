@@ -93,7 +93,7 @@ private:
 
     uint16_t PacketID;
     void* TxBuffer[TX_BUFFER_COUNT];
-    osQueue UnresolvedQueue;
+    os::Queue UnresolvedQueue;
 
     AddressInfo Address;
 

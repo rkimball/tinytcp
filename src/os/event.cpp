@@ -39,10 +39,13 @@
 #include "event.hpp"
 #include "thread.hpp"
 
-osEvent* osEvent::InstanceList[osEvent::INSTANCE_MAX];
-osMutex osEvent::ListMutex("Event List");
+namespace os
+{
 
-osEvent::osEvent(const char* name)
+Event* Event::InstanceList[Event::INSTANCE_MAX];
+Mutex Event::ListMutex("Event List");
+
+Event::Event(const char* name)
     :
 #ifdef __linux__
     m_test(false)
@@ -72,7 +75,7 @@ osEvent::osEvent(const char* name)
     ListMutex.Give();
 }
 
-osEvent::~osEvent()
+Event::~Event()
 {
     ListMutex.Take(__FILE__, __LINE__);
     for (int i = 0; i < INSTANCE_MAX; i++)
@@ -91,7 +94,7 @@ osEvent::~osEvent()
     ListMutex.Give();
 }
 
-void osEvent::Notify()
+void Event::Notify()
 {
 #ifdef _WIN32
     SetEvent(Handle);
@@ -103,12 +106,12 @@ void osEvent::Notify()
 #endif
 }
 
-bool osEvent::Wait(const char* file, int line, int msTimeout)
+bool Event::Wait(const char* file, int line, int msTimeout)
 {
 #ifdef _WIN32
     uint32_t rc = 0;
-    osThread* caller = osThread::GetCurrent();
-    caller->SetState(osThread::THREAD_STATE::PENDING_EVENT, file, line, this);
+    Thread* caller = Thread::GetCurrent();
+    caller->SetState(Thread::THREAD_STATE::PENDING_EVENT, file, line, this);
     if (msTimeout == -1)
     {
         WaitForSingleObject(Handle, INFINITE);
@@ -120,10 +123,10 @@ bool osEvent::Wait(const char* file, int line, int msTimeout)
     caller->ClearState();
     return (rc) ? false : true;
 #elif __linux__
-    osThread* thread = osThread::GetCurrent();
+    Thread* thread = Thread::GetCurrent();
     if (thread)
     {
-        thread->SetState(osThread::PENDING_EVENT, file, line, this);
+        thread->SetState(Thread::PENDING_EVENT, file, line, this);
         pending = thread;
     }
     pthread_mutex_lock(&m_mutex);
@@ -143,12 +146,12 @@ bool osEvent::Wait(const char* file, int line, int msTimeout)
 #endif
 }
 
-const char* osEvent::GetName()
+const char* Event::GetName()
 {
     return Name;
 }
 
-void osEvent::dump_info(std::ostream& out)
+void Event::dump_info(std::ostream& out)
 {
     uint32_t i;
 
@@ -156,10 +159,10 @@ void osEvent::dump_info(std::ostream& out)
     out << "------------------------------+--------------------+------------\n";
     for (i = 0; i < INSTANCE_MAX; i++)
     {
-        osEvent* e = InstanceList[i];
+        Event* e = InstanceList[i];
         if (e)
         {
-            osThread* thread = e->pending;
+            Thread* thread = e->pending;
             out << std::setw(30) << std::left << e->GetName() << std::setw(0) << "|";
             if (thread)
             {
@@ -174,3 +177,5 @@ void osEvent::dump_info(std::ostream& out)
         }
     }
 }
+
+} // namespace os

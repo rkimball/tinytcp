@@ -28,6 +28,7 @@ target_link_libraries(libgtest INTERFACE pthread)
 
 set (SRC
     main.cpp
+    os/event.cpp
     tinytcp/mac.cpp
     tinytcp/test_Utility.cpp
 )

@@ -40,12 +40,14 @@
 
 #include "mutex.hpp"
 
-class osEvent
+namespace os
+{
+class Event
 {
 public:
-    osEvent(const char* name);
+    Event(const char* name);
 
-    ~osEvent();
+    ~Event();
 
     void Notify();
 
@@ -65,9 +67,11 @@ private:
 #endif
     static const int NAME_LENGTH_MAX = 80;
     char Name[NAME_LENGTH_MAX];
-    osThread* pending;
+    Thread* pending;
 
-    static osMutex ListMutex;
+    static Mutex ListMutex;
     static const int INSTANCE_MAX = 20;
-    static osEvent* InstanceList[];
+    static Event* InstanceList[];
 };
+
+} // namespace os
