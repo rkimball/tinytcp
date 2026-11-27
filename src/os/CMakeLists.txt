@@ -1,8 +1,8 @@
 add_library (os_support
-    osEvent.cpp
-    osMutex.cpp
-    osQueue.cpp
-    osThread.cpp
-    osTime.cpp
-    osUtil.cpp
+    event.cpp
+    mutex.cpp
+    queue.cpp
+    thread.cpp
+    time.cpp
+    util.cpp
 )

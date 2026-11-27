@@ -35,8 +35,8 @@
 
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
-#include "osEvent.hpp"
-#include "osQueue.hpp"
+#include "event.hpp"
+#include "queue.hpp"
 
 class ProtocolARP;
 class ProtocolIPv4;

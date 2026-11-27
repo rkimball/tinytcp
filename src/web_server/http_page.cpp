@@ -37,7 +37,7 @@
 #include <string.h>
 
 #include "http_page.hpp"
-#include "osThread.hpp"
+#include "thread.hpp"
 
 #include <strings.h>
 

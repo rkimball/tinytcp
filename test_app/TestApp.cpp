@@ -43,9 +43,9 @@
 #include "ProtocolTCP.hpp"
 #include "http_page.hpp"
 #include "httpd.hpp"
-#include "osMutex.hpp"
-#include "osThread.hpp"
-#include "osTime.hpp"
+#include "mutex.hpp"
+#include "thread.hpp"
+#include "time.hpp"
 
 PacketIO* PIO;
 static osThread NetworkThread;

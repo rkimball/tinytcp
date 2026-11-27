@@ -29,75 +29,48 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#ifdef _WIN32
-#include <Windows.h>
-#elif __linux__
-#include <time.h>
-#endif
-#include <stdio.h>
+#pragma once
 
-#include "osTime.hpp"
+#include <iostream>
 
-uint64_t osTime::GetTime()
+#include "mutex.hpp"
+
+class osQueue
 {
-#ifdef _WIN32
-    FILETIME ftime;
-    uint64_t time;
+public:
+    osQueue(const char* name, int count, void** dataBuffer);
 
-    // Time in 100ns ticks
-    GetSystemTimeAsFileTime(&ftime);
+    const char* GetName();
 
-    time = ftime.dwHighDateTime;
-    time <<= 32;
-    time += ftime.dwLowDateTime;
+    void* Peek();
 
-    return time;
-#elif __linux__
-    timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    uint64_t rc = ts.tv_sec * 1000000 + (ts.tv_nsec / 1000);
-    return rc;
-#endif
-}
+    void* Get();
 
-const char* osTime::GetTimestamp()
-{
-    static char s[64];
-    uint32_t seconds;
-    uint32_t sec;
-    uint32_t min;
-    uint32_t hour;
-    uint64_t time;
+    bool Put(void* item);
 
-    time = GetTime();
+    int GetCount();
 
-    seconds = (uint32_t)(time / 1000000);
+    void Flush();
 
-    sec = seconds % 60;
+    bool Contains(void* object);
 
-    min = seconds / 60;
-    min %= 60;
+    static void dump_info(std::ostream&);
 
-    hour = seconds / (60 * 60);
-    hour %= 24;
+private:
+    int Increment(int index)
+    {
+        if (++index >= MaxElements)
+        {
+            index = 0;
+        }
+        return index;
+    }
 
-#ifdef OSTIME_SHOW_PROCESSOR_TIMESTAMP
-    struct _timeb timebuffer;
-    _ftime(&timebuffer);
-    char* timeline;
-    timeline = ctime(&(timebuffer.time));
-    timeline = strchr(timeline, ':') - 2;
-    snprintf(s,
-             sizeof(s),
-             "%.8s.%hu(%u:%02u:%02u.%03u)",
-             timeline,
-             timebuffer.millitm,
-             hour,
-             min,
-             sec,
-             (uint32_t)((time / 1000) % 1000));
-#else
-    snprintf(s, sizeof(s), "%u:%02u:%02u.%03u", hour, min, sec, (uint32_t)((time / 1000) % 1000));
-#endif
-    return s;
-}
+    void** Array;
+    const char* Name;
+    int NextInIndex;
+    int NextOutIndex;
+    int MaxElements;
+    int ElementCount;
+    osMutex Lock;
+};

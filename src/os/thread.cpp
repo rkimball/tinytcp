@@ -40,10 +40,10 @@
 #include <stdio.h>
 #include <string>
 
-#include "osEvent.hpp"
-#include "osMutex.hpp"
-#include "osThread.hpp"
-#include "osUtil.hpp"
+#include "event.hpp"
+#include "mutex.hpp"
+#include "thread.hpp"
+#include "util.hpp"
 
 static const int MAX_THREADS = 48;
 static osThread* Threads[MAX_THREADS];

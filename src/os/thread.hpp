@@ -40,7 +40,7 @@
 #include <setjmp.h>
 #endif
 
-#include "osEvent.hpp"
+#include "event.hpp"
 
 typedef void (*ThreadEntryPtr)(void*);
 

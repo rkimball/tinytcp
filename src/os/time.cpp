@@ -29,45 +29,75 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
-#pragma once
-
-#include <inttypes.h>
-#include <iostream>
-
-#ifdef __linux__
-#include "pthread.h"
-#endif
-
-#include "osMutex.hpp"
-
-class osEvent
-{
-public:
-    osEvent(const char* name);
-
-    ~osEvent();
-
-    void Notify();
-
-    bool Wait(const char* file, int line, int msTimeout = -1);
-
-    const char* GetName();
-
-    static void dump_info(std::ostream&);
-
-private:
 #ifdef _WIN32
-    void* Handle;
+#include <Windows.h>
 #elif __linux__
-    pthread_mutex_t m_mutex;
-    pthread_cond_t m_condition;
-    bool m_test;
+#include <time.h>
 #endif
-    static const int NAME_LENGTH_MAX = 80;
-    char Name[NAME_LENGTH_MAX];
-    osThread* pending;
+#include <stdio.h>
 
-    static osMutex ListMutex;
-    static const int INSTANCE_MAX = 20;
-    static osEvent* InstanceList[];
-};
+#include "time.hpp"
+
+uint64_t osTime::GetTime()
+{
+#ifdef _WIN32
+    FILETIME ftime;
+    uint64_t time;
+
+    // Time in 100ns ticks
+    GetSystemTimeAsFileTime(&ftime);
+
+    time = ftime.dwHighDateTime;
+    time <<= 32;
+    time += ftime.dwLowDateTime;
+
+    return time;
+#elif __linux__
+    timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    uint64_t rc = ts.tv_sec * 1000000 + (ts.tv_nsec / 1000);
+    return rc;
+#endif
+}
+
+const char* osTime::GetTimestamp()
+{
+    static char s[64];
+    uint32_t seconds;
+    uint32_t sec;
+    uint32_t min;
+    uint32_t hour;
+    uint64_t time;
+
+    time = GetTime();
+
+    seconds = (uint32_t)(time / 1000000);
+
+    sec = seconds % 60;
+
+    min = seconds / 60;
+    min %= 60;
+
+    hour = seconds / (60 * 60);
+    hour %= 24;
+
+#ifdef OSTIME_SHOW_PROCESSOR_TIMESTAMP
+    struct _timeb timebuffer;
+    _ftime(&timebuffer);
+    char* timeline;
+    timeline = ctime(&(timebuffer.time));
+    timeline = strchr(timeline, ':') - 2;
+    snprintf(s,
+             sizeof(s),
+             "%.8s.%hu(%u:%02u:%02u.%03u)",
+             timeline,
+             timebuffer.millitm,
+             hour,
+             min,
+             sec,
+             (uint32_t)((time / 1000) % 1000));
+#else
+    snprintf(s, sizeof(s), "%u:%02u:%02u.%03u", hour, min, sec, (uint32_t)((time / 1000) % 1000));
+#endif
+    return s;
+}

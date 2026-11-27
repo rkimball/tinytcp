@@ -31,46 +31,43 @@
 
 #pragma once
 
+#include <inttypes.h>
 #include <iostream>
 
-#include "osMutex.hpp"
+#ifdef __linux__
+#include "pthread.h"
+#endif
 
-class osQueue
+#include "mutex.hpp"
+
+class osEvent
 {
 public:
-    osQueue(const char* name, int count, void** dataBuffer);
+    osEvent(const char* name);
+
+    ~osEvent();
+
+    void Notify();
+
+    bool Wait(const char* file, int line, int msTimeout = -1);
 
     const char* GetName();
-
-    void* Peek();
-
-    void* Get();
-
-    bool Put(void* item);
-
-    int GetCount();
-
-    void Flush();
-
-    bool Contains(void* object);
 
     static void dump_info(std::ostream&);
 
 private:
-    int Increment(int index)
-    {
-        if (++index >= MaxElements)
-        {
-            index = 0;
-        }
-        return index;
-    }
+#ifdef _WIN32
+    void* Handle;
+#elif __linux__
+    pthread_mutex_t m_mutex;
+    pthread_cond_t m_condition;
+    bool m_test;
+#endif
+    static const int NAME_LENGTH_MAX = 80;
+    char Name[NAME_LENGTH_MAX];
+    osThread* pending;
 
-    void** Array;
-    const char* Name;
-    int NextInIndex;
-    int NextOutIndex;
-    int MaxElements;
-    int ElementCount;
-    osMutex Lock;
+    static osMutex ListMutex;
+    static const int INSTANCE_MAX = 20;
+    static osEvent* InstanceList[];
 };

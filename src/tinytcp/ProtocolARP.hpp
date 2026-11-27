@@ -37,7 +37,7 @@
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
 #include "ProtocolIPv4.hpp"
-#include "osMutex.hpp"
+#include "mutex.hpp"
 
 class ARPCacheEntry
 {

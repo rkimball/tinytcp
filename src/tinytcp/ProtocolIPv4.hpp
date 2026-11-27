@@ -36,7 +36,7 @@
 
 #include "DataBuffer.hpp"
 #include "InterfaceMAC.hpp"
-#include "osQueue.hpp"
+#include "queue.hpp"
 
 class ProtocolARP;
 class ProtocolICMP;

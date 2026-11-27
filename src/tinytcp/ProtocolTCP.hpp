@@ -35,7 +35,7 @@
 #include "DataBuffer.hpp"
 #include "ProtocolTCP.hpp"
 #include "TCPConnection.hpp"
-#include "osMutex.hpp"
+#include "mutex.hpp"
 
 // SourcePort - 16 bits
 // TargetPort - 16 bits

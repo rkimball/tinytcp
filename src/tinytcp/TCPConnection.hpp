@@ -34,9 +34,9 @@
 #include <inttypes.h>
 #include "Config.hpp"
 #include "ProtocolIPv4.hpp"
-#include "osEvent.hpp"
-#include "osMutex.hpp"
-#include "osQueue.hpp"
+#include "event.hpp"
+#include "mutex.hpp"
+#include "queue.hpp"
 
 class DataBuffer;
 
