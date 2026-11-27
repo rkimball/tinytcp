@@ -1,4 +1,4 @@
-#include "InterfaceMAC.hpp"
+#include "tinytcp/InterfaceMAC.hpp"
 
 class LocalMAC: public InterfaceMAC {
 public:

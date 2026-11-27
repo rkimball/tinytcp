@@ -22,4 +22,3 @@ add_executable(${PROJECT_NAME} ${SOURCE} )
 
 target_link_libraries(${PROJECT_NAME} ${LIBS} pthread)
 add_dependencies( ${PROJECT_NAME} ${LIBS} packet_io )
-include_directories( ../web_server ../tcp_stack ../os_support )
