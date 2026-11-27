@@ -36,6 +36,9 @@
 #include "ProtocolIPv4.hpp"
 #include "Utility.hpp"
 
+namespace tinytcp
+{
+
 // Type - 8 bits
 // Code - 8 bits
 // Checksum - 16 bits
@@ -76,3 +79,5 @@ void ProtocolICMP::ProcessRx(DataBuffer* buffer, const uint8_t* remoteIP, const 
     default: break;
     }
 }
+
+} // namespace tinytcp

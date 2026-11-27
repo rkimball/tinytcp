@@ -38,6 +38,9 @@
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
+namespace tinytcp
+{
+
 ProtocolUDP::ProtocolUDP(ProtocolIPv4& ip, ProtocolDHCP& dhcp)
     : IP(ip)
     , DHCP(dhcp)
@@ -104,3 +107,5 @@ void ProtocolUDP::Transmit(DataBuffer* buffer,
 
     IP.Transmit(buffer, 0x11, targetIP, sourceIP);
 }
+
+} // namespace tinytcp

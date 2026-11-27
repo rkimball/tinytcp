@@ -39,6 +39,9 @@
 #include "mutex.hpp"
 #include "time.hpp"
 
+namespace tinytcp
+{
+
 ProtocolTCP::ProtocolTCP(ProtocolIPv4& ip)
     : IP(ip)
 {
@@ -482,3 +485,5 @@ std::ostream& operator<<(std::ostream& out, const ProtocolTCP& obj)
     }
     return out;
 }
+
+} // namespace tinytcp

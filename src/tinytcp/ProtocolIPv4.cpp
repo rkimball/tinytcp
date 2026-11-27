@@ -42,6 +42,9 @@
 #include "ProtocolUDP.hpp"
 #include "Utility.hpp"
 
+namespace tinytcp
+{
+
 // Version - 4 bits
 // Header Length - 4 bits
 // Type of Service - 8 bits
@@ -263,3 +266,5 @@ void ProtocolIPv4::SetAddressInfo(const AddressInfo& info)
 {
     Address = info;
 }
+
+} // namespace tinytcp

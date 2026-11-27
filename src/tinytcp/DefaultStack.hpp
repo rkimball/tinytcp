@@ -40,6 +40,9 @@
 #include "ProtocolTCP.hpp"
 #include "ProtocolUDP.hpp"
 
+namespace tinytcp
+{
+
 class DefaultStack
 {
 public:
@@ -59,3 +62,5 @@ public:
     ProtocolTCP TCP;
     ProtocolUDP UDP;
 };
+
+} // namespace tinytcp

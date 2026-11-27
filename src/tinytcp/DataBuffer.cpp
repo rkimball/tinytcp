@@ -31,6 +31,9 @@
 
 #include "DataBuffer.hpp"
 
+namespace tinytcp
+{
+
 DataBuffer::DataBuffer() {}
 
 void DataBuffer::Initialize(InterfaceMAC* mac)
@@ -53,3 +56,5 @@ void DataBuffer::ResetPreallocation(size_t size)
     Packet -= size;
     Remainder += size;
 }
+
+} // namespace tinytcp

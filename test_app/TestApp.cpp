@@ -53,7 +53,7 @@ static os::Thread MainThread;
 
 static os::Event StartEvent("StartEvent");
 
-DefaultStack tcpStack;
+tinytcp::DefaultStack tcpStack;
 
 void RxData(uint8_t* data, size_t length)
 {

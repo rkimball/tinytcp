@@ -42,4 +42,7 @@
 
 #define DATA_BUFFER_PAYLOAD_SIZE (512)
 
+namespace tinytcp
+{
 const uint8_t ARPCacheSize = 5;
+}

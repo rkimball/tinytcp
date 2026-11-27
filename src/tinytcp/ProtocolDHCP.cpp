@@ -41,6 +41,9 @@
 #include "Utility.hpp"
 #include "time.hpp"
 
+namespace tinytcp
+{
+
 static const uint32_t DHCP_MAGIC = 0x63825363;
 
 void ProtocolDHCP::test()
@@ -402,3 +405,5 @@ void ProtocolDHCP::SendRequest(uint8_t messageType,
         UDP.Transmit(buffer, targetIP, 67, sourceIP, 68);
     }
 }
+
+} // namespace tinytcp

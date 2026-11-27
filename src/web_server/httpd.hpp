@@ -36,7 +36,10 @@
 #define MAX_ACTIVE_CONNECTIONS 3
 #define HTTPD_PATH_LENGTH_MAX 256
 
+namespace tinytcp
+{
 class ProtocolTCP;
+}
 
 namespace http
 {
@@ -57,7 +60,7 @@ public:
     void RegisterErrorHandler(ErrorMessageHandler);
     void RegisterAuthorizationHandler(AuthorizationHandler);
 
-    void Initialize(InterfaceMAC& mac, ProtocolTCP& tcp, uint16_t port);
+    void Initialize(tinytcp::InterfaceMAC& mac, tinytcp::ProtocolTCP& tcp, uint16_t port);
 
     void ProcessRequest(Page* page);
 
@@ -76,8 +79,8 @@ private:
 
     os::Thread Thread;
 
-    TCPConnection* ListenerConnection;
-    TCPConnection* CurrentConnection;
+    tinytcp::TCPConnection* ListenerConnection;
+    tinytcp::TCPConnection* CurrentConnection;
 
     PageRequestHandler PageHandler;
     ErrorMessageHandler ErrorHandler;

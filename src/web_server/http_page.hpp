@@ -52,7 +52,7 @@ public:
     static const uint32_t BUFFER_SIZE = 512;
     typedef void (*MarkerContent)(http::Page*);
 
-    void Initialize(TCPConnection*);
+    void Initialize(tinytcp::TCPConnection*);
 
     int Printf(const char* format, ...);
     static std::string HTMLEncode(const std::string&);
@@ -92,7 +92,7 @@ public:
     int TagDepth;
     bool StartTagOpen;
 
-    TCPConnection* Connection;
+    tinytcp::TCPConnection* Connection;
 
 private:
     Page(Page&);

@@ -35,6 +35,9 @@
 #include "Config.hpp"
 #include "InterfaceMAC.hpp"
 
+namespace tinytcp
+{
+
 class DataBuffer
 {
 public:
@@ -57,3 +60,5 @@ private:
 
     DataBuffer(DataBuffer&);
 };
+
+} // namespace tinytcp

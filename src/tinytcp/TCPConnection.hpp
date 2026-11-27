@@ -38,6 +38,9 @@
 #include "mutex.hpp"
 #include "queue.hpp"
 
+namespace tinytcp
+{
+
 class DataBuffer;
 
 class TCPConnection
@@ -122,3 +125,5 @@ private:
     void Initialize(ProtocolIPv4&, ProtocolTCP&);
     TCPConnection(TCPConnection&);
 };
+
+} // namespace tinytcp

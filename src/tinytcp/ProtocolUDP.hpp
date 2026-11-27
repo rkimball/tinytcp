@@ -34,6 +34,9 @@
 #include <inttypes.h>
 #include "DataBuffer.hpp"
 
+namespace tinytcp
+{
+
 class ProtocolIPv4;
 class ProtocolDHCP;
 
@@ -55,3 +58,5 @@ private:
     ProtocolIPv4& IP;
     ProtocolDHCP& DHCP;
 };
+
+} // namespace tinytcp

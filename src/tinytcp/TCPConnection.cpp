@@ -37,6 +37,9 @@
 #include "Utility.hpp"
 #include "time.hpp"
 
+namespace tinytcp
+{
+
 TCPConnection::TCPConnection()
     : RxInOffset(0)
     , RxOutOffset(0)
@@ -482,3 +485,5 @@ std::ostream& operator<<(std::ostream& out, const TCPConnection& obj)
 
     return out;
 }
+
+} // namespace tinytcp
