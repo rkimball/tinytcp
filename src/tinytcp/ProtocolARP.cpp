@@ -70,35 +70,64 @@ void ProtocolARP::ProcessRx(const DataBuffer* buffer)
     uint16_t length = buffer->Length;
     ARPInfo info;
 
+    // The fixed part of the packet is 8 octets, and it is followed by four addresses
+    if (length < 8)
+    {
+        return;
+    }
+
     info.hardwareType = Unpack16(packet, 0);
     info.protocolType = Unpack16(packet, 2);
     info.hardwareSize = Unpack8(packet, 4);
     info.protocolSize = Unpack8(packet, 5);
     info.opType = Unpack16(packet, 6);
 
+    // RFC 826, packet reception: do I have the hardware type, and do I speak the protocol type? The
+    // address lengths may be checked too, and are, so the addresses are only read where they are.
+    if (info.hardwareType != 1 /* Ethernet */ || info.protocolType != 0x0800 /* IP */ ||
+        info.hardwareSize != MAC.AddressSize() || info.protocolSize != IP.AddressSize())
+    {
+        return;
+    }
+    if (length < 8 + 2 * info.hardwareSize + 2 * info.protocolSize)
+    {
+        return;
+    }
+
     info.senderHardwareAddress = &packet[8];
     info.senderProtocolAddress = &packet[8 + info.hardwareSize];
     info.targetHardwareAddress = &packet[8 + info.hardwareSize + info.protocolSize];
     info.targetProtocolAddress = &packet[8 + 2 * info.hardwareSize + info.protocolSize];
 
+    // If the sender is already in the table its hardware address is replaced, whoever the packet
+    // is for
+    bool merged = (LocateProtocolAddress(info.senderProtocolAddress) >= 0);
+    if (merged)
+    {
+        Add(info.senderProtocolAddress, info.senderHardwareAddress);
+    }
+
+    // Am I the target protocol address? A stack that has no address yet is not.
+    if (!IP.IsConfigured() ||
+        !AddressCompare(info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize()))
+    {
+        return;
+    }
+
+    if (!merged)
+    {
+        Add(info.senderProtocolAddress, info.senderHardwareAddress);
+    }
+
+    // Only now is the opcode looked at
     if (info.opType == 1)
     {
-        // ARP Request
-        if (info.hardwareSize == MAC.AddressSize() && info.protocolSize == IP.AddressSize())
-        {
-            // All of the sizes match
-            if (AddressCompare(
-                    info.targetProtocolAddress, IP.GetUnicastAddress(), IP.AddressSize()))
-            {
-                // This ARP is for me
-                SendReply(info);
-            }
-        }
+        // A request, so answer it
+        SendReply(info);
     }
     else if (info.opType == 2)
     {
-        // ARP Reply
-        Add(info.senderProtocolAddress, info.senderHardwareAddress);
+        // A reply, so packets that were waiting for this address can be sent
         IP.Retry();
     }
 }
@@ -112,7 +141,12 @@ void ProtocolARP::Add(const uint8_t* protocolAddress, const uint8_t* hardwareAdd
     index = LocateProtocolAddress(protocolAddress);
     if (index >= 0)
     {
-        // Found entry in table, reset it's age
+        // Found entry in table. The new hardware address supersedes the old one (RFC 826), and
+        // the entry's age starts again.
+        for (size_t j = 0; j < MAC.AddressSize(); j++)
+        {
+            Cache[index].MACAddress[j] = hardwareAddress[j];
+        }
         Cache[index].Age = 1;
     }
     else

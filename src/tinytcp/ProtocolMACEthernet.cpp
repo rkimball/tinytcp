@@ -83,50 +83,36 @@ bool ProtocolMACEthernet::IsLocalAddress(const uint8_t* addr)
 void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
 {
     uint16_t type;
-    DataBuffer* packet = (DataBuffer*)RxBufferQueue.Get();
+    DataBuffer* packet;
     int i;
-    int length =
-        (DATA_BUFFER_PAYLOAD_SIZE < actualLength ? DATA_BUFFER_PAYLOAD_SIZE : actualLength);
 
+    // A frame shorter than the Ethernet header has no type field, and a frame longer than a
+    // buffer does not fit in one. Neither can be handled, so both are dropped.
+    if (actualLength < static_cast<int>(header_size()) || actualLength > DATA_BUFFER_PAYLOAD_SIZE)
+    {
+        return;
+    }
+
+    packet = (DataBuffer*)RxBufferQueue.Get();
     if (packet == nullptr)
     {
         printf("ProtocolMACEthernet::ProcessRx Out of receive buffers\n");
         return;
     }
 
-    if (length > DATA_BUFFER_PAYLOAD_SIZE)
-    {
-        // printf("ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n",
-        //        length,
-        //        DATA_BUFFER_PAYLOAD_SIZE);
-        RxBufferQueue.Put(packet);
-        return;
-    }
-
     packet->Initialize(this);
 
-    for (i = 0; i < length; i++)
+    for (i = 0; i < actualLength; i++)
     {
         packet->Packet[i] = buffer[i];
     }
-    packet->Length = length;
+    packet->Length = actualLength;
 
     type = Unpack16(packet->Packet, 12);
 
     // Check if the MAC Address is destined for me
     if (IsLocalAddress(packet->Packet))
     {
-        // DumpData( buffer, length, printf );
-        if (actualLength > length)
-        {
-            // printf("ProtocolMACEthernet::ProcessRx Rx data overrun %d, %d\n",
-            //        length,
-            //        DATA_BUFFER_PAYLOAD_SIZE);
-            // printf("Unicast type 0x%04X\n", type);
-            RxBufferQueue.Put(packet);
-            return;
-        }
-        // Unicast
         packet->Packet += header_size();
         packet->Length -= header_size();
 
@@ -139,7 +125,7 @@ void ProtocolMACEthernet::ProcessRx(uint8_t* buffer, int actualLength)
             ARP.ProcessRx(packet);
             break;
         default:
-            // printf( "Unsupported Unicast type 0x%04X\n", type );
+            // Not a type we handle
             break;
         }
     }

@@ -40,7 +40,10 @@
 #define TX_BUFFER_COUNT (20)
 #define RX_BUFFER_COUNT (20)
 
-#define DATA_BUFFER_PAYLOAD_SIZE (512)
+// The size of a buffer, which has to hold a whole Ethernet frame. RFC 791 says every host must
+// accept an IP datagram of 576 octets, so the buffer holds the 14 octet Ethernet header and 576
+// octets, rounded up to 592. Larger frames are dropped.
+#define DATA_BUFFER_PAYLOAD_SIZE (592)
 
 namespace tinytcp
 {
